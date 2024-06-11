@@ -132,12 +132,12 @@
       <li *ngFor="let dimension of qualityDimensions">
         {{ dimension.name }}:
         <ul>
-          <li *ngFor="let factor of dimension.factors">
+          <li *ngFor="let factor of getFactorsByDimension(dimension.id)">
             <label>
               <input type="checkbox" 
-                    [checked]="isFactorSelected(issue, dimension.name, factor)" 
-                    (change)="toggleFactorSelection(issue, dimension.name, factor)">
-              {{ factor }}
+                    [checked]="isFactorSelected(issue, factor.id)" 
+                    (change)="toggleFactorSelection(issue, factor.id)">
+              {{ factor.name }}
             </label>
           </li>
         </ul>
@@ -146,6 +146,8 @@
     <button (click)="confirmFactorsSelection(issue)">Confirmar Selección de Factores</button>
   </div>
 </div>
+
+  
 
 
 

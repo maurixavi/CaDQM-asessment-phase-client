@@ -11,7 +11,7 @@ interface DataQualityIssue {
   contextcomp_related_to: string[];
   priority: number;
   priorityType: string;
-  selectedFactors?: { [key: string]: string[] };
+  selectedFactors?: number[];
 }
 
 interface ContextComponent {
@@ -21,8 +21,14 @@ interface ContextComponent {
 }
 
 interface QualityDimension {
+  id: number;
   name: string;
-  factors: string[];
+}
+
+interface QualityFactor {
+  id: number;
+  dimensionId: number;
+  name: string;
 }
 
 @Component({
@@ -34,46 +40,42 @@ export class AppComponent implements OnInit {
   title = 'kanban-angular-app';
   issues: DataQualityIssue[] = [];
   contextComponents: ContextComponent[] = [];
-
-  selectedIssue: DataQualityIssue | null = null; // Declarar la propiedad selectedIssue
-  detailsVisible: boolean = false; // Nueva propiedad
-
-  prioritizedIssues: DataQualityIssue[] = []; // Nueva propiedad para problemas priorizados
-
-  isOrderConfirmed: boolean = false; // Nueva propiedad
-
-  selectedIssues: DataQualityIssue[] = []; // Nueva propiedad
-  
+  selectedIssue: DataQualityIssue | null = null;
+  detailsVisible: boolean = false;
+  prioritizedIssues: DataQualityIssue[] = [];
+  isOrderConfirmed: boolean = false;
+  selectedIssues: DataQualityIssue[] = [];
   confirmedSelectedIssues: DataQualityIssue[] = [];
   isSelectionConfirmed: boolean = false;
 
   qualityDimensions: QualityDimension[] = [
-    {
-      name: 'Exactitud (accuracy)',
-      factors: ['Exactitud semántica', 'Precisión']
-    },
-    {
-      name: 'Completitud (completeness)',
-      factors: ['Coverage', 'Density']
-    },
-    {
-      name: 'Frescura (freshness)',
-      factors: ['Actualidad (currency)', 'Oportunidad (timeliness)', 'Volatilidad (volatility)']
-    },
-    {
-      name: 'Consistencia (consistency)',
-      factors: ['Integridad de dominio', 'Integridad intra-relación', 'Integridad inter-relación']
-    },
-    {
-      name: 'Unicidad (uniqueness)',
-      factors: ['No-duplicación (duplication-free)', 'No-contradicción (contradiction-free)']
-    }
+    { id: 1, name: 'Exactitud (accuracy)' },
+    { id: 2, name: 'Completitud (completeness)' },
+    { id: 3, name: 'Frescura (freshness)' },
+    { id: 4, name: 'Consistencia (consistency)' },
+    { id: 5, name: 'Unicidad (uniqueness)' }
+  ];
+
+  qualityFactors: QualityFactor[] = [
+    { id: 1, dimensionId: 1, name: 'Exactitud semántica' },
+    { id: 2, dimensionId: 1, name: 'Exactitud sintáctica' },
+    { id: 3, dimensionId: 1, name: 'Precision' },
+    { id: 4, dimensionId: 2, name: 'Coverage' },
+    { id: 5, dimensionId: 2, name: 'Density' },
+    { id: 6, dimensionId: 3, name: 'Actualidad (currency)' },
+    { id: 7, dimensionId: 3, name: 'Oportunidad (timeliness)' },
+    { id: 8, dimensionId: 3, name: 'Volatilidad (volatility)' },
+    { id: 9, dimensionId: 4, name: 'Integridad de dominio' },
+    { id: 10, dimensionId: 4, name: 'Integridad intra-relación' },
+    { id: 11, dimensionId: 4, name: 'Integridad inter-relación' },
+    { id: 12, dimensionId: 5, name: 'No-duplicación (duplication-free) ' },
+    { id: 13, dimensionId: 5, name: 'No-contradicción (contradiction-free)' }
   ];
 
   ngOnInit() {
     this.issues = dataQualityIssuesJson as DataQualityIssue[];
     this.issues.forEach(issue => {
-      issue.priorityType = 'Media'; // Inicializar el tipo de prioridad como "Media"
+      issue.priorityType = 'Media';
     });
 
     console.log(this.issues);  // Verificar los datos cargados
@@ -81,6 +83,7 @@ export class AppComponent implements OnInit {
     console.log(this.contextComponents);  // Verificar los datos cargados
   }
 
+  // PRIORIZACION PROBLEMAS
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.issues, event.previousIndex, event.currentIndex);
     this.updatePriority();
@@ -108,6 +111,7 @@ export class AppComponent implements OnInit {
     window.URL.revokeObjectURL(url);*/
   }
 
+  // MOSTRAR y SELECCIONAR PROBLEMAS PRIORIZADOS
   getContextDescription(contextId: string): string {
     const context = this.contextComponents.find(c => c.id === contextId);
     return context ? context.description : 'No description';
@@ -164,35 +168,47 @@ export class AppComponent implements OnInit {
     this.isSelectionConfirmed = true;
   }
 
-   // Método para seleccionar/deseleccionar un factor para un problema específico
-   // Método para seleccionar/deseleccionar un factor para un problema específico
-   toggleFactorSelection(issue: DataQualityIssue, dimension: string, factor: string) {
+  // DIMENSIONES y FACTORES
+
+  // Método para seleccionar/deseleccionar un factor para un problema específico
+  toggleFactorSelection(issue: DataQualityIssue, factorId: number) {
     if (!issue.selectedFactors) {
-      issue.selectedFactors = {};
+      issue.selectedFactors = [];
     }
     // Cambiar el estado de selección del factor
-    const selectedFactorsForDimension = issue.selectedFactors[dimension] || [];
-    if (selectedFactorsForDimension.includes(factor)) {
-      issue.selectedFactors[dimension] = selectedFactorsForDimension.filter(f => f !== factor);
+    if (issue.selectedFactors.includes(factorId)) {
+      issue.selectedFactors = issue.selectedFactors.filter(f => f !== factorId);
     } else {
-      selectedFactorsForDimension.push(factor);
-      issue.selectedFactors[dimension] = selectedFactorsForDimension;
+      issue.selectedFactors.push(factorId);
     }
   }
 
   // Método para confirmar la selección de factores para un problema específico
   confirmFactorsSelection(issue: DataQualityIssue) {
-    // Aquí podrías agregar lógica adicional, como guardar en la base de datos o realizar otras acciones
     console.log('Factores seleccionados confirmados para el problema:', issue);
   }
 
   // Método para verificar si un factor está seleccionado para un problema específico
-  isFactorSelected(issue: DataQualityIssue, dimension: string, factor: string): boolean {
-    return (
-      issue.selectedFactors !== undefined &&
-      issue.selectedFactors[dimension] !== undefined &&
-      issue.selectedFactors[dimension].includes(factor)
-    );
+  isFactorSelected(issue: DataQualityIssue, factorId: number): boolean {
+    return issue.selectedFactors !== undefined && issue.selectedFactors.includes(factorId);
+  }
+
+  // Método para obtener los factores relacionados con una dimensión específica
+  getFactorsByDimension(dimensionId: number): QualityFactor[] {
+    return this.qualityFactors.filter(factor => factor.dimensionId === dimensionId);
+  }
+
+  // Método para obtener el nombre de una dimensión dado el ID de un factor
+  getDimensionName(factorId: number): string {
+    const factor = this.qualityFactors.find(f => f.id === factorId);
+    const dimension = factor ? this.qualityDimensions.find(d => d.id === factor.dimensionId) : null;
+    return dimension ? dimension.name : '';
+  }
+
+  // Método para obtener el nombre de un factor dado el ID
+  getFactorName(factorId: number): string {
+    const factor = this.qualityFactors.find(f => f.id === factorId);
+    return factor ? factor.name : '';
   }
 
   
