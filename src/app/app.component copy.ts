@@ -3,7 +3,6 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import dataQualityIssuesJson from '../assets/data-quality-problems2.json';
 import contextComponentsJson from '../assets/context-components.json';
 
-
 interface DataQualityIssue {
   id: number;
   name: string;
@@ -28,13 +27,6 @@ export class AppComponent implements OnInit {
   title = 'kanban-angular-app';
   issues: DataQualityIssue[] = [];
   contextComponents: ContextComponent[] = [];
-
-  selectedIssue: DataQualityIssue | null = null; // Declarar la propiedad selectedIssue
-
-  prioritizedIssues: DataQualityIssue[] = []; // Nueva propiedad para problemas priorizados
-
-
-
   
 
   ngOnInit() {
@@ -61,7 +53,6 @@ export class AppComponent implements OnInit {
 
   saveOrder() {
     this.downloadJSON(this.issues, 'updated-data-quality-issues.json');
-    this.prioritizeIssues(); 
   }
 
   downloadJSON(data: any, filename: string) {
@@ -94,17 +85,6 @@ export class AppComponent implements OnInit {
     }
   }
   
-  prioritizeIssues() {
-    this.prioritizedIssues = this.issues.slice().sort((a, b) => {
-      if (a.priorityType < b.priorityType) return -1;
-      if (a.priorityType > b.priorityType) return 1;
-      return 0;
-    });
-  }
-
-  showDetails(issue: DataQualityIssue) {
-    this.selectedIssue = issue;
-  }
 }
 
 

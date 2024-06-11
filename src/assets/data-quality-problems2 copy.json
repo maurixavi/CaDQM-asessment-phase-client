@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "name": "Inconsistent Date Formats",
+    "description": "Dates are not in a consistent format.",
+    "contextcomp_related_to": [],
+    "priority": 1
+  },
+  {
+    "id": 2,
+    "name": "Missing Age Fields",
+    "description": "Age fields are missing in some records.",
+    "contextcomp_related_to": [],
+    "priority": 2
+  },
+  {
+    "id": 3,
+    "name": "Duplicate Patient Records",
+    "description": "There are duplicate entries for some patients.",
+    "contextcomp_related_to": [],
+    "priority": 3
+  },
+  {
+    "id": 4,
+    "name": "Invalid Identification Numbers",
+    "description": "Some records have invalid identification numbers.",
+    "contextcomp_related_to": [],
+    "priority": 4
+  }
+]

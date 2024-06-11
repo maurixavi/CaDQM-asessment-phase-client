@@ -45,37 +45,4 @@
 
 <button (click)="saveOrder()">Guardar Orden</button>
 
-<h2>Problemas de calidad priorizados</h2>
-<p>Seleccione los problemas para definir el DQ Model</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Prioridad</th>
-      <th>Problema</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let issue of prioritizedIssues">
-      <td>{{ issue.priorityType }}</td>
-      <td>{{ issue.name }}</td>
-      <td><button (click)="showDetails(issue)">Ver detalles</button></td>
-    </tr>
-  </tbody>
-</table>
-
-<div *ngIf="selectedIssue">
-  <h3>Detalles del Problema:</h3>
-  <p><strong>Problema:</strong> {{ selectedIssue.name }}</p>
-  <p><strong>Descripción:</strong> {{ selectedIssue.description }}</p>
-  <p><strong>Prioridad:</strong> {{ selectedIssue.priorityType }}</p>
-  <p><strong>Componentes de Contexto Asociados:</strong></p>
-  <ul>
-    <li *ngFor="let contextId of selectedIssue.contextcomp_related_to">
-      {{ contextId }} - {{ getContextDescription(contextId) }}
-    </li>
-  </ul>
-</div>
-
 <router-outlet></router-outlet>

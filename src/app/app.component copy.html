@@ -1,0 +1,49 @@
+<h2>Priorización de los problemas de calidad</h2>
+<p>Seleccione el orden deseado antes de mostrar la tabla:</p>
+
+<div cdkDropList (cdkDropListDropped)="drop($event)">
+  <table>
+    <thead>
+      <tr>
+        <th>Orden (Prioridad)</th>
+        <th>Problema</th>
+        <th>Descripción</th>
+        <th>Componentes de Contexto</th>
+        
+        <th>Seleccionar Componentes de Contexto</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let issue of issues; let i = index" cdkDrag>
+        <td>{{ issue.priority }}°</td>
+        <td>{{ issue.name }}</td>
+        <td>{{ issue.description }}</td>
+        <td>
+          <select (change)="addContextComponent(issue, $event)">
+            <option value="">Seleccionar Componentes de Contexto</option>
+            <option *ngFor="let context of contextComponents" [value]="context.id">
+              {{ context.id }} - {{ context.description }}
+            </option>
+          </select>
+          <ul>
+            <li *ngFor="let contextId of issue.contextcomp_related_to">
+              {{ contextId }} - {{ getContextDescription(contextId) }}
+            </li>
+          </ul>
+        </td>
+        <td>
+          <select (change)="addContextComponent(issue, $event)">
+            <option value="">Seleccionar Componentes de Contexto</option>
+            <option *ngFor="let context of contextComponents" [value]="context.id">
+              {{ context.id }} - {{ context.description }}
+            </option>
+          </select>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<button (click)="saveOrder()">Guardar Orden</button>
+
+<router-outlet></router-outlet>
