@@ -30,12 +30,16 @@ export class AppComponent implements OnInit {
   contextComponents: ContextComponent[] = [];
 
   selectedIssue: DataQualityIssue | null = null; // Declarar la propiedad selectedIssue
+  detailsVisible: boolean = false; // Nueva propiedad
 
   prioritizedIssues: DataQualityIssue[] = []; // Nueva propiedad para problemas priorizados
 
+  isOrderConfirmed: boolean = false; // Nueva propiedad
 
-
+  selectedIssues: DataQualityIssue[] = []; // Nueva propiedad
   
+  confirmedSelectedIssues: DataQualityIssue[] = [];
+  isSelectionConfirmed: boolean = false;
 
   ngOnInit() {
     this.issues = dataQualityIssuesJson as DataQualityIssue[];
@@ -61,17 +65,18 @@ export class AppComponent implements OnInit {
 
   saveOrder() {
     this.downloadJSON(this.issues, 'updated-data-quality-issues.json');
-    this.prioritizeIssues(); 
+    this.prioritizeIssues(); // Llamar a prioritizeIssues después de guardar el JSON
+    this.isOrderConfirmed = true; // Establecer isOrderConfirmed a true
   }
 
   downloadJSON(data: any, filename: string) {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
+    /*a.href = url;
     a.download = filename;
     a.click();
-    window.URL.revokeObjectURL(url);
+    window.URL.revokeObjectURL(url);*/
   }
 
   getContextDescription(contextId: string): string {
@@ -104,7 +109,32 @@ export class AppComponent implements OnInit {
 
   showDetails(issue: DataQualityIssue) {
     this.selectedIssue = issue;
+    this.detailsVisible = true;
   }
+
+  hideDetails() {
+    this.detailsVisible = false;
+    this.selectedIssue = null;
+  }
+
+  addIssue(issue: DataQualityIssue) {
+    if (!this.selectedIssues.includes(issue)) {
+      this.selectedIssues.push(issue);
+    }
+  }
+
+  removeSelectedIssue(issue: DataQualityIssue) {
+    const index = this.selectedIssues.indexOf(issue);
+    if (index !== -1) {
+      this.selectedIssues.splice(index, 1);
+    }
+  }
+
+  confirmSelectedIssues() {
+    this.confirmedSelectedIssues = [...this.selectedIssues];
+    this.isSelectionConfirmed = true;
+  }
+  
 }
 
 
