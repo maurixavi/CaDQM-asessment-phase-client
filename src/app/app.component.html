@@ -45,9 +45,10 @@
 
 <button (click)="saveOrder()">Guardar Orden</button>
 
+<!-- ******************** -->
 
 <div *ngIf="isOrderConfirmed">
-  <h2>Problemas de calidad priorizados</h2>
+  <h2>Selección de Problemas de calidad priorizados</h2>
   <p>Seleccione los problemas para definir el DQ Model</p>
 
   <table>
@@ -85,6 +86,7 @@
   </div>
 </div>
 
+<!-- ******************** -->
 
 <div *ngIf="selectedIssues.length > 0">
   <h2>Problemas de calidad seleccionados</h2>
@@ -109,41 +111,42 @@
   <button (click)="confirmSelectedIssues()">Confirmar Selección</button>
 </div>
 
+<!-- ******************** -->
+
 <div *ngIf="isSelectionConfirmed">
-  <h2>Problemas de calidad seleccionados confirmados</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Prioridad</th>
-        <th>Problema</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let issue of confirmedSelectedIssues">
-        <td>{{ issue.priorityType }}</td>
-        <td>{{ issue.name }}</td>
-        <td>
-          <button (click)="showDetails(issue)">Ver detalles</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <h2>Seleccion de Dimensiones y Factores de calidad para Problemas de calidad seleccionados</h2>
+
+  <div *ngFor="let issue of confirmedSelectedIssues" class="selected-issue-item">
+    <h3>{{ issue.name }}</h3>
+    <p><strong>Descripción:</strong> {{ issue.description }}</p>
+    <p><strong>Prioridad:</strong> {{ issue.priorityType }}</p>
+    <p><strong>Componentes de Contexto Asociados:</strong></p>
+    <ul>
+      <li *ngFor="let contextId of issue.contextcomp_related_to">
+        {{ contextId }} - {{ getContextDescription(contextId) }}
+      </li>
+    </ul>
+    
+    <p>SELECCIONAR DIMENSIONES y FACTORES DE CALIDAD:</p>
+    <ul>
+      <li *ngFor="let dimension of qualityDimensions">
+        {{ dimension.name }}:
+        <ul>
+          <li *ngFor="let factor of dimension.factors">
+            <label>
+              <input type="checkbox" 
+                    [checked]="isFactorSelected(issue, dimension.name, factor)" 
+                    (change)="toggleFactorSelection(issue, dimension.name, factor)">
+              {{ factor }}
+            </label>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <button (click)="confirmFactorsSelection(issue)">Confirmar Selección de Factores</button>
+  </div>
 </div>
 
-<div *ngIf="detailsVisible">
-  <h3>Detalles del Problema:</h3>
-  <p><strong>Problema:</strong> {{ selectedIssue?.name }}</p>
-  <p><strong>Descripción:</strong> {{ selectedIssue?.description }}</p>
-  <p><strong>Prioridad:</strong> {{ selectedIssue?.priorityType }}</p>
-  <p><strong>Componentes de Contexto Asociados:</strong></p>
-  <ul>
-    <li *ngFor="let contextId of selectedIssue?.contextcomp_related_to">
-      {{ contextId }} - {{ getContextDescription(contextId) }}
-    </li>
-  </ul>
-  <button (click)="hideDetails()">Ocultar detalles</button>
-</div>
 
 
 <router-outlet></router-outlet>

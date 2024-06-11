@@ -11,12 +11,18 @@ interface DataQualityIssue {
   contextcomp_related_to: string[];
   priority: number;
   priorityType: string;
+  selectedFactors?: { [key: string]: string[] };
 }
 
 interface ContextComponent {
   id: string;
   type: string;
   description: string;
+}
+
+interface QualityDimension {
+  name: string;
+  factors: string[];
 }
 
 @Component({
@@ -40,6 +46,29 @@ export class AppComponent implements OnInit {
   
   confirmedSelectedIssues: DataQualityIssue[] = [];
   isSelectionConfirmed: boolean = false;
+
+  qualityDimensions: QualityDimension[] = [
+    {
+      name: 'Exactitud (accuracy)',
+      factors: ['Exactitud semántica', 'Precisión']
+    },
+    {
+      name: 'Completitud (completeness)',
+      factors: ['Coverage', 'Density']
+    },
+    {
+      name: 'Frescura (freshness)',
+      factors: ['Actualidad (currency)', 'Oportunidad (timeliness)', 'Volatilidad (volatility)']
+    },
+    {
+      name: 'Consistencia (consistency)',
+      factors: ['Integridad de dominio', 'Integridad intra-relación', 'Integridad inter-relación']
+    },
+    {
+      name: 'Unicidad (uniqueness)',
+      factors: ['No-duplicación (duplication-free)', 'No-contradicción (contradiction-free)']
+    }
+  ];
 
   ngOnInit() {
     this.issues = dataQualityIssuesJson as DataQualityIssue[];
@@ -134,6 +163,38 @@ export class AppComponent implements OnInit {
     this.confirmedSelectedIssues = [...this.selectedIssues];
     this.isSelectionConfirmed = true;
   }
+
+   // Método para seleccionar/deseleccionar un factor para un problema específico
+   // Método para seleccionar/deseleccionar un factor para un problema específico
+   toggleFactorSelection(issue: DataQualityIssue, dimension: string, factor: string) {
+    if (!issue.selectedFactors) {
+      issue.selectedFactors = {};
+    }
+    // Cambiar el estado de selección del factor
+    const selectedFactorsForDimension = issue.selectedFactors[dimension] || [];
+    if (selectedFactorsForDimension.includes(factor)) {
+      issue.selectedFactors[dimension] = selectedFactorsForDimension.filter(f => f !== factor);
+    } else {
+      selectedFactorsForDimension.push(factor);
+      issue.selectedFactors[dimension] = selectedFactorsForDimension;
+    }
+  }
+
+  // Método para confirmar la selección de factores para un problema específico
+  confirmFactorsSelection(issue: DataQualityIssue) {
+    // Aquí podrías agregar lógica adicional, como guardar en la base de datos o realizar otras acciones
+    console.log('Factores seleccionados confirmados para el problema:', issue);
+  }
+
+  // Método para verificar si un factor está seleccionado para un problema específico
+  isFactorSelected(issue: DataQualityIssue, dimension: string, factor: string): boolean {
+    return (
+      issue.selectedFactors !== undefined &&
+      issue.selectedFactors[dimension] !== undefined &&
+      issue.selectedFactors[dimension].includes(factor)
+    );
+  }
+
   
 }
 
