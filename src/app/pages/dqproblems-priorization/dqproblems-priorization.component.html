@@ -1,4 +1,9 @@
-<h2>Priorización de los problemas de calidad</h2>
+<p>**********************************************************</p>
+
+
+<p>STEP 1:</p>
+
+<h2>********Priorización de los problemas de calidad</h2>
 <p>Seleccione el orden deseado antes de mostrar la tabla:</p>
 
 <div cdkDropList (cdkDropListDropped)="drop($event)">
@@ -9,7 +14,7 @@
         <th>Problema</th>
         <th>Descripción</th>
         <th>Componentes de Contexto asociados</th>
-        <th>Tipo de Prioridad</th> 
+        <th>Tipo de Prioridad</th>
       </tr>
     </thead>
     <tbody>
@@ -19,15 +24,15 @@
         <td>{{ issue.description }}</td>
         <td>
           <select (change)="addContextComponent(issue, $event)">
-            <option value="">Seleccionar Componentes de Contexto</option>
-            <option *ngFor="let context of contextComponents" [value]="context.id">
-              {{ context.id }} - {{ context.description }}
-            </option>
-          </select>
+						<option value="">Seleccionar Componentes de Contexto</option>
+						<option *ngFor="let context of contextComponents" [value]="context.id">
+							{{ context.id }} - {{ context.description }}
+						</option>
+					</select>
           <ul style="list-style-type: none; padding-left: 0;">
             <li *ngFor="let contextId of issue.contextcomp_related_to">
               {{ contextId }} - {{ getContextDescription(contextId) }}
-              <button (click)="removeContextComponent(issue, contextId)">Borrar</button>
+              <button (click)="removeContextComponent(issue, contextId)">X</button>
             </li>
           </ul>
         </td>
@@ -44,5 +49,3 @@
 </div>
 
 <button (click)="saveOrder()">Guardar Orden</button>
-
-<router-outlet></router-outlet>

@@ -1,0 +1,36 @@
+<p>**********************************************************</p>
+
+
+<p>STEP 3: dq-dimensions-factors-selection works!</p>
+
+<h2>Selección de Dimensiones y Factores de calidad para Problemas de calidad seleccionados</h2>
+
+<div *ngFor="let issue of confirmedSelectedIssues" class="selected-issue-item">
+  <h3>{{ issue.name }}</h3>
+  <p><strong>Descripción:</strong> {{ issue.description }}</p>
+  <p><strong>Prioridad:</strong> {{ issue.priorityType }}</p>
+  <p><strong>Componentes de Contexto Asociados:</strong></p>
+  <ul>
+    <li *ngFor="let contextId of issue.contextcomp_related_to">
+      {{ contextId }} - {{ getContextDescription(contextId) }}
+    </li>
+  </ul>
+
+  <p>SELECCIONAR DIMENSIONES y FACTORES DE CALIDAD:</p>
+  <ul>
+    <li *ngFor="let dimension of qualityDimensions">
+      {{ dimension.name }}:
+      <ul>
+        <li *ngFor="let factor of getFactorsByDimension(dimension.id)">
+          <label>
+            <input type="checkbox" 
+                  [checked]="isFactorSelected(issue, factor.id)" 
+                  (change)="toggleFactorSelection(issue, factor.id)">
+            {{ factor.name }}
+          </label>
+        </li>
+      </ul>
+    </li>
+  </ul>
+  <button (click)="confirmFactorsSelection(issue)">Confirmar Selección de Factores</button>
+</div>

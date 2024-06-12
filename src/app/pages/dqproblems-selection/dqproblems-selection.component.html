@@ -1,0 +1,63 @@
+<p>***********************************************</p>
+
+<p>STEP 2: dqproblems-selection works!</p>
+
+  <h2>*** Selección de Problemas de calidad priorizados</h2>
+  <p>Seleccione los problemas para definir el DQ Model</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Prioridad</th>
+        <th>Problema</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let issue of prioritizedIssues">
+        <td>{{ issue.priorityType }}</td>
+        <td>{{ issue.name }}</td>
+        <td>
+          <button (click)="showDetails(issue)">Ver detalles</button>
+          <button (click)="addIssue(issue)">Agregar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="detailsVisible">
+    <h3>Detalles del Problema:</h3>
+    <p><strong>Problema:</strong> {{ selectedIssue?.name }}</p>
+    <p><strong>Descripción:</strong> {{ selectedIssue?.description }}</p>
+    <p><strong>Prioridad:</strong> {{ selectedIssue?.priorityType }}</p>
+    <p><strong>Componentes de Contexto Asociados:</strong></p>
+    <ul>
+      <li *ngFor="let contextId of selectedIssue?.contextcomp_related_to">
+        {{ contextId }} - {{ getContextDescription(contextId) }}
+      </li>
+    </ul>
+    <button (click)="hideDetails()">Ocultar detalles</button>
+  </div>
+
+	<div *ngIf="selectedIssues.length > 0">
+		<h2>Problemas de calidad seleccionados</h2>
+		<table>
+			<thead>
+				<tr>
+					<th>Prioridad</th>
+					<th>Problema</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let issue of selectedIssues">
+					<td>{{ issue.priorityType }}</td>
+					<td>{{ issue.name }}</td>
+					<td>
+						<button (click)="removeSelectedIssue(issue)">Eliminar</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<button (click)="confirmSelectedIssues()">Confirmar Selección</button>
+	</div>

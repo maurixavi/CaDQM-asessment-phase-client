@@ -6,13 +6,20 @@ import { AppComponent } from './app.component';
 import { MainViewComponent } from './pages/main-view/main-view.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
-import { FormsModule } from '@angular/forms'; // Importa FormsModule
+import { FormsModule } from '@angular/forms';
 
+import { DQProblemsPriorizationComponent } from './pages/dqproblems-priorization/dqproblems-priorization.component';
+import { DQProblemsSelectionComponent } from './pages/dqproblems-selection/dqproblems-selection.component';
+
+import { DqDimensionsFactorsSelectionComponent } from './pages/dq-dimensions-factors-selection/dq-dimensions-factors-selection.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    MainViewComponent
+    DQProblemsPriorizationComponent,
+    MainViewComponent,
+    DQProblemsSelectionComponent,
+    DqDimensionsFactorsSelectionComponent
   ],
   imports: [
     BrowserModule,

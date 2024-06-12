@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import dataQualityIssuesJson from '../assets/data-quality-problems2.json';
+import dataQualityIssuesJson from '../assets/data-quality-problems.json';
 import contextComponentsJson from '../assets/context-components.json';
 
 

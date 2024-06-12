@@ -1,19 +1,82 @@
 [
-  { "id": 1, 
-		"name": "Inconsistent Date Formats", 
-		"description": "Dates are not in a consistent format.", 
-		"contextcomp_related_to": "DQR1", 
-		"priority": 1 },
-  { "id": 2, "name": "Missing Age Fields", 
-		"description": "Age fields are missing in some records.", 
-		"contextcomp_related_to": "DQR2", "priority": 2 },
-  { "id": 3, 
-		"name": "Duplicate Patient Records", 
-		"description": "There are duplicate entries for some patients.", "contextcomp_related_to": "DQR1", 
-		"priority": 3 },
-  { "id": 4, 
-		"name": "Invalid Identification Numbers", 
-		"description": "Some records have invalid identification numbers.", 
-		"contextcomp_related_to": "DQR2", 
-		"priority": 4 }
+  {
+    "id": 1,
+    "name": "Inconsistent Date Formats",
+    "description": "Dates are not in a consistent format.",
+    "contextcomp_related_to": [],
+    "priority": 1,
+    "priorityType": "Media"
+  },
+  {
+    "id": 2,
+    "name": "Missing Age Fields",
+    "description": "Age fields are missing in some records.",
+    "contextcomp_related_to": [],
+    "priority": 2,
+    "priorityType": "Media"
+  },
+  {
+    "id": 3,
+    "name": "Duplicate Patient Records",
+    "description": "There are duplicate entries for some patients.",
+    "contextcomp_related_to": [],
+    "priority": 3,
+    "priorityType": "Media"
+  },
+  {
+    "id": 4,
+    "name": "Invalid Identification Numbers",
+    "description": "Some records have invalid identification numbers.",
+    "contextcomp_related_to": [],
+    "priority": 4,
+    "priorityType": "Media"
+  },
+  {
+    "id": 5,
+    "name": "Incorrect Order of Follow-up Dates",
+    "description": "Follow-up dates are not in chronological order.",
+    "contextcomp_related_to": [],
+    "priority": 5,
+    "priorityType": "Media"
+  },
+  {
+    "id": 6,
+    "name": "Scores Values Not Following Trend",
+    "description": "Scores are not following the expected trend.",
+    "contextcomp_related_to": [],
+    "priority": 6,
+    "priorityType": "Media"
+  },
+  {
+    "id": 7,
+    "name": "Outliers in Measurements",
+    "description": "There are outliers in measurement data.",
+    "contextcomp_related_to": [],
+    "priority": 7,
+    "priorityType": "Media"
+  },
+  {
+    "id": 8,
+    "name": "Incomplete Address Fields",
+    "description": "Address fields are incomplete in some records.",
+    "contextcomp_related_to": [],
+    "priority": 8,
+    "priorityType": "Media"
+  },
+  {
+    "id": 9,
+    "name": "Incorrect Spelling in Names",
+    "description": "Names have spelling errors in some records.",
+    "contextcomp_related_to": [],
+    "priority": 9,
+    "priorityType": "Media"
+  },
+  {
+    "id": 10,
+    "name": "Inconsistent Measurement Units",
+    "description": "Measurement units vary inconsistently.",
+    "contextcomp_related_to": [],
+    "priority": 10,
+    "priorityType": "Media"
+  }
 ]
