@@ -1,0 +1,66 @@
+body {
+  font-family: 'Open Sans', sans-serif; /* Aplica Open Sans como la fuente principal */
+}
+
+.container {
+  max-width: 80%;
+  margin: auto;
+  color: #222; 
+}
+
+.table {
+  font-size: 0.875rem; 
+}
+
+.table tbody tr td {
+  color: #222; 
+}
+
+.table th {
+  font-size: 0.78rem;  
+  color: #444; 
+  font-weight: bold;  
+}
+
+.title {
+  font-size: 1.4rem;
+}
+
+.title-description {
+  font-size: 0.9rem;
+  margin-top: -5px;
+}
+
+.step {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.my-4 {
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.details-container {
+  border: 1px solid #ddd;
+  padding: 1rem;
+  margin-top: 1rem;
+  background-color: #f9f9f9;
+}
+
+.details-container h3 {
+  font-size: 1.2rem;
+}
+
+.details-container p, .details-container ul {
+  font-size: 0.9rem;
+}
+
+.details-container ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.details-container li {
+  margin-bottom: 0.5rem;
+}

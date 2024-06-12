@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 // import { DataQualityIssue } from '../dqproblems-priorization/dqproblems-priorization.component'; 
 import { DqProblemsService } from '../../shared/dq-problems.service';
 import { Router } from '@angular/router';
+import contextComponentsJson from '../../../assets/context-components.json'
 
 interface DataQualityIssue {
   id: number;
@@ -11,6 +12,12 @@ interface DataQualityIssue {
   priority: number;
   priorityType: string;
   selectedFactors?: number[];
+}
+
+interface ContextComponent {
+  id: string;
+  type: string;
+  description: string;
 }
 
 @Component({
@@ -25,16 +32,25 @@ export class DQProblemsSelectionComponent implements OnInit {
   selectedIssues: DataQualityIssue[] = [];
   isSelectionConfirmed: boolean = false;
 
+  contextComponents: ContextComponent[] = [];
+
   //   constructor(private issuesService: DqProblemsService) {}
   constructor(private router: Router, private issuesService: DqProblemsService) { }
 
   ngOnInit() {
     this.issuesService.currentIssues.subscribe(issues => this.prioritizedIssues = issues);
+    this.contextComponents = contextComponentsJson;
+    console.log('Context components loaded:', this.contextComponents);
   }
 
-  showDetails(issue: DataQualityIssue) {
+  showDetails(issue: DataQualityIssue) { 
     this.selectedIssue = issue;
     this.detailsVisible = true;
+    console.log(issue.contextcomp_related_to)
+    issue.contextcomp_related_to.forEach(contextId => {
+      const description = this.getContextDescription(contextId);
+      console.log(`Context ID ${contextId} - Description: ${description}`);
+    });
   }
 
   hideDetails() {
@@ -66,10 +82,20 @@ export class DQProblemsSelectionComponent implements OnInit {
     }
   }
 
-  getContextDescription(contextId: string): string {
+  /*getContextDescription(contextId: string): string {
     const idNumber = parseInt(contextId, 10); // Convertir contextId a número
     const context = this.prioritizedIssues.find(issue => issue.id === idNumber);
     return context ? context.description : 'No description';
+  }*/
+
+  getContextDescription(contextId: string): string {
+    const context = this.contextComponents.find(c => c.id === contextId);
+    return context ? context.description : 'No description';
   }
+
+
+  /*getContextDescription(contextId: string): string {
+    return this.contextComponents[contextId] || 'No description';
+  }*/
   
 }

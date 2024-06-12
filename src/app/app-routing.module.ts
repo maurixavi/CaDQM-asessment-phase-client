@@ -7,7 +7,7 @@ import { AppComponent } from './app.component'
 import { DqDimensionsFactorsSelectionComponent } from './pages/dq-dimensions-factors-selection/dq-dimensions-factors-selection.component';
 
 const routes: Routes = [
-  { path: '', component: DQProblemsPriorizationComponent },
+  { path: 'step1', component: DQProblemsPriorizationComponent },
   { path: 'step2', component: DQProblemsSelectionComponent },
   { path: 'step3', component: DqDimensionsFactorsSelectionComponent },
 ];

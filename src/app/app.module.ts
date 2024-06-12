@@ -12,6 +12,7 @@ import { DQProblemsPriorizationComponent } from './pages/dqproblems-priorization
 import { DQProblemsSelectionComponent } from './pages/dqproblems-selection/dqproblems-selection.component';
 
 import { DqDimensionsFactorsSelectionComponent } from './pages/dq-dimensions-factors-selection/dq-dimensions-factors-selection.component';
+import { HeaderComponent } from './shared/header/header.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { DqDimensionsFactorsSelectionComponent } from './pages/dq-dimensions-fac
     DQProblemsPriorizationComponent,
     MainViewComponent,
     DQProblemsSelectionComponent,
-    DqDimensionsFactorsSelectionComponent
+    DqDimensionsFactorsSelectionComponent,
+    HeaderComponent
   ],
   imports: [
     BrowserModule,

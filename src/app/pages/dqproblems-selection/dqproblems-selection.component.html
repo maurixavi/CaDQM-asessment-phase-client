@@ -1,9 +1,9 @@
-<p>STEP 2</p>
+<div class="container my-4">
+  <p class="step">STEP 2</p>
+  <h2 class="title">Selección de Problemas de calidad priorizados</h2>
+  <p class="title-description">Seleccione los problemas para definir el DQ Model</p>
 
-  <h2>*** Selección de Problemas de calidad priorizados</h2>
-  <p>Seleccione los problemas para definir el DQ Model</p>
-
-  <table>
+  <table class="table table-striped">
     <thead>
       <tr>
         <th>Prioridad</th>
@@ -16,14 +16,14 @@
         <td>{{ issue.priorityType }}</td>
         <td>{{ issue.name }}</td>
         <td>
-          <button (click)="showDetails(issue)">Ver detalles</button>
-          <button (click)="addIssue(issue)">Agregar</button>
+          <button class="btn btn-outline-primary btn-sm" (click)="showDetails(issue)">Ver detalles</button>
+          <button class="btn btn-outline-success btn-sm" (click)="addIssue(issue)">Agregar</button>
         </td>
       </tr>
     </tbody>
   </table>
 
-  <div *ngIf="detailsVisible">
+  <div *ngIf="detailsVisible" class="details-container">
     <h3>Detalles del Problema:</h3>
     <p><strong>Problema:</strong> {{ selectedIssue?.name }}</p>
     <p><strong>Descripción:</strong> {{ selectedIssue?.description }}</p>
@@ -34,28 +34,29 @@
         {{ contextId }} - {{ getContextDescription(contextId) }}
       </li>
     </ul>
-    <button (click)="hideDetails()">Ocultar detalles</button>
+    <button class="btn btn-outline-secondary btn-sm" (click)="hideDetails()">Ocultar detalles</button>
   </div>
 
-	<div *ngIf="selectedIssues.length > 0">
-		<h2>Problemas de calidad seleccionados</h2>
-		<table>
-			<thead>
-				<tr>
-					<th>Prioridad</th>
-					<th>Problema</th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr *ngFor="let issue of selectedIssues">
-					<td>{{ issue.priorityType }}</td>
-					<td>{{ issue.name }}</td>
-					<td>
-						<button (click)="removeSelectedIssue(issue)">Eliminar</button>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<button (click)="confirmSelectedIssues()">Confirmar Selección</button>
-	</div>
+  <div *ngIf="selectedIssues.length > 0">
+    <h2 class="mt-4">Problemas de calidad seleccionados</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Prioridad</th>
+          <th>Problema</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let issue of selectedIssues">
+          <td>{{ issue.priorityType }}</td>
+          <td>{{ issue.name }}</td>
+          <td>
+            <button class="btn btn-outline-danger btn-sm" (click)="removeSelectedIssue(issue)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <button class="btn btn-primary mt-3" (click)="confirmSelectedIssues()">Confirmar Selección</button>
+  </div>
+</div>

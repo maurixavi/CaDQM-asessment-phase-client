@@ -1,7 +1,7 @@
 <div class="container my-4">
-  <p>STEP 1:</p>
-  <h2>Problemas de Calidad :: Priorización</h2>
-  <p>Ordene los problemas de calidad según la prioridad considerada:</p>
+  <p>Step 1</p>
+  <h2 class="title">Priorización de Problemas de Calidad </h2>
+  <p class="title-description">Ordene los problemas de calidad según la prioridad deseada</p>
 
   <div class="d-flex justify-content-center">
     <div class="w-100">
@@ -27,12 +27,12 @@
                 <select (change)="addContextComponent(issue, $event)" class="select-short">
                   <option value="">Seleccionar Componentes de Contexto</option>
                   <option *ngFor="let context of contextComponents" [value]="context.id">
-                    {{ context.id }} - {{ context.description }}
+                    {{ context.id }}: {{ context.description }}
                   </option>
                 </select>
                 <ul style="list-style-type: none; padding-left: 0;">
                   <li *ngFor="let contextId of issue.contextcomp_related_to">
-                    {{ contextId }} - {{ getContextDescription(contextId) }}
+                    {{ contextId }}: {{ getContextDescription(contextId) }}
                     <button (click)="removeContextComponent(issue, contextId)" class="btn-remove"><i class="bi bi-x-lg"></i></button>
                   </li>
                 </ul>
@@ -54,63 +54,3 @@
     </div>
   </div>
 </div>
-
-<style>
-  .container {
-    max-width: 80%;
-    margin: auto;
-  }
-  table {
-    font-size: 0.875rem; 
-  }
-  .col-problema {
-    width: 25%;
-  }
-  .col-descripcion {
-    width: 30%;
-  }
-  .col-contexto {
-    width: 32%;
-    overflow: hidden; /* Oculta el contenido desbordante */
-    text-overflow: ellipsis; /* Añade puntos suspensivos (...) al contenido desbordante */
-  }
-  .col-tipoprioridad {
-    width: 35%;
-  }
-  .select-short {
-    width: 100%;
-    display: inline-block;
-  }
-  .select-short option {
-    width: auto;
-  }
-  tr:hover {
-    cursor: pointer; 
-  }
-
-  select,
-  input[type="text"] {
-    cursor: auto; 
-  }
-
-  .text-center {
-    text-align: center;
-  }
-  .my-4 {
-    margin-top: 1.5rem !important;
-    margin-bottom: 1.5rem !important;
-  }
-
-  .bi-grip-vertical {
-    font-size: 1rem; 
-  }
-  .btn-remove {
-    background-color: transparent;  
-    border: none; 
-    font-size: 1rem;  
-    vertical-align: middle;  
-  }
-  .btn-primary {
-    font-size: 0.95rem; 
-  }
-</style>

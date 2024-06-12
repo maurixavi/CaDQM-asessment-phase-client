@@ -1,0 +1,85 @@
+body {
+  font-family: 'Open Sans', sans-serif; /* Aplica Open Sans como la fuente principal */
+}
+
+.container {
+	max-width: 80%;
+	margin: auto;
+	color: #222; 
+}
+table {
+	font-size: 0.875rem; 
+}
+
+.table tbody tr td {
+  color: #222; 
+}
+
+th {
+  font-size: 0.78rem;  
+  color: #444; 
+  font-weight: bold;  
+}
+.col-problema {
+	width: 25%;
+}
+.col-descripcion {
+	width: 30%;
+}
+.col-contexto {
+	width: 32%;
+	overflow: hidden; 
+	text-overflow: ellipsis; 
+}
+.col-tipoprioridad {
+	width: 35%;
+}
+
+.select-short {
+	width: 100%;
+	display: inline-block;
+}
+
+.select-short option {
+	width: auto;
+}
+
+tr:hover {
+	cursor: grab; 
+}
+
+select {
+	cursor: auto; 
+}
+
+.title {
+  font-size: 1.4rem;
+}
+
+.title-description{
+	font-size: 0.9rem;
+	margin-top: -5px;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.my-4 {
+	margin-top: 1.5rem !important;
+	margin-bottom: 1.5rem !important;
+}
+
+.bi-grip-vertical {
+	font-size: 1rem; 
+}
+.btn-remove {
+	background-color: transparent;  
+	border: none; 
+	font-size: 1rem;  
+	vertical-align: middle;  
+}
+.btn-primary {
+	font-size: 0.875rem;
+	font-weight: bold;
+}
