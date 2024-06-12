@@ -1,51 +1,116 @@
-<p>**********************************************************</p>
+<div class="container my-4">
+  <p>STEP 1:</p>
+  <h2>Problemas de Calidad :: Priorización</h2>
+  <p>Ordene los problemas de calidad según la prioridad considerada:</p>
 
-
-<p>STEP 1:</p>
-
-<h2>********Priorización de los problemas de calidad</h2>
-<p>Seleccione el orden deseado antes de mostrar la tabla:</p>
-
-<div cdkDropList (cdkDropListDropped)="drop($event)">
-  <table>
-    <thead>
-      <tr>
-        <th>Orden (Prioridad)</th>
-        <th>Problema</th>
-        <th>Descripción</th>
-        <th>Componentes de Contexto asociados</th>
-        <th>Tipo de Prioridad</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let issue of issues; let i = index" cdkDrag>
-        <td>{{ issue.priority }}°</td>
-        <td>{{ issue.name }}</td>
-        <td>{{ issue.description }}</td>
-        <td>
-          <select (change)="addContextComponent(issue, $event)">
-						<option value="">Seleccionar Componentes de Contexto</option>
-						<option *ngFor="let context of contextComponents" [value]="context.id">
-							{{ context.id }} - {{ context.description }}
-						</option>
-					</select>
-          <ul style="list-style-type: none; padding-left: 0;">
-            <li *ngFor="let contextId of issue.contextcomp_related_to">
-              {{ contextId }} - {{ getContextDescription(contextId) }}
-              <button (click)="removeContextComponent(issue, contextId)">X</button>
-            </li>
-          </ul>
-        </td>
-        <td>
-          <select [(ngModel)]="issue.priorityType">
-            <option value="Baja">Baja</option>
-            <option value="Media">Media</option>
-            <option value="Alta">Alta</option>
-          </select>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="d-flex justify-content-center">
+    <div class="w-100">
+      <div cdkDropList (cdkDropListDropped)="drop($event)">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col">#</th>
+              <th scope="col" class="col-problema">Problema</th>
+              <th scope="col" class="col-descripcion">Descripción</th>
+              <th scope="col" class="col-contexto">Componentes de Contexto asociados</th>
+              <th scope="col" class="col-tipoprioridad">Tipo de Prioridad</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let issue of issues; let i = index" cdkDrag>
+              <td><i class="bi bi-grip-vertical"></i></td>
+              <th scope="row">{{ issue.priority }}°</th>
+              <td class="col-problema"><strong>{{ issue.name }}</strong></td>
+              <td class="col-descripcion">{{ issue.description }}</td>
+              <td class="col-contexto">
+                <select (change)="addContextComponent(issue, $event)" class="select-short">
+                  <option value="">Seleccionar Componentes de Contexto</option>
+                  <option *ngFor="let context of contextComponents" [value]="context.id">
+                    {{ context.id }} - {{ context.description }}
+                  </option>
+                </select>
+                <ul style="list-style-type: none; padding-left: 0;">
+                  <li *ngFor="let contextId of issue.contextcomp_related_to">
+                    {{ contextId }} - {{ getContextDescription(contextId) }}
+                    <button (click)="removeContextComponent(issue, contextId)" class="btn-remove"><i class="bi bi-x-lg"></i></button>
+                  </li>
+                </ul>
+              </td>
+              <td>
+                <select [(ngModel)]="issue.priorityType" class="select-short">
+                  <option value="Alta">Alta</option>
+                  <option value="Media">Media</option>
+                  <option value="Baja">Baja</option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <button (click)="saveOrder()" class="btn btn-primary">Confirmar Orden</button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<button (click)="saveOrder()">Guardar Orden</button>
+<style>
+  .container {
+    max-width: 80%;
+    margin: auto;
+  }
+  table {
+    font-size: 0.875rem; 
+  }
+  .col-problema {
+    width: 25%;
+  }
+  .col-descripcion {
+    width: 30%;
+  }
+  .col-contexto {
+    width: 32%;
+    overflow: hidden; /* Oculta el contenido desbordante */
+    text-overflow: ellipsis; /* Añade puntos suspensivos (...) al contenido desbordante */
+  }
+  .col-tipoprioridad {
+    width: 35%;
+  }
+  .select-short {
+    width: 100%;
+    display: inline-block;
+  }
+  .select-short option {
+    width: auto;
+  }
+  tr:hover {
+    cursor: pointer; 
+  }
+
+  select,
+  input[type="text"] {
+    cursor: auto; 
+  }
+
+  .text-center {
+    text-align: center;
+  }
+  .my-4 {
+    margin-top: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  .bi-grip-vertical {
+    font-size: 1rem; 
+  }
+  .btn-remove {
+    background-color: transparent;  
+    border: none; 
+    font-size: 1rem;  
+    vertical-align: middle;  
+  }
+  .btn-primary {
+    font-size: 0.95rem; 
+  }
+</style>
