@@ -1,0 +1,59 @@
+
+.title {
+  font-size: 1.4rem;
+}
+
+.title-description{
+	font-size: 0.9rem;
+	margin-top: -5px;
+}
+
+.selected-issue-item {
+  border: 1px solid #ddd;
+  padding: 1rem;
+  margin-top: 1rem;
+  background-color: #f9f9f9;
+}
+
+.selected-issue-item h3 {
+  font-size: 1.2rem;
+}
+
+.selected-issue-item p {
+  font-size: 0.9rem;
+}
+
+.selected-issue-item ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.selected-issue-item li {
+  margin-bottom: 0.5rem;
+}
+
+.selected-issue-item button {
+  margin-top: 1rem;
+}
+
+.go-back {
+	margin-bottom: 10px;
+}
+.go-back-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+	color: #888;
+}
+
+.go-back-link {
+	font-size: 16px;
+	color: #888;
+  text-decoration: none;
+
+}

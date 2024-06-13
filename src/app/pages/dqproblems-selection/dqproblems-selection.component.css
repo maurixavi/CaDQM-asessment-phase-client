@@ -31,11 +31,6 @@ body {
   margin-top: -5px;
 }
 
-.step {
-  font-size: 1rem;
-  font-weight: bold;
-}
-
 .my-4 {
   margin-top: 1.5rem !important;
   margin-bottom: 1.5rem !important;
@@ -63,4 +58,38 @@ body {
 
 .details-container li {
   margin-bottom: 0.5rem;
+}
+
+.go-back {
+	margin-bottom: 10px;
+}
+.go-back-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+	color: #888;
+}
+
+.go-back-link {
+	font-size: 16px;
+	color: #888;
+  text-decoration: none;
+
+}
+
+.priority-high .bi-circle-fill {
+  color: #942e2e; 
+}
+
+.priority-medium .bi-circle-fill {
+  color: #d8c246; 
+}
+
+.priority-low .bi-circle-fill {
+  color: #3d773d;  
 }

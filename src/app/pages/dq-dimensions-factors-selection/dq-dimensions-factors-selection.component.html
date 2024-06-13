@@ -1,34 +1,41 @@
+<div class="container my-4">
+  <div class="go-back">
+    <button class="go-back-btn">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+    <a href="step2" class="go-back-link">Back</a>
+  </div>
+  
+  <h2 class="title">Selección de Dimensiones y Factores de Calidad</h2>
+  <p class="title-description">Seleccione las dimensiones y factores de calidad para los problemas priorizados seleccionados</p>
 
-<p>STEP 3:</p>
+  <div *ngFor="let issue of confirmedSelectedIssues" class="selected-issue-item">
+    <h3>{{ issue.name }}</h3>
+    <p><strong>Descripción:</strong> {{ issue.description }}</p>
+    <p><strong>Prioridad:</strong> {{ issue.priorityType }}</p>
+    <p><strong>Componentes de Contexto Asociados:</strong></p>
+    <ul>
+      <li *ngFor="let contextId of issue.contextcomp_related_to">
+        {{ contextId }} - {{ getContextDescription(contextId) }}
+      </li>
+    </ul>
 
-<h2>Selección de Dimensiones y Factores de calidad para Problemas de calidad seleccionados</h2>
-
-<div *ngFor="let issue of confirmedSelectedIssues" class="selected-issue-item">
-  <h3>{{ issue.name }}</h3>
-  <p><strong>Descripción:</strong> {{ issue.description }}</p>
-  <p><strong>Prioridad:</strong> {{ issue.priorityType }}</p>
-  <p><strong>Componentes de Contexto Asociados:</strong></p>
-  <ul>
-    <li *ngFor="let contextId of issue.contextcomp_related_to">
-      {{ contextId }} - {{ getContextDescription(contextId) }}
-    </li>
-  </ul>
-
-  <p>SELECCIONAR DIMENSIONES y FACTORES DE CALIDAD:</p>
-  <ul>
-    <li *ngFor="let dimension of qualityDimensions">
-      {{ dimension.name }}:
-      <ul>
-        <li *ngFor="let factor of getFactorsByDimension(dimension.id)">
-          <label>
-            <input type="checkbox" 
-                  [checked]="isFactorSelected(issue, factor.id)" 
-                  (change)="toggleFactorSelection(issue, factor.id)">
-            {{ factor.name }}
-          </label>
-        </li>
-      </ul>
-    </li>
-  </ul>
-  <button (click)="confirmFactorsSelection(issue)">Confirmar Selección de Factores</button>
+    <p>SELECCIONAR DIMENSIONES y FACTORES DE CALIDAD:</p>
+    <ul>
+      <li *ngFor="let dimension of qualityDimensions">
+        {{ dimension.name }}:
+        <ul>
+          <li *ngFor="let factor of getFactorsByDimension(dimension.id)">
+            <label>
+              <input type="checkbox" 
+                    [checked]="isFactorSelected(issue, factor.id)" 
+                    (change)="toggleFactorSelection(issue, factor.id)">
+              {{ factor.name }}
+            </label>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <button class="btn btn-primary" (click)="confirmFactorsSelection(issue)">Confirmar Selección de Factores</button>
+  </div>
 </div>

@@ -1,62 +1,86 @@
 <div class="container my-4">
-  <p class="step">STEP 2</p>
+  <div class="go-back">
+    <button class="go-back-btn">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+    <a href="step1" class="go-back-link">Back</a>
+  </div>
+  
   <h2 class="title">Selección de Problemas de calidad priorizados</h2>
   <p class="title-description">Seleccione los problemas para definir el DQ Model</p>
 
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Prioridad</th>
-        <th>Problema</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let issue of prioritizedIssues">
-        <td>{{ issue.priorityType }}</td>
-        <td>{{ issue.name }}</td>
-        <td>
-          <button class="btn btn-outline-primary btn-sm" (click)="showDetails(issue)">Ver detalles</button>
-          <button class="btn btn-outline-success btn-sm" (click)="addIssue(issue)">Agregar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="row">
+    <div class="col-md-8">
+      <table class="table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Prioridad</th>
+            <th>Problema</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let issue of prioritizedIssues" [ngClass]="{
+            'priority-high': issue.priorityType === 'Alta',
+            'priority-medium': issue.priorityType === 'Media',
+            'priority-low': issue.priorityType === 'Baja'
+          }">
+            <td><i class="bi bi-circle-fill"></i></td>
+            <td>{{ issue.priorityType }}</td>
+            <td>{{ issue.name }}</td>
+            <td>
+              <button class="btn btn-outline-secondary btn-sm" (click)="showDetails(issue)"><i class="bi bi-zoom-in"></i></button>
+              <button class="btn btn-outline-success btn-sm" (click)="addIssue(issue)">Agregar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-  <div *ngIf="detailsVisible" class="details-container">
-    <h3>Detalles del Problema:</h3>
-    <p><strong>Problema:</strong> {{ selectedIssue?.name }}</p>
-    <p><strong>Descripción:</strong> {{ selectedIssue?.description }}</p>
-    <p><strong>Prioridad:</strong> {{ selectedIssue?.priorityType }}</p>
-    <p><strong>Componentes de Contexto Asociados:</strong></p>
-    <ul>
-      <li *ngFor="let contextId of selectedIssue?.contextcomp_related_to">
-        {{ contextId }} - {{ getContextDescription(contextId) }}
-      </li>
-    </ul>
-    <button class="btn btn-outline-secondary btn-sm" (click)="hideDetails()">Ocultar detalles</button>
-  </div>
+      <div *ngIf="selectedIssues.length > 0">
+        <h2 class="mt-4 title">Problemas de calidad seleccionados</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Prioridad</th>
+              <th>Problema</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let issue of selectedIssues" [ngClass]="{
+              'priority-high': issue.priorityType === 'Alta',
+              'priority-medium': issue.priorityType === 'Media',
+              'priority-low': issue.priorityType === 'Baja'
+            }">
+              <td><i class="bi bi-circle-fill"></i></td>
+              <td>{{ issue.priorityType }}</td>
+              <td>{{ issue.name }}</td>
+              <td>
+                <button class="btn btn-outline-danger btn-sm" (click)="removeSelectedIssue(issue)">Eliminar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="btn btn-primary mt-3" (click)="confirmSelectedIssues()">Confirmar Selección</button> 
+      </div>
+    </div>
 
-  <div *ngIf="selectedIssues.length > 0">
-    <h2 class="mt-4">Problemas de calidad seleccionados</h2>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Prioridad</th>
-          <th>Problema</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let issue of selectedIssues">
-          <td>{{ issue.priorityType }}</td>
-          <td>{{ issue.name }}</td>
-          <td>
-            <button class="btn btn-outline-danger btn-sm" (click)="removeSelectedIssue(issue)">Eliminar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <button class="btn btn-primary mt-3" (click)="confirmSelectedIssues()">Confirmar Selección</button>
+    <div *ngIf="detailsVisible" class="col-md-4">
+      <div class="details-container">
+        <h3>Detalles del Problema:</h3>
+        <p><strong>Problema:</strong> {{ selectedIssue?.name }}</p>
+        <p><strong>Descripción:</strong> {{ selectedIssue?.description }}</p>
+        <p><strong>Prioridad:</strong> {{ selectedIssue?.priorityType }}</p>
+        <p><strong>Componentes de Contexto Asociados:</strong></p>
+        <ul>
+          <li *ngFor="let contextId of selectedIssue?.contextcomp_related_to">
+            {{ contextId }}: {{ getContextDescription(contextId) }}
+          </li>
+        </ul>
+        <button class="btn btn-outline-secondary btn-sm" (click)="hideDetails()">Ocultar detalles</button>
+      </div>
+    </div>
   </div>
 </div>
