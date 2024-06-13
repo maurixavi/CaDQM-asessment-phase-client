@@ -81,5 +81,5 @@ select {
 }
 .btn-primary {
 	font-size: 0.875rem;
-	font-weight: bold;
+	/*font-weight: bold;*/
 }

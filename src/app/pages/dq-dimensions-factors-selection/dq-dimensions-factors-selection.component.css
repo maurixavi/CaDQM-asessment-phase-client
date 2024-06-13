@@ -1,44 +1,84 @@
+body {
+  font-family: 'Open Sans', sans-serif; /* Aplica Open Sans como la fuente principal */
+  background-color: #f0f0f0; /* Fondo gris muy suave */
+}
+
+.container {
+  max-width: 80%;
+  margin: auto;
+  color: #222; 
+}
 
 .title {
   font-size: 1.4rem;
 }
 
-.title-description{
-	font-size: 0.9rem;
-	margin-top: -5px;
+.title-description {
+  font-size: 0.875rem;
+  margin-top: -5px;
+}
+
+.problem-name {
+  font-size: 1.4rem;
 }
 
 .selected-issue-item {
-  border: 1px solid #ddd;
+  border: 1px solid #ddd; 
+  background-color: #fff; 
   padding: 1rem;
-  margin-top: 1rem;
-  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;  
 }
 
-.selected-issue-item h3 {
+.subtitle {
   font-size: 1.2rem;
+  /*font-weight: bold;*/
+  color: #333;
 }
 
-.selected-issue-item p {
-  font-size: 0.9rem;
+.dimensions-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
-.selected-issue-item ul {
-  list-style-type: none;
-  padding-left: 0;
+.dimension-box {
+  flex: 1;
+  min-width: 180px; 
+  /*border: 1px solid #ddd;*/
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+  font-size: 0.875rem; /* Aplica el tamaño de fuente */
 }
 
-.selected-issue-item li {
+.dimension-box h4 {
+  font-size: 1rem;
+  font-weight: bold;
   margin-bottom: 0.5rem;
 }
 
-.selected-issue-item button {
-  margin-top: 1rem;
+hr.my-4 {
+  border: none;
+  border-top: 2px solid #ddd; 
+  margin: 2rem 0;
+}
+
+.context-list, .factors-list {
+  list-style-type: none; 
+  padding-left: 0;
+}
+
+.context-list li, .factors-list li {
+  margin-bottom: 0.5rem;
 }
 
 .go-back {
-	margin-bottom: 10px;
+  margin-bottom: 10px;
 }
+
 .go-back-btn {
   background: none;
   border: none;
@@ -48,12 +88,15 @@
   padding: 0;
   display: inline-flex;
   align-items: center;
-	color: #888;
+  color: #888;
 }
 
 .go-back-link {
-	font-size: 16px;
-	color: #888;
+  font-size: 16px;
+  color: #888;
   text-decoration: none;
+}
 
+.btn {
+  font-size: 0.875rem;
 }
