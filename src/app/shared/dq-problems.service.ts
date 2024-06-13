@@ -23,6 +23,11 @@ export class DqProblemsService {
 
   // constructor() { }
   constructor() {
+    const issues = localStorage.getItem('issues');
+    if (issues) {
+      this.issuesSource.next(JSON.parse(issues));
+    }
+
     const selectedIssues = localStorage.getItem('selectedIssues');
     if (selectedIssues) {
       this.selectedIssuesSource.next(JSON.parse(selectedIssues));
@@ -31,6 +36,7 @@ export class DqProblemsService {
 
   updateIssues(issues: DataQualityIssue[]) {
     this.issuesSource.next(issues);
+    localStorage.setItem('issues', JSON.stringify(issues));
   }
 
   getIssues(): DataQualityIssue[] {
@@ -44,5 +50,14 @@ export class DqProblemsService {
 
   getSelectedIssues(): DataQualityIssue[] {
     return this.selectedIssuesSource.getValue();
+  }
+
+  private saveSelectedIssues(selectedIssues: DataQualityIssue[]) {
+    localStorage.setItem('selectedIssues', JSON.stringify(selectedIssues));
+  }
+
+  private loadSelectedIssues(): DataQualityIssue[] {
+    const savedSelectedIssues = localStorage.getItem('selectedIssues');
+    return savedSelectedIssues ? JSON.parse(savedSelectedIssues) : [];
   }
 }
