@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import dataQualityIssuesJson from '../../../assets/data-quality-problems.json'
-'../../assets/data-quality-problems.json';
-import contextComponentsJson from '../../../assets/context-components.json'
+import dataQualityProblemsJson from '../../../assets/data-quality-problems.json';
+import contextComponentsJson from '../../../assets/context-components.json';
 
 import { DqProblemsService } from '../../shared/dq-problems.service';
 import { Router } from '@angular/router';
 
-export interface DataQualityIssue {
+export interface DataQualityProblem {
   id: number;
   name: string;
   description: string;
@@ -40,9 +39,9 @@ interface QualityFactor {
   styleUrl: './dqproblems-priorization.component.scss'
 })
 export class DQProblemsPriorizationComponent implements OnInit {
-  issues: DataQualityIssue[] = [];
+  problems: DataQualityProblem[] = [];
   contextComponents: ContextComponent[] = [];
-  selectedIssue: DataQualityIssue | null = null;
+  selectedProblem: DataQualityProblem | null = null;
   detailsVisible: boolean = false;
   isOrderConfirmed: boolean = false;
 
@@ -76,35 +75,35 @@ export class DQProblemsPriorizationComponent implements OnInit {
   ];
 
   ngOnInit() {
-    this.issues = dataQualityIssuesJson as DataQualityIssue[];
-    this.issues.forEach(issue => {
-      issue.priorityType = 'Media';
+    this.problems = dataQualityProblemsJson as DataQualityProblem[];
+    this.problems.forEach(problem => {
+      problem.priorityType = 'Media';
     });
 
     this.contextComponents = contextComponentsJson as ContextComponent[];
   }
 
   drop(event: CdkDragDrop<string[]>) {
-    moveItemInArray(this.issues, event.previousIndex, event.currentIndex);
+    moveItemInArray(this.problems, event.previousIndex, event.currentIndex);
     this.updatePriority();
   }
 
   updatePriority() {
-    this.issues.forEach((issue, index) => {
-      issue.priority = index + 1;
+    this.problems.forEach((problem, index) => {
+      problem.priority = index + 1;
     });
   }
 
   /*saveOrder() {
     this.isOrderConfirmed = true;
-    this.dqProblemsService.updateIssues(this.issues);
-    console.log(this.issues); 
+    this.dqProblemsService.updateProblems(this.problems);
+    console.log(this.problems); 
   }*/
   saveOrder() {
     // Lógica para guardar el orden
     this.isOrderConfirmed = true;
-    this.dqProblemsService.updateIssues(this.issues); // Suponiendo que `this.issues` contiene los problemas a actualizar
-    console.log(this.issues);
+    this.dqProblemsService.updateProblems(this.problems); // Suponiendo que `this.problems` contiene los problemas a actualizar
+    console.log(this.problems);
 
     // Redirigir solo si la orden se confirma
     if (this.isOrderConfirmed) {
@@ -118,20 +117,20 @@ export class DQProblemsPriorizationComponent implements OnInit {
   }
   
 
-  addContextComponent(issue: DataQualityIssue, event: Event) {
+  addContextComponent(problem: DataQualityProblem, event: Event) {
     const selectElement = event.target as HTMLSelectElement;
     const contextId = selectElement.value;
     if (contextId) { // Verifica que contextId no sea nulo ni una cadena vacía
-      if (!issue.contextcomp_related_to.includes(contextId)) {
-        issue.contextcomp_related_to.push(contextId);
+      if (!problem.contextcomp_related_to.includes(contextId)) {
+        problem.contextcomp_related_to.push(contextId);
       }
     }
   }
 
-  removeContextComponent(issue: DataQualityIssue, contextId: string) {
-    const index = issue.contextcomp_related_to.indexOf(contextId);
+  removeContextComponent(problem: DataQualityProblem, contextId: string) {
+    const index = problem.contextcomp_related_to.indexOf(contextId);
     if (index !== -1) {
-      issue.contextcomp_related_to.splice(index, 1);
+      problem.contextcomp_related_to.splice(index, 1);
     }
   }
 }

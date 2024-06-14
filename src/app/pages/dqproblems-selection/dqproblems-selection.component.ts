@@ -1,10 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
-// import { DataQualityIssue } from '../dqproblems-priorization/dqproblems-priorization.component'; 
+// import { DataQualityProblem } from '../dqproblems-priorization/dqproblems-priorization.component'; 
 import { DqProblemsService } from '../../shared/dq-problems.service';
 import { Router } from '@angular/router';
 import contextComponentsJson from '../../../assets/context-components.json'
 
-interface DataQualityIssue {
+interface DataQualityProblem {
   id: number;
   name: string;
   description: string;
@@ -26,28 +26,28 @@ interface ContextComponent {
   styleUrl: './dqproblems-selection.component.scss'
 })
 export class DQProblemsSelectionComponent implements OnInit {
-  prioritizedIssues: DataQualityIssue[] = [];
-  selectedIssue: DataQualityIssue | null = null;
+  prioritizedProblems: DataQualityProblem[] = [];
+  selectedProblem: DataQualityProblem | null = null;
   detailsVisible: boolean = false;
-  selectedIssues: DataQualityIssue[] = [];
+  selectedProblems: DataQualityProblem[] = [];
   isSelectionConfirmed: boolean = false;
 
   contextComponents: ContextComponent[] = [];
 
-  //   constructor(private issuesService: DqProblemsService) {}
-  constructor(private router: Router, private issuesService: DqProblemsService) { }
+  //   constructor(private problemsService: DqProblemsService) {}
+  constructor(private router: Router, private problemsService: DqProblemsService) { }
 
   ngOnInit() {
-    this.issuesService.currentIssues.subscribe(issues => this.prioritizedIssues = issues);
+    this.problemsService.currentProblems.subscribe(problems => this.prioritizedProblems = problems);
     this.contextComponents = contextComponentsJson;
     console.log('Context components loaded:', this.contextComponents);
   }
 
-  showDetails(issue: DataQualityIssue) { 
-    this.selectedIssue = issue;
+  showDetails(problem: DataQualityProblem) { 
+    this.selectedProblem = problem;
     this.detailsVisible = true;
-    console.log(issue.contextcomp_related_to)
-    issue.contextcomp_related_to.forEach(contextId => {
+    console.log(problem.contextcomp_related_to)
+    problem.contextcomp_related_to.forEach(contextId => {
       const description = this.getContextDescription(contextId);
       console.log(`Context ID ${contextId} - Description: ${description}`);
     });
@@ -55,28 +55,28 @@ export class DQProblemsSelectionComponent implements OnInit {
 
   hideDetails() {
     this.detailsVisible = false;
-    this.selectedIssue = null;
+    this.selectedProblem = null;
   }
 
-  addIssue(issue: DataQualityIssue) {
-    if (!this.selectedIssues.includes(issue)) {
-      this.selectedIssues.push(issue);
+  addProblem(problem: DataQualityProblem) {
+    if (!this.selectedProblems.includes(problem)) {
+      this.selectedProblems.push(problem);
     }
   }
 
-  removeSelectedIssue(issue: DataQualityIssue) {
-    const index = this.selectedIssues.indexOf(issue);
+  removeSelectedProblem(problem: DataQualityProblem) {
+    const index = this.selectedProblems.indexOf(problem);
     if (index !== -1) {
-      this.selectedIssues.splice(index, 1);
+      this.selectedProblems.splice(index, 1);
     }
   }
 
-  confirmSelectedIssues() {
+  confirmSelectedProblems() {
     this.isSelectionConfirmed = true;
 
-    this.issuesService.updateSelectedIssues(this.selectedIssues);
-    // Aquí puedes manejar lo que sucede cuando se confirman los problemas seleccionados.
-    console.log(this.selectedIssues);
+    this.problemsService.updateSelectedProblems(this.selectedProblems);
+    
+    console.log(this.selectedProblems);
     if (this.isSelectionConfirmed) {
       this.router.navigate(['/step3']);
     }
@@ -84,7 +84,7 @@ export class DQProblemsSelectionComponent implements OnInit {
 
   /*getContextDescription(contextId: string): string {
     const idNumber = parseInt(contextId, 10); // Convertir contextId a número
-    const context = this.prioritizedIssues.find(issue => issue.id === idNumber);
+    const context = this.prioritizedProblems.find(problem => problem.id === idNumber);
     return context ? context.description : 'No description';
   }*/
 
@@ -97,5 +97,4 @@ export class DQProblemsSelectionComponent implements OnInit {
   /*getContextDescription(contextId: string): string {
     return this.contextComponents[contextId] || 'No description';
   }*/
-  
 }

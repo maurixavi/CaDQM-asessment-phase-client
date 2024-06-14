@@ -9,13 +9,13 @@
   <h2 class="title">Selección de Dimensiones y Factores de Calidad</h2>
   <p class="title-description">Seleccione las dimensiones y factores de calidad para los problemas priorizados seleccionados</p>
 
-  <div *ngFor="let issue of confirmedSelectedIssues" class="selected-issue-item mb-4">
-    <h3 class="problem-name">{{ issue.name }}</h3>
-    <p><strong>Descripción:</strong> {{ issue.description }}</p>
-    <p><strong>Prioridad:</strong> {{ issue.priorityType }}</p>
+  <div *ngFor="let problem of confirmedSelectedProblems" class="selected-problem-item mb-4">
+    <h3 class="title">{{ problem.name }}</h3>
+    <p><strong>Descripción:</strong> {{ problem.description }}</p>
+    <p><strong>Prioridad:</strong> {{ problem.priorityType }}</p>
     <p><strong>Componentes de Contexto Asociados:</strong></p>
     <ul class="context-list">
-      <li *ngFor="let contextId of issue.contextcomp_related_to">
+      <li *ngFor="let contextId of problem.contextcomp_related_to">
         {{ contextId }}: {{ getContextDescription(contextId) }}
       </li>
     </ul>
@@ -30,14 +30,14 @@
           <li *ngFor="let factor of getFactorsByDimension(dimension.id)">
             <label>
               <input type="checkbox" 
-                    [checked]="isFactorSelected(issue, factor.id)" 
-                    (change)="toggleFactorSelection(issue, factor.id)">
+                    [checked]="isFactorSelected(problem, factor.id)" 
+                    (change)="toggleFactorSelection(problem, factor.id)">
               {{ factor.name }}
             </label>
           </li>
         </ul>
       </div>
     </div>
-    <button class="btn btn-primary btn-sm mt-3" (click)="confirmFactorsSelection(issue)">Confirmar Selección</button>
+    <button class="btn btn-primary btn-sm mt-3" (click)="confirmFactorsSelection(problem)">Confirmar Selección</button>
   </div>
 </div>

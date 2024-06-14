@@ -22,7 +22,7 @@ body {
   font-size: 1.4rem;
 }
 
-.selected-issue-item {
+.selected-problem-item {
   border: 1px solid #ddd; 
   background-color: #fff; 
   padding: 1rem;

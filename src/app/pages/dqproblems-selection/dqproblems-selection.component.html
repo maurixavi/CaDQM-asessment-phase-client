@@ -4,7 +4,6 @@
       <i class="bi bi-chevron-left"></i>
       <a href="step1" class="go-back-link">Back</a>
     </button>
-    
   </div>
   
   <h2 class="title">Selección de Problemas de calidad priorizados</h2>
@@ -22,23 +21,23 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let issue of prioritizedIssues" [ngClass]="{
-            'priority-high': issue.priorityType === 'Alta',
-            'priority-medium': issue.priorityType === 'Media',
-            'priority-low': issue.priorityType === 'Baja'
+          <tr *ngFor="let problem of prioritizedProblems" [ngClass]="{
+            'priority-high': problem.priorityType === 'Alta',
+            'priority-medium': problem.priorityType === 'Media',
+            'priority-low': problem.priorityType === 'Baja'
           }">
             <td><i class="bi bi-circle-fill"></i></td>
-            <td>{{ issue.priorityType }}</td>
-            <td>{{ issue.name }}</td>
+            <td>{{ problem.priorityType }}</td>
+            <td>{{ problem.name }}</td>
             <td>
-              <button class="btn btn-outline-secondary btn-sm" (click)="showDetails(issue)"><i class="bi bi-zoom-in"></i></button>
-              <button class="btn btn-outline-success btn-sm" (click)="addIssue(issue)">Agregar</button>
+              <button class="btn btn-outline-secondary btn-sm" (click)="showDetails(problem)"><i class="bi bi-zoom-in"></i></button>
+              <button class="btn btn-outline-success btn-sm" (click)="addProblem(problem)">Agregar</button>
             </td>
           </tr>
         </tbody>
       </table>
 
-      <div *ngIf="selectedIssues.length > 0">
+      <div *ngIf="selectedProblems.length > 0">
         <h2 class="mt-4 title">Problemas de calidad seleccionados</h2>
         <table class="table">
           <thead>
@@ -50,33 +49,33 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let issue of selectedIssues" [ngClass]="{
-              'priority-high': issue.priorityType === 'Alta',
-              'priority-medium': issue.priorityType === 'Media',
-              'priority-low': issue.priorityType === 'Baja'
+            <tr *ngFor="let problem of selectedProblems" [ngClass]="{
+              'priority-high': problem.priorityType === 'Alta',
+              'priority-medium': problem.priorityType === 'Media',
+              'priority-low': problem.priorityType === 'Baja'
             }">
               <td><i class="bi bi-circle-fill"></i></td>
-              <td>{{ issue.priorityType }}</td>
-              <td>{{ issue.name }}</td>
+              <td>{{ problem.priorityType }}</td>
+              <td>{{ problem.name }}</td>
               <td>
-                <button class="btn btn-outline-danger btn-sm" (click)="removeSelectedIssue(issue)">Eliminar</button>
+                <button class="btn btn-outline-danger btn-sm" (click)="removeSelectedProblem(problem)">Eliminar</button>
               </td>
             </tr>
           </tbody>
         </table>
-        <button class="btn btn-primary btn-sm mt-3" (click)="confirmSelectedIssues()">Confirmar Selección</button> 
+        <button class="btn btn-primary btn-sm mt-3" (click)="confirmSelectedProblems()">Confirmar Selección</button> 
       </div>
     </div>
 
     <div *ngIf="detailsVisible" class="col-md-4">
       <div class="details-container">
         <h3>Detalles del Problema:</h3>
-        <p><strong>Problema:</strong> {{ selectedIssue?.name }}</p>
-        <p><strong>Descripción:</strong> {{ selectedIssue?.description }}</p>
-        <p><strong>Prioridad:</strong> {{ selectedIssue?.priorityType }}</p>
+        <p><strong>Problema:</strong> {{ selectedProblem?.name }}</p>
+        <p><strong>Descripción:</strong> {{ selectedProblem?.description }}</p>
+        <p><strong>Prioridad:</strong> {{ selectedProblem?.priorityType }}</p>
         <p><strong>Componentes de Contexto Asociados:</strong></p>
         <ul>
-          <li *ngFor="let contextId of selectedIssue?.contextcomp_related_to">
+          <li *ngFor="let contextId of selectedProblem?.contextcomp_related_to">
             {{ contextId }}: {{ getContextDescription(contextId) }}
           </li>
         </ul>

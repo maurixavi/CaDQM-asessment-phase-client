@@ -8,7 +8,7 @@ interface ContextComponent {
   description: string;
 }
 
-interface DataQualityIssue {
+interface DataQualityProblem {
   id: number;
   name: string;
   description: string;
@@ -38,7 +38,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
   contextComponents: ContextComponent[] = [];
 
-  confirmedSelectedIssues: DataQualityIssue[] = [];
+  confirmedSelectedProblems: DataQualityProblem[] = [];
   qualityDimensions: QualityDimension[] = [
     { id: 1, name: 'Exactitud (accuracy)' },
     { id: 2, name: 'Completitud (completeness)' },
@@ -67,8 +67,8 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
   ngOnInit() {
     this.contextComponents = contextComponentsJson as ContextComponent[];
-    this.dqProblemsService.currentSelectedIssues.subscribe(issues => {
-      this.confirmedSelectedIssues = issues;
+    this.dqProblemsService.currentSelectedProblems.subscribe(problems => {
+      this.confirmedSelectedProblems = problems;
     });
   }
 
@@ -81,23 +81,23 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     return this.qualityFactors.filter(factor => factor.dimensionId === dimensionId);
   }
 
-  isFactorSelected(issue: DataQualityIssue, factorId: number): boolean {
-    return issue.selectedFactors !== undefined && issue.selectedFactors.includes(factorId);
+  isFactorSelected(problem: DataQualityProblem, factorId: number): boolean {
+    return problem.selectedFactors !== undefined && problem.selectedFactors.includes(factorId);
   }
 
-  toggleFactorSelection(issue: DataQualityIssue, factorId: number) {
-    if (!issue.selectedFactors) {
-      issue.selectedFactors = [];
+  toggleFactorSelection(problem: DataQualityProblem, factorId: number) {
+    if (!problem.selectedFactors) {
+      problem.selectedFactors = [];
     }
-    if (issue.selectedFactors.includes(factorId)) {
-      issue.selectedFactors = issue.selectedFactors.filter(f => f !== factorId);
+    if (problem.selectedFactors.includes(factorId)) {
+      problem.selectedFactors = problem.selectedFactors.filter(f => f !== factorId);
     } else {
-      issue.selectedFactors.push(factorId);
+      problem.selectedFactors.push(factorId);
     }
   }
 
-  confirmFactorsSelection(issue: DataQualityIssue) {
-    console.log('Factores seleccionados confirmados para el problema:', issue);
-    // Puedes realizar aquí cualquier acción adicional, como guardar los factores seleccionados
+  confirmFactorsSelection(problem: DataQualityProblem) {
+    console.log('Factores seleccionados confirmados para el problema:', problem);
+
   }
 }

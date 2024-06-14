@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-interface DataQualityIssue {
+interface DataQualityProblem {
   id: number;
   name: string;
   description: string;
@@ -15,49 +15,49 @@ interface DataQualityIssue {
   providedIn: 'root'
 })
 export class DqProblemsService {
-  private issuesSource = new BehaviorSubject<DataQualityIssue[]>([]);
-  currentIssues = this.issuesSource.asObservable();
+  private problemsSource = new BehaviorSubject<DataQualityProblem[]>([]);
+  currentProblems = this.problemsSource.asObservable();
 
-  private selectedIssuesSource = new BehaviorSubject<DataQualityIssue[]>([]);
-  currentSelectedIssues = this.selectedIssuesSource.asObservable();
+  private selectedProblemsSource = new BehaviorSubject<DataQualityProblem[]>([]);
+  currentSelectedProblems = this.selectedProblemsSource.asObservable();
 
   // constructor() { }
   constructor() {
-    const issues = localStorage.getItem('issues');
-    if (issues) {
-      this.issuesSource.next(JSON.parse(issues));
+    const problems = localStorage.getItem('problems');
+    if (problems) {
+      this.problemsSource.next(JSON.parse(problems));
     }
 
-    const selectedIssues = localStorage.getItem('selectedIssues');
-    if (selectedIssues) {
-      this.selectedIssuesSource.next(JSON.parse(selectedIssues));
+    const selectedProblems = localStorage.getItem('selectedProblems');
+    if (selectedProblems) {
+      this.selectedProblemsSource.next(JSON.parse(selectedProblems));
     }
   }
 
-  updateIssues(issues: DataQualityIssue[]) {
-    this.issuesSource.next(issues);
-    localStorage.setItem('issues', JSON.stringify(issues));
+  updateProblems(problems: DataQualityProblem[]) {
+    this.problemsSource.next(problems);
+    localStorage.setItem('problems', JSON.stringify(problems));
   }
 
-  getIssues(): DataQualityIssue[] {
-    return this.issuesSource.getValue();
+  getProblems(): DataQualityProblem[] {
+    return this.problemsSource.getValue();
   }
 
-  updateSelectedIssues(issues: DataQualityIssue[]) {
-    this.selectedIssuesSource.next(issues);
-    localStorage.setItem('selectedIssues', JSON.stringify(issues));
+  updateSelectedProblems(problems: DataQualityProblem[]) {
+    this.selectedProblemsSource.next(problems);
+    localStorage.setItem('selectedProblems', JSON.stringify(problems));
   }
 
-  getSelectedIssues(): DataQualityIssue[] {
-    return this.selectedIssuesSource.getValue();
+  getSelectedProblems(): DataQualityProblem[] {
+    return this.selectedProblemsSource.getValue();
   }
 
-  private saveSelectedIssues(selectedIssues: DataQualityIssue[]) {
-    localStorage.setItem('selectedIssues', JSON.stringify(selectedIssues));
+  private saveSelectedProblems(selectedProblems: DataQualityProblem[]) {
+    localStorage.setItem('selectedProblems', JSON.stringify(selectedProblems));
   }
 
-  private loadSelectedIssues(): DataQualityIssue[] {
-    const savedSelectedIssues = localStorage.getItem('selectedIssues');
-    return savedSelectedIssues ? JSON.parse(savedSelectedIssues) : [];
+  private loadSelectedProblems(): DataQualityProblem[] {
+    const savedSelectedProblems = localStorage.getItem('selectedProblems');
+    return savedSelectedProblems ? JSON.parse(savedSelectedProblems) : [];
   }
 }

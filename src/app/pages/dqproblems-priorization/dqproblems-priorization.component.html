@@ -1,5 +1,5 @@
 <div class="container my-4">
-  <h2 class="title">Priorización de Problemas de Calidad </h2>
+  <h2 class="title">Priorización de Problemas de Calidad</h2>
   <p class="title-description">Ordene los problemas de calidad según la prioridad deseada</p>
 
   <div class="d-flex justify-content-center">
@@ -17,27 +17,27 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let issue of issues; let i = index" cdkDrag>
+            <tr *ngFor="let problem of problems; let i = index" cdkDrag>
               <td><i class="bi bi-grip-vertical"></i></td>
-              <th scope="row">{{ issue.priority }}°</th>
-              <td class="col-problema"><strong>{{ issue.name }}</strong></td>
-              <td class="col-descripcion">{{ issue.description }}</td>
+              <th scope="row">{{ problem.priority }}°</th>
+              <td class="col-problema"><strong>{{ problem.name }}</strong></td>
+              <td class="col-descripcion">{{ problem.description }}</td>
               <td class="col-contexto">
-                <select (change)="addContextComponent(issue, $event)" class="select-short">
+                <select (change)="addContextComponent(problem, $event)" class="select-short">
                   <option value="">Seleccionar Componentes de Contexto</option>
                   <option *ngFor="let context of contextComponents" [value]="context.id">
                     {{ context.id }}: {{ context.description }}
                   </option>
                 </select>
                 <ul style="list-style-type: none; padding-left: 0;">
-                  <li *ngFor="let contextId of issue.contextcomp_related_to">
+                  <li *ngFor="let contextId of problem.contextcomp_related_to">
                     {{ contextId }}: {{ getContextDescription(contextId) }}
-                    <button (click)="removeContextComponent(issue, contextId)" class="btn-remove"><i class="bi bi-x-lg"></i></button>
+                    <button (click)="removeContextComponent(problem, contextId)" class="btn-remove"><i class="bi bi-x-lg"></i></button>
                   </li>
                 </ul>
               </td>
               <td>
-                <select [(ngModel)]="issue.priorityType" class="select-short">
+                <select [(ngModel)]="problem.priorityType" class="select-short">
                   <option value="Alta">Alta</option>
                   <option value="Media">Media</option>
                   <option value="Baja">Baja</option>
