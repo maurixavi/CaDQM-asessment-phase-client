@@ -21,6 +21,9 @@ export class DqProblemsService {
   private selectedProblemsSource = new BehaviorSubject<DataQualityProblem[]>([]);
   currentSelectedProblems = this.selectedProblemsSource.asObservable();
 
+  private confirmedFactorsSource = new BehaviorSubject<{ [key: number]: number[] }>({});
+  currentConfirmedFactors = this.confirmedFactorsSource.asObservable();
+
   // constructor() { }
   constructor() {
     const problems = localStorage.getItem('problems');
@@ -59,5 +62,11 @@ export class DqProblemsService {
   private loadSelectedProblems(): DataQualityProblem[] {
     const savedSelectedProblems = localStorage.getItem('selectedProblems');
     return savedSelectedProblems ? JSON.parse(savedSelectedProblems) : [];
+  }
+
+  confirmFactorsSelection(problemId: number, factors: number[]) {
+    const currentConfirmedFactors = this.confirmedFactorsSource.value;
+    currentConfirmedFactors[problemId] = factors;
+    this.confirmedFactorsSource.next(currentConfirmedFactors);
   }
 }

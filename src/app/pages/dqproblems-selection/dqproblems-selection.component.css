@@ -37,10 +37,11 @@ body {
 }
 
 .details-container {
-  border: 1px solid #ddd;
+  /*border: 1px solid #ddd;*/
   padding: 1rem;
   margin-top: 1rem;
   background-color: #f9f9f9;
+  border-radius: 8px;
 }
 
 .details-container h3 {

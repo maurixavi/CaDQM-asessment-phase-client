@@ -5,7 +5,7 @@
     </button>
     <a href="step2" class="go-back-link">Back</a>
   </div>
-  
+
   <h2 class="title">Selección de Dimensiones y Factores de Calidad</h2>
   <p class="title-description">Seleccione las dimensiones y factores de calidad para los problemas priorizados seleccionados</p>
 
@@ -38,6 +38,35 @@
         </ul>
       </div>
     </div>
-    <button class="btn btn-primary btn-sm mt-3" (click)="confirmFactorsSelection(problem)">Confirmar Selección</button>
+    <button class="btn btn-primary btn-sm mt-3" (click)="confirmFactorsSelection(problem)">Agregar</button>
   </div>
+
+  <h3 class="subtitle" *ngIf="showDimensionsFactorsTitle">Dimensiones y Factores Seleccionados</h3>
+  <table class="table" *ngIf="showDimensionsFactorsTable">
+    <thead>
+      <tr>
+        <th>Dimensión</th>
+        <th>Factor</th>
+        <th>Problemas de Calidad</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let dimensionWithFactors of getSelectedDimensionsWithFactors()">
+        <tr *ngFor="let factorWithProblems of dimensionWithFactors.factors; let factorIndex = index">
+          <td *ngIf="factorIndex === 0" [attr.rowspan]="dimensionWithFactors.factors.length">{{ dimensionWithFactors.dimension.name }}</td>
+          <td>{{ factorWithProblems.factor.name }}</td>
+          <td>
+            <ul>
+              <li *ngFor="let problemName of factorWithProblems.problems">
+                {{ problemName }}
+              </li>
+            </ul>
+          </td>
+        </tr>
+        <tr *ngIf="dimensionWithFactors.factors.length > 1">
+          <td colspan="3" class="divider"></td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
 </div>

@@ -39,6 +39,9 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   contextComponents: ContextComponent[] = [];
 
   confirmedSelectedProblems: DataQualityProblem[] = [];
+
+  confirmedFactors: { [key: number]: number[] } = {};
+
   qualityDimensions: QualityDimension[] = [
     { id: 1, name: 'Exactitud (accuracy)' },
     { id: 2, name: 'Completitud (completeness)' },
@@ -70,6 +73,10 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     this.dqProblemsService.currentSelectedProblems.subscribe(problems => {
       this.confirmedSelectedProblems = problems;
     });
+
+    this.dqProblemsService.currentConfirmedFactors.subscribe(factors => {
+      this.confirmedFactors = factors;
+    });
   }
 
   getContextDescription(contextId: string): string {
@@ -80,6 +87,19 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   getFactorsByDimension(dimensionId: number): QualityFactor[] {
     return this.qualityFactors.filter(factor => factor.dimensionId === dimensionId);
   }
+
+  getFactorNameById(factorId: number): string | undefined {
+    const factor = this.qualityFactors.find(f => f.id === factorId);
+    return factor ? factor.name : undefined;
+  }
+
+  getProblemsForFactor(factorId: number): string[] {
+    return this.confirmedSelectedProblems
+      .filter(problem => this.confirmedFactors[problem.id]?.includes(factorId))
+      .map(problem => problem.name);
+  }
+  
+  
 
   isFactorSelected(problem: DataQualityProblem, factorId: number): boolean {
     return problem.selectedFactors !== undefined && problem.selectedFactors.includes(factorId);
@@ -96,8 +116,30 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     }
   }
 
-  confirmFactorsSelection(problem: DataQualityProblem) {
+  showDimensionsFactorsTitle = false;
+  showDimensionsFactorsTable = false;
+  /*confirmFactorsSelection(problem: DataQualityProblem) {
     console.log('Factores seleccionados confirmados para el problema:', problem);
-
+  }*/
+  confirmFactorsSelection(problem: DataQualityProblem) {
+    this.dqProblemsService.confirmFactorsSelection(problem.id, problem.selectedFactors || []);
+    this.showDimensionsFactorsTitle = true;
+    this.showDimensionsFactorsTable = true;
   }
+
+  getSelectedDimensionsWithFactors(): { dimension: QualityDimension, factors: { factor: QualityFactor, problems: string[] }[] }[] {
+    return this.qualityDimensions
+      .map(dimension => {
+        const factorsWithProblems = this.getFactorsByDimension(dimension.id)
+          .map(factor => ({
+            factor,
+            problems: this.getProblemsForFactor(factor.id)
+          }))
+          .filter(factorWithProblems => factorWithProblems.problems.length > 0);
+  
+        return { dimension, factors: factorsWithProblems };
+      })
+      .filter(dimensionWithFactors => dimensionWithFactors.factors.length > 0);
+  }
+  
 }
