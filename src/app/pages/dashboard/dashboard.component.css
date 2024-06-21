@@ -1,0 +1,41 @@
+.container {
+	max-width: 80%;
+	margin: auto;
+	color: #222; 
+}
+
+.title {
+  font-size: 1.5rem;
+	font-weight: bold;
+}
+
+.title-description {
+  font-size: 0.9rem;
+  margin-top: -5px;
+}
+
+.add-new-card {
+	width: 40%;
+  cursor: pointer;
+  margin: 20px 0;
+  padding: 40px;
+  border: 2px dashed #007bff;
+  transition: background-color 0.3s ease;
+}
+
+.add-new-card:hover {
+  background-color: #f8f9fa;
+}
+
+.modal.show {
+  display: block;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+}

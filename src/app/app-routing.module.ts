@@ -5,8 +5,10 @@ import { DQProblemsPriorizationComponent } from './pages/dqproblems-priorization
 import { DQProblemsSelectionComponent } from './pages/dqproblems-selection/dqproblems-selection.component';
 import { AppComponent } from './app.component'
 import { DqDimensionsFactorsSelectionComponent } from './pages/dq-dimensions-factors-selection/dq-dimensions-factors-selection.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component'
 
 const routes: Routes = [
+  { path: '', component: DashboardComponent },
   { path: 'step1', component: DQProblemsPriorizationComponent },
   { path: 'step2', component: DQProblemsSelectionComponent },
   { path: 'step3', component: DqDimensionsFactorsSelectionComponent },

@@ -2,3 +2,8 @@
 body {
   background-color: red; /* Fondo rojo para toda la página */
 }
+
+
+body {
+  background-color: #ffffff; /* Color de fondo por defecto */
+}

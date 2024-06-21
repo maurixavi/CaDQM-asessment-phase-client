@@ -1,3 +1,54 @@
+.custom-navbar {
+  background-color: #fcfcfc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.navbar-brand {
+  margin-left: 15px;
+  font-size: 1.1rem;
+}
+
 .navbar-nav {
-  margin-left: auto;
+  flex-grow: 1;
+}
+
+.navbar-nav.me-auto {
+  margin-left: 0;
+}
+
+.navbar-nav.ms-auto {
+  margin-right: 15px;
+  justify-content: flex-end;
+}
+
+.nav-item .nav-link {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.nav-link.nav-btn {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 5px 10px;
+  transition: all 0.3s ease;
+  border-color: #ced4da; /* Color del borde al hacer hover */
+}
+
+.nav-link.nav-btn:hover {
+  background-color: #f8f9fa; 
+}
+
+@media (max-width: 992px) {
+  .navbar-nav.me-auto,
+  .navbar-nav.ms-auto {
+    margin: 0;
+  }
+
+  .navbar-brand,
+  .nav-item .nav-link {
+    margin: 0;
+    padding: 10px 15px;
+  }
 }

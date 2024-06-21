@@ -13,6 +13,7 @@ import { DQProblemsSelectionComponent } from './pages/dqproblems-selection/dqpro
 
 import { DqDimensionsFactorsSelectionComponent } from './pages/dq-dimensions-factors-selection/dq-dimensions-factors-selection.component';
 import { HeaderComponent } from './shared/header/header.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { HeaderComponent } from './shared/header/header.component';
     MainViewComponent,
     DQProblemsSelectionComponent,
     DqDimensionsFactorsSelectionComponent,
-    HeaderComponent
+    HeaderComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,

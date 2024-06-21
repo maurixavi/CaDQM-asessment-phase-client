@@ -1,0 +1,33 @@
+<div class="container my-4">
+	<h2 class="title">Dashboard</h2>
+  <p class="title-description"></p>
+  
+  <div class="card text-center add-new-card" (click)="openModal()">
+    <div class="card-body">
+      <h5 class="card-title"><i class="bi bi-plus"></i>Add New</h5>
+      <p class="card-text title-description">Empieza un nuevo proyecto.</p>
+    </div>
+  </div>
+</div>
+
+
+<!--<div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" style="display: {{ isModalOpen ? 'block' : 'none' }};">-->
+<div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New Project</h5>
+        <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Formulario nuevo proyecto - Cargar datos</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button type="button" class="btn btn-primary" routerLink="/step1">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
