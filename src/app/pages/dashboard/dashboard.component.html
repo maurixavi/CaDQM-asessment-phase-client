@@ -12,22 +12,39 @@
 
 
 <!--<div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" style="display: {{ isModalOpen ? 'block' : 'none' }};">-->
-<div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">New Project</h5>
-        <button type="button" class="close" aria-label="Close" (click)="closeModal()">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>Formulario nuevo proyecto - Cargar datos</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
-        <button type="button" class="btn btn-primary" routerLink="/step1">Confirmar</button>
+  <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Start New Project</h5>
+          <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+            <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="projectTitle">Title</label>
+              <input type="text" class="form-control" id="projectName" placeholder="Enter project title">
+            </div>
+            <div class="form-group">
+              <label for="projectDescription">Description</label>
+              <input type="text" class="form-control" id="projectDescription" placeholder="Enter project description">
+            </div>
+            <div class="form-group">
+              <label for="database">Upload Database</label>
+              <input type="file" class="form-control" id="database">
+            </div>
+            <div class="form-group">
+              <label for="role">Role</label>
+              <input type="text" class="form-control" id="role" placeholder="Enter role">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-secondary" (click)="closeModal()">Cancelar</button>
+          <button type="button" class="btn btn-sm btn-primary" routerLink="/step1">Confirmar</button>
+        </div>
       </div>
     </div>
   </div>
-</div>

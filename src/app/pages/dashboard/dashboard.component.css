@@ -1,12 +1,12 @@
 .container {
-	max-width: 80%;
-	margin: auto;
-	color: #222; 
+  max-width: 80%;
+  margin: auto;
+  color: #222; 
 }
 
 .title {
   font-size: 1.5rem;
-	font-weight: bold;
+  font-weight: bold;
 }
 
 .title-description {
@@ -15,7 +15,7 @@
 }
 
 .add-new-card {
-	width: 40%;
+  width: 40%;
   cursor: pointer;
   margin: 20px 0;
   padding: 40px;
@@ -39,3 +39,43 @@
   height: 100vh;
   background: rgba(0, 0, 0, 0.5);
 }
+
+.modal-header {
+  position: relative;
+}
+
+.modal-header .close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #999;
+  cursor: pointer;
+  outline: none;
+}
+
+.modal-header .close span {
+  display: inline-block;
+}
+
+.modal-header .close:hover {
+  color: #222;
+}
+
+.modal-body .form-group {
+  margin-bottom: 15px;
+}
+
+.modal-body label {
+  font-size: 0.78rem;  
+  color: #444; 
+  font-weight: bold;  
+}
+
+.modal-body input {
+  font-size: 0.875rem; 
+  color: #222;
+}
+
