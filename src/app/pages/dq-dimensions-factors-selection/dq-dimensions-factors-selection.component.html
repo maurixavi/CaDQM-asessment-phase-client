@@ -6,11 +6,16 @@
     <a href="step2" class="go-back-link">Back</a>
   </div>
 
-  <h2 class="title">Selección de Dimensiones y Factores de Calidad</h2>
+
+  <h2 class="title">Stage 4: DQ Model Definition</h2>
+  <h2 class="title-activity">Selección de Dimensiones y Factores de Calidad</h2>
   <p class="title-description">Seleccione las dimensiones y factores de calidad para los problemas priorizados seleccionados</p>
 
+  
+  <div class="container-section">
+    
   <div *ngFor="let problem of confirmedSelectedProblems" class="selected-problem-item mb-4">
-    <h3 class="title">{{ problem.name }}</h3>
+    <h3 class="subtitle-problem">{{ problem.name }}</h3>
     <p><strong>Descripción:</strong> {{ problem.description }}</p>
     <p><strong>Prioridad:</strong> {{ problem.priorityType }}</p>
     <p><strong>Componentes de Contexto Asociados:</strong></p>
@@ -41,7 +46,12 @@
     <button class="btn btn-primary btn-sm mt-3" (click)="confirmFactorsSelection(problem)">Agregar</button>
   </div>
 
-  <h3 class="subtitle" *ngIf="showDimensionsFactorsTitle">Dimensiones y Factores Seleccionados</h3>
+
+  
+
+  
+  <h3 class="subtitle-selected" *ngIf="showDimensionsFactorsTitle">Dimensiones y Factores Seleccionados</h3>
+  
   <table class="table" *ngIf="showDimensionsFactorsTable">
     <thead>
       <tr>
@@ -67,6 +77,12 @@
           <td colspan="3" class="divider"></td>
         </tr>
       </ng-container>
+      
     </tbody>
   </table>
+</div>
+
+
+
+
 </div>

@@ -23,7 +23,14 @@ body {
 }
 
 .title {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
+  font-weight: black;
+  font-style: italic;
+}
+
+.title-activity {
+  font-size: 1.5rem;
+	font-weight: lighter;
 }
 
 .title-description {
@@ -99,8 +106,8 @@ body {
 }
 
 .selected-problem-item {
-  border: 1px solid #ddd; 
-  background-color: #fff; 
+  /*border: 1px solid #ddd; */
+  background-color: #f9f9f9; 
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -108,9 +115,21 @@ body {
 }
 
 .subtitle {
+  font-size: 1.3rem;
+  font-weight: lighter;
+  color: #333;
+  margin-top: 20px;
+}
+
+.subtitle-selected {
   font-size: 1.2rem;
   color: #333;
   margin-top: 20px;
+}
+
+.subtitle-problem {
+  font-size: 1.2rem;
+  color: #333;
 }
 
 .dimensions-container {
@@ -118,6 +137,7 @@ body {
   flex-wrap: wrap;
   gap: 1rem;
   margin-top: 1rem;
+  
 }
 
 .dimension-box {
@@ -125,8 +145,10 @@ body {
   min-width: 180px; 
   padding: 1rem;
   border-radius: 8px;
-  background-color: #f5f5f5;
+  background-color: #fff;
+  /*background-color: #f5f5f5;*/
   font-size: 0.875rem; 
+  border: 1px solid #ddd;
 }
 
 .dimension-box h4 {
@@ -137,9 +159,10 @@ body {
 
 hr.my-4 {
   border: none;
-  border-top: 2px solid #ddd; 
+  border-top: 1px solid #fff; 
   margin: 2rem 0;
 }
+
 
 .context-list, .factors-list {
   list-style-type: none; 
@@ -152,4 +175,13 @@ hr.my-4 {
 
 .btn {
   font-size: 0.875rem;
+}
+
+.container-section {
+  border: 1px solid #ddd; 
+  background-color: #fff; 
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;  
 }

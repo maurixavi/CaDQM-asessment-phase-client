@@ -6,9 +6,11 @@
     </button>
   </div>
   
-  <h2 class="title">Selección de Problemas de calidad priorizados</h2>
+  <h2 class="title">Stage 4: DQ Model Definition</h2>
+  <h2 class="title-activity">Selección de Problemas de Calidad priorizados</h2>
   <p class="title-description">Seleccione los problemas para definir el DQ Model</p>
 
+  <div class="container-section">
   <div class="row">
     <div class="col-md-8">
       <table class="table">
@@ -38,7 +40,8 @@
       </table>
 
       <div *ngIf="selectedProblems.length > 0">
-        <h2 class="mt-4 title">Problemas de calidad seleccionados</h2>
+        <!--<h2 class="mt-4 title-selection">Problemas de calidad seleccionados</h2>-->
+        <h3 class="mt-4 subtitle">Problemas de Calidad seleccionados</h3>
         <table class="table">
           <thead>
             <tr>
@@ -82,5 +85,7 @@
         <button class="btn btn-outline-secondary btn-sm" (click)="hideDetails()">Ocultar detalles</button>
       </div>
     </div>
+  </div>
+
   </div>
 </div>

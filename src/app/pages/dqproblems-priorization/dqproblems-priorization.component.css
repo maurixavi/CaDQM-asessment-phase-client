@@ -53,7 +53,14 @@ select {
 }
 
 .title {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
+  font-weight: black;
+  font-style: italic;
+}
+
+.title-activity {
+  font-size: 1.5rem;
+	font-weight: lighter;
 }
 
 .title-description{
@@ -82,4 +89,13 @@ select {
 .btn-primary {
 	font-size: 0.875rem;
 	/*font-weight: bold;*/
+}
+
+.container-section {
+  border: 1px solid #ddd; 
+  background-color: #fff; 
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;  
 }
