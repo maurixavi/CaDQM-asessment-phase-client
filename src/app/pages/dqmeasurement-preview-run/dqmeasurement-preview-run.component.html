@@ -1,0 +1,63 @@
+<div class="container my-4">
+  <h2 class="title">Stage 4: DQ Model Definition</h2>
+  <h2 class="title-activity">Priorización de Problemas de Calidad</h2>
+  <p class="title-description">Ordene los problemas de calidad según la prioridad deseada</p>
+
+  <div class="container-section">
+
+
+  <div class="d-flex justify-content-center">
+    <div class="w-100">
+      <div cdkDropList>
+        <div *ngFor="let factor of qualityFactors">
+          <h3>{{ factor.name }}</h3>
+          <div>
+            <label for="name">Name:</label>
+            <input type="text" [(ngModel)]="factor.newMetric.name" placeholder="Metric Name" />
+        
+            <label for="purpose">Purpose:</label>
+            <input type="text" [(ngModel)]="factor.newMetric.purpose" placeholder="Metric Purpose" />
+        
+            <label for="granularity">Granularity:</label>
+            <select [(ngModel)]="factor.newMetric.granularity">
+              <option *ngFor="let granularity of granularities" [value]="granularity">{{ granularity }}</option>
+            </select>
+        
+            <label for="domain">Domain:</label>
+            <select [(ngModel)]="factor.newMetric.domain">
+              <option *ngFor="let domain of domains" [value]="domain">{{ domain }}</option>
+            </select>
+        
+            <button (click)="addMetric(factor)">Add Metric</button>
+          </div>
+        
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Purpose</th>
+                <th>Granularity</th>
+                <th>Domain</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let metric of factor.definedMetrics">
+                <td>{{ metric.name }}</td>
+                <td>{{ metric.purpose }}</td>
+                <td>{{ metric.granularity }}</td>
+                <td>{{ metric.domain }}</td>
+                <td><button (click)="deleteMetric(factor, metric)">Delete</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>        
+      </div>
+      <div>
+        <button (click)="saveOrder()" class="btn btn-primary btn-sm">Confirmar Orden</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>

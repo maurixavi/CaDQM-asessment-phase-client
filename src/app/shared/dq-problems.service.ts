@@ -69,4 +69,13 @@ export class DqProblemsService {
     currentConfirmedFactors[problemId] = factors;
     this.confirmedFactorsSource.next(currentConfirmedFactors);
   }
+
+  getSelectedFactors(): number[]{
+    var result: number[] = [];
+    let problems = this.getSelectedProblems(); 
+    problems.forEach(element => {
+      result.concat(element.selectedFactors || 0);
+    });
+    return Array.from(new Set(result));
+  }
 }

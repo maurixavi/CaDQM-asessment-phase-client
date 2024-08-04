@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DqProblemsService } from '../../shared/dq-problems.service';
 import contextComponentsJson from '../../../assets/context-components.json';
+import { Router } from '@angular/router';
 
 interface ContextComponent {
   id: string;
@@ -38,6 +39,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
   contextComponents: ContextComponent[] = [];
 
+
   confirmedSelectedProblems: DataQualityProblem[] = [];
 
   confirmedFactors: { [key: number]: number[] } = {};
@@ -65,16 +67,17 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     { id: 12, dimensionId: 5, name: 'No-duplicación (duplication-free) ' },
     { id: 13, dimensionId: 5, name: 'No-contradicción (contradiction-free)' }
   ];
+  
 
-  constructor(private dqProblemsService: DqProblemsService) {}
+  constructor(private router: Router, private problemsService: DqProblemsService) { }
 
   ngOnInit() {
     this.contextComponents = contextComponentsJson as ContextComponent[];
-    this.dqProblemsService.currentSelectedProblems.subscribe(problems => {
+    this.problemsService.currentSelectedProblems.subscribe(problems => {
       this.confirmedSelectedProblems = problems;
     });
 
-    this.dqProblemsService.currentConfirmedFactors.subscribe(factors => {
+    this.problemsService.currentConfirmedFactors.subscribe(factors => {
       this.confirmedFactors = factors;
     });
   }
@@ -122,7 +125,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     console.log('Factores seleccionados confirmados para el problema:', problem);
   }*/
   confirmFactorsSelection(problem: DataQualityProblem) {
-    this.dqProblemsService.confirmFactorsSelection(problem.id, problem.selectedFactors || []);
+    this.problemsService.confirmFactorsSelection(problem.id, problem.selectedFactors || []);
     this.showDimensionsFactorsTitle = true;
     this.showDimensionsFactorsTable = true;
   }
@@ -140,6 +143,10 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
         return { dimension, factors: factorsWithProblems };
       })
       .filter(dimensionWithFactors => dimensionWithFactors.factors.length > 0);
+  }
+
+  confirmAllFactors() {
+    this.router.navigate(['/step4']);
   }
   
 }

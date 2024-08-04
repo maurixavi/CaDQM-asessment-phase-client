@@ -15,6 +15,7 @@ import { DqDimensionsFactorsSelectionComponent } from './pages/dq-dimensions-fac
 import { HeaderComponent } from './shared/header/header.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
+import {DQMeasurementPreviewComponent} from './pages/dqmeasurement-preview-run/dqmeasurement-preview-run.component'
 @NgModule({
   declarations: [
     AppComponent,
@@ -23,7 +24,8 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
     DQProblemsSelectionComponent,
     DqDimensionsFactorsSelectionComponent,
     HeaderComponent,
-    DashboardComponent
+    DashboardComponent,
+    DQMeasurementPreviewComponent
   ],
   imports: [
     BrowserModule,
