@@ -11,6 +11,11 @@ table {
 	font-size: 0.875rem; 
 }
 
+input {
+    border: none;
+    outline: none;
+}
+
 .table tbody tr td {
   color: #222; 
 }

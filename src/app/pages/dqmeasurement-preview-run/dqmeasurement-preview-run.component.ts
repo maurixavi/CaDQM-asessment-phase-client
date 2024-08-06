@@ -176,4 +176,12 @@ export class DQMeasurementPreviewComponent implements OnInit {
       problem.contextcomp_related_to.splice(index, 1);
     }
   }
+
+  saveMetrics(){
+    var result: QualityMetric[] = [];
+    this.qualityFactors.forEach(elem => {
+      result = result.concat(elem.definedMetrics);
+    });
+    
+  }
 }

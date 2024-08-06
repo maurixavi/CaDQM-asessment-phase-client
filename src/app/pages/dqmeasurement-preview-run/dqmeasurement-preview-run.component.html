@@ -12,25 +12,31 @@
         <div *ngFor="let factor of qualityFactors">
           <h3>{{ factor.name }}</h3>
           <div>
-            <label for="name">Name:</label>
-            <input type="text" [(ngModel)]="factor.newMetric.name" placeholder="Metric Name" />
-        
-            <label for="purpose">Purpose:</label>
-            <input type="text" [(ngModel)]="factor.newMetric.purpose" placeholder="Metric Purpose" />
-        
-            <label for="granularity">Granularity:</label>
-            <select [(ngModel)]="factor.newMetric.granularity">
-              <option *ngFor="let granularity of granularities" [value]="granularity">{{ granularity }}</option>
-            </select>
-        
-            <label for="domain">Domain:</label>
-            <select [(ngModel)]="factor.newMetric.domain">
-              <option *ngFor="let domain of domains" [value]="domain">{{ domain }}</option>
-            </select>
-        
-            <button (click)="addMetric(factor)">Add Metric</button>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Purpose</th>
+                  <th>Granularity</th>
+                  <th>Domain</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                <td><input type="text" [(ngModel)]="factor.newMetric.name" placeholder="Metric Name" /></td>
+                <td><input type="text" [(ngModel)]="factor.newMetric.purpose" placeholder="Metric Purpose" /></td>
+                <td><select [(ngModel)]="factor.newMetric.granularity">
+                  <option *ngFor="let granularity of granularities" [value]="granularity">{{ granularity }}</option>
+                </select></td>
+                <td><select [(ngModel)]="factor.newMetric.domain">
+                  <option *ngFor="let domain of domains" [value]="domain">{{ domain }}</option>
+                </select></td>
+                <td><button class="btn-primary" (click)="addMetric(factor)">Add Metric</button></td>
+              </tr>
+              </tbody>
+            </table>   
           </div>
-        
           <table>
             <thead>
               <tr>
@@ -54,7 +60,7 @@
         </div>        
       </div>
       <div>
-        <button (click)="saveOrder()" class="btn btn-primary btn-sm">Confirmar Orden</button>
+        <button (click)="saveMetrics()" class="btn btn-primary btn-sm">Confirmar Metricas</button>
       </div>
     </div>
   </div>

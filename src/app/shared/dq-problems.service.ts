@@ -74,7 +74,7 @@ export class DqProblemsService {
     var result: number[] = [];
     let problems = this.getSelectedProblems(); 
     problems.forEach(element => {
-      result.concat(element.selectedFactors || 0);
+      result = result.concat(element.selectedFactors || 0);
     });
     return Array.from(new Set(result));
   }
