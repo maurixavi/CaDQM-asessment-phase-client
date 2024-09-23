@@ -1,0 +1,145 @@
+<!-- Botón para abrir el modal -->
+<button type="button" class="btn btn-secondary btn-sm" (click)="openModal()">Context</button>
+
+<!-- Estructura del Modal -->
+<div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Componentes de Contexto: Versión {{ contextData[0]?.version }}</h5>
+        <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngFor="let context of contextData">
+
+          <!-- Accordion for Application Domain -->
+          <div class="accordion mb-3" [attr.id]="'accordionAppDomain' + context.id">
+            <div class="accordion-item">
+              <h2 class="accordion-header" [attr.id]="'headingAppDomain' + context.id">
+                <button class="accordion-button" type="button" (click)="toggleAccordion('collapseAppDomain' + context.id)">
+                  Application Domain
+                </button>
+              </h2>
+              <div [attr.id]="'collapseAppDomain' + context.id" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                  <p>appDom: {{ context.application_domains[0]?.name }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion for Business Rules -->
+          <div class="accordion mb-3" [attr.id]="'accordionBusinessRules' + context.id">
+            <div class="accordion-item">
+              <h2 class="accordion-header" [attr.id]="'headingBusinessRules' + context.id">
+                <button class="accordion-button" type="button" (click)="toggleAccordion('collapseBusinessRules' + context.id)">
+                  Business Rules
+                </button>
+              </h2>
+              <div [attr.id]="'collapseBusinessRules' + context.id" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                  <div *ngFor="let rule of context.business_rules">
+
+                    <!-- Accordion for Each Business Rule -->
+                    <div class="accordion mb-2" [attr.id]="'accordionRule' + rule.id">
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" [attr.id]="'headingRule' + rule.id">
+                          <button class="accordion-button" type="button" (click)="toggleAccordion('collapseRule' + rule.id)">
+                            Business Rule #{{ rule.id }}
+                          </button>
+                        </h2>
+                        <div [attr.id]="'collapseRule' + rule.id" class="accordion-collapse collapse">
+                          <div class="accordion-body">
+                            <p>Statement: {{ rule.statement }}</p>
+                            <p>Semantic: {{ rule.semantic }}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion for User Types -->
+          <div class="accordion mb-3" [attr.id]="'accordionUserTypes' + context.id">
+            <div class="accordion-item">
+              <h2 class="accordion-header" [attr.id]="'headingUserTypes' + context.id">
+                <button class="accordion-button" type="button" (click)="toggleAccordion('collapseUserTypes' + context.id)">
+                  User Types
+                </button>
+              </h2>
+              <div [attr.id]="'collapseUserTypes' + context.id" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                  <div *ngFor="let userType of context.user_types">
+                    <p>User Type: {{ userType.name }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion for DQ Metadata -->
+          <div class="accordion mb-3" [attr.id]="'accordionDQMetadata' + context.id">
+            <div class="accordion-item">
+              <h2 class="accordion-header" [attr.id]="'headingDQMetadata' + context.id">
+                <button class="accordion-button" type="button" (click)="toggleAccordion('collapseDQMetadata' + context.id)">
+                  DQ Metadata
+                </button>
+              </h2>
+              <div [attr.id]="'collapseDQMetadata' + context.id" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                  <div *ngFor="let metadata of context.dq_metadata">
+                    <p>Metadata ID: {{ metadata.id }}</p>
+                    <p>Description: {{ metadata.description }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion for Other Metadata -->
+          <div class="accordion mb-3" [attr.id]="'accordionOtherMetadata' + context.id">
+            <div class="accordion-item">
+              <h2 class="accordion-header" [attr.id]="'headingOtherMetadata' + context.id">
+                <button class="accordion-button" type="button" (click)="toggleAccordion('collapseOtherMetadata' + context.id)">
+                  Other Metadata
+                </button>
+              </h2>
+              <div [attr.id]="'collapseOtherMetadata' + context.id" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                  <div *ngFor="let otherMetadata of context.other_metadata">
+                    <p>Metadata ID: {{ otherMetadata.id }}</p>
+                    <p>Description: {{ otherMetadata.description }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion for Other Data -->
+          <div class="accordion mb-3" [attr.id]="'accordionOtherData' + context.id">
+            <div class="accordion-item">
+              <h2 class="accordion-header" [attr.id]="'headingOtherData' + context.id">
+                <button class="accordion-button" type="button" (click)="toggleAccordion('collapseOtherData' + context.id)">
+                  Other Data
+                </button>
+              </h2>
+              <div [attr.id]="'collapseOtherData' + context.id" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                  <div *ngFor="let otherData of context.other_data">
+                    <p>Data ID: {{ otherData.id }}</p>
+                    <p>Details: {{ otherData.details }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

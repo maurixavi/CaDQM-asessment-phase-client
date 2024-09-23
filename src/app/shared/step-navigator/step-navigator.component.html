@@ -1,0 +1,13 @@
+<div class="step-navigator">
+  <nav>
+		<span>{{ phaseTitle }} - {{ stageTitle }}:</span>
+    <ul class="step-list">
+      <li *ngFor="let step of steps; let i = index" 
+          [ngClass]="{'active': i === currentStep}">
+        <a [routerLink]="['/step' + (i + 1)]">{{ step }}</a>
+        <span *ngIf="i < steps.length - 1"> / </span>
+      </li>
+    </ul>
+  </nav>
+</div>
+<h2 class="title-step">{{ pageStepTitle }}</h2>

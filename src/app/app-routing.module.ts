@@ -7,13 +7,15 @@ import { AppComponent } from './app.component'
 import { DqDimensionsFactorsSelectionComponent } from './pages/dq-dimensions-factors-selection/dq-dimensions-factors-selection.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component'
 import { DQMeasurementPreviewComponent } from './pages/dqmeasurement-preview-run/dqmeasurement-preview-run.component';
+import { DQModelConfirmationComponent } from './pages/dqmodel-confirmation/dqmodel-confirmation.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent },
   { path: 'step1', component: DQProblemsPriorizationComponent },
   { path: 'step2', component: DQProblemsSelectionComponent },
   { path: 'step3', component: DqDimensionsFactorsSelectionComponent },
-  {path: 'step4', component: DQMeasurementPreviewComponent}
+  {path: 'step4', component: DQMeasurementPreviewComponent},
+  { path: 'step7', component: DQModelConfirmationComponent }
 ];
 
 @NgModule({

@@ -23,9 +23,9 @@ body {
 }
 
 .title {
-  font-size: 1.2rem;
-  font-weight: black;
-  font-style: italic;
+  font-size: 1.5rem;
+  font-weight: 500;
+	padding-top: 0.25rem;
 }
 
 .title-activity {

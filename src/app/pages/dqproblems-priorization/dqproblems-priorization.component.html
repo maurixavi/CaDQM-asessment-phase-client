@@ -1,23 +1,30 @@
 <div class="container my-4">
-  <h2 class="title">Stage 4: DQ Model Definition</h2>
-  <h2 class="title-activity">Priorización de Problemas de Calidad</h2>
-  <p class="title-description">Ordene los problemas de calidad según la prioridad deseada</p>
+  <app-step-navigator 
+		[pageStepTitle]="pageStepTitle" 
+		[phaseTitle]="phaseTitle" 
+		[stageTitle]="stageTitle" 
+		[currentStep]="currentStep">
+	</app-step-navigator>
 
+  <p class="subtitle-activity">Order the quality problems by desired priority, with the first being the highest priority</p>
+
+
+  <div class="flex-container">
   <div class="container-section">
 
 
   <div class="d-flex justify-content-center">
     <div class="w-100">
       <div cdkDropList (cdkDropListDropped)="drop($event)">
-        <table class="table table-striped">
+        <table class="table ">
           <thead>
             <tr>
               <th scope="col"></th>
               <th scope="col">#</th>
-              <th scope="col" class="col-problema">Problema</th>
-              <th scope="col" class="col-descripcion">Descripción</th>
-              <th scope="col" class="col-contexto">Componentes de Contexto asociados</th>
-              <th scope="col" class="col-tipoprioridad">Tipo de Prioridad</th>
+              <th scope="col" class="col-problema">Quality problem</th>
+              <th scope="col" class="col-descripcion">Description</th>
+              <!--<th scope="col" class="col-contexto">Componentes de Contexto asociados</th>-->
+              <th scope="col" class="col-tipoprioridad">Priority</th>
             </tr>
           </thead>
           <tbody>
@@ -26,7 +33,7 @@
               <th scope="row">{{ problem.priority }}°</th>
               <td class="col-problema"><strong>{{ problem.name }}</strong></td>
               <td class="col-descripcion">{{ problem.description }}</td>
-              <td class="col-contexto">
+              <!--<td class="col-contexto">
                 <select (change)="addContextComponent(problem, $event)" class="select-short">
                   <option value="">Seleccionar Componentes de Contexto</option>
                   <option *ngFor="let context of contextComponents" [value]="context.id">
@@ -39,12 +46,12 @@
                     <button (click)="removeContextComponent(problem, contextId)" class="btn-remove"><i class="bi bi-x-lg"></i></button>
                   </li>
                 </ul>
-              </td>
+              </td>-->
               <td>
                 <select [(ngModel)]="problem.priorityType" class="select-short">
-                  <option value="Alta">Alta</option>
-                  <option value="Media">Media</option>
-                  <option value="Baja">Baja</option>
+                  <option value="Alta">High</option>
+                  <option value="Media">Medium</option>
+                  <option value="Baja">Low</option>
                 </select>
               </td>
             </tr>
@@ -52,10 +59,16 @@
         </table>
       </div>
       <div>
-        <button (click)="saveOrder()" class="btn btn-primary btn-sm">Confirmar Orden</button>
+        <button (click)="saveOrder()" class="btn btn-dark btn-sm">Save order</button>
       </div>
     </div>
+    
+  </div>
+</div>
+</div>
+
+  <div class="next-step-btn-container">
+    <button (click)="saveOrder()" class="btn btn-dark btn-sm">Next ></button>
   </div>
 
-</div>
 </div>

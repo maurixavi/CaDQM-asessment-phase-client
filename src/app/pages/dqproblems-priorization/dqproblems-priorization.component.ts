@@ -39,6 +39,12 @@ interface QualityFactor {
   styleUrl: './dqproblems-priorization.component.scss'
 })
 export class DQProblemsPriorizationComponent implements OnInit {
+
+  currentStep: number = 0;
+  pageStepTitle: string = 'Prioritization of DQ problems';
+  phaseTitle: string = 'Phase 2: DQ Assessment';
+  stageTitle: string = 'Stage 4: DQ Model Definition';
+
   problems: DataQualityProblem[] = [];
   contextComponents: ContextComponent[] = [];
   selectedProblem: DataQualityProblem | null = null;

@@ -1,8 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, AfterViewInit  } from '@angular/core';
 // import { DataQualityProblem } from '../dqproblems-priorization/dqproblems-priorization.component'; 
 import { DqProblemsService } from '../../shared/dq-problems.service';
 import { Router } from '@angular/router';
 import contextComponentsJson from '../../../assets/context-components.json'
+
+declare var bootstrap: any; // Asegúrate de tener bootstrap declarado si no lo has hecho
 
 interface DataQualityProblem {
   id: number;
@@ -26,6 +28,13 @@ interface ContextComponent {
   styleUrl: './dqproblems-selection.component.scss'
 })
 export class DQProblemsSelectionComponent implements OnInit {
+
+  currentStep: number = 1;
+  pageStepTitle: string = 'Selection of prioritized DQ problems';
+  phaseTitle: string = 'Phase 2: DQ Assessment';
+  stageTitle: string = 'Stage 4: DQ Model Definition';
+
+
   prioritizedProblems: DataQualityProblem[] = [];
   selectedProblem: DataQualityProblem | null = null;
   detailsVisible: boolean = false;
@@ -43,6 +52,14 @@ export class DQProblemsSelectionComponent implements OnInit {
     console.log('Context components loaded:', this.contextComponents);
   }
 
+
+  ngAfterViewInit() {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  }
+
   showDetails(problem: DataQualityProblem) { 
     this.selectedProblem = problem;
     this.detailsVisible = true;
@@ -58,9 +75,17 @@ export class DQProblemsSelectionComponent implements OnInit {
     this.selectedProblem = null;
   }
 
-  addProblem(problem: DataQualityProblem) {
+  /*addProblem(problem: DataQualityProblem) {
     if (!this.selectedProblems.includes(problem)) {
       this.selectedProblems.push(problem);
+    }
+  }*/
+  addProblem(problem: DataQualityProblem) {
+    const index = this.selectedProblems.indexOf(problem);
+    if (index === -1) {
+      this.selectedProblems.push(problem);
+    } else {
+      this.selectedProblems.splice(index, 1);
     }
   }
 

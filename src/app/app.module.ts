@@ -12,10 +12,19 @@ import { DQProblemsPriorizationComponent } from './pages/dqproblems-priorization
 import { DQProblemsSelectionComponent } from './pages/dqproblems-selection/dqproblems-selection.component';
 
 import { DqDimensionsFactorsSelectionComponent } from './pages/dq-dimensions-factors-selection/dq-dimensions-factors-selection.component';
-import { HeaderComponent } from './shared/header/header.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
-import {DQMeasurementPreviewComponent} from './pages/dqmeasurement-preview-run/dqmeasurement-preview-run.component'
+import {DQMeasurementPreviewComponent} from './pages/dqmeasurement-preview-run/dqmeasurement-preview-run.component';
+
+import { HeaderComponent } from './shared/header/header.component';
+
+import { ContextComponentsComponent } from './shared/context-components/context-components.component';
+import { ContextComponentsService } from './shared/context-components/context-components.service';
+import { DQModelConfirmationComponent } from './pages/dqmodel-confirmation/dqmodel-confirmation.component';
+import { StepNavigatorComponent } from './shared/step-navigator/step-navigator.component';
+
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -25,7 +34,10 @@ import {DQMeasurementPreviewComponent} from './pages/dqmeasurement-preview-run/d
     DqDimensionsFactorsSelectionComponent,
     HeaderComponent,
     DashboardComponent,
-    DQMeasurementPreviewComponent
+    DQMeasurementPreviewComponent,
+    ContextComponentsComponent,
+    DQModelConfirmationComponent,
+    StepNavigatorComponent
   ],
   imports: [
     BrowserModule,
@@ -33,7 +45,7 @@ import {DQMeasurementPreviewComponent} from './pages/dqmeasurement-preview-run/d
     DragDropModule,
     FormsModule 
   ],
-  providers: [],
+  providers: [ContextComponentsService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,9 +1,9 @@
 body {
-  font-family: 'Open Sans', sans-serif; /* Aplica Open Sans como la fuente principal */
+  font-family: 'Open Sans', sans-serif; 
 }
 
 .container {
-	max-width: 80%;
+	max-width: 86%;
 	margin: auto;
 	color: #222; 
 }
@@ -21,18 +21,18 @@ th {
   font-weight: bold;  
 }
 .col-problema {
-	width: 25%;
-}
-.col-descripcion {
 	width: 30%;
 }
-.col-contexto {
+.col-descripcion {
+	width: 60%;
+}
+/*.col-contexto {
 	width: 32%;
 	overflow: hidden; 
 	text-overflow: ellipsis; 
-}
+}*/
 .col-tipoprioridad {
-	width: 35%;
+	width: 10%;
 }
 
 .select-short {
@@ -63,9 +63,9 @@ select {
 	font-weight: lighter;
 }
 
-.title-description{
-	font-size: 0.9rem;
-	margin-top: -5px;
+.subtitle-activity {
+  font-size: 0.95rem;
+  font-style: italic;
 }
 
 .text-center {
@@ -86,16 +86,40 @@ select {
 	font-size: 1rem;  
 	vertical-align: middle;  
 }
-.btn-primary {
-	font-size: 0.875rem;
-	/*font-weight: bold;*/
+.btn {
+	font-size: 0.9rem;
+  font-weight: 500;
+  /*border-radius: 8px;*/
 }
 
+.btn-dark {
+  background-color: #222; 
+  color: #fff; 
+  border: 1px solid  #111; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-dark:hover {
+  background-color: #333; 
+  border: 1px solid #333; 
+}
 .container-section {
+	width: 98%;
   border: 1px solid #ddd; 
   background-color: #fff; 
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
   font-size: 0.875rem;  
+}
+
+.next-step-btn-container{
+	display: flex;
+  justify-content: flex-end; 
+}
+
+.flex-container {
+  display: flex;
+  justify-content: center;
 }

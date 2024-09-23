@@ -1,0 +1,47 @@
+body {
+  font-family: 'Open Sans', sans-serif; /* Aplica Open Sans como la fuente principal */
+}
+
+
+.step-navigator {
+  font-size: 12px; /* Tamaño de fuente */
+  font-weight: 500;
+  display: flex; /* Mantiene todo en la misma línea */
+  align-items: center; /* Alinea verticalmente */
+  color: #888; /* Color gris oscuro para todo el texto */
+}
+
+.step-list {
+  list-style-type: none;
+  display: inline-flex; /* Asegura que se muestren en la misma línea */
+  padding: 0; /* Elimina padding del ul */
+  margin: 0; /* Elimina márgenes del ul */
+  margin-left: 6px; /* Espacio entre el título y los pasos */
+}
+
+.step-list li {
+  margin-right: 6px; /* Espacio entre los pasos */
+}
+
+.step-list li a {
+  text-decoration: none; /* Sin subrayado */
+  color: #888; /* Color gris oscuro para los enlaces */
+  transition: color 0.3s; /* Transición suave para el hover */
+}
+
+.step-list li a:hover {
+  color: black; /* Color negro al hacer hover */
+}
+
+.step-list li.active a {
+  font-weight: 600; /* Resalta el paso activo */
+  text-decoration: underline;
+}
+
+
+.title-step {
+  font-size: 1.5rem;
+  font-weight: 500;
+	padding-top: 0.25rem;
+  margin-bottom: 1rem;
+}

@@ -3,9 +3,13 @@ body {
 }
 
 .container {
-  max-width: 80%;
+  max-width: 86%;
   margin: auto;
   color: #222; 
+}
+
+.priority-column {
+  width: 78px; 
 }
 
 .table {
@@ -16,32 +20,28 @@ body {
   color: #222; 
 }
 
+.table td {
+  vertical-align: middle; 
+}
+
 .table th {
   font-size: 0.78rem;  
   color: #444; 
   font-weight: bold;  
 }
 
-.title {
-  font-size: 1.2rem;
-  font-weight: black;
+
+.subtitle-description {
+  font-size: 0.95rem;
   font-style: italic;
 }
 
-.title-activity {
-  font-size: 1.5rem;
-	font-weight: lighter;
-}
-
-.title-description {
-  font-size: 0.9rem;
-  margin-top: -5px;
-}
-
-.subtitle {
-  font-size: 1.2rem;
+.selection-subtitle {
+  font-size: 1.3rem;
+  font-weight: lighter;
   color: #333;
   margin-top: 20px;
+  margin-bottom: 10px;
 }
 
 .my-4 {
@@ -96,6 +96,33 @@ body {
 
 }
 
+.badge {
+  min-width: 50px;
+  display: inline-block;
+  padding: 0.4rem 0.5rem;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+.badge-high {
+  /*color: #942e2e;
+  border: 1px solid #942e2e;*/
+  background-color: #942e2e; 
+}
+
+.badge-medium {
+  background-color: #d8c246;
+  /*color: #d8c246;
+  border: 1px solid #d8c246;*/
+}
+
+.badge-low {
+  /*color: #3d773d;
+  border: 1px solid #3d773d;*/
+  background-color: #3d773d;
+}
+
+
 .priority-high .bi-circle-fill {
   color: #942e2e; 
 }
@@ -108,11 +135,114 @@ body {
   color: #3d773d;  
 }
 
+/*
+.flex-container {
+  display: flex;
+  gap: 1rem;
+*/
+  /*justify-content: space-between;*/ /* Ajusta el espacio entre los elementos */
+/*}*/
+
+.flex-container {
+  display: flex;
+  justify-content: center;
+}
+
 .container-section {
+  /*flex: 1; */
+  /*width: 70%;*/
+  width: 98%;
   border: 1px solid #ddd; 
   background-color: #fff; 
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
   font-size: 0.875rem;  
+}
+
+.container-section-2 {
+  /*
+  flex: 0 0 auto;*/
+
+  /*width: 26%;*/
+  border: 1px solid #ddd; 
+  background-color: #fff; 
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;  
+}
+
+.btn {
+	font-size: 0.9rem;
+  font-weight: 500;
+  /*border-radius: 8px;*/
+}
+.btn-dark {
+  background-color: #222; 
+  color: #fff; 
+  border: 1px solid  #111; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-dark:hover {
+  background-color: #333; 
+  border: 1px solid #333; 
+}
+
+.btn-light {
+  background-color: #fff; 
+  color: #111; 
+  border: 1px solid  #111; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-light:hover {
+  background-color: #222; 
+  color: #fff; 
+  border: 1px solid  #222; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-add-added {
+  min-width: 92px;
+}
+
+.next-step-btn-container{
+	display: flex;
+  justify-content: flex-end; 
+}
+
+.problem-selected-name{
+  font-size: 1.05rem;
+}
+
+.problem-selected-info{
+  color: #556;
+  padding-left: 1rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+
+
+.btn-context {
+  position: fixed; /* Fija el botón en la ventana */
+  right: 10px;
+  top: 400px; /* Distancia desde el borde superior */
+  z-index: 1000; /* Asegura que esté por encima de otros elementos */
+  padding: 10px 20px; /* Espaciado interno */
+  background-color: #007bff; /* Color de fondo (ajusta según tu tema) */
+  color: #fff; /* Color del texto */
+  border: none; /* Sin borde */
+  border-radius: 100px; /* Bordes redondeados */
+  cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra para efecto de profundidad */
+}
+
+.btn-context:hover {
+  background-color: #0056b3; /* Color al pasar el cursor (ajusta según tu tema) */
 }
