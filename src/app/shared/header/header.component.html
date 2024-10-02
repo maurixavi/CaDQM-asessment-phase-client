@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light custom-navbar">
+<!-- <nav class="navbar navbar-expand-lg navbar-light custom-navbar">
   <div class="container-fluid">
     <a class="navbar-brand" routerLink="/">CaQDM</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -15,14 +15,33 @@
       </ul>
       <ul class="navbar-nav ms-auto align-items-center">
         <li class="nav-item">
-          <app-context-components></app-context-components>
         </li>
-        <!--<li class="nav-item">
-          <a class="nav-link nav-btn" routerLink="/login">Login</a>
-        </li>
+      </ul>
+    </div>
+  </div>
+</nav> -->
+
+<nav class="navbar navbar-expand-lg navbar-light custom-navbar">
+  <div class="container-fluid">
+    <a class="navbar-brand" routerLink="/">CaQDM</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link nav-btn ms-2" routerLink="/register">Sign Up</a>
-        </li>-->
+          <a class="nav-link" routerLink="/">DQ Planning Phase</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            DQ Assessment 
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" routerLink="/step1">Stage 4: DQ Model Definition</a></li>
+            <li><a class="dropdown-item" routerLink="/step2">Stage 5: DQ Measurement</a></li>
+            <li><a class="dropdown-item" routerLink="/step1">Stage 6: DQ Assessment</a></li>
+          </ul>
+        </li>
       </ul>
     </div>
   </div>

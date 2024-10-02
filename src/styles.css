@@ -1,9 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 body {
-  background-color: red; /* Fondo rojo para toda la página */
+  background-color: #a83a3a;
 }
 
-
-body {
-  background-color: #ffffff; /* Color de fondo por defecto */
+.global-class {
+  color: blue;
 }

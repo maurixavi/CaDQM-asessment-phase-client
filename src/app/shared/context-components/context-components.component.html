@@ -1,5 +1,6 @@
-<!-- Botón para abrir el modal -->
-<button type="button" class="btn btn-secondary btn-sm" (click)="openModal()">Context</button>
+<!-- <button type="button" class="btn btn-secondary btn-sm" (click)="openModal()">Context</button> -->
+<button type="button" class="btn btn-context" (click)="openModal()">Context</button>
+
 
 <!-- Estructura del Modal -->
 <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">

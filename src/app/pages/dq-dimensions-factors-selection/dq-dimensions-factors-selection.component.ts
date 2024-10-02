@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { DqProblemsService } from '../../shared/dq-problems.service';
 import contextComponentsJson from '../../../assets/context-components.json';
 import { Router } from '@angular/router';
@@ -33,15 +33,21 @@ interface QualityFactor {
 @Component({
   selector: 'app-dq-dimensions-factors-selection',
   templateUrl: './dq-dimensions-factors-selection.component.html',
-  styleUrls: ['./dq-dimensions-factors-selection.component.scss']
+  styleUrls: ['./dq-dimensions-factors-selection.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
-  contextComponents: ContextComponent[] = [];
+  currentStep: number = 2; // Step 3
+  pageStepTitle: string = 'Selection of DQ dimensions and DQ factors';
+  phaseTitle: string = 'Phase 2: DQ Assessment';
+  stageTitle: string = 'Stage 4: DQ Model Definition';
 
+  contextComponents: ContextComponent[] = [];
+  selectedComponents: ContextComponent[] = []; // Para almacenar componentes seleccionados
+  dropdownOpen: boolean = false; // Para manejar la apertura/cierre del dropdown
 
   confirmedSelectedProblems: DataQualityProblem[] = [];
-
   confirmedFactors: { [key: number]: number[] } = {};
 
   qualityDimensions: QualityDimension[] = [
@@ -67,7 +73,6 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     { id: 12, dimensionId: 5, name: 'No-duplicación (duplication-free) ' },
     { id: 13, dimensionId: 5, name: 'No-contradicción (contradiction-free)' }
   ];
-  
 
   constructor(private router: Router, private problemsService: DqProblemsService) { }
 
@@ -80,6 +85,17 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     this.problemsService.currentConfirmedFactors.subscribe(factors => {
       this.confirmedFactors = factors;
     });
+  }
+
+  toggleDropdown() {
+    this.dropdownOpen = !this.dropdownOpen; // Cambia el estado del dropdown
+  }
+
+  selectComponent(component: ContextComponent) {
+    if (!this.selectedComponents.includes(component)) {
+      this.selectedComponents.push(component); // Añade el componente seleccionado
+    }
+    this.dropdownOpen = false; // Cierra el dropdown después de seleccionar
   }
 
   getContextDescription(contextId: string): string {
@@ -101,8 +117,6 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
       .filter(problem => this.confirmedFactors[problem.id]?.includes(factorId))
       .map(problem => problem.name);
   }
-  
-  
 
   isFactorSelected(problem: DataQualityProblem, factorId: number): boolean {
     return problem.selectedFactors !== undefined && problem.selectedFactors.includes(factorId);
@@ -121,9 +135,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
   showDimensionsFactorsTitle = false;
   showDimensionsFactorsTable = false;
-  /*confirmFactorsSelection(problem: DataQualityProblem) {
-    console.log('Factores seleccionados confirmados para el problema:', problem);
-  }*/
+
   confirmFactorsSelection(problem: DataQualityProblem) {
     this.problemsService.confirmFactorsSelection(problem.id, problem.selectedFactors || []);
     this.showDimensionsFactorsTitle = true;
@@ -139,7 +151,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
             problems: this.getProblemsForFactor(factor.id)
           }))
           .filter(factorWithProblems => factorWithProblems.problems.length > 0);
-  
+
         return { dimension, factors: factorsWithProblems };
       })
       .filter(dimensionWithFactors => dimensionWithFactors.factors.length > 0);
@@ -148,5 +160,18 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   confirmAllFactors() {
     this.router.navigate(['/step4']);
   }
-  
+
+  removeComponent(component: ContextComponent) {
+    this.selectedComponents = this.selectedComponents.filter(selected => selected.id !== component.id);
+  }
+
+  isModalOpen = false;
+
+  openModal() {
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
+  }
 }

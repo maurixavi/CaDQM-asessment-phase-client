@@ -1,17 +1,234 @@
+
 <div class="container my-4">
-  <div class="go-back">
-    <button class="go-back-btn">
-      <i class="bi bi-chevron-left"></i>
-    </button>
-    <a href="step2" class="go-back-link">Back</a>
-  </div>
+  <app-step-navigator 
+		[pageStepTitle]="pageStepTitle" 
+		[phaseTitle]="phaseTitle" 
+		[stageTitle]="stageTitle" 
+		[currentStep]="currentStep">
+	</app-step-navigator>
 
-
-  <h2 class="title">Stage 4: DQ Model Definition</h2>
-  <h2 class="title-activity">Selección de Dimensiones y Factores de Calidad</h2>
-  <p class="title-description">Seleccione las dimensiones y factores de calidad para los problemas priorizados seleccionados</p>
+  <p class="subtitle-description">Suggested Dimensions and Factors</p>
 
   
+
+  <div class="flex-container">
+    <div class="suggested-section-container p-4">
+      <div>
+        <!--<div>
+          <h3 class="dqmodel-element-name">DQ Dimension: <strong>Accuracy <i class="bi bi-info-circle"></i></strong></h3>
+          <h3 class="dqmodel-element-name">DQ Factor: <strong>Syntactic Accuracy <i class="bi bi-info-circle"></i></strong></h3>
+        </div>-->
+
+        <div class="label-container">
+          <div class="label">
+            <label class="label-title">DQ Dimension:</label>
+            <span class="label-value">Accuracy <i class="bi bi-info-circle"></i></span>
+          </div>
+          <div class="label">
+            <label class="label-title">DQ Factor:</label>
+            <span class="label-value">Syntactic Accuracy <i class="bi bi-info-circle"></i></span>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-2 px-4 py-3" style="gap: 20px;">
+          <div class="from-ctx-components  flex-fill ">
+            <p class="from-ctx-components-title">From Context Components:</p>
+            <div *ngIf="dropdownOpen" class="dropdown">
+              <ul class="list-group" style="max-height: 200px; overflow-y: auto;">
+                <li class="list-group-item" *ngFor="let component of contextComponents" (click)="selectComponent(component)">
+                  {{ component.description }}
+                </li>
+              </ul>
+            </div>
+
+            <div *ngIf="selectedComponents.length > 0">
+              <ul>
+                <li *ngFor="let selected of selectedComponents" class="">
+                  {{ selected.description }}
+                  <button class="btn p-0" (click)="removeComponent(selected)">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                  </button>
+                </li>
+              </ul>
+            </div>
+            <button class="btn btn-light btn-sm" (click)="toggleDropdown()">Select</button>
+          </div>
+
+          <div class="from-ctx-components flex-fill ">
+            <p class="fst-italic">From DQ Problems:</p>
+            <div *ngIf="dropdownOpen" class="dropdown">
+              <ul class="list-group" style="max-height: 200px; overflow-y: auto;">
+                <li class="list-group-item" *ngFor="let component of contextComponents" (click)="selectComponent(component)">
+                  {{ component.description }}  
+                </li>
+              </ul>
+            </div>
+
+            <div *ngIf="selectedComponents.length > 0">
+              <ul>
+                <li *ngFor="let selected of selectedComponents" class="">
+                  {{ selected.description }}
+                  <button class="btn p-0" (click)="removeComponent(selected)">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                  </button>
+                </li>
+              </ul>
+            </div>
+            <button class="btn btn-light btn-sm" (click)="toggleDropdown()">Select</button>
+          </div>
+        </div>
+
+      </div>
+
+      <button class="btn btn-dark btn-sm mt-4">Add to DQ Model</button>
+      <button class="btn btn-light btn-sm mt-4 mx-3">Ignore</button>
+    </div>
+  </div>
+
+  <p class="subtitle-description">Add Dimensions and Factors from scratch</p>
+
+  <div class="flex-container">
+    <div class="suggested-section-container p-4">
+      <div>
+
+        <div class="label-container">
+          <div class="label">
+            <label class="label-title">DQ Dimension:</label>
+            <span class="label-value">
+              <button class="btn btn-light btn-sm" (click)="toggleDropdown()">
+                Select existing <i class="bi bi-chevron-down"></i>
+              </button>
+              <button class="btn btn-light btn-sm mx-2" (click)="openModal()">Add new</button>
+            </span>
+          </div>
+
+          <!--Add New Dimension modal form-->
+          <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Add new DQ Dimension</h5>
+                  <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+                    <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form>
+                    <div class="form-group">
+                      <label for="projectTitle">Name</label>
+                      <input type="text" class="form-control" id="projectName" placeholder="Enter DQ Dimension name">
+                    </div>
+                    <div class="form-group">
+                      <label for="projectDescription">Semantic</label>
+                      <input type="text" class="form-control" id="projectDescription" placeholder="Enter DQ Dimension semantic">
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-sm btn-light" (click)="closeModal()">Cancel</button>
+                  <button type="button" class="btn btn-sm btn-dark" routerLink="/step1">Confirm</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!--Mostrar Dimension seleccionada/creado-->
+          <div>
+            <div class="label-container-selected py-2 px-4">
+              <div class="label-selected">
+                <span class="label-name-selected">Consistency</span>
+              </div>
+              <div class="label-selected">
+                <label class="label-title-selected">Semantic:</label>
+                <span class="label-value-selected">It indicates the satisfaction of semantic rules defined on the data.</span>
+              </div>  
+            </div>
+
+            <button class="btn btn-light btn-sm mx-4 my-2 mb-4" (click)="openModal()">Edit</button>
+          </div>
+
+          <div class="label">
+            <label class="label-title">DQ Factor:</label>
+            <span class="label-value">
+              <button class="btn btn-light btn-sm" (click)="toggleDropdown()">Select existing <i class="bi bi-chevron-down"></i></button>
+              <button class="btn btn-light btn-sm my-2 mx-2" (click)="toggleDropdown()">Create <i class="bi bi-plus-circle"></i></button>
+            </span>
+          </div>
+          <!--Mostrar Factor seleccionado/creado-->
+          <div>
+            <div class="label-container-selected py-2 px-4">
+              <div class="label-selected">
+                <span class="label-name-selected">Domain integrity</span>
+              </div>
+              <div class="label-selected">
+                <label class="label-title-selected">Semantic:</label>
+                <span class="label-value-selected">It verifies the satisfaction of rules on the attribute content. It verifies the satisfaction of rules on the attribute content. It verifies the satisfaction of rules on the attribute content.</span>
+              </div>
+            </div>
+
+            <button class="btn btn-light btn-sm mx-4 my-2" (click)="openModal()">Edit</button>
+          </div>
+
+        </div>
+        
+        <!--Context Components-->
+        <div class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
+          <div class="from-ctx-components  flex-fill ">
+            <p class="fst-italic">From Context Components:</p>
+            <div *ngIf="dropdownOpen" class="dropdown">
+              <ul class="list-group" style="max-height: 200px; overflow-y: auto;">
+                <li class="list-group-item" *ngFor="let component of contextComponents" (click)="selectComponent(component)">
+                  {{ component.description }}
+                </li>
+              </ul>
+            </div>
+
+            <div *ngIf="selectedComponents.length > 0">
+              <ul>
+                <li *ngFor="let selected of selectedComponents" class="">
+                  {{ selected.description }}
+                  <button class="btn p-0" (click)="removeComponent(selected)">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                  </button>
+                </li>
+              </ul>
+            </div>
+            <button class="btn btn-light btn-sm" (click)="toggleDropdown()">
+              Select <i class="bi bi-chevron-down"></i>
+            </button>
+          </div>
+
+          <div class="from-ctx-components flex-fill ">
+            <p class="fst-italic">From DQ Problems:</p>
+            <div *ngIf="dropdownOpen" class="dropdown">
+              <ul class="list-group" style="max-height: 200px; overflow-y: auto;">
+                <li class="list-group-item" *ngFor="let component of contextComponents" (click)="selectComponent(component)">
+                  {{ component.description }}  
+                </li>
+              </ul>
+            </div>
+
+            <div *ngIf="selectedComponents.length > 0">
+              <ul>
+                <li *ngFor="let selected of selectedComponents" class="">
+                  {{ selected.description }}
+                  <button class="btn p-0" (click)="removeComponent(selected)">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                  </button>
+                </li>
+              </ul>
+            </div>
+            <button class="btn btn-light btn-sm" (click)="toggleDropdown()">Select</button>
+          </div>
+        </div>
+
+      </div>
+
+      <button class="btn btn-dark btn-sm mt-4">Add to DQ Model</button>
+    </div>
+  </div>
+  
+  <div class="flex-container">
   <div class="container-section">
     
   <div *ngFor="let problem of confirmedSelectedProblems" class="selected-problem-item mb-4">
@@ -43,7 +260,7 @@
         </ul>
       </div>
     </div>
-    <button class="btn btn-primary btn-sm mt-3" (click)="confirmFactorsSelection(problem)">Agregar</button>
+    <button class="btn btn-dark btn-sm mt-3" (click)="confirmFactorsSelection(problem)">Add to DQ Model</button>
   </div>
 
 
@@ -82,8 +299,16 @@
   </table>
   <button class="btn btn-primary btn-sm mt-3" (click)="confirmAllFactors()">Confirmar Selección</button> 
 </div>
+</div>
 
 
 
+
+
+<div class="next-step-btn-container">
+  <button (click)="confirmAllFactors()" class="btn btn-dark btn-sm">Next ></button>
+</div>
 
 </div>
+
+<app-context-components></app-context-components>

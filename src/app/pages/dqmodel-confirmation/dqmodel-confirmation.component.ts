@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation  } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-dqmodel-confirmation',
   templateUrl: './dqmodel-confirmation.component.html',
-  styleUrl: './dqmodel-confirmation.component.css'
+  //styleUrl: './dqmodel-confirmation.component.css',
+  styleUrls: ['./dqmodel-confirmation.component.css'],    
+  encapsulation: ViewEncapsulation.None
 })
 
 export class DQModelConfirmationComponent implements OnInit {

@@ -8,114 +8,112 @@
 
   <p class="subtitle-description">Select the prioritized quality problems to define the DQ Model</p>
 
-<div class="flex-container">
-  <div class="container-section">
-    <div class="row">
-      <div class="col-md-12">
-        <table class="table">
-          <thead>
-            <tr>
-              <th class="priority-column ">Priority</th>
-              <th class="w-70">Quality Problem</th>
-              <th class="w-10">Date</th>
-              <th class="w-10"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let problem of prioritizedProblems" [ngClass]="{
-              'priority-high': problem.priorityType === 'Alta',
-              'priority-medium': problem.priorityType === 'Media',
-              'priority-low': problem.priorityType === 'Baja'
-            }">
-              <td>
-                <span [ngClass]="{
-                  'badge': true,
-                  'badge-high': problem.priorityType === 'Alta',
-                  'badge-medium': problem.priorityType === 'Media',
-                  'badge-low': problem.priorityType === 'Baja'
-                }">
-                  {{ problem.priorityType }}
-                </span>
-              </td>
-              <!--<td><i class="bi bi-circle-fill"></i></td>
-              <td>{{ problem.priorityType }}</td>-->
-              <td>
-                {{ problem.name }} 
-                <i class="bi bi-info-circle" 
-                  data-bs-toggle="tooltip" 
-                  data-bs-placement="top" 
-                  title="{{ problem.description }}"></i>
-              </td>
-              <td>Sep 23 18:20:01 2024</td>
-              <td style="text-align: right;">
-                <!--<button class="btn btn-outline-secondary btn-sm" (click)="showDetails(problem)">
-                  <i class="bi bi-zoom-in"></i>
-                </button>-->
-                <button class="btn btn-add-added btn-light btn-sm ms-1" (click)="addProblem(problem)">
-                  <span [innerHTML]="selectedProblems.includes(problem) ? 'Added <i class=&quot;bi bi-check-lg&quot;></i>' : 'Add'"></span>   
+  <div class="flex-container">
+    <div class="container-section">
+      <div class="row">
+        <div class="col-md-12">
+          <table class="table">
+            <thead>
+              <tr>
+                <th class="priority-column ">Priority</th>
+                <th class="w-70">Quality Problem</th>
+                <th class="w-10">Date</th>
+                <th class="w-10"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let problem of prioritizedProblems" [ngClass]="{
+                'priority-high': problem.priorityType === 'Alta',
+                'priority-medium': problem.priorityType === 'Media',
+                'priority-low': problem.priorityType === 'Baja'
+              }">
+                <td>
+                  <span [ngClass]="{
+                    'badge': true,
+                    'badge-high': problem.priorityType === 'Alta',
+                    'badge-medium': problem.priorityType === 'Media',
+                    'badge-low': problem.priorityType === 'Baja'
+                  }">
+                    {{ problem.priorityType }}
+                  </span>
+                </td>
+                <!--<td><i class="bi bi-circle-fill"></i></td>
+                <td>{{ problem.priorityType }}</td>-->
+                <td>
+                  {{ problem.name }} 
+                  <i class="bi bi-info-circle" 
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="top" 
+                    title="{{ problem.description }}"></i>
+                </td>
+                <td>Sep 23 18:20:01 2024</td>
+                <td style="text-align: right;">
+                  <!--<button class="btn btn-outline-secondary btn-sm" (click)="showDetails(problem)">
+                    <i class="bi bi-zoom-in"></i>
+                  </button>-->
+                  <button class="btn btn-add-added btn-light btn-sm ms-1" (click)="addProblem(problem)">
+                    <span [innerHTML]="selectedProblems.includes(problem) ? 'Added <i class=&quot;bi bi-check-lg&quot;></i>' : 'Add'"></span>   
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ms-4 me-4" *ngIf="selectedProblems.length > 0">
+            <h3 class="mt-4 selection-subtitle">DQ problems selected</h3>
+            <div *ngFor="let problem of selectedProblems" class="selected-problem-container ms-2 me-2">
+              <div class="d-flex justify-content-between align-items-center">
+                <h4 class="problem-selected-name">{{ problem.name }}</h4>
+                <button class="btn btn-outline-danger btn-sm" (click)="removeSelectedProblem(problem)">
+                  Delete
                 </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="ms-4 me-4" *ngIf="selectedProblems.length > 0">
-          <h3 class="mt-4 selection-subtitle">DQ problems selected</h3>
-          <div *ngFor="let problem of selectedProblems" class="selected-problem-container ms-2 me-2">
-            <div class="d-flex justify-content-between align-items-center">
-              <h4 class="problem-selected-name">{{ problem.name }}</h4>
-              <button class="btn btn-outline-danger btn-sm" (click)="removeSelectedProblem(problem)">Delete</button>
+              </div>
+              <div class="problem-selected-info">
+                <p><strong>Priority:</strong> {{ problem.priorityType }}</p>
+                <p><strong>Description:</strong> {{ problem.description }}</p>
+                <p><strong>Date:</strong></p>
+                <ul>
+                  <li *ngFor="let contextId of problem.contextcomp_related_to">
+                    {{ contextId }}: {{ getContextDescription(contextId) }}
+                  </li>
+                </ul>
+              </div>
+              <hr>
             </div>
-            <div class="problem-selected-info">
-              <p><strong>Priority:</strong> {{ problem.priorityType }}</p>
-              <p><strong>Description:</strong> {{ problem.description }}</p>
-              <p><strong>Date:</strong></p>
-              <ul>
-                <li *ngFor="let contextId of problem.contextcomp_related_to">
-                  {{ contextId }}: {{ getContextDescription(contextId) }}
-                </li>
-              </ul>
-            </div>
-            <hr>
+            <button class="btn btn-dark btn-sm mt-3" (click)="confirmSelectedProblems()">Save selection</button>
           </div>
-          <button class="btn btn-dark btn-sm mt-3" (click)="confirmSelectedProblems()">Save selection</button>
-        </div>
-        
-
-      <div *ngIf="detailsVisible" class="col-md-4">
-        <div class="details-container">
-          <h3>Detalles del Problema:</h3>
-          <p><strong>Problema:</strong> {{ selectedProblem?.name }}</p>
-          <p><strong>Descripción:</strong> {{ selectedProblem?.description }}</p>
-          <p><strong>Prioridad:</strong> {{ selectedProblem?.priorityType }}</p>
-          <p><strong>Componentes de Contexto Asociados:</strong></p>
-          <ul>
-            <li *ngFor="let contextId of selectedProblem?.contextcomp_related_to">
-              {{ contextId }}: {{ getContextDescription(contextId) }}
-            </li>
-          </ul>
-          <button class="btn btn-outline-secondary btn-sm" (click)="hideDetails()">Ocultar detalles</button>
+          
+        <div *ngIf="detailsVisible" class="col-md-4">
+          <div class="details-container">
+            <h3>Detalles del Problema:</h3>
+            <p><strong>Problema:</strong> {{ selectedProblem?.name }}</p>
+            <p><strong>Descripción:</strong> {{ selectedProblem?.description }}</p>
+            <p><strong>Prioridad:</strong> {{ selectedProblem?.priorityType }}</p>
+            <p><strong>Componentes de Contexto Asociados:</strong></p>
+            <ul>
+              <li *ngFor="let contextId of selectedProblem?.contextcomp_related_to">
+                {{ contextId }}: {{ getContextDescription(contextId) }}
+              </li>
+            </ul>
+            <button class="btn btn-outline-secondary btn-sm" (click)="hideDetails()">Ocultar detalles</button>
+          </div>
         </div>
       </div>
     </div>
-
-    </div>
-
-  
   </div> <!--container-section-->
 
-  <!--
-    <div class="container-section-2">
-    <button class="btn btn-outline-secondary btn-sm" (click)="hideDetails()">Ocultar detalles</button>
-    <p>CONTEXT COMPONENTS:</p>
-    <p>Application Domain</p>
-    <p>Business Rules</p>
-    <p> User Types</p>
-    <p>  DQ Metadata
-      Other Metadata
-      Other Data</p>
-  </div>-->
-</div>
+    <!--
+      <div class="container-section-2">
+      <button class="btn btn-outline-secondary btn-sm" (click)="hideDetails()">Ocultar detalles</button>
+      <p>CONTEXT COMPONENTS:</p>
+      <p>Application Domain</p>
+      <p>Business Rules</p>
+      <p> User Types</p>
+      <p>  DQ Metadata
+        Other Metadata
+        Other Data</p>
+    </div>-->
+  </div>
 
 <div class="next-step-btn-container">
   <button (click)="confirmSelectedProblems()" class="btn btn-dark btn-sm">Next ></button>

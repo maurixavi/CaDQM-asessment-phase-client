@@ -4,7 +4,7 @@ import { DqProblemsService } from '../../shared/dq-problems.service';
 import { Router } from '@angular/router';
 import contextComponentsJson from '../../../assets/context-components.json'
 
-declare var bootstrap: any; // Asegúrate de tener bootstrap declarado si no lo has hecho
+declare var bootstrap: any; 
 
 interface DataQualityProblem {
   id: number;
@@ -29,7 +29,7 @@ interface ContextComponent {
 })
 export class DQProblemsSelectionComponent implements OnInit {
 
-  currentStep: number = 1;
+  currentStep: number = 1; //Step 2
   pageStepTitle: string = 'Selection of prioritized DQ problems';
   phaseTitle: string = 'Phase 2: DQ Assessment';
   stageTitle: string = 'Stage 4: DQ Model Definition';

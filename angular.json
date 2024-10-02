@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "kanban-angular-app": {
+    "cadqm-project-app": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -24,7 +24,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/kanban-angular-app",
+            "outputPath": "dist/cadqm-project-app",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -43,7 +43,9 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/bootstrap-icons/font/bootstrap-icons.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -68,15 +70,15 @@
             }
           },
           "defaultConfiguration": "production"
-        },
+        }, 
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "kanban-angular-app:build:production"
+              "buildTarget": "cadqm-project-app:build:production"
             },
             "development": {
-              "buildTarget": "kanban-angular-app:build:development"
+              "buildTarget": "cadqm-project-app:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -7,15 +7,282 @@
 		[currentStep]="currentStep">
 	</app-step-navigator>
 
-  <p class="title-description">Defined DQ Model preview</p>
+  <p class="title-description">Defined DQ Model preview. Confirm or edit it by returning to a previous step</p>
 
-  
-  <div class="container-section">
-    
+  <div class="flex-container">
+		<div class="container-section">
+
+			<div class="label-container p-3">
+				<div class="label">
+					<label class="label-title">DQ Model:</label>
+					<span class="label-value">
+ 
+					</span>
+				</div>
+
+				<div>
+					<div class="label-container-selected py-2 px-4">
+						<div class="label-selected">
+							<span class="label-name-selected">DQM_v1.0</span>
+						</div>
+						<div class="label-selected">
+							<label class="label-title-selected">Creation date:</label>
+							<span class="label-value-selected">Sep 23 18:20:01 2024</span>
+						</div> 
+						<div class="label-selected">
+							<label class="label-title-selected">Context version:</label>
+							<span class="label-value-selected">CtxA v1.0</span>
+						</div>  
+						<div class="label-selected">
+							<label class="label-title-selected">Data at hand:</label>
+							<span class="label-value-selected">Dataset A</span>
+						</div> 
+						<div class="label-selected align-center py-2">
+							<label class="label-title-selected">DQ Dimensions:</label>
+							<span class="label-value">
+								<button class="btn btn-light btn-sm">Show <i class="bi bi-chevron-down"></i></button>
+							</span>
+						</div> 
+						
+					</div>
+
+					<!-- DIMENSIONS -->
+					<div class="label-container-selected ms-4 px-4 mt-2">
+						<!--Dimension closed-->
+						<div class="dq-model-element-container mb-2">
+							<span class="dq-model-element-name">DQ Dimension: <strong>Accuracy </strong><i class="bi bi-chevron-down"></i></span>
+						</div>
+						<!--Dimension 1-->
+						<div>
+							<!--<div class="label-selected">
+								<span class="label-name-selected">Domain integrity <i class="bi bi-zoom-in"></i></span>
+							</div>-->
+							<div class="dq-model-element-container mb-2">
+								<span class="dq-model-element-name">DQ Dimension: <strong>Consistency </strong><i class="bi bi-chevron-up"></i></span>
+							</div>
+							<div class="label-selected">
+								<label class="label-title-selected">Semantic:</label>
+								<span class="label-value-selected">It verifies the satisfaction of rules on the attribute content. It verifies the satisfaction of rules on the attribute content. It verifies the satisfaction of rules on the attribute content.</span>
+							</div>
+							<div class="label-selected">
+								<label class="label-title-selected">Ctx (Suggested by):</label>
+								<span class="label-value-selected">BR1, BR2</span>
+							</div>
+							<div class="label-selected py-2">
+								<label class="label-title-selected">DQ Factors:</label>
+								<span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span>
+							</div>
+							<!-- DQ Factors -->
+							<div class="label-container-selected ms-4 px-4 mt-2">
+								<!-- Factor 1 -->
+								<div>
+									<div class="dq-model-element-container mb-2">
+										<span class="dq-model-element-name">DQ Factor: <strong>Domain integrity </strong><i class="bi bi-chevron-up"></i></span>
+									</div>
+									<div class="label-selected">
+										<label class="label-title-selected">Semantic:</label>
+										<span class="label-value-selected">It verifies the satisfaction of rules on
+											the attribute content.</span>
+									</div>
+									<div class="label-selected">
+										<label class="label-title-selected">Ctx (Arises from):</label>
+										<span class="label-value-selected">BR1</span>
+									</div>
+									<div class="label-selected py-2">
+										<label class="label-title-selected">DQ Metrics:</label>
+										<span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span>
+									</div>
+									<!-- DQ Metrics -->
+									<div class="label-container-selected ms-4 px-4 mt-2">
+										<!-- Metric 1 -->
+										<div>
+											<div class="dq-model-element-container mb-2">
+												<span class="dq-model-element-name">DQ Metric: <strong>antibioticValidation </strong><i class="bi bi-chevron-up"></i></span>
+											</div>
+											<div class="label-selected">
+												<label class="label-title-selected">Purpose:</label>
+												<span class="label-value-selected">Check if antibiotic names is “amika”,
+													“vanco” or “genta”.</span>
+											</div>
+											<div class="label-selected">
+												<label class="label-title-selected">Granularity:</label>
+												<span class="label-value-selected">Value</span>
+											</div>
+											<div class="label-selected">
+												<label class="label-title-selected">Result domain:</label>
+												<span class="label-value-selected">Boolean</span>
+											</div>
+											<div class="label-selected">
+												<label class="label-title-selected">Purpose:</label>
+												<span class="label-value-selected">Check if antibiotic names is “amika”,
+													“vanco” or “genta”.</span>
+											</div>
+											<div class="label-selected mt-2 mb-2">
+												<label class="label-title-selected">Ctx (Influenced by):</label>
+												<span class="label-value-selected">BR1</span>
+											</div>
+											<div class="label-selected py-2">
+												<label class="label-title-selected">DQ Metrics:</label>
+												<span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span>
+											</div>
+											
+											<!-- DQ Methods -->
+											<div class="label-container-selected ms-4 px-4 mt-2">
+												<!-- Method 1 -->
+												<div>
+													<div class="dq-model-element-container mb-2">
+														<span class="dq-model-element-name">DQ Method: <strong>antibioticValidation_alg1 </strong><i class="bi bi-chevron-up"></i></span>
+													</div>
+													<div class="label-selected">
+														<label class="label-title-selected">Input data type:</label>
+														<span class="label-value-selected">String (value)</span>
+													</div>
+													<div class="label-selected">
+														<label class="label-title-selected">Output data type:</label>
+														<span class="label-value-selected">Boolean</span>
+													</div>
+													<div class="label-selected">
+														<label class="label-title-selected">Algorithm domain:</label>
+														<span class="code-block">
+															<pre><code>
+if value in ["amika", "vanco", "genta"] 
+	then return 1 
+	else return 0;  
+end;
+															</code></pre>
+														</span>
+													</div>
 	
+													<div class="label-selected mt-2 mb-2">
+														<label class="label-title-selected">Ctx (Uses):</label>
+														<span class="label-value-selected">BR1</span>
+													</div>
+													<div class="label-selected py-2">
+														<label class="label-title-selected">Applied DQ Methods:</label>
+														<span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span>
+													</div>
+												</div>
+
+												<!-- Method 2 -->
+												<div>
+													<div class="dq-model-element-container mt-3">
+														<span class="dq-model-element-name">DQ Method: <strong>antibioticValidation_alg2 </strong><i class="bi bi-chevron-down"></i></span>
+													</div>
+												</div>
+
+												<!-- Method 3 -->
+												<div>
+													<div class="dq-model-element-container mb-4 mt-3">
+														<span class="dq-model-element-name">DQ Method: <strong>antibioticValidation_alg3 </strong><i class="bi bi-chevron-down"></i></span>
+													</div>
+												</div>
+
+											</div>
+
+										</div>
+
+									</div>
+
+								</div>
+
+								<!-- Factor 2 -->
+								<div>
+									<div class="dq-model-element-container mb-2">
+										<span class="dq-model-element-name">DQ Factor: <strong>Domain integrity </strong><i class="bi bi-chevron-up"></i></span>
+									</div>
+									<div class="label-selected">
+										<label class="label-title-selected">Semantic:</label>
+										<span class="label-value-selected">It verifies the satisfaction of rules on the attribute content. It verifies the satisfaction of rules on the attribute content. It verifies the satisfaction of rules on the attribute content.</span>
+									</div>
+									<div class="label-selected">
+										<label class="label-title-selected">Ctx (Arises from):</label>
+										<span class="label-value-selected">BR1, BR2</span>
+									</div>
+									<div class="label-selected py-2">
+										<label class="label-title-selected">DQ Metrics:</label>
+										<span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span>
+									</div>
+								</div>
+
+								<!-- Factor 3 -->
+								<div>
+									<div class="dq-model-element-container mt-2 mb-2">
+										<span class="dq-model-element-name">DQ Factor: <strong>Domain integrity </strong><i class="bi bi-chevron-up"></i></span>
+									</div>
+									<div class="label-selected">
+										<label class="label-title-selected">Semantic:</label>
+										<span class="label-value-selected">It verifies the satisfaction of rules on
+											the attribute content.</span>
+									</div>
+									<div class="label-selected">
+										<label class="label-title-selected">Ctx (Arises from):</label>
+										<span class="label-value-selected">BR2</span>
+									</div>
+									<div class="label-selected py-2">
+										<label class="label-title-selected">DQ Metrics:</label>
+										<span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span>
+									</div>
+								</div>
+
+								<!-- Factor 4 -->
+								<div>
+									<div class="dq-model-element-container mt-2 mb-4">
+										<span class="dq-model-element-name">DQ Factor: <strong>Domain integrity </strong><i class="bi bi-chevron-down"></i></span>
+									</div>
+								</div>
+
+							</div>
+						
+						</div>
+
+						<!--Dimension 2-->
+						<div class="mt-2">
+							<div class="dq-model-element-container mb-2">
+								<span class="dq-model-element-name">DQ Dimension: <strong>Completeness </strong><i class="bi bi-chevron-down"></i></span>
+							</div>
+							<div class="label-selected">
+								<label class="label-title-selected">Semantic:</label>
+								<span class="label-value-selected">It indicates the portion of information
+									stored in the system.</span>
+							</div>
+							<div class="label-selected">
+								<label class="label-title-selected">Ctx (Suggested by):</label>
+								<span class="label-value-selected">DQR1</span>
+							</div>
+							<div class="label-selected py-2">
+								<label class="label-title-selected">DQ Factors:</label>
+								<span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span>
+							</div>
+						</div>
+
+						<!--Dimension x-->
+						<div class="mt-2">
+							<div class="dq-model-element-container mb-2">
+								<span class="dq-model-element-name">DQ Dimension: <strong>Completeness </strong><i class="bi bi-chevron-up"></i></span>
+							</div>
+						</div>
+
+					</div> <!-- end dimensions -->
+
+			
+				
+
+			</div>
+
+
+	
+
+			
+
+		</div>
+	</div>
+
+	
+
+
+</div>
+<div class="next-step-btn-container">
+	<button class="btn btn-dark btn-sm">Confirm DQ Model</button>
 </div>
 
 
-
-
-</div>

@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit, ViewEncapsulation } from '@angular/core';
+
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrl: './header.component.css'
+  styleUrls: ['./header.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class HeaderComponent {
   isModalOpen = false;
@@ -15,4 +18,5 @@ export class HeaderComponent {
   closeModal() {
     this.isModalOpen = false;
   }
+
 }
