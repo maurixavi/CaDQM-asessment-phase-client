@@ -237,7 +237,7 @@ hr.my-4 {
   display: flex;
   justify-content: center;
 }
-
+/*
 .container-section {
   width: 98%;
   border: 1px solid #ddd; 
@@ -246,7 +246,8 @@ hr.my-4 {
   border-radius: 8px;
   margin-bottom: 1.5rem;
   font-size: 0.875rem;  
-}
+}*/
+
 
 .suggested-section-container {
   width: 100%;

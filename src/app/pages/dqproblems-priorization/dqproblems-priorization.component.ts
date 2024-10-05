@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import dataQualityProblemsJson from '../../../assets/data-quality-problems.json';
 import contextComponentsJson from '../../../assets/context-components.json';
@@ -36,7 +36,8 @@ interface QualityFactor {
 @Component({
   selector: 'app-dqproblems-priorization',
   templateUrl: './dqproblems-priorization.component.html',
-  styleUrl: './dqproblems-priorization.component.scss'
+  styleUrl: './dqproblems-priorization.component.css',
+  encapsulation: ViewEncapsulation.None
 })
 export class DQProblemsPriorizationComponent implements OnInit {
 

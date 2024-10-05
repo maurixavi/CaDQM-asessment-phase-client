@@ -1,12 +1,12 @@
-body {
-  font-family: 'Open Sans', sans-serif; 
-}
 
 .container {
-	max-width: 86%;
-	margin: auto;
-	color: #222; 
+  /*max-width: 86%;*/
+  margin: auto;
+  color: #222; 
+  /*font-family: 'Open Sans', sans-serif;*/
+  /*font-family: 'Roboto', sans-serif;*/
 }
+
 table {
 	font-size: 0.875rem; 
 }
@@ -104,9 +104,21 @@ select {
   background-color: #333; 
   border: 1px solid #333; 
 }
-.container-section {
+/*.container-section {
 	width: 98%;
   border: 1px solid #ddd; 
+  background-color: #fff; 
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;  
+}*/
+
+.container-section {
+	width: 100%;
+  /*border: 1px solid #ddd; */
+  border: 1px solid #eeeeee;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
   background-color: #fff; 
   padding: 1rem;
   border-radius: 8px;

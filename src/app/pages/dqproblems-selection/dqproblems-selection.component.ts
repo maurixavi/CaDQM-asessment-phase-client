@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, AfterViewInit  } from '@angular/core';
+import { Component, Input, OnInit, AfterViewInit, ViewEncapsulation  } from '@angular/core';
 // import { DataQualityProblem } from '../dqproblems-priorization/dqproblems-priorization.component'; 
 import { DqProblemsService } from '../../shared/dq-problems.service';
 import { Router } from '@angular/router';
@@ -25,7 +25,8 @@ interface ContextComponent {
 @Component({
   selector: 'app-dqproblems-selection',
   templateUrl: './dqproblems-selection.component.html',
-  styleUrl: './dqproblems-selection.component.scss'
+  styleUrl: './dqproblems-selection.component.css',
+  encapsulation: ViewEncapsulation.None
 })
 export class DQProblemsSelectionComponent implements OnInit {
 
