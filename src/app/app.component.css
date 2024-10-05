@@ -1,9 +1,0 @@
-.selected-issue-item {
-  margin-bottom: 20px; /* Espacio entre problemas */
-  border-bottom: 1px solid #ccc; /* Línea separadora */
-  padding-bottom: 10px; /* Espacio debajo de cada problema */
-}
-
-body{
-  background-color: blue;
-}
