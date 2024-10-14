@@ -1,7 +1,7 @@
 <div class="container my-4">
   <h2 class="title">Stage 4: DQ Model Definition</h2>
-  <h2 class="title-activity">Priorización de Problemas de Calidad</h2>
-  <p class="title-description">Ordene los problemas de calidad según la prioridad deseada</p>
+  <h2 class="title-activity">Definicion de Metricas</h2>
+  <p class="title-description">Cree las metricas asociadas a los factores seleccionados</p>
 
   <div class="container-section">
 
@@ -12,7 +12,7 @@
         <div *ngFor="let factor of qualityFactors">
           <h3>{{ factor.name }}</h3>
           <div>
-            <table>
+            <table class ="table ">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -26,18 +26,18 @@
                 <tr>
                 <td><input type="text" [(ngModel)]="factor.newMetric.name" placeholder="Metric Name" /></td>
                 <td><input type="text" [(ngModel)]="factor.newMetric.purpose" placeholder="Metric Purpose" /></td>
-                <td><select [(ngModel)]="factor.newMetric.granularity">
+                <td><select [(ngModel)]="factor.newMetric.granularity" class="form-select">
                   <option *ngFor="let granularity of granularities" [value]="granularity">{{ granularity }}</option>
                 </select></td>
-                <td><select [(ngModel)]="factor.newMetric.domain">
+                <td><select [(ngModel)]="factor.newMetric.domain" class="form-select">
                   <option *ngFor="let domain of domains" [value]="domain">{{ domain }}</option>
                 </select></td>
-                <td><button class="btn-primary" (click)="addMetric(factor)">Add Metric</button></td>
+                <td><button class="btn btn-dark btn-sm" (click)="addMetric(factor)">Add Metric</button></td>
               </tr>
               </tbody>
             </table>   
           </div>
-          <table>
+          <table class="table ">
             <thead>
               <tr>
                 <th>Name</th>
@@ -53,7 +53,7 @@
                 <td>{{ metric.purpose }}</td>
                 <td>{{ metric.granularity }}</td>
                 <td>{{ metric.domain }}</td>
-                <td><button (click)="deleteMetric(factor, metric)">Delete</button></td>
+                <td><button class="btn btn-outline-danger btn-sm" (click)="deleteMetric(factor, metric)">Delete</button></td>
               </tr>
             </tbody>
           </table>

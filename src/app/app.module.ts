@@ -14,8 +14,8 @@ import { DQProblemsSelectionComponent } from './pages/dqproblems-selection/dqpro
 import { DqDimensionsFactorsSelectionComponent } from './pages/dq-dimensions-factors-selection/dq-dimensions-factors-selection.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
-import {DQMeasurementPreviewComponent} from './pages/dqmeasurement-preview-run/dqmeasurement-preview-run.component';
-
+import {DQMetricDefinitionComponent} from './pages/dqmeasurement-metric-definition/dqmeasurement-metric-definition.component';
+import {DqDimensionsMethodsDefinitionComponent} from './pages/dq-dimensions-methods-definition/dq-dimensions-methods-definition.component';
 import { HeaderComponent } from './shared/header/header.component';
 
 import { ContextComponentsComponent } from './shared/context-components/context-components.component';
@@ -34,7 +34,8 @@ import { StepNavigatorComponent } from './shared/step-navigator/step-navigator.c
     DqDimensionsFactorsSelectionComponent,
     HeaderComponent,
     DashboardComponent,
-    DQMeasurementPreviewComponent,
+    DQMetricDefinitionComponent,
+    DqDimensionsMethodsDefinitionComponent,
     ContextComponentsComponent,
     DQModelConfirmationComponent,
     StepNavigatorComponent

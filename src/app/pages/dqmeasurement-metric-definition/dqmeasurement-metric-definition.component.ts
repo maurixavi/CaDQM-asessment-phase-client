@@ -45,10 +45,10 @@ interface QualityMetric {
 
 @Component({
   selector: 'app-dqproblems-priorization',
-  templateUrl: './dqmeasurement-preview-run.component.html',
-  styleUrl: './dqmeasurement-preview-run.component.scss'
+  templateUrl: './dqmeasurement-metric-definition.component.html',
+  styleUrl: './dqmeasurement-metric-definition.component.scss'
 })
-export class DQMeasurementPreviewComponent implements OnInit {
+export class DQMetricDefinitionComponent implements OnInit {
   problems: DataQualityProblem[] = [];
   contextComponents: ContextComponent[] = [];
   selectedProblem: DataQualityProblem | null = null;
@@ -182,6 +182,7 @@ export class DQMeasurementPreviewComponent implements OnInit {
     this.qualityFactors.forEach(elem => {
       result = result.concat(elem.definedMetrics);
     });
+    this.router.navigate(['/step5']);
     
   }
 }

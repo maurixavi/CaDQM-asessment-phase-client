@@ -1,0 +1,51 @@
+<div class="container my-4">
+  <h2 class="title">Stage 4: DQ Model Definition</h2>
+  <h2 class="title-activity">Definicion de Metodos</h2>
+  <p class="title-description">Cree los metodos asociados a las medidas seleccionadas</p>
+
+  <div class="container-section">
+
+
+  <div class="d-flex justify-content-center">
+    <div class="w-100">
+      <div cdkDropList>
+        <div *ngFor="let metric of qualityMetrics">
+          <h3>DQ Metric: {{ metric.name }}</h3>
+          <h3>DQ Methods:</h3>
+
+          <form>
+            <div class="form-group">
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" class="form-control" [(ngModel)]="metric.newMethod.name"/>
+            </div>
+      
+            <div class="form-group">
+              <label for="inputDataType">Input Data Type</label>
+              <select  [(ngModel)]="metric.newMethod.input" class="form-select" id="inputDataType" name="inputDataType">
+                <option *ngFor="let domain of domains" [value]="domain">{{ domain }}</option>
+              </select>
+            </div>
+      
+            <div class="form-group">
+              <label for="outputDataType">Output Data Type</label>
+              <select  [(ngModel)]="metric.newMethod.output" class="form-select" id="outputDataType" name="outputDataType">
+                <option *ngFor="let po of possibleOutputs" [value]="po">{{ po }}</option>
+              </select>
+            </div>
+      
+            <div class="form-group">
+              <label for="algorithm" [(ngModel)]="metric.newMethod.algorithm">Algorithm</label>
+              <textarea id="algorithm" name="algorithm" rows="4" class="form-control" placeholder="Write your code!"></textarea>
+            </div>
+      
+            <!-- Botón para agregar método -->
+            <div class="form-group">
+            <button class="btn btn-dark btn-sm" style="margin-top: 10px; padding: 10px 20px" (click)="addMethod(metric)">Add Method</button>
+            </div>
+          </form>
+        </div>        
+      </div>
+    </div>
+  </div>
+</div>
+

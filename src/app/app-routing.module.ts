@@ -6,7 +6,8 @@ import { DQProblemsSelectionComponent } from './pages/dqproblems-selection/dqpro
 import { AppComponent } from './app.component'
 import { DqDimensionsFactorsSelectionComponent } from './pages/dq-dimensions-factors-selection/dq-dimensions-factors-selection.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component'
-import { DQMeasurementPreviewComponent } from './pages/dqmeasurement-preview-run/dqmeasurement-preview-run.component';
+import { DQMetricDefinitionComponent } from './pages/dqmeasurement-metric-definition/dqmeasurement-metric-definition.component';
+import { DqDimensionsMethodsDefinitionComponent } from './pages/dq-dimensions-methods-definition/dq-dimensions-methods-definition.component';
 import { DQModelConfirmationComponent } from './pages/dqmodel-confirmation/dqmodel-confirmation.component';
 
 const routes: Routes = [
@@ -14,7 +15,8 @@ const routes: Routes = [
   { path: 'step1', component: DQProblemsPriorizationComponent },
   { path: 'step2', component: DQProblemsSelectionComponent },
   { path: 'step3', component: DqDimensionsFactorsSelectionComponent },
-  {path: 'step4', component: DQMeasurementPreviewComponent},
+  {path: 'step4', component: DQMetricDefinitionComponent},
+  {path: 'step5', component: DqDimensionsMethodsDefinitionComponent},
   { path: 'step7', component: DQModelConfirmationComponent }
 ];
 
