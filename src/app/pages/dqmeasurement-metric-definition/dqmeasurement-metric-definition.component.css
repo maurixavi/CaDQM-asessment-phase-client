@@ -104,3 +104,19 @@ select {
   margin-bottom: 1.5rem;
   font-size: 0.875rem;  
 }
+
+/* Triángulo que indica si está expandido o colapsado */
+.triangle {
+	width: 0; 
+	height: 0; 
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	border-top: 5px solid black;
+	margin-right: 8px;
+	transition: transform 0.3s ease;
+  }
+  
+  .triangle.open {
+	transform: rotate(90deg); /* Rotación a la derecha cuando está expandido */
+  }
+  

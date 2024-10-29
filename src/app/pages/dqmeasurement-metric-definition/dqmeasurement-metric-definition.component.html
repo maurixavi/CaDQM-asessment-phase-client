@@ -1,69 +1,100 @@
 <div class="container my-4">
   <h2 class="title">Stage 4: DQ Model Definition</h2>
-  <h2 class="title-activity">Definicion de Metricas</h2>
-  <p class="title-description">Cree las metricas asociadas a los factores seleccionados</p>
+  <h2 class="title-activity">Metric Definition</h2>
+  <p class="title-description">Create metrics for the selected factors</p>
 
   <div class="container-section">
+    <div class="d-flex justify-content-center">
+      <div class="w-100">
+        <div cdkDropList>
+          <div *ngFor="let factor of qualityFactors">
+            <!-- Contenedor Expandible para Factores -->
+            <div (click)="factor.expanded = !factor.expanded" style="cursor: pointer; padding: 10px; background-color: #f8f9fa; border-radius: 5px; margin-bottom: 10px;" class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center">
+                <h3 class="m-0">DQ Factor: <strong class="ms-2">{{ factor.name }}</strong></h3>
+                <i [class]="factor.expanded ? 'bi bi-chevron-up ms-3' : 'bi bi-chevron-down ms-3'"></i>
+              </div>
+              <button class="btn btn-dark btn-sm" (click)="openModal(factor); $event.stopPropagation()">Add Method</button>
+            </div>
+            
+            <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Add new DQ Metric</h5>
+                    <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+                      <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <form>
+                      <div class="form-group">
+                        <label for="MetName">Name</label>
+                        <input type="text" name="MetName" [(ngModel)]="factor.newMetric.name" placeholder="Metric Name" class="form-control" [ngModelOptions]="{standalone: true}" />
+                      </div>
+                      <div class="form-group">
+                        <label for="MetPurpose" >Purpose</label>
+                        <input type="text" name="MetPurpose" [(ngModel)]="factor.newMetric.purpose" placeholder="Metric Purpose" class="form-control" [ngModelOptions]="{standalone: true}"/>
+                      </div>
+                      <div class="form-group">
+                        <label for="MetGranularity">Granularity</label>
+                        <select [(ngModel)]="factor.newMetric.granularity" name="MetGranularity" class="form-select" [ngModelOptions]="{standalone: true}">
+                          <option *ngFor="let granularity of granularities" [value]="granularity">{{ granularity }}</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="MetDomain">Domain</label>
+                        <select [(ngModel)]="factor.newMetric.domain" name="MetDomain" class="form-select" [ngModelOptions]="{standalone: true}">
+                          <option *ngFor="let domain of domains" [value]="domain">{{ domain }}</option>
+                        </select>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-light" (click)="closeModal()">Cancel</button>
+                    <button type="button" class="btn btn-sm btn-dark" (click)="addMetric(factor)">Confirm</button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-
-  <div class="d-flex justify-content-center">
-    <div class="w-100">
-      <div cdkDropList>
-        <div *ngFor="let factor of qualityFactors">
-          <h3>{{ factor.name }}</h3>
-          <div>
-            <table class ="table ">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Purpose</th>
-                  <th>Granularity</th>
-                  <th>Domain</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                <td><input type="text" [(ngModel)]="factor.newMetric.name" placeholder="Metric Name" /></td>
-                <td><input type="text" [(ngModel)]="factor.newMetric.purpose" placeholder="Metric Purpose" /></td>
-                <td><select [(ngModel)]="factor.newMetric.granularity" class="form-select">
-                  <option *ngFor="let granularity of granularities" [value]="granularity">{{ granularity }}</option>
-                </select></td>
-                <td><select [(ngModel)]="factor.newMetric.domain" class="form-select">
-                  <option *ngFor="let domain of domains" [value]="domain">{{ domain }}</option>
-                </select></td>
-                <td><button class="btn btn-dark btn-sm" (click)="addMetric(factor)">Add Metric</button></td>
-              </tr>
-              </tbody>
-            </table>   
+            <!-- Métricas Definidas (Expandibles) -->
+            <div *ngIf="factor.expanded">
+              <h5>DQ Metrics:</h5>
+              <div *ngFor="let metric of factor.definedMetrics" class="metric-container mt-3">
+                <div (click)="metric.expanded = !metric.expanded" class="metric-title p-2" style="background-color: #f8f9fa; cursor: pointer;">
+                  <h4 class="d-flex align-items-center m-0">
+                    <i [class]="metric.expanded ? 'bi bi-chevron-down' : 'bi bi-chevron-right'"></i>
+                    <span class="ms-2">{{ metric.name }}</span>
+                  </h4>
+                </div>
+                <div *ngIf="metric.expanded" class="metric-details p-3" style="border: 1px solid #ccc;">
+                  <div class="form-group mb-3">
+                    <label for="Mname">Name:</label>
+                    <input type="text" id="Mname" name="Mname" class="form-control" readonly [(ngModel)]="metric.name" [ngModelOptions]="{standalone: true}" />
+                  </div>
+                  <div class="form-group mb-3">
+                    <label for="Mpurpose">Puropose:</label>
+                    <input type="text" id="Mpurpose" name="Mpurpose" class="form-control" readonly [(ngModel)]="metric.purpose" [ngModelOptions]="{standalone: true}" />
+                  </div>
+                  <div class="form-group mb-3">
+                    <label for="Mgranularity">Granularity:</label>
+                    <input type="text" id="Mgranularity" name="Mgranularity" class="form-control" readonly [(ngModel)]="metric.granularity" [ngModelOptions]="{standalone: true}" />
+                  </div>
+                  <div class="form-group mb-3">
+                    <label for="Mdomain">Domain:</label>
+                    <input type="text" id="Mdomain" name="Mdomain" class="form-control" readonly [(ngModel)]="metric.domain" [ngModelOptions]="{standalone: true}" />
+                  </div>
+                  <div class="form-group mb-3">
+                    <button class="btn btn-outline-danger btn-sm" (click)="deleteMetric(factor, metric)">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </div>  
           </div>
-          <table class="table ">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Purpose</th>
-                <th>Granularity</th>
-                <th>Domain</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let metric of factor.definedMetrics">
-                <td>{{ metric.name }}</td>
-                <td>{{ metric.purpose }}</td>
-                <td>{{ metric.granularity }}</td>
-                <td>{{ metric.domain }}</td>
-                <td><button class="btn btn-outline-danger btn-sm" (click)="deleteMetric(factor, metric)">Delete</button></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>        
-      </div>
-      <div>
-        <button (click)="saveMetrics()" class="btn btn-primary btn-sm">Confirmar Metricas</button>
+        </div>
+        <button (click)="saveMetrics()" class="btn btn-primary btn-sm mt-3">Confirmar Metricas</button>
       </div>
     </div>
   </div>
-
-</div>
 </div>

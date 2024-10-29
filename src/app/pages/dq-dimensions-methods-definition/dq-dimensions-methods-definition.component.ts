@@ -30,6 +30,7 @@ interface QualityMetric {
   granularity: string;
   domain: string;
   factor?: QualityFactor;
+  expanded: boolean;
   definedMethods: QualityMethod[];
   newMethod: QualityMethod;
 }
@@ -47,6 +48,7 @@ interface QualityMethod {
   input: string;
   output: string;
   algorithm: string;
+  expanded: boolean;
   metric?: QualityMetric;
 }
 
@@ -97,7 +99,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   possibleOutputs: string[] = ['Entero', 'Real', 'Booleano'];
   domains: string[] = ['Entero', 'Real', 'Booleano'];
   newMethod: QualityMethod = {
-    name: '', input: '', output: '', algorithm: '', metric: undefined};
+    name: '', input: '', output: '', algorithm: '', expanded: false,  metric: undefined};
   definedMetrics: QualityMethod[] = [];
   qualityMetrics: QualityMetric[]= [
     {
@@ -107,8 +109,9 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
       domain: 'Real',
       factor: undefined,
       definedMethods: [],
+      expanded:false,
       newMethod: {
-        name: '', input: '', output: '', algorithm: '', metric: undefined}
+        name: '', input: '', output: '', algorithm: '', expanded: false, metric: undefined}
     }
   ];
 
@@ -214,14 +217,24 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     this.isModalOpen = false;
   }
 
+  deleteMethod(metric: QualityMetric, method: QualityMethod): void {
+    const index = metric.definedMethods.indexOf(method);
+    if (index > -1) {
+      metric.definedMethods.splice(index, 1);
+    }
+  }
+
   addMethod(metric: QualityMetric){
+    this.openModal();
     if (metric.newMethod.name && metric.newMethod.input && metric.newMethod.output && metric.newMethod.algorithm) {
       metric.definedMethods.push({ ...metric.newMethod });
-      metric.newMethod = { name: '', input: '', output: '', algorithm: '' };
+      metric.newMethod = { name: '', input: '', output: '', algorithm: '', expanded:false };
     }
+    this.closeModal();
   }
   
   saveMetrics(){
     this.router.navigate(['/step7']);
   }
+
 }

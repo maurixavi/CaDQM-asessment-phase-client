@@ -32,6 +32,7 @@ interface QualityFactor {
   dimensionId: number;
   name: string;
   newMetric: QualityMetric;
+  expanded: boolean;
   definedMetrics: QualityMetric[];
 }
 
@@ -40,6 +41,7 @@ interface QualityMetric {
   purpose: string;
   granularity: string;
   domain: string;
+  expanded: boolean;
   factor?: QualityFactor;
 }
 
@@ -70,39 +72,41 @@ export class DQMetricDefinitionComponent implements OnInit {
 
   selectedFactors = this.dqProblemsService.getSelectedFactors();
 
+  metricFactor:QualityFactor | undefined = undefined ;
+
   qualityFactors: QualityFactor[] = [
-    { id: 1, dimensionId: 1, name: 'Exactitud semántica', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 2, dimensionId: 1, name: 'Exactitud sintáctica', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 3, dimensionId: 1, name: 'Precision', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 4, dimensionId: 2, name: 'Coverage', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 5, dimensionId: 2, name: 'Density', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 6, dimensionId: 3, name: 'Actualidad (currency)', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 7, dimensionId: 3, name: 'Oportunidad (timeliness)', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 8, dimensionId: 3, name: 'Volatilidad (volatility)', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 9, dimensionId: 4, name: 'Integridad de dominio', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 10, dimensionId: 4, name: 'Integridad intra-relación', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 11, dimensionId: 4, name: 'Integridad inter-relación', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 12, dimensionId: 5, name: 'No-duplicación (duplication-free) ', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 13, dimensionId: 5, name: 'No-contradicción (contradiction-free)', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] }
+    { id: 1, dimensionId: 1, name: 'Exactitud semántica', expanded: false, newMetric:{
+      name: '', purpose: '', granularity: '', domain: '',factor: undefined, expanded: false }, definedMetrics:[] },
+    { id: 2, dimensionId: 1, name: 'Exactitud sintáctica', expanded: false, newMetric:{
+      name: '', purpose: '', granularity: '', domain: '',factor: undefined, expanded: false }, definedMetrics:[] },
+    { id: 3, dimensionId: 1, name: 'Precision', expanded: false, newMetric:{
+      name: '', purpose: '', granularity: '', domain: '',factor: undefined, expanded: false }, definedMetrics:[] },
+    { id: 4, dimensionId: 2, name: 'Coverage', expanded: false, newMetric:{
+      name: '', purpose: '', granularity: '', domain: '',factor: undefined, expanded: false }, definedMetrics:[] },
+    { id: 5, dimensionId: 2, name: 'Density', expanded: false, newMetric:{
+      name: '', purpose: '', granularity: '', domain: '',factor: undefined, expanded: false }, definedMetrics:[] },
+    { id: 6, dimensionId: 3, name: 'Actualidad (currency)', expanded: false, newMetric:{
+      name: '', purpose: '', granularity: '', domain: '',factor: undefined, expanded: false }, definedMetrics:[] },
+    { id: 7, dimensionId: 3, name: 'Oportunidad (timeliness)', expanded: false, newMetric:{
+      name: '', purpose: '', granularity: '', domain: '',factor: undefined, expanded: false }, definedMetrics:[] },
+    { id: 8, dimensionId: 3, name: 'Volatilidad (volatility)', expanded: false, newMetric:{
+      name: '', purpose: '', granularity: '', domain: '',factor: undefined, expanded: false }, definedMetrics:[] },
+    { id: 9, dimensionId: 4, name: 'Integridad de dominio', expanded: false, newMetric:{
+      name: '', purpose: '', granularity: '', domain: '',factor: undefined, expanded: false }, definedMetrics:[] },
+    { id: 10, dimensionId: 4, name: 'Integridad intra-relación', expanded: false, newMetric:{
+      name: '', purpose: '', granularity: '', domain: '',factor: undefined, expanded: false }, definedMetrics:[] },
+    { id: 11, dimensionId: 4, name: 'Integridad inter-relación', expanded: false, newMetric:{
+      name: '', purpose: '', granularity: '', domain: '',factor: undefined, expanded: false }, definedMetrics:[] },
+    { id: 12, dimensionId: 5, name: 'No-duplicación (duplication-free) ', expanded: false, newMetric:{
+      name: '', purpose: '', granularity: '', domain: '',factor: undefined, expanded: false }, definedMetrics:[] },
+    { id: 13, dimensionId: 5, name: 'No-contradicción (contradiction-free)', expanded: false, newMetric:{
+      name: '', purpose: '', granularity: '', domain: '',factor: undefined, expanded: false }, definedMetrics:[] }
   ].filter(elem => this.selectedFactors.includes(elem.id));
 
   granularities: string[] = ['Celda', 'Tupla', 'Tabla'];
   domains: string[] = ['Entero', 'Real', 'Booleano'];
   newMetric: QualityMetric = {
-    name: '', purpose: '', granularity: '', domain: '',factor: undefined };
+    name: '', purpose: '', granularity: '', domain: '',factor: undefined, expanded: false };
   definedMetrics: QualityMetric[] = [];
 
   ngOnInit() {
@@ -142,9 +146,11 @@ export class DQMetricDefinitionComponent implements OnInit {
 
   addMetric(factor: QualityFactor): void {
     if (factor.newMetric.name && factor.newMetric.purpose && factor.newMetric.granularity && factor.newMetric.domain) {
-      factor.definedMetrics.push({ ...factor.newMetric });
-      factor.newMetric = { name: '', purpose: '', granularity: '', domain: '' };
+      var newFactor = this.metricFactor!;
+      newFactor.definedMetrics.push({ ...factor.newMetric });
+      factor.newMetric = { name: '', purpose: '', granularity: '', domain: '', expanded: false };
     }
+    this.closeModal();
   }
 
   deleteMetric(factor: QualityFactor, metric: QualityMetric): void {
@@ -184,5 +190,16 @@ export class DQMetricDefinitionComponent implements OnInit {
     });
     this.router.navigate(['/step5']);
     
+  }
+
+  isModalOpen = false;
+
+  openModal(factor:QualityFactor) {
+    this.metricFactor = factor;
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
   }
 }

@@ -1,99 +1,110 @@
 <div class="container my-4">
   <h2 class="title">Stage 4: DQ Model Definition</h2>
-  <h2 class="title-activity">Definicion de Metodos</h2>
-  <p class="title-description">Cree los metodos asociados a las medidas seleccionadas</p>
+  <h2 class="title-activity">Methods Definition</h2>
+  <p class="title-description">Create Methods for each DQ Metric</p>
 
   <div class="container-section">
+    <div class="d-flex justify-content-center">
+      <div class="w-100">
+        <div cdkDropList>
+          <!-- Iteración para cada métrica (expandible) -->
+          <div *ngFor="let metric of qualityMetrics">
+            <!-- Barra de la métrica expandible con botón para agregar método -->
+            <div (click)="metric.expanded = !metric.expanded" style="cursor: pointer; padding: 10px; background-color: #f8f9fa; border-radius: 5px; margin-bottom: 10px;" class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center">
+                <h3 class="m-0">DQ Metric: <strong class="ms-2">{{ metric.name }}</strong></h3>
+                <i [class]="metric.expanded ? 'bi bi-chevron-up ms-3' : 'bi bi-chevron-down ms-3'"></i>
+              </div>
+              <button class="btn btn-dark btn-sm" (click)="openModal(); $event.stopPropagation()">Add Method</button>
+            </div>
 
-
-  <div class="d-flex justify-content-center">
-    <div class="w-100">
-      <div cdkDropList>
-        <div *ngFor="let metric of qualityMetrics">
-          <h3>DQ Metric: {{ metric.name }}</h3>
-          <h3>DQ Methods:</h3>
-
-          <form>
-            <div class="form-group">
-              <label for="name">Name</label>
-              <input type="text" id="name" name="name" class="form-control" [(ngModel)]="metric.newMethod.name"/>
-            </div>
-      
-            <div class="form-group">
-              <label for="inputDataType">Input Data Type</label>
-              <select  [(ngModel)]="metric.newMethod.input" class="form-select" id="inputDataType" name="inputDataType">
-                <option *ngFor="let domain of domains" [value]="domain">{{ domain }}</option>
-              </select>
-            </div>
-      
-            <div class="form-group">
-              <label for="outputDataType">Output Data Type</label>
-              <select  [(ngModel)]="metric.newMethod.output" class="form-select" id="outputDataType" name="outputDataType">
-                <option *ngFor="let po of possibleOutputs" [value]="po">{{ po }}</option>
-              </select>
-            </div>
-      
-            <div class="form-group">
-              <label for="algorithm">Algorithm</label>
-              <textarea id="algorithm" name="algorithm" rows="4" class="form-control" placeholder="Write your code!" [(ngModel)]="metric.newMethod.algorithm"></textarea>
-            </div>
-      
-            <!-- Botón para agregar método -->
-            <div class="form-group">
-            <button class="btn btn-dark btn-sm" style="margin-top: 10px; padding: 10px 20px" (click)="addMethod(metric)">Add Method</button>
-            </div>
-          </form>
-          <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-indicators">
-              <button *ngFor="let item of metric.definedMethods; let i = index"
-                type="button"
-                data-bs-target="#carouselExample"
-                [attr.data-bs-slide-to]="i"
-                [ngClass]="{'active': i === 0}"
-                [attr.aria-current]="i === 0 ? 'true' : null"
-                [attr.aria-label]="'Slide ' + (i + 1)">
-              </button>
-            </div>
-            <div class="carousel-inner">
-              <div *ngFor="let item of metric.definedMethods; let i = index" class="carousel-item" [ngClass]="{'active': i === 0}">
-                <!-- Contenido de cada slide (campo de texto, formularios, etc.) -->
-                <div class="d-block w-100 p-4" style="background-color: #f8f9fa;">
-                  <div class="form-group mb-3">
-                    <label for="output">Name:</label>
-                    <input type="text" id="name" name="name" class="form-control" editable="false" [(ngModel)]="item.name" [ngModelOptions]="{standalone: true}" />
+            <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Add new DQ Methods</h5>
+                    <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+                      <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+                    </button>
                   </div>
-          
-                  <!-- Output -->
-                  <div class="form-group mb-3">
-                    <label for="output">Output:</label>
-                    <input type="text" id="output" name="output" class="form-control" editable="false" [(ngModel)]="item.output" [ngModelOptions]="{standalone: true}" />
+                  <div class="modal-body">
+                    <form>
+                      <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" class="form-control" [(ngModel)]="metric.newMethod.name"/>
+                      </div>
+      
+                      <div class="form-group">
+                        <label for="inputDataType">Input Data Type</label>
+                        <select [(ngModel)]="metric.newMethod.input" class="form-select" id="inputDataType" name="inputDataType">
+                          <option *ngFor="let domain of domains" [value]="domain">{{ domain }}</option>
+                        </select>
+                      </div>
+      
+                      <div class="form-group">
+                        <label for="outputDataType">Output Data Type</label>
+                        <select [(ngModel)]="metric.newMethod.output" class="form-select" id="outputDataType" name="outputDataType">
+                          <option *ngFor="let po of possibleOutputs" [value]="po">{{ po }}</option>
+                        </select>
+                      </div>
+      
+                      <div class="form-group">
+                        <label for="algorithm">Algorithm</label>
+                        <textarea id="algorithm" name="algorithm" rows="4" class="form-control" placeholder="Write your code!" [(ngModel)]="metric.newMethod.algorithm"></textarea>
+                      </div>
+                    </form>
                   </div>
-                  
-                  <!-- Input -->
-                  <div class="form-group mb-3">
-                    <label for="input">Input:</label>
-                    <input type="text" id="input" name="input" class="form-control" editable="false" [(ngModel)]="item.input" [ngModelOptions]="{standalone: true}"/>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-light" (click)="closeModal()">Cancel</button>
+                    <button type="button" class="btn btn-sm btn-dark" (click)="addMethod(metric)">Confirm</button>
                   </div>
-                  
-                  <!-- Algorithm -->
-                  <div class="form-group mb-3">
-                    <label for="algShow">Algorithm</label>
-                    <textarea id="algShow" name="algShow" rows="4" class="form-control" placeholder="Write your code!" enable="false" [(ngModel)]="item.algorithm" [ngModelOptions]="{standalone: true}"></textarea>
                 </div>
               </div>
             </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Next</span>
-            </button>
+
+            <!-- Contenedor expandible para contenido de la métrica -->
+            <div *ngIf="metric.expanded">
+              <h5>DQ Methods:</h5>
+
+              <!-- Sección expandible para métodos definidos -->
+              <div *ngFor="let item of metric.definedMethods" class="mt-4">
+                <div class="dq-model-element-container mb-2" (click)="item.expanded = !item.expanded" style="cursor: pointer;">
+                  <span class="dq-model-element-name d-flex align-items-center">
+                    DQ Method: <strong class="ms-2">{{ item.name }}</strong>
+                    <i [class]="item.expanded ? 'bi bi-chevron-up ms-auto' : 'bi bi-chevron-down ms-auto'"></i>
+                  </span>
+                </div>
+                
+                <!-- Detalles del método colapsables/expandibles -->
+                <div *ngIf="item.expanded" class="p-3" style="background-color: #f8f9fa;">
+                  <div class="form-group mb-3">
+                    <label for="output">Name:</label>
+                    <input type="text" id="name" name="name" class="form-control" readonly [(ngModel)]="item.name" [ngModelOptions]="{standalone: true}" />
+                  </div>
+
+                  <div class="form-group mb-3">
+                    <label for="output">Output:</label>
+                    <input type="text" id="output" name="output" class="form-control" readonly [(ngModel)]="item.output" [ngModelOptions]="{standalone: true}" />
+                  </div>
+                  
+                  <div class="form-group mb-3">
+                    <label for="input">Input:</label>
+                    <input type="text" id="input" name="input" class="form-control" readonly [(ngModel)]="item.input" [ngModelOptions]="{standalone: true}"/>
+                  </div>
+                  
+                  <div class="form-group mb-3">
+                    <label for="algShow">Algorithm</label>
+                    <textarea id="algShow" name="algShow" rows="4" class="form-control" readonly [(ngModel)]="item.algorithm" [ngModelOptions]="{standalone: true}"></textarea>
+                  </div>
+                  <div class="form-group mb-3">
+                    <button class="btn btn-outline-danger btn-sm" (click)="deleteMethod(metric, item)">Delete</button>
+                  </div>
+                </div>
+              </div> 
+            </div>        
           </div>
-        </div>          
+        </div>
       </div>
     </div>
   </div>
 </div>
-
