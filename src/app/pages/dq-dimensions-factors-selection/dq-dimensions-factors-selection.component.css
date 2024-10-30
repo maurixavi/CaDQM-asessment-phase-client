@@ -190,6 +190,48 @@ hr.my-4 {
   margin-bottom: 0.5rem;
 }
 
+
+
+.select-style {
+  width: 200px;
+  font-size: 0.9rem; 
+  font-weight: 500;  
+  padding-left: 14px;  
+  padding-right: 14px;  
+  border: 1px solid #bbb;  
+  border-radius: 0.25rem;  
+  background-color: #fff; 
+  color: #111;  
+  cursor: pointer;  
+}
+
+.select-style-ctx {
+  width: 300px;
+  font-size: 0.9rem; 
+  font-weight: 500;  
+  padding-left: 14px;  
+  padding-right: 40px;  
+  border: 1px solid #bbb;  
+  border-radius: 0.25rem;  
+  background-color: #fff; 
+  color: #111;  
+  cursor: pointer;  
+}
+
+
+
+/* Estilo para el select en foco */
+.select-style:focus {
+  border-color: #aaa; /* Color del borde cuando está en foco */
+  box-shadow: none; /* Eliminar la sombra predeterminada */
+}
+
+/* Estilo para el select en hover */
+.select-style:hover {
+  border-color: #aaa; /* Color del borde en hover */
+}
+
+
 .btn {
 	font-size: 0.9rem;
   font-weight: 500;
@@ -276,11 +318,27 @@ hr.my-4 {
 
 .label-title {
   width: 120px;
+  font-weight: 500;
 }
+
+
+.label-title-problems {
+  width: auto;
+  margin-right: 8px;
+  font-weight: 400;
+}
+
 
 .label-value {
   max-width: 80%;
   font-weight: 700;
+  white-space: nowrap; 
+}
+
+.label-problem-title {
+  font-weight: 500;
+  font-style: italic;
+  font-size: 1rem;
 }
 
 /*Selected */
@@ -311,6 +369,11 @@ hr.my-4 {
   font-weight: 400;
 }
 
+.label-problem-description {
+  font-weight: 400;
+  font-size: 0.9rem;
+}
+
 
 
 
@@ -328,16 +391,16 @@ hr.my-4 {
   border: 1px solid #ddd;
   border-radius: 4px;
   margin-right: 18px;
-  width: 40%; /* Para que el dropdown tome todo el ancho del botón */
+  width: 40%; 
 }
 
-.list-group-item {
-  cursor: pointer;
+.list-group {
+  font-size: 300;
 }
 
-.list-group-item:hover {
+/*.list-group-item:hover {
   background-color: #f1f1f1;
-}
+}*/
 
 
 
@@ -394,3 +457,61 @@ hr.my-4 {
 }
 
 
+/* Nuevos estilos a agregar al CSS existente */
+
+.dimension-section {
+ 
+}
+
+.container-dim-factors{
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
+  width: 90%;
+}
+
+/* Para alinear los factores en línea y permitir que ocupen el ancho necesario */
+.factors-container {
+  display: flex;
+  flex-wrap: wrap; /* Permite que los elementos se ajusten a la línea siguiente si es necesario */
+  gap: 1rem; /* Añade espacio entre cada factor */
+ 
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+}
+
+.form-check-label {
+  font-size: 16px;
+  margin-left: 0.5rem; /* Espacio entre el checkbox y el label */
+}
+
+/* Cambia el color del icono info al pasar por el checkbox */
+.form-check-input:checked + .form-check-label i {
+
+}
+
+
+
+.form-check-input:checked + .form-check-label {
+  font-weight: 700;
+}
+
+.add-custom-section {
+  border-top: 1px solid #eee;
+}
+
+.custom-items-section {
+  /*border-top: 1px solid #eee;
+  padding-top: 15px;*/
+}
+
+.form-control-sm {
+  font-size: 0.875rem;
+  height: calc(1.5em + 0.5rem + 2px);
+}
+
+.dq-problem-container {
+  padding: 1rem;
+}

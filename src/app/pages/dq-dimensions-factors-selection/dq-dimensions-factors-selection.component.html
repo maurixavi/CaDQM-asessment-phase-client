@@ -7,86 +7,228 @@
 		[currentStep]="currentStep">
 	</app-step-navigator>
 
-  <p class="subtitle-description">Suggested Dimensions and Factors</p>
 
+  <h4>Add DQ Dimensions and DQ Factors from scratch</h4>
+  <!-- Selector de Dimensiones -->
+  <div class="form-group">
+    <label for="dqDimension">DQ Dimension</label>
+    <select 
+      id="dqDimension" 
+      class="form-control" 
+      [(ngModel)]="selectedDimension" 
+      (change)="onDimensionChange()">
+      <option value="" disabled selected>Select a dimension</option>
+      <option *ngFor="let dimension of dqDimensionsBase" [ngValue]="dimension.id">
+        {{ dimension.name }}
+      </option>
+    </select>
+  </div>
   
 
-  <div class="flex-container">
-    <div class="suggested-section-container p-4">
-      <div>
-        <!--<div>
-          <h3 class="dqmodel-element-name">DQ Dimension: <strong>Accuracy <i class="bi bi-info-circle"></i></strong></h3>
-          <h3 class="dqmodel-element-name">DQ Factor: <strong>Syntactic Accuracy <i class="bi bi-info-circle"></i></strong></h3>
-        </div>-->
+  <!-- Selector de Factores (siempre visible) -->
+  <div class="form-group">
+    <label for="dqFactor">DQ Factor</label>
+    <select 
+      id="dqFactor" 
+      class="form-control" 
+      [(ngModel)]="selectedFactor"
+      (change)="onFactorChange()">
+      <option value="" disabled selected>Select a factor</option>
+      <ng-container *ngIf="selectedDimension">
+        <option *ngFor="let factor of availableFactors" [ngValue]="factor.id">
+          {{ factor.name }}
+        </option>
+      </ng-container>
+    </select>
+  </div> 
 
-        <div class="label-container">
-          <div class="label">
-            <label class="label-title">DQ Dimension:</label>
-            <span class="label-value">Accuracy <i class="bi bi-info-circle"></i></span>
-          </div>
-          <div class="label">
-            <label class="label-title">DQ Factor:</label>
-            <span class="label-value">Syntactic Accuracy <i class="bi bi-info-circle"></i></span>
-          </div>
-        </div>
+  <!-- Botón para agregar el par -->
+  <button 
+  type="button" 
+  class="btn btn-primary" 
+  (click)="addDimensionFactorPair()" 
+  [disabled]="!selectedDimension || !selectedFactor">
+  Add
+  </button>
 
-        <div class="d-flex justify-content-between mt-2 px-4 py-3" style="gap: 20px;">
-          <div class="from-ctx-components  flex-fill ">
-            <p class="from-ctx-components-title">From Context Components:</p>
-            <div *ngIf="dropdownOpen" class="dropdown">
-              <ul class="list-group" style="max-height: 200px; overflow-y: auto;">
-                <li class="list-group-item" *ngFor="let component of contextComponents" (click)="selectComponent(component)">
-                  {{ component.description }}
-                </li>
-              </ul>
-            </div>
-
-            <div *ngIf="selectedComponents.length > 0">
-              <ul>
-                <li *ngFor="let selected of selectedComponents" class="">
-                  {{ selected.description }}
-                  <button class="btn p-0" (click)="removeComponent(selected)">
-                    <i class="bi bi-x-lg" aria-hidden="true"></i>
-                  </button>
-                </li>
-              </ul>
-            </div>
-            <button class="btn btn-light btn-sm" (click)="toggleDropdown()">Select</button>
-          </div>
-
-          <div class="from-ctx-components flex-fill ">
-            <p class="fst-italic">From DQ Problems:</p>
-            <div *ngIf="dropdownOpen" class="dropdown">
-              <ul class="list-group" style="max-height: 200px; overflow-y: auto;">
-                <li class="list-group-item" *ngFor="let component of contextComponents" (click)="selectComponent(component)">
-                  {{ component.description }}  
-                </li>
-              </ul>
-            </div>
-
-            <div *ngIf="selectedComponents.length > 0">
-              <ul>
-                <li *ngFor="let selected of selectedComponents" class="">
-                  {{ selected.description }}
-                  <button class="btn p-0" (click)="removeComponent(selected)">
-                    <i class="bi bi-x-lg" aria-hidden="true"></i>
-                  </button>
-                </li>
-              </ul>
-            </div>
-            <button class="btn btn-light btn-sm" (click)="toggleDropdown()">Select</button>
-          </div>
-        </div>
-
-      </div>
-
-      <button class="btn btn-dark btn-sm mt-4">Add to DQ Model</button>
-      <button class="btn btn-light btn-sm mt-4 mx-3">Ignore</button>
-    </div>
+  <!-- Mensaje de Alerta -->
+  <div *ngIf="duplicateFactor" class="alert alert-warning mt-2">
+    Este par de dimensión y factor ya ha sido agregado.
   </div>
 
-  <p class="subtitle-description">Add Dimensions and Factors from scratch</p>
+  <!-- Lista de pares de dimensión y factor seleccionados 
+  <div *ngIf="getDimensionFactorPairs().length > 0">
+    <h3>Pares Seleccionados:</h3>
+    <ul>
+      <li *ngFor="let pair of getDimensionFactorPairs()">
+        <strong>Dimension:</strong> {{ pair.dimension?.name }} - <strong>Factor:</strong> {{ pair.factor?.name }}
+      </li>
+    </ul>
+  </div> -->
+  <!-- Selector de Factores (siempre visible)
+  <div class="form-group">
+    <label for="dqFactor">DQ Factor</label>
+    <select 
+      id="dqFactor" 
+      class="form-control" 
+      [(ngModel)]="selectedFactor">
+      <option value="" disabled selected>Select a factor</option>
+      <ng-container *ngIf="selectedDimension">
+        <option *ngFor="let factor of getFactorsByDimension(selectedDimension)" [ngValue]="factor.id">
+          {{ factor.name }}
+        </option>
+      </ng-container>
+    </select>
+  </div> -->
 
+  <br><br>
+
+ 
+
+  <!-- LISTADO TOTAL ------ Dimensiones y sus Factores Asociados 
+  <div *ngFor="let dimension of qualityDimensions">
+    <h3>{{ dimension.name }}</h3>
+    <p>{{ dimension.semantic }}</p>-->
+
+    <!-- Lista de Factores dentro de cada Dimensión
+    <ul>
+      <li *ngFor="let factor of getFactorsByDimension(dimension.id)">
+        <strong>{{ factor.name }}</strong>: {{ factor.semantic }}
+      </li>
+      <li *ngIf="getFactorsByDimension(dimension.id).length === 0">
+        No hay factores asociados a esta dimensión.
+      </li>
+    </ul>
+  </div> -->
+
+  <!-- ACCORDION se muestran VARIOS A LA VEZ 
+  <div *ngIf="getDimensionFactorPairs().length > 0">
+    <h3>Dimensions and Factors selected</h3>
+  
+    <h5>DQ Dimensions:</h5>
+    <div class="accordion" id="accordionExample">
+      <div class="accordion-item" *ngFor="let dimension of selectedDimensions; let i = index">
+        <h2 class="accordion-header" [id]="'heading' + i">
+          <button
+            class="accordion-button"
+            type="button"
+            data-bs-toggle="collapse"
+            [attr.data-bs-target]="'#collapse' + i"
+            aria-expanded="true"
+            [attr.aria-controls]="'collapse' + i"
+          >
+            {{ dimension.name }}
+          </button>
+        </h2>
+        <div
+          [id]="'collapse' + i"
+          class="accordion-collapse collapse"
+          [class.show]="i === 0"
+          [attr.aria-labelledby]="'heading' + i"
+        >
+          <div class="accordion-body">
+            <strong>Semantic:</strong> {{ dimension.semantic }} <br><br>
+  
+          
+            <h5>DQ Factors:</h5>
+  
+            <div class="accordion mt-3" [id]="'factorAccordion' + i">
+              <div
+                class="accordion-item"
+                *ngFor="let factor of getSelectedFactorsByDimension(dimension.id); let j = index"
+              >
+                <h2 class="accordion-header" [id]="'factorHeading' + i + '-' + j">
+                  <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    [attr.data-bs-target]="'#factorCollapse' + i + '-' + j"
+                    aria-expanded="false"
+                    [attr.aria-controls]="'factorCollapse' + i + '-' + j"
+                  >
+                    {{ factor.name }}
+                  </button>
+                </h2>
+                <div
+                  [id]="'factorCollapse' + i + '-' + j"
+                  class="accordion-collapse collapse"
+                  [attr.aria-labelledby]="'factorHeading' + i + '-' + j"
+                >
+                  <div class="accordion-body">
+                    <strong>Semantic:</strong> {{ factor.semantic }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  -->
+   
+  <!--
+  <ul>
+    @for (dimension of modelService.dimensions; track $index){
+    <li>
+      <a [routerLink]="dimension.id">
+        <div class="">
+          <h2>{{ $index + 1 }}</h2>
+          <h2>{{ dimension.name }}</h2>
+        </div>
+      </a>
+    </li>
+    }
+  </ul>
+
+  
+  <ul>
+    @for (user of modelService.users; track $index){
+    <li>
+      <a [routerLink]="user.id">
+        <div class="">
+          <h2>{{ $index + 1 }}</h2>
+          <h2>{{ user.name }}</h2>
+        </div>
+      </a>
+    </li>
+    }
+  </ul>
+  -->
+
+ 
+
+  <!--<div class="context-selection">
+    <select class="form-select " [(ngModel)]="selectedComponent">
+      <option [ngValue]="undefined">Select Ctx. component</option>
+      <option *ngFor="let component of contextComponents" [ngValue]="component">
+        {{component.displayText}}
+      </option>
+    </select>
+  
+    <button class="btn btn-primary" (click)="addContextComponent()" 
+            [disabled]="!selectedComponent">
+      Add Component
+    </button>
+  
+    <div class="selected-components mt-3" *ngIf="selectedComponents.length > 0">
+      <h4>Selected Components:</h4>
+      <ul class="list-group">
+        <li *ngFor="let component of selectedComponents" class="list-group-item">
+          {{component.displayText}}
+          <button class="btn btn-danger btn-sm float-end" 
+                  (click)="removeContextComponent(component)">
+            Remove
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+-->
+
+
+
+  <p class="subtitle-description">Add Dimensions and Factors from scratch</p>
   <div class="flex-container">
     <div class="suggested-section-container p-4">
       <div>
@@ -94,16 +236,27 @@
         <div class="label-container">
           <div class="label">
             <label class="label-title">DQ Dimension:</label>
-            <span class="label-value">
-              <button class="btn btn-light btn-sm" (click)="toggleDropdown()">
-                Select existing <i class="bi bi-chevron-down"></i>
-              </button>
-              <button class="btn btn-light btn-sm mx-2" (click)="openModal()">Add new</button>
+            <span class="label-value d-flex align-items-center">
+
+              <select 
+                class="form-select select-style"   
+                id="dqDimension"
+                [(ngModel)]="selectedDimension" 
+                (change)="onDimensionChange()"
+                aria-label="Default select example"
+              >
+                <option value="" disabled>Select existing</option>
+                <option *ngFor="let dimension of dqDimensionsBase" [ngValue]="dimension.id">
+                  {{ dimension.name }}
+                </option>
+              </select>
+          
+              <button class="btn btn-light  mx-2" (click)="openModal()">Add new</button>
             </span>
           </div>
 
           <!--Add New Dimension modal form-->
-          <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
+          <!--<div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
             <div class="modal-dialog" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -130,17 +283,48 @@
                 </div>
               </div>
             </div>
+          </div>-->
+          <!-- Add New Dimension modal form -->
+          <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Add new DQ Dimension</h5>
+                  <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+                    <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form (ngSubmit)="createDimension()">
+                    <div class="form-group">
+                      <label for="dimensionName">Name</label>
+                      <input type="text" class="form-control" id="dimensionName" [(ngModel)]="dimensionName" name="dimensionName" placeholder="Enter DQ Dimension name" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="dimensionSemantic">Semantic</label>
+                      <input type="text" class="form-control" id="dimensionSemantic" [(ngModel)]="dimensionSemantic" name="dimensionSemantic" placeholder="Enter DQ Dimension semantic" required>
+                    </div>
+                    <div *ngIf="errorMessage" class="text-danger">{{ errorMessage }}</div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-sm btn-light" (click)="closeModal()">Cancel</button>
+                  <button type="submit" class="btn btn-sm btn-dark" (click)="createDimension()">Confirm</button>
+                </div>
+              </div>
+            </div>
           </div>
 
+
           <!--Mostrar Dimension seleccionada/creado-->
-          <div>
+          <div *ngIf="selectedDimension !== null">
             <div class="label-container-selected py-2 px-4">
               <div class="label-selected">
-                <span class="label-name-selected">Consistency</span>
+                <span class="label-name-selected">{{ getSelectedDimension()?.name }}</span>
               </div>
               <div class="label-selected">
                 <label class="label-title-selected">Semantic:</label>
-                <span class="label-value-selected">It indicates the satisfaction of semantic rules defined on the data.</span>
+                <span class="label-value-selected">{{ getSelectedDimension()?.semantic }}</span>
               </div>  
             </div>
 
@@ -149,24 +333,82 @@
 
           <div class="label">
             <label class="label-title">DQ Factor:</label>
-            <span class="label-value">
-              <button class="btn btn-light btn-sm" (click)="toggleDropdown()">Select existing <i class="bi bi-chevron-down"></i></button>
-              <button class="btn btn-light btn-sm my-2 mx-2" (click)="toggleDropdown()">Create <i class="bi bi-plus-circle"></i></button>
+            <span class="label-value d-flex align-items-center">
+              <select 
+                id="dqFactor" 
+                class="form-select select-style" 
+                [(ngModel)]="selectedFactor"
+                (change)="onFactorChange()"
+                aria-label="Select a factor">
+                <option value="" disabled selected>Select existing</option>
+                <ng-container *ngIf="selectedDimension">
+                  <option *ngFor="let factor of availableFactors" [ngValue]="factor.id">
+                    {{ factor.name }}
+                  </option>
+                </ng-container>
+              </select>
+
+              <button class="btn btn-light  mx-2" (click)="openFactorModal()">Add new</button>
             </span>
           </div>
+          <!-- Mensaje informativo si no hay factores -->
+          <div *ngIf="noFactorsMessage" class="alert alert-warning mt-2">
+            {{ noFactorsMessage }}
+          </div>
+
+          <!-- Modal para Agregar Nuevo Factor -->
+          <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isFactorModalOpen}" [style.display]="isFactorModalOpen ? 'block' : 'none'">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Add New DQ Factor</h5>
+                  <button type="button" class="close" aria-label="Close" (click)="closeFactorModal()">
+                    <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form (ngSubmit)="createFactor()">
+                    <div class="form-group">
+                      <label for="factorName">Name</label>
+                      <input type="text" class="form-control" id="factorName" [(ngModel)]="factorName" name="factorName" placeholder="Enter DQ Factor name" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="factorSemantic">Semantic</label>
+                      <input type="text" class="form-control" id="factorSemantic" [(ngModel)]="factorSemantic" name="factorSemantic" placeholder="Enter DQ Factor semantic" required>
+                    </div>
+
+                    <!-- Mostrar la Dimensión Seleccionada -->
+                    <div class="form-group">
+                      <label for="selectedDimension">Selected Dimension</label>
+                      <input type="text" class="form-control" id="selectedDimension" [value]="selectedDimensionName" readonly>
+                    </div>
+
+                    
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-sm btn-light" (click)="closeFactorModal()">Cancel</button>
+                  <button type="submit" class="btn btn-sm btn-dark" (click)="createFactor()">Confirm</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="errorMessage" class="text-danger">{{ errorMessage }}</div>
+
           <!--Mostrar Factor seleccionado/creado-->
-          <div>
+          <div *ngIf="selectedFactor !== null">
             <div class="label-container-selected py-2 px-4">
               <div class="label-selected">
-                <span class="label-name-selected">Domain integrity</span>
+                <span class="label-name-selected">{{ getSelectedFactor()?.name }}</span>
               </div>
               <div class="label-selected">
                 <label class="label-title-selected">Semantic:</label>
-                <span class="label-value-selected">It verifies the satisfaction of rules on the attribute content. It verifies the satisfaction of rules on the attribute content. It verifies the satisfaction of rules on the attribute content.</span>
+                <span class="label-value-selected">{{ getSelectedFactor()?.semantic }}</span>
               </div>
             </div>
-
-            <button class="btn btn-light btn-sm mx-4 my-2" (click)="openModal()">Edit</button>
+          
+            <button class="btn btn-light btn-sm mx-4 my-2 mb-4" (click)="openModal()">Edit</button>
           </div>
 
         </div>
@@ -174,141 +416,159 @@
         <!--Context Components-->
         <div class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
           <div class="from-ctx-components  flex-fill ">
-            <p class="fst-italic">From Context Components:</p>
-            <div *ngIf="dropdownOpen" class="dropdown">
-              <ul class="list-group" style="max-height: 200px; overflow-y: auto;">
-                <li class="list-group-item" *ngFor="let component of contextComponents" (click)="selectComponent(component)">
-                  {{ component.description }}
-                </li>
-              </ul>
-            </div>
+            <p class="">From Context Components:</p>
 
-            <div *ngIf="selectedComponents.length > 0">
-              <ul>
-                <li *ngFor="let selected of selectedComponents" class="">
-                  {{ selected.description }}
-                  <button class="btn p-0" (click)="removeComponent(selected)">
-                    <i class="bi bi-x-lg" aria-hidden="true"></i>
-                  </button>
-                </li>
-              </ul>
-            </div>
-            <button class="btn btn-light btn-sm" (click)="toggleDropdown()">
+            <span class="label-value d-flex align-items-center">
+            <!--<button class="btn btn-light btn-sm" >
               Select <i class="bi bi-chevron-down"></i>
-            </button>
+            </button>-->
+            <div class="context-selection">
+              <!--<select class="form-select select-style-ctx" [(ngModel)]="selectedComponent">
+                <option [ngValue]="undefined">Select Ctx. component</option>
+                <option *ngFor="let component of contextComponents" [ngValue]="component">
+                  {{component.displayText}}
+                </option>
+              </select>-->
+
+              <select class="form-select select-style-ctx" 
+                [(ngModel)]="selectedComponent" 
+                (ngModelChange)="onComponentSelect()">
+                <option [ngValue]="undefined">Select Ctx. component</option>
+                <option *ngFor="let component of contextComponents" [ngValue]="component">
+                  {{component.displayText}}
+                </option>
+              </select>
+            
+              <!--<button class="btn btn-primary" (click)="addContextComponent()" 
+                      [disabled]="!selectedComponent">
+                Add Component
+              </button>-->
+            
+              <div class="selected-components mt-3" *ngIf="selectedComponents.length > 0">
+                <ul class="list-group">
+                  <li *ngFor="let component of selectedComponents" class="list-group-item">
+                    {{component.displayText}}
+                    <button class="btn btn-danger btn-sm float-end" 
+                            (click)="removeContextComponent(component)">
+                      X
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <!--<button 
+              class="btn btn-primary my-2 mx-2" 
+              (click)="addContextComponent()" 
+              [disabled]="!selectedComponent">
+                Add
+            </button>-->
+
+
+            </span>
           </div>
 
           <div class="from-ctx-components flex-fill ">
             <p class="fst-italic">From DQ Problems:</p>
-            <div *ngIf="dropdownOpen" class="dropdown">
-              <ul class="list-group" style="max-height: 200px; overflow-y: auto;">
-                <li class="list-group-item" *ngFor="let component of contextComponents" (click)="selectComponent(component)">
-                  {{ component.description }}  
-                </li>
-              </ul>
-            </div>
 
-            <div *ngIf="selectedComponents.length > 0">
-              <ul>
-                <li *ngFor="let selected of selectedComponents" class="">
-                  {{ selected.description }}
-                  <button class="btn p-0" (click)="removeComponent(selected)">
-                    <i class="bi bi-x-lg" aria-hidden="true"></i>
-                  </button>
-                </li>
-              </ul>
-            </div>
-            <button class="btn btn-light btn-sm" (click)="toggleDropdown()">Select</button>
+            <button class="btn btn-light btn-sm" >Select</button>
           </div>
         </div>
 
       </div>
 
-      <button class="btn btn-dark btn-sm mt-4">Add to DQ Model</button>
+      <button 
+        type="button" 
+        class="btn btn-dark mt-4" 
+        (click)="addToDQModel()" 
+        [disabled]="!selectedDimension || !selectedFactor">
+        Add to DQ Model
+      </button>
+
+      <!-- Mensaje de Alerta -->
+      <div *ngIf="duplicateFactor" class="alert alert-warning mt-2">
+        Este par de dimensión y factor ya ha sido agregado.
+      </div>
+
     </div>
   </div>
   
-  <div class="flex-container">
-  <div class="container-section">
-    
-  <div *ngFor="let problem of confirmedSelectedProblems" class="selected-problem-item mb-4">
-    <h3 class="subtitle-problem">{{ problem.name }}</h3>
-    <p><strong>Descripción:</strong> {{ problem.description }}</p>
-    <p><strong>Prioridad:</strong> {{ problem.priorityType }}</p>
-    <p><strong>Componentes de Contexto Asociados:</strong></p>
-    <ul class="context-list">
-      <li *ngFor="let contextId of problem.contextcomp_related_to">
-        {{ contextId }}: {{ getContextDescription(contextId) }}
-      </li>
-    </ul>
 
-    <hr class="my-4">
+  <!-- Lista de pares de dimensión y factor seleccionados -->
+  <div *ngIf="getDimensionFactorPairs().length > 0">
+    <h3>Dimensions and Factors selected</h3>
 
-    <h3 class="subtitle">Seleccionar Dimensiones y Factores de Calidad</h3>
-    <div class="dimensions-container">
-      <div *ngFor="let dimension of qualityDimensions" class="dimension-box">
-        <h4>{{ dimension.name }}</h4>
-        <ul class="factors-list">
-          <li *ngFor="let factor of getFactorsByDimension(dimension.id)">
-            <label>
-              <input type="checkbox" 
-                    [checked]="isFactorSelected(problem, factor.id)" 
-                    (change)="toggleFactorSelection(problem, factor.id)">
-              {{ factor.name }}
-            </label>
-          </li>
-        </ul>
+    <h5>DQ Dimensions:</h5>
+    <div class="accordion" id="accordionExample">
+      <div class="accordion-item" *ngFor="let dimension of selectedDimensions; let i = index">
+        <h2 class="accordion-header" [id]="'heading' + i">
+          <button
+            class="accordion-button"
+            type="button"
+            data-bs-toggle="collapse"
+            [attr.data-bs-target]="'#collapse' + i"
+            aria-expanded="true"
+            [attr.aria-controls]="'collapse' + i"
+          >
+            {{ dimension.name }}
+          </button>
+        </h2>
+        <div
+          [id]="'collapse' + i"
+          class="accordion-collapse collapse"
+          [class.show]="i === 0"
+          [attr.aria-labelledby]="'heading' + i"
+          data-bs-parent="#accordionExample"
+        >
+          <div class="accordion-body">
+            <strong>Semantic:</strong> {{ dimension.semantic }} <br><br>
+
+            <!-- FACTORS Selected for DIMENSION -->
+            <h5>DQ Factors:</h5>
+
+            <!-- Acordeón para los factores seleccionados asociados a la dimensión -->
+            <div class="accordion mt-3" [id]="'factorAccordion' + i">
+              <div
+                class="accordion-item"
+                *ngFor="let factor of getSelectedFactorsByDimension(dimension.id); let j = index"
+              >
+                <h2 class="accordion-header" [id]="'factorHeading' + i + '-' + j">
+                  <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    [attr.data-bs-target]="'#factorCollapse' + i + '-' + j"
+                    aria-expanded="false"
+                    [attr.aria-controls]="'factorCollapse' + i + '-' + j"
+                  >
+                    {{ factor.name }}
+                  </button>
+                </h2>
+                <div
+                  [id]="'factorCollapse' + i + '-' + j"
+                  class="accordion-collapse collapse"
+                  [attr.aria-labelledby]="'factorHeading' + i + '-' + j"
+                  [attr.data-bs-parent]="'#factorAccordion' + i"
+                >
+                  <div class="accordion-body">
+                    <strong>Semantic:</strong> {{ factor.semantic }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mostrar factores asociados a la dimensión seleccionada
+            <ul *ngIf="getFactorsByDimension(dimension.id).length > 0">
+              <li *ngFor="let factor of getSelectedFactorsByDimension(dimension.id)">
+                <strong>{{ factor.name }}</strong>: {{ factor.description }}
+              </li>
+            </ul>  -->
+            
+          </div>
+        </div>
       </div>
     </div>
-    <button class="btn btn-dark btn-sm mt-3" (click)="confirmFactorsSelection(problem)">Add to DQ Model</button>
-  </div>
+  </div> 
 
-
-  
-
-  
-  <h3 class="subtitle-selected" *ngIf="showDimensionsFactorsTitle">Dimensiones y Factores Seleccionados</h3>
-  
-  <table class="table" *ngIf="showDimensionsFactorsTable">
-    <thead>
-      <tr>
-        <th>Dimensión</th>
-        <th>Factor</th>
-        <th>Problemas de Calidad</th>
-      </tr>
-    </thead>
-    <tbody>
-      <ng-container *ngFor="let dimensionWithFactors of getSelectedDimensionsWithFactors()">
-        <tr *ngFor="let factorWithProblems of dimensionWithFactors.factors; let factorIndex = index">
-          <td *ngIf="factorIndex === 0" [attr.rowspan]="dimensionWithFactors.factors.length">{{ dimensionWithFactors.dimension.name }}</td>
-          <td>{{ factorWithProblems.factor.name }}</td>
-          <td>
-            <ul>
-              <li *ngFor="let problemName of factorWithProblems.problems">
-                {{ problemName }}
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr *ngIf="dimensionWithFactors.factors.length > 1">
-          <td colspan="3" class="divider"></td>
-        </tr>
-      </ng-container>
-      
-    </tbody>
-  </table>
-  <button class="btn btn-primary btn-sm mt-3" (click)="confirmAllFactors()">Confirmar Selección</button> 
-</div>
-</div>
-
-
-
-
-
-<div class="next-step-btn-container">
-  <button (click)="confirmAllFactors()" class="btn btn-dark btn-sm">Next ></button>
-</div>
-
-</div>
 
 <app-context-components></app-context-components>

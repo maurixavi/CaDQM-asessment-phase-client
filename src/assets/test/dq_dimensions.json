@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Accuracy",
+    "semantic": "The degree to which data correctly reflects the real-world entity or event it represents."
+  },
+  {
+    "id": 2,
+    "name": "Completeness",
+    "semantic": "The degree to which all required data elements are present."
+  },
+  {
+    "id": 3,
+    "name": "Consistency",
+    "semantic": "The degree to which data is free from contradictions."
+  },
+  {
+    "id": 4,
+    "name": "Uniqueness",
+    "semantic": "The degree to which each record represents a distinct entity."
+  },
+  {
+    "id": 5,
+    "name": "Timeliness",
+    "semantic": "The degree to which data is available when needed."
+  },
+  {
+    "id": 6,
+    "name": "Validity",
+    "semantic": "The degree to which data conforms to defined business rules."
+  }
+]

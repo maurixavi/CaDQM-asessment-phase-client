@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http'; 
+
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -14,7 +16,7 @@ import { DQProblemsSelectionComponent } from './pages/dqproblems-selection/dqpro
 import { DqDimensionsFactorsSelectionComponent } from './pages/dq-dimensions-factors-selection/dq-dimensions-factors-selection.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
-import {DQMeasurementPreviewComponent} from './pages/dqmeasurement-preview-run/dqmeasurement-preview-run.component';
+import { DQMeasurementPreviewComponent } from './pages/dqmeasurement-preview-run/dqmeasurement-preview-run.component';
 
 import { HeaderComponent } from './shared/header/header.component';
 
@@ -23,7 +25,8 @@ import { ContextComponentsService } from './shared/context-components/context-co
 import { DQModelConfirmationComponent } from './pages/dqmodel-confirmation/dqmodel-confirmation.component';
 import { StepNavigatorComponent } from './shared/step-navigator/step-navigator.component';
 
-
+// Importar el servicio DqModelService
+import { DqModelService } from './services/dq-model.service';
 
 @NgModule({
   declarations: [
@@ -43,9 +46,13 @@ import { StepNavigatorComponent } from './shared/step-navigator/step-navigator.c
     BrowserModule,
     AppRoutingModule,
     DragDropModule,
-    FormsModule 
+    FormsModule,
+    HttpClientModule,
   ],
-  providers: [ContextComponentsService],
+  providers: [
+    ContextComponentsService,
+    DqModelService,
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

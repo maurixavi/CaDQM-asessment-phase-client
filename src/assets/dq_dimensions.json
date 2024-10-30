@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "name": "Accuracy",
+    "semantic": "The degree to which data correctly reflects the real-world entity or event it represents.",
+    "ctx_components": [
+      { "type": "ApplicationDomain", "id": 1 },
+	    { "type": "ApplicationDomain", "id": 2 },
+	    { "type": "BusinessRule", "id": 1 },
+	    { "type": "BusinessRule", "id": 2 },
+	    { "type": "UserType", "id": 1 },
+	    { "type": "TaskAtHand", "id": 1 },
+	    { "type": "TaskAtHand", "id": 2 },
+	    { "type": "DQRequirement", "id": 1 },
+	    { "type": "DQRequirement", "id": 2 },
+	    { "type": "DQRequirement", "id": 3 }
+    ],
+    "dq_model_version_id": 1
+  },
+  {
+    "id": 2,
+    "name": "Completeness",
+    "semantic": "The degree to which all required data elements are present.",
+    "ctx_components": [
+      { "type": "ApplicationDomain", "id": 1 },
+	    { "type": "ApplicationDomain", "id": 2 },
+	    { "type": "BusinessRule", "id": 1 },
+	    { "type": "BusinessRule", "id": 2 },
+	    { "type": "UserType", "id": 1 },
+	    { "type": "TaskAtHand", "id": 1 },
+	    { "type": "TaskAtHand", "id": 2 },
+	    { "type": "DQRequirement", "id": 1 },
+	    { "type": "DQRequirement", "id": 2 },
+	    { "type": "DQRequirement", "id": 3 }
+    ],
+    "dq_model_version_id": 1
+  },
+  {
+    "id": 3,
+    "name": "Consistency",
+    "semantic": "The degree to which data is free from contradictions.",
+    "ctx_components": [
+      { "type": "ApplicationDomain", "id": 1 },
+	    { "type": "ApplicationDomain", "id": 2 },
+	    { "type": "BusinessRule", "id": 1 },
+	    { "type": "BusinessRule", "id": 2 },
+	    { "type": "UserType", "id": 1 },
+	    { "type": "TaskAtHand", "id": 1 },
+	    { "type": "TaskAtHand", "id": 2 },
+	    { "type": "DQRequirement", "id": 1 },
+	    { "type": "DQRequirement", "id": 2 },
+	    { "type": "DQRequirement", "id": 3 }
+    ],
+    "dq_model_version_id": 1
+  },
+  {
+    "id": 4,
+    "name": "Uniqueness",
+    "semantic": "The degree to which each record represents a distinct entity.",
+    "ctx_components": [
+      { "type": "ApplicationDomain", "id": 1 },
+	    { "type": "ApplicationDomain", "id": 2 },
+	    { "type": "BusinessRule", "id": 1 },
+	    { "type": "BusinessRule", "id": 2 },
+	    { "type": "UserType", "id": 1 },
+	    { "type": "TaskAtHand", "id": 1 },
+	    { "type": "TaskAtHand", "id": 2 },
+	    { "type": "DQRequirement", "id": 1 },
+	    { "type": "DQRequirement", "id": 2 },
+	    { "type": "DQRequirement", "id": 3 }
+    ],
+    "dq_model_version_id": 1
+  },
+  {
+    "id": 5,
+    "name": "Timeliness",
+    "semantic": "The degree to which data is available when needed.",
+    "ctx_components": [
+      { "type": "ApplicationDomain", "id": 1 },
+	    { "type": "ApplicationDomain", "id": 2 },
+	    { "type": "BusinessRule", "id": 1 },
+	    { "type": "BusinessRule", "id": 2 },
+	    { "type": "UserType", "id": 1 },
+	    { "type": "TaskAtHand", "id": 1 },
+	    { "type": "TaskAtHand", "id": 2 },
+	    { "type": "DQRequirement", "id": 1 },
+	    { "type": "DQRequirement", "id": 2 },
+	    { "type": "DQRequirement", "id": 3 }
+    ],
+    "dq_model_version_id": 1
+  },
+  {
+    "id": 6,
+    "name": "Validity",
+    "semantic": "The degree to which data conforms to defined business rules.",
+    "ctx_components": [
+      { "type": "ApplicationDomain", "id": 1 },
+	    { "type": "ApplicationDomain", "id": 2 },
+	    { "type": "BusinessRule", "id": 1 },
+	    { "type": "BusinessRule", "id": 2 },
+	    { "type": "UserType", "id": 1 },
+	    { "type": "TaskAtHand", "id": 1 },
+	    { "type": "TaskAtHand", "id": 2 },
+	    { "type": "DQRequirement", "id": 1 },
+	    { "type": "DQRequirement", "id": 2 },
+	    { "type": "DQRequirement", "id": 3 }
+    ],
+    "dq_model_version_id": 1
+  }
+]

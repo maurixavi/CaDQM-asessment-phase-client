@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1,
+    "name": "Semantic accuracy",
+    "semantic": "Does the data accurately represent the real-world concept?",
+    "dimension_id": 1
+  },
+  {
+    "id": 2,
+    "name": "Syntactic accuracy",
+    "semantic": "Is the data free from syntax errors?",
+    "dimension_id": 1
+  },
+  {
+    "id": 3,
+    "name": "Attribute completeness",
+    "semantic": "Are all attributes populated?",
+    "dimension_id": 2
+  },
+  {
+    "id": 4,
+    "name": "Record completeness",
+    "semantic": "Are all required records present?",
+    "dimension_id": 2
+  },
+  {
+    "id": 5,
+    "name": "Intra-field consistency",
+    "semantic": "Are values within a field consistent?",
+    "dimension_id": 3
+  },
+  {
+    "id": 6,
+    "name": "Inter-field consistency",
+    "semantic": "Are values across different fields consistent?",
+    "dimension_id": 3
+  },
+  {
+    "id": 7,
+    "name": "Entity uniqueness",
+    "semantic": "Are entities represented only once?",
+    "dimension_id": 4
+  },
+  {
+    "id": 8,
+    "name": "Data freshness",
+    "semantic": "How recent is the data?",
+    "dimension_id": 5
+  },
+  {
+    "id": 9,
+    "name": "Range validity",
+    "semantic": "Are values within the defined range?",
+    "dimension_id": 6
+  }
+]
