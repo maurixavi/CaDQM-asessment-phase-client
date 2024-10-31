@@ -99,6 +99,10 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   dqmodel_dimensions: any[] = [];
   noDimensionsMessage: string = "";
 
+  addedDimensionId: number | null = null;
+  //addedDimensions: { id: number; base: number }[] = []; // Array para almacenar ID y base de dimensiones
+
+
   ngOnInit() {
     this.getDQModels();
     this.getUsers();
@@ -676,6 +680,27 @@ removeContextComponent(component: ContextComponent) {
     this.resetFactorForm();
   }
 
+  submitNewFactor(): void {
+    const factorToAdd = {
+      factor_base: this.selectedFactor!, // Usar "!" para indicar que no será null
+      dimension: this.addedDimensionId!,  // Usar "!" para indicar que no será null
+      dq_model: this.dqModelId, // Asegúrate de tener el ID del DQ Model
+    };
+
+    console.log("ID Dimension dqmodel: ", factorToAdd.dimension)
+    console.log("--INTENTO POST factor: ", factorToAdd)
+    this.modelService.addFactor(factorToAdd).subscribe({
+      next: (data) => {
+        console.log("Factor añadido:", data);
+        alert("Factor añadido correctamente");
+      },
+      error: (err) => {
+        console.error("Error al añadir el factor:", err);
+        alert("Error al añadir el factor. Por favor, verifica la información.");
+      }
+    });
+  }
+
   submitNewDimension(): void {
     if (this.selectedDimension === null) {
       console.error("No se ha seleccionado ninguna dimensión base.");
@@ -701,9 +726,14 @@ removeContextComponent(component: ContextComponent) {
     this.modelService.addDimension(dimensionToAdd).subscribe({
         next: (data) => {
             console.log("Dimensión añadida:", data);
-            // Aquí podrías actualizar tu arreglo de dimensiones si es necesario
+
+            this.addedDimensionId = data.id; // Captura el ID de la dimensión agregada
+            console.log("ID de dimensión añadida:", this.addedDimensionId);
+  
             this.errorMessage = ""; // Resetea el mensaje de error
             window.alert("Dimensión añadida correctamente al DQ Model");
+
+            this.submitNewFactor();
         },
         error: (err) => {
           console.error("Error al añadir la dimensión:", err);
@@ -727,6 +757,7 @@ removeContextComponent(component: ContextComponent) {
   addToDQModel(): void {
     // Llama a la función para agregar la dimensión
     this.submitNewDimension();
+    //this.submitNewFactor();
   
     // Aquí puedes agregar lógica para el factor más tarde
     // Por ahora, puedes simplemente comentar o dejarlo para el futuro

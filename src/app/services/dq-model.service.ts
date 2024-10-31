@@ -35,6 +35,7 @@ export class DqModelService {
 
   readonly API_URL_DQMODELS = "http://localhost:8000/api/dqmodels/"
   readonly API_URL_DIMENSIONS_DQMODEL = "http://localhost:8000/api/dimensions/"
+  readonly API_URL_FACTORS_DQMODEL = "http://localhost:8000/api/factors/"
 
   //readonly API_PATH_DIMENSIONS = "/assets/dq_dimensions.json"
   //readonly API_PATH_DIMENSIONS = "/assets/test/dq_dimensions.json";
@@ -62,6 +63,15 @@ export class DqModelService {
       })
     );
   }
+
+  addFactor(factorData: { factor_base: number; dimension: number }): Observable<any> {
+  return this.http.post<any>(this.API_URL_FACTORS_DQMODEL, factorData).pipe(
+    catchError(err => {
+      console.error('Error al agregar el factor:', err);
+      throw err; // Re-lanzar el error para que pueda ser manejado en el componente
+    })
+  );
+}
 
   getUsers() {
     return this.http.get<any[]>(this.API_URL);
