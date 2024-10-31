@@ -104,6 +104,18 @@ export class DqModelService {
     );
   }
 
+  // obtener los factores de una dimensión específica en un DQModel
+  getFactorsByDQModelAndDimension(dqmodelId: number, dimensionId: number): Observable<any[]> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/${dimensionId}/factors/`;
+    //console.log("Obteniendo factores de la dimensión:", url);
+    return this.http.get<any[]>(url).pipe(
+      catchError(err => {
+        console.error(`Error al obtener factores para DQModel ${dqmodelId} y Dimension ${dimensionId}:`, err);
+        throw err;
+      })
+    );
+  }
+
   // Método para obtener todo el modelo de contexto con DQDimensions, DQFactors, etc.
   /*getDQModel(): Observable<any> {
     return this.http.get<any[]>(`${this.basePath}/dq_models.json`);
@@ -112,9 +124,14 @@ export class DqModelService {
 
 
   // Método para obtener solo las dimensiones de 
-  getDQDimensions(): Observable<any> {
+  getDQDimensionsBase(): Observable<any> {
     return this.http.get<any[]>(this.API_URL_DIMENSIONS_BASE);
   }
+
+  getDQDimensionBaseById(dimensionBaseId: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL_DIMENSIONS_BASE}${dimensionBaseId}/`);
+  }
+
   /*getDQDimensions(): Observable<any> {
     return this.http.get<any[]>(`${this.basePath}/dq_dimensions.json`);
   }*/
@@ -140,8 +157,12 @@ export class DqModelService {
 
 
   // Método para obtener solo los factores de calidad
-  getDQFactors(): Observable<any> {
+  getDQFactorsBase(): Observable<any> {
     return this.http.get<any[]>(this.API_URL_FACTORS_BASE);
+  }
+
+  getFactorBaseById(factorBaseId: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL_FACTORS_BASE}${factorBaseId}/`);
   }
   /*getDQFactors(): Observable<any> {
     return this.http.get<any[]>(`${this.basePath}/dq_factors.json`);

@@ -8,195 +8,6 @@
 	</app-step-navigator>
 
 
-  <h4>Add DQ Dimensions and DQ Factors from scratch</h4>
-  <!-- Selector de Dimensiones -->
-  <div class="form-group">
-    <label for="dqDimension">DQ Dimension</label>
-    <select 
-      id="dqDimension" 
-      class="form-control" 
-      [(ngModel)]="selectedDimension" 
-      (change)="onDimensionChange()">
-      <option value="" disabled selected>Select a dimension</option>
-      <option *ngFor="let dimension of dqDimensionsBase" [ngValue]="dimension.id">
-        {{ dimension.name }}
-      </option>
-    </select>
-  </div>
-  
-
-  <!-- Selector de Factores (siempre visible) -->
-  <div class="form-group">
-    <label for="dqFactor">DQ Factor</label>
-    <select 
-      id="dqFactor" 
-      class="form-control" 
-      [(ngModel)]="selectedFactor"
-      (change)="onFactorChange()">
-      <option value="" disabled selected>Select a factor</option>
-      <ng-container *ngIf="selectedDimension">
-        <option *ngFor="let factor of availableFactors" [ngValue]="factor.id">
-          {{ factor.name }}
-        </option>
-      </ng-container>
-    </select>
-  </div> 
-
-  <!-- Botón para agregar el par -->
-  <button 
-  type="button" 
-  class="btn btn-primary" 
-  (click)="addDimensionFactorPair()" 
-  [disabled]="!selectedDimension || !selectedFactor">
-  Add
-  </button>
-
-  <!-- Mensaje de Alerta -->
-  <div *ngIf="duplicateFactor" class="alert alert-warning mt-2">
-    Este par de dimensión y factor ya ha sido agregado.
-  </div>
-
-  <!-- Lista de pares de dimensión y factor seleccionados 
-  <div *ngIf="getDimensionFactorPairs().length > 0">
-    <h3>Pares Seleccionados:</h3>
-    <ul>
-      <li *ngFor="let pair of getDimensionFactorPairs()">
-        <strong>Dimension:</strong> {{ pair.dimension?.name }} - <strong>Factor:</strong> {{ pair.factor?.name }}
-      </li>
-    </ul>
-  </div> -->
-  <!-- Selector de Factores (siempre visible)
-  <div class="form-group">
-    <label for="dqFactor">DQ Factor</label>
-    <select 
-      id="dqFactor" 
-      class="form-control" 
-      [(ngModel)]="selectedFactor">
-      <option value="" disabled selected>Select a factor</option>
-      <ng-container *ngIf="selectedDimension">
-        <option *ngFor="let factor of getFactorsByDimension(selectedDimension)" [ngValue]="factor.id">
-          {{ factor.name }}
-        </option>
-      </ng-container>
-    </select>
-  </div> -->
-
-  <br><br>
-
- 
-
-  <!-- LISTADO TOTAL ------ Dimensiones y sus Factores Asociados 
-  <div *ngFor="let dimension of qualityDimensions">
-    <h3>{{ dimension.name }}</h3>
-    <p>{{ dimension.semantic }}</p>-->
-
-    <!-- Lista de Factores dentro de cada Dimensión
-    <ul>
-      <li *ngFor="let factor of getFactorsByDimension(dimension.id)">
-        <strong>{{ factor.name }}</strong>: {{ factor.semantic }}
-      </li>
-      <li *ngIf="getFactorsByDimension(dimension.id).length === 0">
-        No hay factores asociados a esta dimensión.
-      </li>
-    </ul>
-  </div> -->
-
-  <!-- ACCORDION se muestran VARIOS A LA VEZ 
-  <div *ngIf="getDimensionFactorPairs().length > 0">
-    <h3>Dimensions and Factors selected</h3>
-  
-    <h5>DQ Dimensions:</h5>
-    <div class="accordion" id="accordionExample">
-      <div class="accordion-item" *ngFor="let dimension of selectedDimensions; let i = index">
-        <h2 class="accordion-header" [id]="'heading' + i">
-          <button
-            class="accordion-button"
-            type="button"
-            data-bs-toggle="collapse"
-            [attr.data-bs-target]="'#collapse' + i"
-            aria-expanded="true"
-            [attr.aria-controls]="'collapse' + i"
-          >
-            {{ dimension.name }}
-          </button>
-        </h2>
-        <div
-          [id]="'collapse' + i"
-          class="accordion-collapse collapse"
-          [class.show]="i === 0"
-          [attr.aria-labelledby]="'heading' + i"
-        >
-          <div class="accordion-body">
-            <strong>Semantic:</strong> {{ dimension.semantic }} <br><br>
-  
-          
-            <h5>DQ Factors:</h5>
-  
-            <div class="accordion mt-3" [id]="'factorAccordion' + i">
-              <div
-                class="accordion-item"
-                *ngFor="let factor of getSelectedFactorsByDimension(dimension.id); let j = index"
-              >
-                <h2 class="accordion-header" [id]="'factorHeading' + i + '-' + j">
-                  <button
-                    class="accordion-button collapsed"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    [attr.data-bs-target]="'#factorCollapse' + i + '-' + j"
-                    aria-expanded="false"
-                    [attr.aria-controls]="'factorCollapse' + i + '-' + j"
-                  >
-                    {{ factor.name }}
-                  </button>
-                </h2>
-                <div
-                  [id]="'factorCollapse' + i + '-' + j"
-                  class="accordion-collapse collapse"
-                  [attr.aria-labelledby]="'factorHeading' + i + '-' + j"
-                >
-                  <div class="accordion-body">
-                    <strong>Semantic:</strong> {{ factor.semantic }}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  -->
-   
-  <!--
-  <ul>
-    @for (dimension of modelService.dimensions; track $index){
-    <li>
-      <a [routerLink]="dimension.id">
-        <div class="">
-          <h2>{{ $index + 1 }}</h2>
-          <h2>{{ dimension.name }}</h2>
-        </div>
-      </a>
-    </li>
-    }
-  </ul>
-
-  
-  <ul>
-    @for (user of modelService.users; track $index){
-    <li>
-      <a [routerLink]="user.id">
-        <div class="">
-          <h2>{{ $index + 1 }}</h2>
-          <h2>{{ user.name }}</h2>
-        </div>
-      </a>
-    </li>
-    }
-  </ul>
-  -->
-
- 
 
   <!--<div class="context-selection">
     <select class="form-select " [(ngModel)]="selectedComponent">
@@ -255,35 +66,6 @@
             </span>
           </div>
 
-          <!--Add New Dimension modal form-->
-          <!--<div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title">Add new DQ Dimension</h5>
-                  <button type="button" class="close" aria-label="Close" (click)="closeModal()">
-                    <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <form>
-                    <div class="form-group">
-                      <label for="projectTitle">Name</label>
-                      <input type="text" class="form-control" id="projectName" placeholder="Enter DQ Dimension name">
-                    </div>
-                    <div class="form-group">
-                      <label for="projectDescription">Semantic</label>
-                      <input type="text" class="form-control" id="projectDescription" placeholder="Enter DQ Dimension semantic">
-                    </div>
-                  </form>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-sm btn-light" (click)="closeModal()">Cancel</button>
-                  <button type="button" class="btn btn-sm btn-dark" routerLink="/step1">Confirm</button>
-                </div>
-              </div>
-            </div>
-          </div>-->
           <!-- Add New Dimension modal form -->
           <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
             <div class="modal-dialog" role="document">
@@ -494,13 +276,14 @@
   </div>
   
 
-  <!-- Lista de pares de dimensión y factor seleccionados -->
-  <div *ngIf="getDimensionFactorPairs().length > 0">
-    <h3>Dimensions and Factors selected</h3>
 
-    <h5>DQ Dimensions:</h5>
+
+  <!-- DQ DIMENSIONS and DQ FACTORS ADDED to DQ MODEL -->
+  <div *ngIf="dimensionsWithFactorsInDQModel && dimensionsWithFactorsInDQModel.length">
+    <h3>DQ Model: Dimensions and Factors</h3>
+    
     <div class="accordion" id="accordionExample">
-      <div class="accordion-item" *ngFor="let dimension of selectedDimensions; let i = index">
+      <div class="accordion-item" *ngFor="let item of dimensionsWithFactorsInDQModel; let i = index">
         <h2 class="accordion-header" [id]="'heading' + i">
           <button
             class="accordion-button"
@@ -510,7 +293,7 @@
             aria-expanded="true"
             [attr.aria-controls]="'collapse' + i"
           >
-            {{ dimension.name }}
+            {{ item.dimension.dimension_name }}
           </button>
         </h2>
         <div
@@ -521,16 +304,17 @@
           data-bs-parent="#accordionExample"
         >
           <div class="accordion-body">
-            <strong>Semantic:</strong> {{ dimension.semantic }} <br><br>
-
-            <!-- FACTORS Selected for DIMENSION -->
-            <h5>DQ Factors:</h5>
-
-            <!-- Acordeón para los factores seleccionados asociados a la dimensión -->
+            <strong>Atributos de la Dimensión Base:</strong> 
+            <ul>
+              <li>Nombre: {{ item.baseAttributes.name }}</li>
+              <li>Semántica: {{ item.baseAttributes.semantic }}</li>
+            </ul>
+            
+            <strong>Factores Asociados:</strong>
             <div class="accordion mt-3" [id]="'factorAccordion' + i">
               <div
                 class="accordion-item"
-                *ngFor="let factor of getSelectedFactorsByDimension(dimension.id); let j = index"
+                *ngFor="let factor of item.factors; let j = index"
               >
                 <h2 class="accordion-header" [id]="'factorHeading' + i + '-' + j">
                   <button
@@ -541,7 +325,7 @@
                     aria-expanded="false"
                     [attr.aria-controls]="'factorCollapse' + i + '-' + j"
                   >
-                    {{ factor.name }}
+                    {{ factor.factor_name }}
                   </button>
                 </h2>
                 <div
@@ -551,24 +335,26 @@
                   [attr.data-bs-parent]="'#factorAccordion' + i"
                 >
                   <div class="accordion-body">
-                    <strong>Semantic:</strong> {{ factor.semantic }}
+                    <strong>Atributos del Factor Base:</strong>
+                    <ul>
+                      <li>Nombre Base: {{ factor.baseAttributes.name }}</li>
+                      <li>Semántica Base: {{ factor.baseAttributes.semantic }}</li>
+                    </ul>
                   </div>
                 </div>
               </div>
             </div>
-
-            <!-- Mostrar factores asociados a la dimensión seleccionada
-            <ul *ngIf="getFactorsByDimension(dimension.id).length > 0">
-              <li *ngFor="let factor of getSelectedFactorsByDimension(dimension.id)">
-                <strong>{{ factor.name }}</strong>: {{ factor.description }}
-              </li>
-            </ul>  -->
             
           </div>
         </div>
       </div>
     </div>
-  </div> 
+  </div>
+  
+  <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+  <p *ngIf="noDimensionsMessage" class="error-message">{{ noDimensionsMessage }}</p>
+
+
 
 
 <app-context-components></app-context-components>
