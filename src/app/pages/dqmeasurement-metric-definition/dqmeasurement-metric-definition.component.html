@@ -65,7 +65,7 @@
                 <div (click)="metric.expanded = !metric.expanded" class="metric-title p-2" style="background-color: #f8f9fa; cursor: pointer;">
                   <h4 class="d-flex align-items-center m-0">
                     <i [class]="metric.expanded ? 'bi bi-chevron-down' : 'bi bi-chevron-right'"></i>
-                    <span class="ms-2">{{ metric.name }}</span>
+                    <span class="ms-2">Dq Metric: {{ metric.name }}</span>
                   </h4>
                 </div>
                 <div *ngIf="metric.expanded" class="metric-details p-3" style="border: 1px solid #ccc;">
