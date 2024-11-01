@@ -40,7 +40,7 @@
 
 
   <p class="subtitle-description">Add Dimensions and Factors from scratch</p>
-  <div class="flex-container">
+  <div id="dimension-factor-selection"  class="flex-container">
     <div class="suggested-section-container p-4">
       <div>
 
@@ -62,17 +62,17 @@
                 </option>
               </select>
           
-              <button class="btn btn-light  mx-2" (click)="openModal()">Add new</button>
+              <button class="btn btn-light  mx-2" (click)="openDimensionModal()">Add new</button>
             </span>
           </div>
 
           <!-- Add New Dimension modal form -->
-          <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
+          <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isDimensionModalOpen}" [style.display]="isDimensionModalOpen ? 'block' : 'none'">
             <div class="modal-dialog" role="document">
               <div class="modal-content">
                 <div class="modal-header">
                   <h5 class="modal-title">Add new DQ Dimension</h5>
-                  <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+                  <button type="button" class="close" aria-label="Close" (click)="closeDimensionModal()">
                     <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
                   </button>
                 </div>
@@ -90,7 +90,7 @@
                   </form>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-sm btn-light" (click)="closeModal()">Cancel</button>
+                  <button type="button" class="btn btn-sm btn-light" (click)="closeDimensionModal()">Cancel</button>
                   <button type="submit" class="btn btn-sm btn-dark" (click)="createDimension()">Confirm</button>
                 </div>
               </div>
@@ -110,7 +110,7 @@
               </div>  
             </div>
 
-            <button class="btn btn-light btn-sm mx-4 my-2 mb-4" (click)="openModal()">Edit</button>
+            <button class="btn btn-light btn-sm mx-4 my-2 mb-4" (click)="openDimensionModal()">Edit</button>
           </div>
 
           <div class="label">
@@ -190,7 +190,7 @@
               </div>
             </div>
           
-            <button class="btn btn-light btn-sm mx-4 my-2 mb-4" (click)="openModal()">Edit</button>
+            <button class="btn btn-light btn-sm mx-4 my-2 mb-4" (click)="openDimensionModal()">Edit</button>
           </div>
 
         </div>
@@ -280,7 +280,7 @@
 
   <!-- DQ DIMENSIONS and DQ FACTORS ADDED to DQ MODEL -->
   <div *ngIf="dimensionsWithFactorsInDQModel && dimensionsWithFactorsInDQModel.length">
-    <h3>DQ Model: Dimensions and Factors</h3>
+    <h5>DQ Model: Dimensions and Factors</h5>
     
     <div class="accordion" id="accordionExample">
       <div class="accordion-item" *ngFor="let item of dimensionsWithFactorsInDQModel; let i = index">
@@ -293,7 +293,8 @@
             aria-expanded="true"
             [attr.aria-controls]="'collapse' + i"
           >
-            {{ item.dimension.dimension_name }}
+          <span><strong>DQ Dimension: </strong> {{ item.dimension.dimension_name }}</span>
+          
           </button>
         </h2>
         <div
@@ -304,13 +305,20 @@
           data-bs-parent="#accordionExample"
         >
           <div class="accordion-body">
-            <strong>Atributos de la Dimensión Base:</strong> 
+            <strong>Dimension Base:</strong>
             <ul>
-              <li>Nombre: {{ item.baseAttributes.name }}</li>
-              <li>Semántica: {{ item.baseAttributes.semantic }}</li>
+              <li>Name: {{ item.baseAttributes.name }}</li>
+              <li>Semantic: {{ item.baseAttributes.semantic }}</li>
             </ul>
+
+            <button (click)="deleteDimension(item.dimension.id)" class="btn btn-danger btn-sm">
+              Remove Dimension
+            </button>
+            <button (click)="scrollToDiv('dimension-factor-selection')" class="btn btn-light btn-sm ms-2">
+              Add more Factors
+            </button><br><br>
             
-            <strong>Factores Asociados:</strong>
+            <strong>Factors:</strong>
             <div class="accordion mt-3" [id]="'factorAccordion' + i">
               <div
                 class="accordion-item"
@@ -325,7 +333,7 @@
                     aria-expanded="false"
                     [attr.aria-controls]="'factorCollapse' + i + '-' + j"
                   >
-                    {{ factor.factor_name }}
+                    <span><strong>DQ Factor: </strong> {{ factor.factor_name }}</span>
                   </button>
                 </h2>
                 <div
@@ -335,11 +343,14 @@
                   [attr.data-bs-parent]="'#factorAccordion' + i"
                 >
                   <div class="accordion-body">
-                    <strong>Atributos del Factor Base:</strong>
+                    <strong>Factor Base atrributes:</strong>
                     <ul>
-                      <li>Nombre Base: {{ factor.baseAttributes.name }}</li>
-                      <li>Semántica Base: {{ factor.baseAttributes.semantic }}</li>
+                      <li>Name: {{ factor.baseAttributes.name }}</li>
+                      <li>Semantic: {{ factor.baseAttributes.semantic }}</li>
                     </ul>
+                    <button (click)="deleteFactor(factor.id)" class="btn btn-danger btn-sm">
+                      Remove Factor
+                    </button> <br>
                   </div>
                 </div>
               </div>

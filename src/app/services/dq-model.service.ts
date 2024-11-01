@@ -26,74 +26,62 @@ interface Context {
 export class DqModelService {
   
   private basePath = "/assets/test";
+  //readonly API_PATH_DIMENSIONS = "/assets/dq_dimensions.json"
+  //readonly API_PATH_DIMENSIONS = "/assets/test/dq_dimensions.json";
 
-  //readonly API_URL = "https://jsonplaceholder.typicode.com/users"
+  //API PROJECTS
   readonly API_URL = "http://localhost:8000/api/projects/"
+
+  //API CONTEXT
   readonly API_URL_CTX = "http://localhost:8000/api/context-model/"
+
+  //API DIMENSIONS AND FACTORS BASE
   readonly API_URL_DIMENSIONS_BASE = "http://localhost:8000/api/dimensions-base/"
   readonly API_URL_FACTORS_BASE = "http://localhost:8000/api/factors-base/"
 
+  //API DQ MODEL
   readonly API_URL_DQMODELS = "http://localhost:8000/api/dqmodels/"
   readonly API_URL_DIMENSIONS_DQMODEL = "http://localhost:8000/api/dimensions/"
   readonly API_URL_FACTORS_DQMODEL = "http://localhost:8000/api/factors/"
 
-  //readonly API_PATH_DIMENSIONS = "/assets/dq_dimensions.json"
-  //readonly API_PATH_DIMENSIONS = "/assets/test/dq_dimensions.json";
-
-  users: any[];
+  projects: any[];
+  dqmodels: any[];
   dimensions: any[];
   factors: any[];
-  dqmodels: any[];
-
+  
   ctx_components: any[];
 
   constructor(private http: HttpClient) {
-    this.users = [];
+    this.projects = [];
     this.dimensions = [];
     this.factors = [];
     this.dqmodels = [];
     this.ctx_components = [];
   }
 
-  addDimension(dimensionData: { dimension_base: number; context_components: any[] }): Observable<any> {
-    return this.http.post<any>(this.API_URL_DIMENSIONS_DQMODEL, dimensionData).pipe(
-      catchError(err => {
-        console.error('Error al agregar la dimensión:', err);
-        throw err; // Re-lanzar el error para que pueda ser manejado en el componente
-      })
-    );
-  }
-
-  addFactor(factorData: { factor_base: number; dimension: number }): Observable<any> {
-  return this.http.post<any>(this.API_URL_FACTORS_DQMODEL, factorData).pipe(
-    catchError(err => {
-      console.error('Error al agregar el factor:', err);
-      throw err; // Re-lanzar el error para que pueda ser manejado en el componente
-    })
-  );
-}
-
-  getUsers() {
+  //PROJECTS 
+  getProjects() {
     return this.http.get<any[]>(this.API_URL);
   }
 
-
+  //DQ MODELS
   getDQModels(): Observable<any> {
     return this.http.get<any[]>(this.API_URL_DQMODELS);
   }
 
   getDQModel(dqmodelId: number): Observable<any[]> {
-    const url = `${this.API_URL_DQMODELS}${dqmodelId}/`;
-    console.log("Accediendo a la URL:", url);
+    /*const url = `${this.API_URL_DQMODELS}${dqmodelId}/`;
+    console.log("Accediendo a la URL:", url);*/
     return this.http.get<any[]>(`${this.API_URL_DQMODELS}${dqmodelId}/`).pipe(
       catchError(err => {
         console.error(`Error al obtener DQ Model ${dqmodelId}:`, err);
         throw err;
       })
     );
-  }
+  } 
 
-  getDQModelDimensions(dqmodelId: number): Observable<any[]> {
+  //DIMENSIONS DQ MODEL
+  getDimensionsByDQModel(dqmodelId: number): Observable<any[]> {
     const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/`;
     console.log("DqModels/Dimensions - Accediendo a la URL:", url);
     return this.http.get<any[]>(`${this.API_URL_DQMODELS}${dqmodelId}/dimensions/`).pipe(
@@ -104,7 +92,22 @@ export class DqModelService {
     );
   }
 
-  // obtener los factores de una dimensión específica en un DQModel
+  addDimensionToDQModel(dimensionData: { dimension_base: number; context_components: any[] }): Observable<any> {
+    return this.http.post<any>(this.API_URL_DIMENSIONS_DQMODEL, dimensionData).pipe(
+      catchError(err => {
+        console.error('Error al agregar la dimensión:', err);
+        throw err; // Re-lanzar el error para que pueda ser manejado en el componente
+      })
+    );
+  }
+
+  deleteDimensionFromDQModel(dimensionId: number): Observable<any> {
+    return this.http.delete<any>(`${this. API_URL_DIMENSIONS_DQMODEL}${dimensionId}/`)
+  }
+
+
+  //FACTORS DQ MODEL
+  //obtener Factores asociados a una Dimension dada en DQ Model especifico
   getFactorsByDQModelAndDimension(dqmodelId: number, dimensionId: number): Observable<any[]> {
     const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/${dimensionId}/factors/`;
     //console.log("Obteniendo factores de la dimensión:", url);
@@ -116,14 +119,21 @@ export class DqModelService {
     );
   }
 
-  // Método para obtener todo el modelo de contexto con DQDimensions, DQFactors, etc.
-  /*getDQModel(): Observable<any> {
-    return this.http.get<any[]>(`${this.basePath}/dq_models.json`);
-  }*/
+  addFactorToDQModel(factorData: { factor_base: number; dimension: number }): Observable<any> {
+    return this.http.post<any>(this.API_URL_FACTORS_DQMODEL, factorData).pipe(
+      catchError(err => {
+        console.error('Error al agregar el factor:', err);
+        throw err; // Re-lanzar el error para que pueda ser manejado en el componente
+      })
+    );
+  }
 
+  deleteFactorFromDQModel(factorId: number): Observable<any> {
+    return this.http.delete<any>(`${this. API_URL_FACTORS_DQMODEL}${factorId}/`)
+  }
 
-
-  // Método para obtener solo las dimensiones de 
+  
+  //DIMENSIONS BASE
   getDQDimensionsBase(): Observable<any> {
     return this.http.get<any[]>(this.API_URL_DIMENSIONS_BASE);
   }
@@ -131,11 +141,7 @@ export class DqModelService {
   getDQDimensionBaseById(dimensionBaseId: number): Observable<any> {
     return this.http.get<any>(`${this.API_URL_DIMENSIONS_BASE}${dimensionBaseId}/`);
   }
-
-  /*getDQDimensions(): Observable<any> {
-    return this.http.get<any[]>(`${this.basePath}/dq_dimensions.json`);
-  }*/
-  // Método para crear una nueva DQDimensionBase
+  
   createDQDimension(dimension: { name: string; semantic: string }): Observable<any> {
     return this.http.post<any>(this.API_URL_DIMENSIONS_BASE, dimension).pipe(
       catchError(err => {
@@ -145,7 +151,25 @@ export class DqModelService {
     );
   }
 
-  // Método para crear una nueva DQDimensionBase
+
+  //FACTORS BASE
+  getDQFactorsBase(): Observable<any> {
+    return this.http.get<any[]>(this.API_URL_FACTORS_BASE);
+  }
+
+  getFactorBaseById(factorBaseId: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL_FACTORS_BASE}${factorBaseId}/`);
+  }
+
+  getFactorsBaseByDimensionId(dimensionId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.API_URL_DIMENSIONS_BASE}${dimensionId}/factors-base/`).pipe(
+      catchError(err => {
+        console.error(`Error al obtener factores para dimensionId ${dimensionId}:`, err);
+        throw err;
+      })
+    );
+  }
+
   createDQFactor(factor: { name: string; semantic: string }): Observable<any> {
     return this.http.post<any>(this.API_URL_FACTORS_BASE, factor).pipe(
       catchError(err => {
@@ -156,28 +180,7 @@ export class DqModelService {
   }
 
 
-  // Método para obtener solo los factores de calidad
-  getDQFactorsBase(): Observable<any> {
-    return this.http.get<any[]>(this.API_URL_FACTORS_BASE);
-  }
-
-  getFactorBaseById(factorBaseId: number): Observable<any> {
-    return this.http.get<any>(`${this.API_URL_FACTORS_BASE}${factorBaseId}/`);
-  }
-  /*getDQFactors(): Observable<any> {
-    return this.http.get<any[]>(`${this.basePath}/dq_factors.json`);
-  }*/
-
-  // Método para obtener los factores por dimensionId
-  getFactorsByDimensionId(dimensionId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.API_URL_DIMENSIONS_BASE}${dimensionId}/factors-base/`).pipe(
-      catchError(err => {
-        console.error(`Error al obtener factores para dimensionId ${dimensionId}:`, err);
-        throw err;
-      })
-    );
-  }
-
+  //---- CONTEXT ------
   /*getCtxComponents(): Observable<any> {
     return this.http.get<any[]>(`${this.basePath}/ctx_components.json`);
   }*/
