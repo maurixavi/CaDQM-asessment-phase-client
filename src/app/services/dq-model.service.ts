@@ -30,38 +30,50 @@ export class DqModelService {
   //readonly API_PATH_DIMENSIONS = "/assets/test/dq_dimensions.json";
 
   //API PROJECTS
-  readonly API_URL = "http://localhost:8000/api/projects/"
+  readonly API_URL_PROJECTS = "http://localhost:8000/api/projects/"
 
   //API CONTEXT
   readonly API_URL_CTX = "http://localhost:8000/api/context-model/"
 
-  //API DIMENSIONS AND FACTORS BASE
+  //API DIMENSIONS, FACTORS, METRICS, METHODS BASE
   readonly API_URL_DIMENSIONS_BASE = "http://localhost:8000/api/dimensions-base/"
   readonly API_URL_FACTORS_BASE = "http://localhost:8000/api/factors-base/"
+  readonly API_URL_METRICS_BASE = "http://localhost:8000/api/metrics-base/"
+  readonly API_URL_METHODS_BASE = "http://localhost:8000/api/methods-base/"
 
   //API DQ MODEL
   readonly API_URL_DQMODELS = "http://localhost:8000/api/dqmodels/"
   readonly API_URL_DIMENSIONS_DQMODEL = "http://localhost:8000/api/dimensions/"
   readonly API_URL_FACTORS_DQMODEL = "http://localhost:8000/api/factors/"
 
+  // http://localhost:8000/api/dqmodels/1/dimensions/6/factors/52/metrics/3/methods/
+
   projects: any[];
+
   dqmodels: any[];
   dimensions: any[];
   factors: any[];
+  metrics: any[];
+  methods: any[];
   
   ctx_components: any[];
 
   constructor(private http: HttpClient) {
     this.projects = [];
+
+    this.dqmodels = [];
+
     this.dimensions = [];
     this.factors = [];
-    this.dqmodels = [];
+    this.metrics = [];
+    this.methods = [];
+    
     this.ctx_components = [];
   }
 
   //PROJECTS 
   getProjects() {
-    return this.http.get<any[]>(this.API_URL);
+    return this.http.get<any[]>(this.API_URL_PROJECTS);
   }
 
   //DQ MODELS
@@ -178,6 +190,30 @@ export class DqModelService {
       })
     );
   }
+
+
+  
+
+  //METRICS BASE
+  getDQMetricsBase(): Observable<any> {
+    return this.http.get<any[]>(this.API_URL_METRICS_BASE);
+  }
+
+  getDQMetricBaseById(metricBaseId: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL_METRICS_BASE}${metricBaseId}/`);
+  }
+
+
+
+  //METHODS BASE
+  getDQMethodsBase(): Observable<any> {
+    return this.http.get<any[]>(this.API_URL_METHODS_BASE);
+  }
+
+  getDQMethodBaseById(methodBaseId: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL_METHODS_BASE}${methodBaseId}/`);
+  }
+
 
 
   //---- CONTEXT ------

@@ -7,8 +7,6 @@
 		[currentStep]="currentStep">
 	</app-step-navigator>
 
-
-
   <!--<div class="context-selection">
     <select class="form-select " [(ngModel)]="selectedComponent">
       <option [ngValue]="undefined">Select Ctx. component</option>
@@ -22,22 +20,20 @@
       Add Component
     </button>
   
-    <div class="selected-components mt-3" *ngIf="selectedComponents.length > 0">
-      <h4>Selected Components:</h4>
-      <ul class="list-group">
-        <li *ngFor="let component of selectedComponents" class="list-group-item">
-          {{component.displayText}}
-          <button class="btn btn-danger btn-sm float-end" 
-                  (click)="removeContextComponent(component)">
-            Remove
-          </button>
-        </li>
-      </ul>
+      <div class="selected-components mt-3" *ngIf="selectedComponents.length > 0">
+        <h4>Selected Components:</h4>
+        <ul class="list-group">
+          <li *ngFor="let component of selectedComponents" class="list-group-item">
+            {{component.displayText}}
+            <button class="btn btn-danger btn-sm float-end" 
+                    (click)="removeContextComponent(component)">
+              Remove
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
-  </div>
--->
-
-
+  -->
 
   <p class="subtitle-description">Add Dimensions and Factors from scratch</p>
   <div id="dimension-factor-selection"  class="flex-container">
@@ -277,95 +273,99 @@
   
 
 
-
-  <!-- DQ DIMENSIONS and DQ FACTORS ADDED to DQ MODEL -->
-  <div *ngIf="dimensionsWithFactorsInDQModel && dimensionsWithFactorsInDQModel.length">
-    <h5>DQ Model: Dimensions and Factors</h5>
-    
-    <div class="accordion" id="accordionExample">
-      <div class="accordion-item" *ngFor="let item of dimensionsWithFactorsInDQModel; let i = index">
-        <h2 class="accordion-header" [id]="'heading' + i">
-          <button
-            class="accordion-button"
-            type="button"
-            data-bs-toggle="collapse"
-            [attr.data-bs-target]="'#collapse' + i"
-            aria-expanded="true"
-            [attr.aria-controls]="'collapse' + i"
-          >
-          <span><strong>DQ Dimension: </strong> {{ item.dimension.dimension_name }}</span>
-          
-          </button>
-        </h2>
-        <div
-          [id]="'collapse' + i"
-          class="accordion-collapse collapse"
-          [class.show]="i === 0"
-          [attr.aria-labelledby]="'heading' + i"
-          data-bs-parent="#accordionExample"
-        >
-          <div class="accordion-body">
-            <strong>Dimension Base:</strong>
-            <ul>
-              <li>Name: {{ item.baseAttributes.name }}</li>
-              <li>Semantic: {{ item.baseAttributes.semantic }}</li>
-            </ul>
-
-            <button (click)="deleteDimension(item.dimension.id)" class="btn btn-danger btn-sm">
-              Remove Dimension
-            </button>
-            <button (click)="scrollToDiv('dimension-factor-selection')" class="btn btn-light btn-sm ms-2">
-              Add more Factors
-            </button><br><br>
-            
-            <strong>Factors:</strong>
-            <div class="accordion mt-3" [id]="'factorAccordion' + i">
-              <div
-                class="accordion-item"
-                *ngFor="let factor of item.factors; let j = index"
+  <div class="flex-container">
+    <div class="suggested-section-container p-4">
+      
+      <!-- DQ DIMENSIONS and DQ FACTORS ADDED to DQ MODEL -->
+      <div *ngIf="dimensionsWithFactorsInDQModel && dimensionsWithFactorsInDQModel.length">
+        <h5 class="pb-2">DQ Model: Dimensions and Factors</h5>
+        
+        <div class="accordion" id="accordionExample">
+          <div class="accordion-item mb-3" *ngFor="let item of dimensionsWithFactorsInDQModel; let i = index"
+          style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden; margin-top: 8px;">
+            <h2 class="accordion-header" [id]="'heading' + i">
+              <button
+                class="accordion-button"
+                type="button"
+                data-bs-toggle="collapse"
+                [attr.data-bs-target]="'#collapse' + i"
+                aria-expanded="true"
+                [attr.aria-controls]="'collapse' + i"
+                style="padding: 0.6rem 0.9rem;"
               >
-                <h2 class="accordion-header" [id]="'factorHeading' + i + '-' + j">
-                  <button
-                    class="accordion-button collapsed"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    [attr.data-bs-target]="'#factorCollapse' + i + '-' + j"
-                    aria-expanded="false"
-                    [attr.aria-controls]="'factorCollapse' + i + '-' + j"
+              <span><strong>DQ Dimension: </strong> {{ item.dimension.dimension_name }}</span>
+              
+              </button>
+            </h2>
+            <div
+              [id]="'collapse' + i"
+              class="accordion-collapse collapse"
+              [class.show]="i === 0"
+              [attr.aria-labelledby]="'heading' + i"
+              data-bs-parent="#accordionExample"
+            >
+              <div class="accordion-body">
+                <strong>Dimension Base:</strong>
+                <ul>
+                  <li>Name: {{ item.baseAttributes.name }}</li>
+                  <li>Semantic: {{ item.baseAttributes.semantic }}</li>
+                </ul>
+
+                <button (click)="deleteDimension(item.dimension.id)" class="btn btn-danger btn-sm">
+                  Remove Dimension
+                </button>
+                <button (click)="scrollToDiv('dimension-factor-selection')" class="btn btn-light btn-sm ms-2">
+                  Add more Factors
+                </button><br><br>
+                
+                <strong>Factors:</strong>
+                <div class="accordion mt-3" [id]="'factorAccordion' + i">
+                  <div
+                    class="accordion-item"
+                    *ngFor="let factor of item.factors; let j = index"
                   >
-                    <span><strong>DQ Factor: </strong> {{ factor.factor_name }}</span>
-                  </button>
-                </h2>
-                <div
-                  [id]="'factorCollapse' + i + '-' + j"
-                  class="accordion-collapse collapse"
-                  [attr.aria-labelledby]="'factorHeading' + i + '-' + j"
-                  [attr.data-bs-parent]="'#factorAccordion' + i"
-                >
-                  <div class="accordion-body">
-                    <strong>Factor Base atrributes:</strong>
-                    <ul>
-                      <li>Name: {{ factor.baseAttributes.name }}</li>
-                      <li>Semantic: {{ factor.baseAttributes.semantic }}</li>
-                    </ul>
-                    <button (click)="deleteFactor(factor.id)" class="btn btn-danger btn-sm">
-                      Remove Factor
-                    </button> <br>
+                    <h2 class="accordion-header" [id]="'factorHeading' + i + '-' + j">
+                      <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        [attr.data-bs-target]="'#factorCollapse' + i + '-' + j"
+                        aria-expanded="false"
+                        [attr.aria-controls]="'factorCollapse' + i + '-' + j"
+                      >
+                        <span><strong>DQ Factor: </strong> {{ factor.factor_name }}</span>
+                      </button>
+                    </h2>
+                    <div
+                      [id]="'factorCollapse' + i + '-' + j"
+                      class="accordion-collapse collapse"
+                      [attr.aria-labelledby]="'factorHeading' + i + '-' + j"
+                      [attr.data-bs-parent]="'#factorAccordion' + i"
+                    >
+                      <div class="accordion-body">
+                        <strong>Factor Base atrributes:</strong>
+                        <ul>
+                          <li>Name: {{ factor.baseAttributes.name }}</li>
+                          <li>Semantic: {{ factor.baseAttributes.semantic }}</li>
+                        </ul>
+                        <button (click)="deleteFactor(factor.id)" class="btn btn-danger btn-sm">
+                          Remove Factor
+                        </button> <br>
+                      </div>
+                    </div>
                   </div>
                 </div>
+                
               </div>
             </div>
-            
           </div>
         </div>
       </div>
-    </div>
-  </div>
-  
-  <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
-  <p *ngIf="noDimensionsMessage" class="error-message">{{ noDimensionsMessage }}</p>
+      
+      <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+      <p *ngIf="noDimensionsMessage" class="error-message">{{ noDimensionsMessage }}</p>
 
-
-
+    </div><!-- end suggested-section-container div -->
+  </div> <!-- end flex-container div -->
 
 <app-context-components></app-context-components>

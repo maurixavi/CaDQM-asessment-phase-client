@@ -6,6 +6,8 @@ import contextComponentsJson from '../../../assets/context-components.json';
 import { DqProblemsService } from '../../shared/dq-problems.service';
 import { Router } from '@angular/router';
 
+import { DqModelService } from '../../services/dq-model.service';
+
 export interface DataQualityProblem {
   id: number;
   name: string;
@@ -52,7 +54,11 @@ export class DQProblemsPriorizationComponent implements OnInit {
   detailsVisible: boolean = false;
   isOrderConfirmed: boolean = false;
 
-  constructor(private router: Router, private dqProblemsService: DqProblemsService) { }
+  constructor(
+    private router: Router, 
+    private dqProblemsService: DqProblemsService,
+    public modelService: DqModelService
+  ) { }
 
   /*constructor(private router: Router) { }
   constructor(private dqProblemsService: DqProblemsService) { }*/
@@ -81,7 +87,16 @@ export class DQProblemsPriorizationComponent implements OnInit {
     { id: 13, dimensionId: 5, name: 'No-contradicción (contradiction-free)' }
   ];
 
+  /* METRICS, METHODS BASE variables */
+  //load metrics and methods base
+  dqMetricsBase: any[] = [];
+  dqMethodsBase: any[] = [];
+
   ngOnInit() {
+    this.getDQMetricsBase();
+    this.getDQMethodsBase();
+
+
     this.problems = dataQualityProblemsJson as DataQualityProblem[];
     this.problems.forEach(problem => {
       problem.priorityType = 'Media';
@@ -89,6 +104,35 @@ export class DQProblemsPriorizationComponent implements OnInit {
 
     this.contextComponents = contextComponentsJson as ContextComponent[];
   }
+
+
+  // METRICS BASE
+  getDQMethodsBase() {
+    this.modelService.getDQMethodsBase().subscribe({
+      next: (data) => {
+        this.modelService.metrics = data;
+        console.log('METHODS BASE obtenidos del servicio:', data); 
+      },
+      error: (err) => {
+        console.log(err);
+      },  
+    });
+  }
+
+  // METHODS BASE
+  getDQMetricsBase() {
+    this.modelService.getDQMetricsBase().subscribe({
+      next: (data) => {
+        this.modelService.metrics = data;
+        console.log('METHODS BASE obtenidos del servicio:', data); 
+      },
+      error: (err) => {
+        console.log(err);
+      },  
+    });
+  }
+
+
 
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.problems, event.previousIndex, event.currentIndex);
