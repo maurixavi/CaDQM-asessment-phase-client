@@ -3,6 +3,19 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
+interface DQModel {
+  version: string;
+  status: string | null;
+  model_dimensions: any[];
+  model_factors: any[];
+  model_metrics: any[];
+  model_methods: any[];
+  measurement_methods: any[];
+  aggregation_methods: any[];
+  previous_version: number | null;
+}
+
+
 // Define la interfaz para el contexto
 interface Context {
   id: number;
@@ -76,6 +89,36 @@ export class DqModelService {
     return this.http.get<any[]>(this.API_URL_PROJECTS);
   }
 
+  getProject(projectId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.API_URL_PROJECTS}${projectId}/`).pipe(
+      catchError(err => {
+        console.error(`Error al obtener PROJECT ${projectId}:`, err);
+        throw err;
+      })
+    );
+  } 
+
+  updateProject(projectId: number, updatedData: any): Observable<any> {
+    const url = `${this.API_URL_PROJECTS}${projectId}/`;
+    return this.http.put<any>(url, updatedData).pipe(
+      catchError(err => {
+        console.error(`Error al actualizar el Project ${projectId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  patchProject(projectId: number, updatedField: any): Observable<any> {
+    const url = `${this.API_URL_PROJECTS}${projectId}/`;
+    return this.http.patch<any>(url, updatedField).pipe(
+      catchError(err => {
+        console.error(`Error al actualizar el campo en el Project ${projectId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+
   //DQ MODELS
   getDQModels(): Observable<any> {
     return this.http.get<any[]>(this.API_URL_DQMODELS);
@@ -91,6 +134,26 @@ export class DqModelService {
       })
     );
   } 
+
+  /*
+  {
+    "id": 1,
+    "version": "DQModel v1.01",
+    "created_at": "2024-10-08T00:17:43.798748Z",
+    "status": "draft",
+    "finished_at": "2024-10-08T00:17:40Z",
+    "previous_version": null
+  } */
+  createDQModel(dqModelData: DQModel): Observable<any> {
+    return this.http.post<any>(this.API_URL_DQMODELS, dqModelData).pipe(
+      catchError(err => {
+        console.error('Error al crear el DQ Model:', err);
+        throw err;
+      })
+    );
+  }
+
+
 
   //DIMENSIONS DQ MODEL
   getDimensionsByDQModel(dqmodelId: number): Observable<any[]> {

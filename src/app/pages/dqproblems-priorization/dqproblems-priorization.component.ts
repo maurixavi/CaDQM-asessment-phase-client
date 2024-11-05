@@ -92,7 +92,14 @@ export class DQProblemsPriorizationComponent implements OnInit {
   dqMetricsBase: any[] = [];
   dqMethodsBase: any[] = [];
 
+  //PROJECT
+  project: any; 
+  projectId: number = 1;
+  noProjectMessage: string = "";  
+
   ngOnInit() {
+    this.getProjectById(this.projectId);
+
     this.getDQMetricsBase();
     this.getDQMethodsBase();
 
@@ -103,6 +110,27 @@ export class DQProblemsPriorizationComponent implements OnInit {
     });
 
     this.contextComponents = contextComponentsJson as ContextComponent[];
+  }
+
+  // PROJECT
+  getProjectById(projectId: number): void {
+    this.modelService.getProject(projectId).subscribe({
+      next: (data) => {
+        this.project = data; 
+        this.noProjectMessage = ""; 
+        console.log("Project obtenido:", data); 
+      },
+      error: (err) => {
+        if (err.status === 404) {
+          this.project = null; 
+          this.noProjectMessage = "No Project found with this ID. Please check and try again.";  
+        } else {
+          console.error("Error loading Project:", err);
+          this.project = null;
+          this.project = "An error occurred while loading the Project. Please try again later.";  
+        }
+      }
+    });
   }
 
 

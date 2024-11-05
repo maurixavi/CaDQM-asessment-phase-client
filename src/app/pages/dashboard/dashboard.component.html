@@ -1,17 +1,120 @@
 <div class="container my-4">
 	<h2 class="title">Phase 2 - DQ Assessment.</h2>
   <p class="title-description"></p>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Current Project</h5>
+    
+          <!-- Mostrar los detalles del proyecto si están disponibles -->
+          <ng-container *ngIf="project; else noProject">
+            <p class="card-text">Name: {{ project.name }}</p>
+            <p class="card-text">Description: {{ project.description }}</p>
+            <p class="card-text">Created at: {{ project.created_at | date:'medium' }}</p>
+            <p class="card-text">Context Version: {{ project.context_version }}</p>
+            <p class="card-text">DQ Model Version: {{ project.dqmodel_version }}</p>
+            <p class="card-text">Stage: {{ project.stage }} | Status: {{ project.status }}</p>
+
+            <!-- Mostrar botones según el estado del proyecto -->
+            <a
+              *ngIf="project.dqmodel_version === null"
+              class="btn btn-primary"
+              (click)="createDQModel()"
+            >
+              Create DQ Model
+            </a>
+            <a
+              *ngIf="project.dqmodel_version !== null"
+              class="btn btn-secondary"
+              (click)="navigateToResumeDQModel()"
+            >
+              Resume DQ Model
+            </a>
+            <a
+              *ngIf="project.status === 'done'"
+              class="btn btn-secondary"
+              (click)="navigateToViewDQModel()"
+            >
+              View DQ Model
+            </a>
+          </ng-container>
+    
+          <!-- Mensaje si no se encuentra el proyecto -->
+          <ng-template #noProject>
+            <p class="card-text">{{ noProjectMessage }}</p>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mostrar solo si el DQ Model esta confirmado -->
+    <div class="col-sm-6" *ngIf="project?.status === 'done'">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">New Project</h5>
+          <p class="card-text">Define a new DQ Model to this Context version.</p>  
+          <a class="btn btn-primary" (click)="openConfirmationModal('create')">New DQ Model</a>
+          <a class="btn btn-primary" (click)="openConfirmationModal('edit')">Edit DQ Model</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de confirmación -->
+    <div id="confirmationModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ modalTitle }}</h5>
+            <button type="button" class="close" (click)="closeConfirmationModal()" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p [innerHTML]="modalMessage"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeConfirmationModal()">Cancel</button>
+            <button type="button" class="btn btn-primary" (click)="confirmAction()">Confirm</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    <!--
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">New Project</h5>
+          <p class="card-text"><strong>!!!!!!</strong></p>
+          <p class="card-text"><strong>(MOSTRAR ESTA CARD solo si se tiene DQ MODEL CONFIRMED)</strong></p>
+          <p class="card-text">Define a new DQ Model to this Context version.</p>  
+          <a href="#" class="btn btn-primary">Create new DQ Model from scratch</a>
+          <a href="#" class="btn btn-primary">Edit existing DQ Model and define a new version</a>
+        </div>
+      </div>
+    </div>
+    -->
   
+  
+
+
+  
+  <!--
   <div class="card text-center add-new-card" (click)="openModal()">
     <div class="card-body">
       <h5 class="card-title"><i class="bi bi-plus"></i>Nuevo Proyecto</h5>
       <p class="card-text title-description">Define un nuevo Modelo de Calidad de Datos para este Contexto.</p>
     </div>
   </div>
-</div>
+  </div>
+  -->
 
-
-<!--<div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" style="display: {{ isModalOpen ? 'block' : 'none' }};">-->
+  <!--<div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" style="display: {{ isModalOpen ? 'block' : 'none' }};">-->
+  <!--
   <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -48,3 +151,4 @@
       </div>
     </div>
   </div>
+  -->
