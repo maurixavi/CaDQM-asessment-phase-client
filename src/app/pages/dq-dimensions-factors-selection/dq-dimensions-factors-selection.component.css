@@ -179,7 +179,22 @@ hr.my-4 {
 }
 
 
+.ctx-selection-accordion-container{
+  max-width: 640px;
+}
 
+.dimensions-factors-selected-accordion-container{
+  max-width: 100%;
+}
+
+.accordion-button{
+  height: 34px;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: #f9f9f9; 
+  color: inherit; 
+}
 
 .context-list, .factors-list {
   list-style-type: none; 
@@ -193,7 +208,7 @@ hr.my-4 {
 
 
 .select-style {
-  width: 200px;
+  width: 340px;
   font-size: 0.9rem; 
   font-weight: 500;  
   padding-left: 14px;  
@@ -290,6 +305,74 @@ hr.my-4 {
   font-size: 0.875rem;  
 }*/
 
+.from-scratch-section-container{
+  width: 100%;
+  border: 1px solid #eeeeee;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  background-color: #fff; 
+  padding: 2rem 1.8rem 2rem 2rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;  
+
+  display: flex;
+  flex-direction: row;
+  gap: 1rem; /* Espacio entre los dos divs */
+  flex-wrap: wrap; /* Permite que los elementos se muevan a la siguiente línea cuando el espacio es insuficiente */
+}
+
+.dim-factor-selection-div {
+  flex: 1; /* Ocupa el espacio restante */
+  min-width: 60%; /* Tamaño mínimo del div izquierdo */
+}
+
+.dim-factor-selection-container {
+  padding: 0.85rem 1rem 1rem 1.2rem;
+}
+
+@media (max-width: 400px) {
+  .from-scratch-section-container {
+    flex-direction: column; /* Los elementos se apilan verticalmente */
+  }
+  .problems-view, .dim-factor-selection-div {
+    min-width: 100%; /* Ambos divs ocupan el 100% del ancho en pantallas pequeñas */
+  }
+}
+
+.problems-view {
+  flex: 0 1 32%; /* Ocupa el 30% del ancho disponible en pantallas grandes */
+  min-width: 200px; /* Define un ancho mínimo para que no se achique demasiado */
+}
+
+.dq-problems-container {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem; 
+  background-color: #f9f9f9;
+}
+
+.dq-problems-container h4 {
+  margin-bottom: 0.75rem; /* Espacio debajo del título */
+}
+
+
+.dq-problems-list {
+  list-style-type: none;  
+}
+
+.dq-problems-list li {
+  margin-bottom: 1rem; /* Espacio entre cada problema */
+}
+
+.badge { 
+  min-width: 54px;
+  text-align: center; 
+  margin-right: 0.5rem; 
+}
+
+.add-ctx-alert-tip {
+  max-width: 400px;
+}
 
 .suggested-section-container {
   width: 100%;
@@ -297,7 +380,7 @@ hr.my-4 {
   border: 1px solid #eeeeee;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
   background-color: #fff; 
-  padding: 1rem;
+  padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
   font-size: 0.875rem;  
@@ -321,6 +404,9 @@ hr.my-4 {
   font-weight: 500;
 }
 
+.dimension-name {
+  font-weight: 700;
+}
 
 .label-title-problems {
   width: auto;
@@ -341,6 +427,10 @@ hr.my-4 {
   font-size: 1rem;
 }
 
+.label-title-selection-ctx {
+  font-size: 1rem;
+}
+
 /*Selected */
 .label-container-selected {
   display: flex;
@@ -352,17 +442,54 @@ hr.my-4 {
 .label-selected {
   display: flex;
   align-items: flex-start; 
+  padding-bottom: 16px;
+  font-size: 15px;
+}
+
+.label-selected-dqelement {
+  display: flex;
+  align-items: flex-start; 
+  font-size: 16px;
+}
+
+.dqmodel-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .label-name-selected {
   font-weight: 700;
-  font-size: 16px; 
+  font-size: 17px; 
 }
 
+.label-name-dqmodel {
+  font-weight: 700;
+  font-size: 18px; 
+}
+
+
+/*
 .label-title-selected {
   width: 100px;
   margin-right: 10px;
+}*/
+
+.label-title-selected {
+  width: 140px;
+  margin-right: 10px;
+  font-weight: 500;
+  /*margin-left: 10px;*/
 }
+
+.label-title-selected-ctx {
+  width: auto;
+  margin-top: 10px;
+  font-weight: 500;
+  font-style: italic;
+}
+
 
 .label-value-selected {
   max-width: 70%;
@@ -514,4 +641,80 @@ hr.my-4 {
 
 .dq-problem-container {
   padding: 1rem;
+}
+
+
+
+/* Card flotante */
+.dq-card {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 320px;
+  max-height: 400px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* Asegura que esté encima de otros elementos */
+  display: block;
+  padding: 0.5rem;
+  transition: transform 0.3s ease; /* Transición suave */
+  cursor: pointer; /* Manito en hover */
+}
+
+.dq-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #e9ecef;
+  padding-left: 10px;
+  border-radius: 5px 5px 0 0;
+  margin-bottom: 6px;
+}
+
+.dq-card-body {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.dq-problems-list {
+  list-style-type: decimal;
+  padding-left: 20px;
+}
+
+.dq-problems-list li {
+  margin-bottom: 0.5rem;
+}
+
+/* Botón de minimizar */
+#minimizeBtn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.dq-card.minimized {
+  height: 54px; 
+  width: 260px;
+  overflow: hidden;
+  position: fixed;
+  right: 40px;
+  bottom: 40px;
+  border-radius: 10px; 
+  transform: scale(0.9);
+  opacity: 0.9;
+  z-index: 999;
+  background-color: #f8f9fa; 
+  cursor: pointer;
+}
+
+
+.selection-subtitle {
+  font-size: 20px;
+  font-weight: lighter;
+  /*color: #333;*/
+  margin-top: 20px;
+  margin-bottom: 10px;
 }

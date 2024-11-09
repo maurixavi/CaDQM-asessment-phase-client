@@ -26,14 +26,14 @@
               Create DQ Model
             </a>
             <a
-              *ngIf="project.dqmodel_version !== null"
+              *ngIf="project.dqmodel_version !== null && project.status !== 'done'"
               class="btn btn-secondary"
               (click)="navigateToResumeDQModel()"
             >
               Resume DQ Model
             </a>
             <a
-              *ngIf="project.status === 'done'"
+              *ngIf="project.dqmodel_version !== null && project.status === 'done'"
               class="btn btn-secondary"
               (click)="navigateToViewDQModel()"
             >

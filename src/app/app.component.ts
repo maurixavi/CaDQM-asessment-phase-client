@@ -2,8 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import dataQualityIssuesJson from '../assets/data-quality-problems.json';
 import contextComponentsJson from '../assets/context-components.json';
-
-
+import { ProjectService } from '../app/services/project.service';
 interface DataQualityIssue {
   id: number;
   name: string;
@@ -37,7 +36,16 @@ interface QualityFactor {
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  title = 'kanban-angular-app';
+
+  constructor(
+    private projectService: ProjectService
+  ) { }
+
+  //ID PROJECT inicial
+  projectId: number = 1; //deberia venir desde aplicacion Phase 1
+  project: any; //cargar current Project
+
+  title = 'CaDQM-client-app';
   issues: DataQualityIssue[] = [];
   contextComponents: ContextComponent[] = [];
   selectedIssue: DataQualityIssue | null = null;
@@ -73,6 +81,14 @@ export class AppComponent implements OnInit {
   ];
 
   ngOnInit() {
+    //Cargar Proyecto actual
+    this.projectService.setProjectId(this.projectId);
+    const projectIdSetted = this.projectService.getProjectId();
+    console.log("projectIdSetted: ", projectIdSetted);
+
+    //this.loadCurrentProject();
+    //
+
     this.issues = dataQualityIssuesJson as DataQualityIssue[];
     this.issues.forEach(issue => {
       issue.priorityType = 'Media';
@@ -82,6 +98,20 @@ export class AppComponent implements OnInit {
     this.contextComponents = contextComponentsJson as ContextComponent[];
     console.log(this.contextComponents);  // Verificar los datos cargados
   }
+
+  loadCurrentProject(): void {
+    this.projectService.getCurrentProject().subscribe({
+      next: (project) => {
+        this.project = project;
+        console.log('Proyecto cargado en el componente:', this.project);
+      },
+      error: (err) => {
+        console.error('Error al cargar el proyecto en el componente:', err);
+      }
+    });
+  }
+
+
 
   // PRIORIZACION PROBLEMAS
   drop(event: CdkDragDrop<string[]>) {

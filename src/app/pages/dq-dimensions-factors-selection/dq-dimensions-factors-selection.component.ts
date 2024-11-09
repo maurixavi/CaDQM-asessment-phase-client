@@ -1,7 +1,9 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, HostListener } from '@angular/core';
 import { DqProblemsService } from '../../shared/dq-problems.service';
 import { DqModelService } from '../../services/dq-model.service';
 import { Router } from '@angular/router';
+
+import { ProjectService } from '../../services/project.service';
 
 // Definición de interfaces
 interface ContextComponent {
@@ -86,11 +88,15 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   /* Other variables */
   errorMessage: string | null = null;
 
-  
+  //PROJECT
+  project: any; 
+
+
   constructor(
     private router: Router,
     private problemsService: DqProblemsService,
-    public modelService: DqModelService
+    public modelService: DqModelService,
+    private projectService: ProjectService
   ) { }
 
   
@@ -98,34 +104,100 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   context: any; // Variable para almacenar el contexto obtenido
   id_context: number = 1; // Inicializa con el ID que deseas probar.
 
-  dqModel: any; // Variable para almacenar el DQ Model obtenido
-  dqModelId: number = 1; // Inicializa con el ID del DQ Model que deseas probar
+  currentDQModel: any; // Variable para almacenar el DQ Model obtenido
+
+  //dqModelId: number | null = null;
+
+  dqModelId: number = -1; // Inicializar con un valor que indique que aún no ha sido asignado
+
   noModelMessage: string = "";  
 
+  //currentDQModel: any = null; 
+
   ngOnInit() {
-    this.getDQModels();
-    this.getProjects();
+    //Cargar opciones select Dimensiones y Factores base
     this.getDQDimensionsBase();
     this.getDQFactorsBase();
+
+    //Cargar Proyecto actual y DQ Model asociado
+    this.loadCurrentProject();
+
+
+    //this.loadContextData();
+
+    //others - context
     this.getContext();
-
-    this.getDQModelById(this.dqModelId);
-    //this.getDQModelDimensionsById(this.dqModelId);
-
     this.loadContextById(this.id_context);
-
-    this.loadDQModelDimensionsAndFactors();
-
-    // Ejemplo de uso de getComponentByTypeAndId
-    setTimeout(() => {
-      /*const businessRule = this.getComponentByTypeAndId('business_rules', 2);
-      console.log('Business Rule found:', businessRule);
-      
-      const applicationDomain = this.getComponentByTypeAndId('application_domains', 1);
-      console.log('Application Domain found:', applicationDomain);*/
-      this.loadContextOptions()
-    }, 1000);
   }
+
+
+  
+
+  
+
+
+  // PROJECT
+  loadCurrentProject(): void {
+    this.projectService.getCurrentProject().subscribe({
+      next: (project) => {
+        this.project = project;
+  
+        // Asigna el dqModelId desde el proyecto, o -1 si no existe DQ Model asociado a Project
+        this.dqModelId = this.project?.dqmodel_version ?? -1; 
+        console.log("CurrentProject dqModelId:", this.dqModelId);
+  
+        // Llama a getDQModelById si dqModelId es válido
+        if (this.dqModelId > 0) {
+          this.getCurrentDQModel(this.dqModelId);
+        } else {
+          console.warn("No se encontró un dqModelId válido en el proyecto actual.");
+        }
+  
+        // Cargar Dimensiones y Factores del DQ Model
+        this.loadDQModelDimensionsAndFactors();
+
+        // CARGAR CONTEXTO 
+        this.getContext();
+      },
+      error: (err) => {
+        console.error('Error al cargar el proyecto en el componente:', err);
+      }
+    });
+  }
+
+  contextData: any[] = []; // Variable para almacenar los datos
+
+
+  loadContextData(): void {
+    this.modelService.getContext().subscribe({
+      next: (data) => {
+        this.contextData = data;
+        console.log("Datos de contexto recibidos:", this.contextData);
+      },
+      error: (err) => {
+        console.error("Error al obtener datos de contexto:", err);
+      }
+    });
+  }
+
+
+  //GET CURRENT DQ MODEL IN PROJECT
+  getCurrentDQModel(dqModelId: number): void {
+    this.modelService.getDQModel(dqModelId).subscribe({
+      next: (data) => {
+        this.currentDQModel = data;
+        this.noModelMessage = '';
+        console.log("CURRENT DQ MODEL: ", this.currentDQModel);
+      },
+      error: (err) => {
+        this.noModelMessage = err.status === 404
+          ? "No DQ Model found with this ID. Please check and try again."
+          : "An error occurred while loading the DQ Model. Please try again later.";
+        this.currentDQModel = null;
+      }
+    });
+  }
+
 
 
   // PROJECTS
@@ -363,17 +435,17 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   getDQModelById(dqmodelId: number): void {
     this.modelService.getDQModel(dqmodelId).subscribe({
       next: (data) => {
-        this.dqModel = data; // almacena el DQ Model obtenido
+        this.currentDQModel = data; // almacena el DQ Model obtenido
         this.noModelMessage = ""; // resetea el mensaje si se obtiene el modelo
         console.log("DQ Model obtenido:", data); 
       },
       error: (err) => {
         if (err.status === 404) {
-          this.dqModel = null; // Reinicia el modelo
+          this.currentDQModel = null; // Reinicia el modelo
           this.noModelMessage = "No DQ Model found with this ID. Please check and try again.";  
         } else {
           console.error("Error loading DQ Model:", err);
-          this.dqModel = null; // Reinicia en caso de error
+          this.currentDQModel = null; // Reinicia en caso de error
           this.noModelMessage = "An error occurred while loading the DQ Model. Please try again later.";  
         }
       }
@@ -649,31 +721,9 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
       }
     });
   }
-  
-  /*submitNewFactor(): void {
-    const factorToAdd = {
-      factor_base: this.selectedFactor!, 
-      dimension: this.addedDimensionId!,  
-      dq_model: this.dqModelId, 
-    };
-
-    this.modelService.addFactorToDQModel(factorToAdd).subscribe({
-      next: (data) => {
-        console.log("Factor añadido:", data);
-
-        this.loadDQModelDimensionsAndFactors(); 
-        
-        alert("Factor successfully added to DQ Model.");
-      },
-      error: (err) => {
-        console.error("Error al añadir el factor:", err);
-        alert("An error occurred while trying to add the factor.");
-      }
-    });
-  }*/
 
   // DQ MODEL: SHOW DIMENSIONS and FACTORS added  
-  loadDQModelDimensionsAndFactors(): void {
+  /*loadDQModelDimensionsAndFactors(): void {
     this.modelService.getDimensionsByDQModel(this.dqModelId).subscribe(
       (dimensions) => {
         this.dqmodel_dimensions = dimensions;
@@ -700,44 +750,136 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
                   });
                 },
                 (error) => {
-                  this.errorMessage = `Error al cargar los atributos de la dimensión base ${dimension.dimension_name}.`;
+                  this.errorMessage = `Failed to load attributes for the base dimension ${dimension.dimension_name}.`;
                 }
               );
             },
             (error) => {
-              this.errorMessage = `Error al cargar los factores para la dimensión ${dimension.dimension_name}.`;
+              this.errorMessage = `Failed to load factors for the dimension ${dimension.dimension_name}.`;
             }
           );
         });
       },
       (error) => {
-        this.noDimensionsMessage = 'No se pudieron cargar las dimensiones del DQ Model.';
+        this.noDimensionsMessage = 'Failed to load the dimensions of the DQ Model.';
+      }
+    );
+  }*/
+  loadDQModelDimensionsAndFactors(): void {
+    this.modelService.getDimensionsByDQModel(this.dqModelId).subscribe(
+      async (dimensions) => {
+        if (dimensions.length === 0) {
+          this.noDimensionsMessage = 'No dimensions found for this DQ Model.';
+          this.dqmodel_dimensions = [];
+          this.dimensionsWithFactorsInDQModel = [];
+          return;
+        }
+  
+        this.dqmodel_dimensions = dimensions;
+        this.dimensionsWithFactorsInDQModel = [];
+  
+        const dimensionsData = await Promise.all(dimensions.map(async (dimension) => {
+          try {
+            // Obtener factores de la dimensión
+            const factors = await this.modelService.getFactorsByDQModelAndDimension(this.dqModelId, dimension.id).toPromise();
+  
+            // Verificar que 'factors' no sea 'undefined' antes de procesarlo
+            if (!factors) {
+              throw new Error(`Factors not found for dimension ${dimension.dimension_name}`);
+            }
+  
+            // Obtener detalles de la dimensión base
+            const baseAttributes = await this.modelService.getDQDimensionBaseById(dimension.dimension_base).toPromise();
+  
+            // Obtener los detalles del factor base para cada factor
+            const factorsWithBaseAttributes = await Promise.all(factors.map(async (factor) => {
+              const factorBaseAttributes = await this.modelService.getFactorBaseById(factor.factor_base).toPromise();
+              return { ...factor, baseAttributes: factorBaseAttributes };
+            }));
+  
+            return {
+              dimension,
+              baseAttributes,
+              factors: factorsWithBaseAttributes
+            };
+          } catch (error) {
+            console.error(`Error loading data for dimension ${dimension.dimension_name}:`, error);
+            this.errorMessage = `Failed to load data for dimension ${dimension.dimension_name}.`;
+            return null;
+          }
+        }));
+  
+        // Filtrar cualquier entrada nula debido a errores y luego asignar los datos completos
+        this.dimensionsWithFactorsInDQModel = dimensionsData.filter((dim) => dim !== null);
+      },
+      (error) => {
+        if (error.status === 404) {
+          this.noDimensionsMessage = 'No dimensions found for this DQ Model.';
+        } else {
+          this.noDimensionsMessage = 'Failed to load the dimensions of the DQ Model.';
+        }
       }
     );
   }
-
-  /*getDQModelDimensionsById(dqmodelId: number): void {
-    console.log("Llamando a getDimensionsByDQModel con ID:", dqmodelId);
-    this.modelService.getDimensionsByDQModel(dqmodelId).subscribe({
-      next: (data) => {
-        this.dqmodel_dimensions = data; 
-        this.noDimensionsMessage = "";
-        console.log("DIMENSIONES obtenidas del DQ Model:", data);
+  
+  /* error al agregar la primera dimension
+  loadDQModelDimensionsAndFactors(): void {
+    this.modelService.getDimensionsByDQModel(this.dqModelId).subscribe(
+      (dimensions) => {
+        // Verificar si no hay dimensiones y manejar el caso adecuadamente
+        if (dimensions.length === 0) {
+          this.noDimensionsMessage = 'No dimensions found for this DQ Model.';
+          this.dqmodel_dimensions = [];
+          this.dimensionsWithFactorsInDQModel = [];
+          return;
+        }
+        
+        // Si hay dimensiones, proceder a procesarlas
+        this.dqmodel_dimensions = dimensions;
+        this.dimensionsWithFactorsInDQModel = [];
+  
+        dimensions.forEach(dimension => {
+          this.modelService.getFactorsByDQModelAndDimension(this.dqModelId, dimension.id).subscribe(
+            (factors) => {
+              // Obtener detalles de la dimension base
+              this.modelService.getDQDimensionBaseById(dimension.dimension_base).subscribe(
+                (baseAttributes) => {
+                  // Para cada factor, obtener los detalles del factor base
+                  const factorsWithBaseAttributes = factors.map(factor => {
+                    return this.modelService.getFactorBaseById(factor.factor_base).toPromise()
+                      .then(factorBaseAttributes => ({ ...factor, baseAttributes: factorBaseAttributes }));
+                  });
+  
+                  Promise.all(factorsWithBaseAttributes).then(fullFactors => {
+                    this.dimensionsWithFactorsInDQModel.push({
+                      dimension,
+                      baseAttributes,
+                      factors: fullFactors
+                    } as any);
+                  });
+                },
+                (error) => {
+                  this.errorMessage = `Failed to load attributes for the base dimension ${dimension.dimension_name}.`;
+                }
+              );
+            },
+            (error) => {
+              this.errorMessage = `Failed to load factors for the dimension ${dimension.dimension_name}.`;
+            }
+          );
+        });
       },
-      error: (err) => {
-        console.error("Error en la llamada a la API:", err);
-        if (err.status === 404) {
-          this.dqmodel_dimensions = [];
-          this.noDimensionsMessage = "No dimensions found for this DQ Model. Please check and try again.";
+      (error) => {
+        if (error.status === 404) {
+          this.noDimensionsMessage = 'No dimensions found for this DQ Model.';
         } else {
-          console.error("Error loading dimensions for DQ Model:", err);
-          this.dqmodel_dimensions = [];
-          this.noDimensionsMessage = "An error occurred while loading the dimensions. Please try again later.";
+          this.noDimensionsMessage = 'Failed to load the dimensions of the DQ Model.';
         }
       }
-    });
+    );
   }*/
   
+
   
   //REMOVE DIMENSIONS or FACTORS from DQ MODEL
   deleteDimension(dimensionId: number): void {
@@ -804,6 +946,46 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   
   confirmAllFactors() {
     this.router.navigate(['/step4']);
+  }
+
+
+
+  //FLOATING CARD - DQ PROBLEMS
+  isMinimized: boolean = false;
+  isDragging: boolean = false;
+  offsetX: number = 0;
+  offsetY: number = 0;
+
+  // Toggle para minimizar/maximizar la tarjeta
+  toggleMinimize(): void {
+    this.isMinimized = !this.isMinimized;
+  }
+
+  onMouseDown(event: MouseEvent): void {
+    this.isDragging = true;
+    const dqCard = document.getElementById('dqCard')!;
+    
+    // Calcula el desplazamiento del mouse en relación con la posición de la tarjeta
+    const rect = dqCard.getBoundingClientRect();
+    this.offsetX = event.clientX - rect.left;
+    this.offsetY = event.clientY - rect.top;
+  }
+
+  // Evento para mover la tarjeta mientras se arrastra
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent): void {
+    if (this.isDragging) {
+      const dqCard = document.getElementById('dqCard')!;
+      dqCard.style.position = 'fixed';
+      dqCard.style.left = `${event.clientX - this.offsetX}px`;
+      dqCard.style.top = `${event.clientY - this.offsetY}px`;
+    }
+  }
+
+  // Evento para detener el movimiento cuando se suelta el mouse
+  @HostListener('document:mouseup')
+  onMouseUp(): void {
+    this.isDragging = false;
   }
 
 }

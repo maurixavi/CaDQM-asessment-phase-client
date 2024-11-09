@@ -8,6 +8,8 @@ import { Router } from '@angular/router';
 
 import { DqModelService } from '../../services/dq-model.service';
 
+import { ProjectService } from '../../services/project.service';
+
 export interface DataQualityProblem {
   id: number;
   name: string;
@@ -57,7 +59,8 @@ export class DQProblemsPriorizationComponent implements OnInit {
   constructor(
     private router: Router, 
     private dqProblemsService: DqProblemsService,
-    public modelService: DqModelService
+    public modelService: DqModelService,
+    private projectService: ProjectService
   ) { }
 
   /*constructor(private router: Router) { }
@@ -94,14 +97,29 @@ export class DQProblemsPriorizationComponent implements OnInit {
 
   //PROJECT
   project: any; 
-  projectId: number = 1;
+  //projectId: number = 1;
+  projectId: number | null = null;
   noProjectMessage: string = "";  
 
   ngOnInit() {
-    this.getProjectById(this.projectId);
+    this.projectId = this.projectService.getProjectId();
+    console.log("projectIdGet: ", this.projectId);
 
-    this.getDQMetricsBase();
-    this.getDQMethodsBase();
+    //this.getProjectById(this.projectId);
+    /*this.projectService.getProject().subscribe({
+      next: (project) => {
+        this.project = project;
+        console.log('Proyecto obtenido mediante el servicio:', this.project);
+      },
+      error: (err) => {
+        console.error('Error al cargar el proyecto en el componente:', err);
+      }
+    });*/
+    this.loadCurrentProject();
+
+
+    /*this.getDQMetricsBase();
+    this.getDQMethodsBase();*/
 
 
     this.problems = dataQualityProblemsJson as DataQualityProblem[];
@@ -111,6 +129,19 @@ export class DQProblemsPriorizationComponent implements OnInit {
 
     this.contextComponents = contextComponentsJson as ContextComponent[];
   }
+
+  loadCurrentProject(): void {
+    this.projectService.getCurrentProject().subscribe({
+      next: (project) => {
+        this.project = project;
+        console.log('Proyecto cargado en el componente:', this.project);
+      },
+      error: (err) => {
+        console.error('Error al cargar el proyecto en el componente:', err);
+      }
+    });
+  }
+
 
   // PROJECT
   getProjectById(projectId: number): void {

@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { DqModelService } from '../../services/dq-model.service';
+import { ProjectService } from '../../services/project.service';
 
 
 @Component({
@@ -14,8 +15,10 @@ export class DashboardComponent {
 
   constructor(
     private router: Router, 
-    public modelService: DqModelService
+    private modelService: DqModelService,
+    private projectService: ProjectService
   ) { }
+
 
   // Datos iniciales para crear un DQ Model
   newDQModel = {
@@ -32,17 +35,50 @@ export class DashboardComponent {
 
   //PROJECT
   project: any; 
-  projectId: number = 4; //deberia venir desde aplicacion Phase 1
+  projectId: number | null = null;
+
   noProjectMessage: string = "";  
 
+
   ngOnInit() {
-    this.getProjectById(this.projectId);
+    /*this.projectService.setProjectId(this.projectId);
+    const projectIdSetted = this.projectService.getProjectId();
+    console.log("projectIdSetted: ", projectIdSetted);*/
+    this.projectId = this.projectService.getProjectId();
+    console.log("projectIdGet: ", this.projectId);
+    
+    /*if (this.projectId !== null) {
+      this.getProjectById(this.projectId);
+    } else {
+      this.noProjectMessage = "No se ha seleccionado ningun proyecto";
+    }*/
+
+    this.loadCurrentProject();
+
+    //this.getProjectById(this.projectId);
 
     //this.createDQModel();
   }
 
+  loadCurrentProject(): void {
+    this.projectService.getCurrentProject().subscribe({
+      next: (project) => {
+        this.project = project;
+        console.log('Proyecto cargado en el componente:', this.project);
+      },
+      error: (err) => {
+        console.error('Error al cargar el proyecto en el componente:', err);
+      }
+    });
+  }
+
   // PROJECT
-  getProjectById(projectId: number): void {
+  getProjectById(projectId: number | null): void {
+    if (projectId === null) {
+      console.log("No se proporciono un ID de proyecto valido");
+      return;
+    }
+
     this.modelService.getProject(projectId).subscribe({
       next: (data) => {
         this.project = data; 
@@ -74,7 +110,12 @@ export class DashboardComponent {
     });
   }
 
-  assignDQModelToProject(projectId: number, dqmodelId: number) {
+  assignDQModelToProject(projectId: number | null, dqmodelId: number) {
+    if (projectId === null) {
+      console.error("No se ha proporcionado un ID de proyecto válido.");
+      return;
+    }
+
     if (this.project) {
       const updatedProject = {
         ...this.project, // Copia todos los datos actuales del proyecto
@@ -126,7 +167,12 @@ export class DashboardComponent {
         // Asignar el nuevo DQModel al Project
         const projectId = this.projectId;
         console.log(projectId, newDQModelId);
-        this.assignDQModelToProject(projectId, newDQModelId);
+        if (this.projectId !== null) {
+          this.assignDQModelToProject(this.projectId, newDQModelId);
+        } else {
+          console.error("No se ha establecido un ID de proyecto válido.");
+        }
+        //this.assignDQModelToProject(projectId, newDQModelId);
         this.navigateToCreateDQModel();
       },
       error: err => {
@@ -158,7 +204,7 @@ export class DashboardComponent {
 
   //in progress
   navigateToResumeDQModel() { 
-    this.router.navigate(['/step3']);
+    this.router.navigate(['/step1']);
   }
 
   //stage: 4, status: done

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable, of, throwError } from 'rxjs';
+import { map, catchError, tap } from 'rxjs/operators';
 
 interface DQModel {
   version: string;
@@ -39,8 +39,9 @@ interface Context {
 export class DqModelService {
   
   private basePath = "/assets/test";
-  //readonly API_PATH_DIMENSIONS = "/assets/dq_dimensions.json"
+  readonly API_PATH_CONTEXT2 = "/assets/ctx_components.json"
   //readonly API_PATH_DIMENSIONS = "/assets/test/dq_dimensions.json";
+  readonly API_PATH_CONTEXT = "assets/test/ctx_components.json"
 
   //API PROJECTS
   readonly API_URL_PROJECTS = "http://localhost:8000/api/projects/"
@@ -124,7 +125,8 @@ export class DqModelService {
     return this.http.get<any[]>(this.API_URL_DQMODELS);
   }
 
-  getDQModel(dqmodelId: number): Observable<any[]> {
+
+  getDQModelById(dqmodelId: number): Observable<any[]> {
     /*const url = `${this.API_URL_DQMODELS}${dqmodelId}/`;
     console.log("Accediendo a la URL:", url);*/
     return this.http.get<any[]>(`${this.API_URL_DQMODELS}${dqmodelId}/`).pipe(
@@ -134,6 +136,35 @@ export class DqModelService {
       })
     );
   } 
+
+  //private currentDQModel: DQModel | null = null; // Almacenamiento en caché del DQ Model actual
+  //private currentDQModel: any = null; 
+  private currentDQModel: any | null = null;
+
+
+  // Obtener y setear CURRENT DQ MODEL en cache o desde servidor
+  getDQModel(dqModelId: number): Observable<any> {
+    // Si ya tenemos el modelo en caché y es el mismo ID, lo devolvemos
+    if (this.currentDQModel && this.currentDQModel.id === dqModelId) {
+      console.log('DQ Model ya en caché:', this.currentDQModel);
+      return of(this.currentDQModel);
+    }
+
+    // Si no está en caché o es un ID diferente, hacemos la petición
+    return this.http.get<DQModel>(`${this.API_URL_DQMODELS}${dqModelId}/`).pipe(
+      map((data) => {
+        this.currentDQModel = data; // Actualizamos el caché
+        console.log('DQ Model obtenido del servidor:', this.currentDQModel);
+        return data;
+      }),
+      catchError((err) => {
+        console.error(`Error al obtener DQ Model ${dqModelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+
 
   /*
   {
@@ -157,6 +188,22 @@ export class DqModelService {
 
   //DIMENSIONS DQ MODEL
   getDimensionsByDQModel(dqmodelId: number): Observable<any[]> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/`;
+    console.log("DqModels/Dimensions - Accediendo a la URL:", url);
+    return this.http.get<any[]>(url).pipe(
+      catchError(err => {
+        if (err.status === 404) {
+          // Si el error es 404, devolvemos un array vacío
+          console.warn(`No se encontraron dimensiones para el DQ Model ${dqmodelId}.`);
+          return of([]);  // `of([])` crea un Observable que emite un array vacío
+        }
+        console.error(`Error al obtener Dimensiones del DQ Model ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+  
+  getDimensionsByDQModel2(dqmodelId: number): Observable<any[]> {
     const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/`;
     console.log("DqModels/Dimensions - Accediendo a la URL:", url);
     return this.http.get<any[]>(`${this.API_URL_DQMODELS}${dqmodelId}/dimensions/`).pipe(
@@ -280,9 +327,30 @@ export class DqModelService {
 
 
   //---- CONTEXT ------
-  /*getCtxComponents(): Observable<any> {
+  getContext(): Observable<any> {
+    return this.http.get<any[]>(this.API_PATH_CONTEXT);
+  }
+
+  getContextComponents(): Observable<any> {
+    console.log('Iniciando petición al JSON en:', this.API_PATH_CONTEXT);
+    
+    return this.http.get<any[]>(this.API_PATH_CONTEXT).pipe(
+      tap(response => {
+        console.log('Respuesta JSON recibida:', response);
+        console.log('Estructura de la respuesta:', JSON.stringify(response, null, 2));
+      }),
+      catchError(error => {
+        console.error('Error al cargar el JSON:', error);
+        console.error('Mensaje de error:', error.message);
+        console.error('Status:', error.status);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  getCtxComponents2(): Observable<any> {
     return this.http.get<any[]>(`${this.basePath}/ctx_components.json`);
-  }*/
+  }
 
   getCtxComponents(): Observable<any> {
     return this.http.get<any[]>(this.API_URL_CTX);
