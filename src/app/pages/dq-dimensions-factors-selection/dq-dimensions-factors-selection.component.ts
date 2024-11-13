@@ -95,7 +95,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   constructor(
     private router: Router,
     private problemsService: DqProblemsService,
-    public modelService: DqModelService,
+    private modelService: DqModelService,
     private projectService: ProjectService
   ) { }
 
@@ -121,6 +121,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
     //Cargar Proyecto actual y DQ Model asociado
     this.loadCurrentProject();
+    //this.loadCompleteCurrentDQModel();
 
 
     //this.loadContextData();
@@ -128,42 +129,50 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     //others - context
     this.getContext();
     this.loadContextById(this.id_context);
+
+    //Pruebas metodos, endpoints, etc
+    //this.getDQModels();
+    
   }
 
 
   
-
-  
-
-
   // PROJECT
   loadCurrentProject(): void {
-    this.projectService.getCurrentProject().subscribe({
+    this.projectService.loadCurrentProject().subscribe({
       next: (project) => {
         this.project = project;
-  
-        // Asigna el dqModelId desde el proyecto, o -1 si no existe DQ Model asociado a Project
-        this.dqModelId = this.project?.dqmodel_version ?? -1; 
-        console.log("CurrentProject dqModelId:", this.dqModelId);
-  
-        // Llama a getDQModelById si dqModelId es válido
-        if (this.dqModelId > 0) {
-          this.getCurrentDQModel(this.dqModelId);
-        } else {
-          console.warn("No se encontró un dqModelId válido en el proyecto actual.");
-        }
-  
-        // Cargar Dimensiones y Factores del DQ Model
-        this.loadDQModelDimensionsAndFactors();
+        console.log('Proyecto cargado en el componente:', this.project);
 
-        // CARGAR CONTEXTO 
-        this.getContext();
+        //Load complete DQ Model (with Dimensions,Factors...) of current project
+        this.loadCompleteCurrentDQModel();
       },
       error: (err) => {
         console.error('Error al cargar el proyecto en el componente:', err);
       }
     });
   }
+
+  loadCompleteCurrentDQModel(): void {
+    // Asigna el dqModelId desde el proyecto, o -1 si no existe DQ Model asociado a Project
+    this.dqModelId = this.project?.dqmodel_version ?? -1; 
+    console.log("CurrentProject dqModelId:", this.dqModelId);
+
+    // Llama a getDQModelById si dqModelId es válido
+    if (this.dqModelId > 0) {
+      this.getCurrentDQModel(this.dqModelId);
+    } else {
+      console.warn("No se encontró un dqModelId válido en el proyecto actual.");
+    }
+
+    // Cargar Dimensiones y Factores del DQ Model
+    this.loadDQModelDimensionsAndFactors();
+
+    // CARGAR CONTEXTO 
+    this.getContext();
+  }
+
+
 
   contextData: any[] = []; // Variable para almacenar los datos
 
@@ -183,7 +192,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
   //GET CURRENT DQ MODEL IN PROJECT
   getCurrentDQModel(dqModelId: number): void {
-    this.modelService.getDQModel(dqModelId).subscribe({
+    this.modelService.getCurrentDQModel(dqModelId).subscribe({
       next: (data) => {
         this.currentDQModel = data;
         this.noModelMessage = '';
@@ -201,17 +210,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
 
   // PROJECTS
-  getProjects() {
-    this.modelService.getProjects().subscribe({
-      next: (data) => {
-        this.modelService.projects = data;
-        console.log('Projects obtenidos del servicio:', data); 
-      },
-      error: (err) => {
-        console.log(err);
-      },  
-    });
-  }
+  
 
 
   loadContextById(id: number) {
@@ -423,9 +422,9 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
   //DQ MODELS
   getDQModels() {
-    this.modelService.getDQModels().subscribe({
+    this.modelService.getAllDQModels().subscribe({
       next: (data) => {
-        console.log("All DQ Models loaded:", data);
+        console.log("*All DQ Models loaded:", data);
         this.dqModels = data;
       },
       error: (err) => console.error("Error loading DQ Models:", err)
@@ -433,7 +432,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   }
 
   getDQModelById(dqmodelId: number): void {
-    this.modelService.getDQModel(dqmodelId).subscribe({
+    this.modelService.getDQModelById(dqmodelId).subscribe({
       next: (data) => {
         this.currentDQModel = data; // almacena el DQ Model obtenido
         this.noModelMessage = ""; // resetea el mensaje si se obtiene el modelo
@@ -454,24 +453,25 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
 
   //DIMENSIONS BASE
+  // Suscripcion al observable del servicio
   getDQDimensionsBase() {
-    this.modelService.getDQDimensionsBase().subscribe({
+    this.modelService.getAllDQDimensionsBase().subscribe({
       next: (data) => {
         this.dqDimensionsBase = data;
-        console.log('DIMENSIONS BASE obtenidos del servicio:', data); 
+        //console.log('*All DIMENSIONS BASE loaded:', data);
       },
-      error: (err) => console.error("Error loading dimensions:", err)
+      error: (err) => console.error("Error loading Dimensions Base:", err)
     });
   }
 
   //FACTORS BASE
   getDQFactorsBase() {
-    this.modelService.getDQFactorsBase().subscribe({
+    this.modelService.getAllDQFactorsBase().subscribe({
       next: (data) => {
         this.dqFactorsBase = data;
-        console.log('FACTORS BASE obtenidos del servicio:', data); 
+        //console.log('*All FACTORS BASE loaded:', data);
       },
-      error: (err) => console.error("Error loading factors:", err)
+      error: (err) => console.error("Error loading Factors Base:", err)
     });
   }
 
@@ -508,8 +508,13 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     this.selectedFactor = null;
   }
 
+  selectedFactorDetails: any | null = null;
   onFactorChange() {
     console.log('Factor seleccionado:', this.selectedFactor);
+    this.selectedFactorDetails = this.availableFactors.find(factor => factor.id === this.selectedFactor);
+    console.log("this.selectedFactorDetails", this.selectedFactorDetails);
+    /*this.getSelectedFactor();
+    console.log("this.getSelectedFactor", this.getSelectedFactor());*/
   }  
 
   //SHOW SELECTIONS
@@ -518,6 +523,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   }
 
   getSelectedFactor() {
+    //console.log(this.availableFactors);
     return this.dqFactorsBase.find(factor => factor.id === this.selectedFactor);
   }
 
@@ -588,12 +594,16 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
           console.log('Factor creado con éxito:', response);
           this.resetFactorForm(); // Limpiar el formulario de factor
 
-          this.getDQFactorsBase();
+          //this.getDQFactorsBase();
           this.getFactorsBaseByDimension(this.selectedDimension!); // Recargar los factores de la dimension seleccionada
 
           this.closeFactorModal(); 
 
           this.selectedFactor = response;
+          console.log("FACTOR CREADO RESPONSE: ", response);
+
+          //this.selectedFactorDetails = response;
+          //console.log("FACTOR CREADO RESPONSE this.selectedFactorDetail: ", this.selectedFactorDetails);
         },
         error: (err) => {
           console.error('Error al crear el factor:', err);
@@ -951,7 +961,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
 
   //FLOATING CARD - DQ PROBLEMS
-  isMinimized: boolean = false;
+  isMinimized: boolean = true;
   isDragging: boolean = false;
   offsetX: number = 0;
   offsetY: number = 0;
@@ -988,4 +998,26 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     this.isDragging = false;
   }
 
+
+  // Seleccion de Componentes de CONTEXTO
+  isCtxSelectionAccordionVisible = false;
+
+  // Alterna la visibilidad del div y cambia el texto e ícono del botón
+  toggleCtxSelectionAccordionVisibility(): void {
+    this.isCtxSelectionAccordionVisible = !this.isCtxSelectionAccordionVisible;
+  }
+
+
+
+  // HABILITAR EDITAR DIMENSIONES y FACTORES SUGERIDOS
+  isEditSuggestedContextVisible: boolean = false;
+  isEditSuggestedDQProblemsVisible: boolean = false;
+
+  toggleSuggestedItemsVisibility(type: string): void {
+    if (type === 'context') {
+      this.isEditSuggestedContextVisible = !this.isEditSuggestedContextVisible;
+    } else if (type === 'dqproblems') {
+      this.isEditSuggestedDQProblemsVisible = !this.isEditSuggestedDQProblemsVisible;
+    }
+  }
 }

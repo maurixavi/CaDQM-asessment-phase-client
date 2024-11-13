@@ -37,34 +37,35 @@ interface Context {
   providedIn: 'root'
 })
 export class DqModelService {
-  
-  private basePath = "/assets/test";
-  readonly API_PATH_CONTEXT2 = "/assets/ctx_components.json"
-  //readonly API_PATH_DIMENSIONS = "/assets/test/dq_dimensions.json";
-  readonly API_PATH_CONTEXT = "assets/test/ctx_components.json"
 
-  //API PROJECTS
-  readonly API_URL_PROJECTS = "http://localhost:8000/api/projects/"
+  private readonly baseUrl = "http://localhost:8000/api"
 
-  //API CONTEXT
-  readonly API_URL_CTX = "http://localhost:8000/api/context-model/"
+  //API ENDPOINT PROJECTS
+  readonly API_URL_PROJECTS = `${this.baseUrl}/projects/`;
 
-  //API DIMENSIONS, FACTORS, METRICS, METHODS BASE
-  readonly API_URL_DIMENSIONS_BASE = "http://localhost:8000/api/dimensions-base/"
-  readonly API_URL_FACTORS_BASE = "http://localhost:8000/api/factors-base/"
-  readonly API_URL_METRICS_BASE = "http://localhost:8000/api/metrics-base/"
-  readonly API_URL_METHODS_BASE = "http://localhost:8000/api/methods-base/"
+  //API ENDPOINTS DIMENSIONS, FACTORS, METRICS, METHODS BASE
+  readonly API_URL_DIMENSIONS_BASE = `${this.baseUrl}/dimensions-base/`;
+  readonly API_URL_FACTORS_BASE = `${this.baseUrl}/factors-base/`;
+  readonly API_URL_METRICS_BASE = `${this.baseUrl}/metrics-base/`;
+  readonly API_URL_METHODS_BASE = `${this.baseUrl}/methods-base/`;
 
-  //API DQ MODEL
-  readonly API_URL_DQMODELS = "http://localhost:8000/api/dqmodels/"
-  readonly API_URL_DIMENSIONS_DQMODEL = "http://localhost:8000/api/dimensions/"
-  readonly API_URL_FACTORS_DQMODEL = "http://localhost:8000/api/factors/"
-
+  //API ENDPOINTS DQ MODEL
+  readonly API_URL_DQMODELS = `${this.baseUrl}/dqmodels/`;  //"http://localhost:8000/api/dqmodels/"
+  readonly API_URL_DIMENSIONS_DQMODEL = `${this.baseUrl}/dimensions/`; //"http://localhost:8000/api/dimensions/"
+  readonly API_URL_FACTORS_DQMODEL = `${this.baseUrl}/factors/`; //"http://localhost:8000/api/factors/"
   // http://localhost:8000/api/dqmodels/1/dimensions/6/factors/52/metrics/3/methods/
 
-  projects: any[];
 
-  dqmodels: any[];
+  //CONTEXT
+  readonly API_URL_CTX = "http://localhost:8000/api/context-model/"
+
+  //ENDPOINTS JSON ASSETS
+  private basePath = "/assets/test"; 
+  readonly API_PATH_CONTEXT2 = "/assets/ctx_components.json"
+  readonly API_PATH_CONTEXT = "assets/test/ctx_components.json"
+  
+
+  //dqmodels: any[];
   dimensions: any[];
   factors: any[];
   metrics: any[];
@@ -73,10 +74,8 @@ export class DqModelService {
   ctx_components: any[];
 
   constructor(private http: HttpClient) {
-    this.projects = [];
 
-    this.dqmodels = [];
-
+    //this.dqmodels = [];
     this.dimensions = [];
     this.factors = [];
     this.metrics = [];
@@ -85,66 +84,24 @@ export class DqModelService {
     this.ctx_components = [];
   }
 
-  //PROJECTS 
-  getProjects() {
-    return this.http.get<any[]>(this.API_URL_PROJECTS);
-  }
 
-  getProject(projectId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.API_URL_PROJECTS}${projectId}/`).pipe(
-      catchError(err => {
-        console.error(`Error al obtener PROJECT ${projectId}:`, err);
-        throw err;
-      })
-    );
-  } 
-
-  updateProject(projectId: number, updatedData: any): Observable<any> {
-    const url = `${this.API_URL_PROJECTS}${projectId}/`;
-    return this.http.put<any>(url, updatedData).pipe(
-      catchError(err => {
-        console.error(`Error al actualizar el Project ${projectId}:`, err);
-        throw err;
-      })
-    );
-  }
-
-  patchProject(projectId: number, updatedField: any): Observable<any> {
-    const url = `${this.API_URL_PROJECTS}${projectId}/`;
-    return this.http.patch<any>(url, updatedField).pipe(
-      catchError(err => {
-        console.error(`Error al actualizar el campo en el Project ${projectId}:`, err);
-        throw err;
-      })
-    );
+  //Manejo de errores
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      console.error(`${operation} failed: ${error.message}`);
+      return of(result as T);
+    };
   }
 
 
   //DQ MODELS
-  getDQModels(): Observable<any> {
-    return this.http.get<any[]>(this.API_URL_DQMODELS);
-  }
-
-
-  getDQModelById(dqmodelId: number): Observable<any[]> {
-    /*const url = `${this.API_URL_DQMODELS}${dqmodelId}/`;
-    console.log("Accediendo a la URL:", url);*/
-    return this.http.get<any[]>(`${this.API_URL_DQMODELS}${dqmodelId}/`).pipe(
-      catchError(err => {
-        console.error(`Error al obtener DQ Model ${dqmodelId}:`, err);
-        throw err;
-      })
-    );
-  } 
-
   //private currentDQModel: DQModel | null = null; // Almacenamiento en caché del DQ Model actual
   //private currentDQModel: any = null; 
   private currentDQModel: any | null = null;
 
-
-  // Obtener y setear CURRENT DQ MODEL en cache o desde servidor
-  getDQModel(dqModelId: number): Observable<any> {
-    // Si ya tenemos el modelo en caché y es el mismo ID, lo devolvemos
+  // Obtiene (desde cache o servidor) el DQ Model actual dado el currentProject
+  getCurrentDQModel(dqModelId: number): Observable<any> {
+    // Si el modelo está en caché y es el mismo ID, lo devolvemos
     if (this.currentDQModel && this.currentDQModel.id === dqModelId) {
       console.log('DQ Model ya en caché:', this.currentDQModel);
       return of(this.currentDQModel);
@@ -164,17 +121,25 @@ export class DqModelService {
     );
   }
 
+  //Update DQ Model 
+  updateDQModel(dqmodelId: number, updatedData: any): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/`;
+    return this.http.put<any>(url, updatedData).pipe(
+      catchError(err => {
+        console.error(`Error al actualizar el DQ Model ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  getAllDQModels(): Observable<any[]> {
+    return this.http.get<any[]>(this.API_URL_DQMODELS).pipe(
+      tap(data => console.log('Fetched DQ Models:', data)),
+      catchError(this.handleError<any[]>('getAllDQModels', []))
+    );
+  }
 
 
-  /*
-  {
-    "id": 1,
-    "version": "DQModel v1.01",
-    "created_at": "2024-10-08T00:17:43.798748Z",
-    "status": "draft",
-    "finished_at": "2024-10-08T00:17:40Z",
-    "previous_version": null
-  } */
   createDQModel(dqModelData: DQModel): Observable<any> {
     return this.http.post<any>(this.API_URL_DQMODELS, dqModelData).pipe(
       catchError(err => {
@@ -184,6 +149,15 @@ export class DqModelService {
     );
   }
 
+  // Obtiene cualquier DQ Model por id
+  getDQModelById(dqmodelId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.API_URL_DQMODELS}${dqmodelId}/`).pipe(
+      catchError(err => {
+        console.error(`Error al obtener DQ Model ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  } 
 
 
   //DIMENSIONS DQ MODEL
@@ -202,7 +176,7 @@ export class DqModelService {
       })
     );
   }
-  
+
   getDimensionsByDQModel2(dqmodelId: number): Observable<any[]> {
     const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/`;
     console.log("DqModels/Dimensions - Accediendo a la URL:", url);
@@ -256,8 +230,14 @@ export class DqModelService {
 
   
   //DIMENSIONS BASE
-  getDQDimensionsBase(): Observable<any> {
+  /*getDQDimensionsBase(): Observable<any> {
     return this.http.get<any[]>(this.API_URL_DIMENSIONS_BASE);
+  }*/
+  getAllDQDimensionsBase(): Observable<any[]> {
+    return this.http.get<any[]>(this.API_URL_DIMENSIONS_BASE).pipe(
+      tap(data => console.log('Fetched DQ Dimensions Base:', data)),
+      catchError(this.handleError<any[]>('getAllDQDimensionsBase', []))
+    );
   }
 
   getDQDimensionBaseById(dimensionBaseId: number): Observable<any> {
@@ -275,9 +255,16 @@ export class DqModelService {
 
 
   //FACTORS BASE
-  getDQFactorsBase(): Observable<any> {
+  /*getDQFactorsBase(): Observable<any> {
     return this.http.get<any[]>(this.API_URL_FACTORS_BASE);
+  }*/
+  getAllDQFactorsBase(): Observable<any[]> {
+    return this.http.get<any[]>(this.API_URL_FACTORS_BASE).pipe(
+      tap(data => console.log('Fetched DQ Factors Base:', data)),
+      catchError(this.handleError<any[]>('getAllDQFactorsBase', []))
+    );
   }
+
 
   getFactorBaseById(factorBaseId: number): Observable<any> {
     return this.http.get<any>(`${this.API_URL_FACTORS_BASE}${factorBaseId}/`);

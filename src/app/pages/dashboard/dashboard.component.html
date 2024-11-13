@@ -1,5 +1,5 @@
 <div class="container my-4">
-	<h2 class="title">Phase 2 - DQ Assessment.</h2>
+	<h2 class="title">Phase 2: DQ Assessment</h2>
   <p class="title-description"></p>
 
   <div class="row">
@@ -50,13 +50,13 @@
     </div>
 
     <!-- Mostrar solo si el DQ Model esta confirmado -->
-    <div class="col-sm-6" *ngIf="project?.status === 'done'">
+    <div class="col-sm-6" *ngIf="currentDQModel?.status === 'finished'">
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">New Project</h5>
-          <p class="card-text">Define a new DQ Model to this Context version.</p>  
-          <a class="btn btn-primary" (click)="openConfirmationModal('create')">New DQ Model</a>
-          <a class="btn btn-primary" (click)="openConfirmationModal('edit')">Edit DQ Model</a>
+          <p class="card-text">Define a new DQ Model from the current Context version.</p>  
+          <a class="btn btn-primary" (click)="openConfirmationModal('create')">DQ Model from scratch</a>
+          <a class="btn btn-primary mx-2" (click)="openConfirmationModal('edit')">New DQ Model version</a>
         </div>
       </div>
     </div>

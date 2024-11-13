@@ -43,7 +43,8 @@ body{
 }
 
 .subtitle-description {
-  font-size: 0.95rem;
+  font-size: 16px;
+  /*font-size: 0.95rem;*/
   font-style: italic;
   /*margin-top: 20px;*/
 }
@@ -411,7 +412,8 @@ hr.my-4 {
 .label-title-problems {
   width: auto;
   margin-right: 8px;
-  font-weight: 400;
+  font-weight: 500;
+  font-style: italic;
 }
 
 
@@ -423,8 +425,8 @@ hr.my-4 {
 
 .label-problem-title {
   font-weight: 500;
-  font-style: italic;
-  font-size: 1rem;
+  font-size: 17px;
+  margin-right: 8px;
 }
 
 .label-title-selection-ctx {
@@ -498,7 +500,7 @@ hr.my-4 {
 
 .label-problem-description {
   font-weight: 400;
-  font-size: 0.9rem;
+  font-size: 15px;
 }
 
 
@@ -644,9 +646,15 @@ hr.my-4 {
 }
 
 
+.suggested-section-div {
+  padding: 1rem;
+}
+
+
 
 /* Card flotante */
 .dq-card {
+  font-size: 13px;
   position: fixed;
   top: 20px;
   right: 20px;
@@ -656,11 +664,11 @@ hr.my-4 {
   border: 1px solid #dee2e6;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 1000; /* Asegura que esté encima de otros elementos */
+  z-index: 1000; /* encima de otros elementos */
   display: block;
   padding: 0.5rem;
-  transition: transform 0.3s ease; /* Transición suave */
-  cursor: pointer; /* Manito en hover */
+  transition: transform 0.3s ease; 
+  cursor: pointer; 
 }
 
 .dq-card-header {

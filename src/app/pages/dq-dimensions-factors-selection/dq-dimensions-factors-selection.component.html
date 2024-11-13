@@ -35,10 +35,274 @@
     </div>
   -->
 
-  <!--<p class="subtitle-description">Add Dimensions and Factors from scratch</p>-->
-  <p class="selection-subtitle">Add DQ Dimensions and DQ Factors from scratch</p>
-  
-  <div class="flex-container" id="dimension-factor-selection">
+
+  <!-- SECTION (SELECTION): Suggested Dimensions and Factors -->
+  <p class="subtitle-description" *ngIf="this.currentDQModel?.status !== 'finished'">Suggested Dimensions and Factors</p>
+  <div class="flex-container" *ngIf="this.currentDQModel?.status !== 'finished'">
+    <div class="suggested-section-container">
+      <div class="suggested-section-div">
+        <div class="label-container">
+          <div class="label">
+            <label class="label-title">DQ Dimension:</label>
+            <span class="label-value">Accuracy <i class="bi bi-info-circle"></i></span>
+          </div>
+          <div class="label">
+            <label class="label-title">DQ Factor:</label>
+            <span class="label-value">Syntactic Accuracy <i class="bi bi-info-circle"></i></span>
+          </div>
+        </div>
+      
+      <!--Context Components-->
+      <div class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
+        <div class="from-ctx-components  flex-fill ">
+
+          <!--<label class="label-title-selection-ctx mb-2 mt-2">From Context Components:</label>-->
+          <div class="label-selected">
+            <label class="label-title-selected-ctx">From Context Components:</label>
+            <!--<span class="label-value-selected">{{ getSelectedDimension()?.semantic }}</span>-->
+          </div>
+          <div class="label-selected">
+            <label class="label-title-selected">Ctx (Arises from):</label>
+            <span class="label-value-selected">[Application Domain] Pharmacology <i *ngIf="isEditSuggestedContextVisible" class="bi bi-x-lg"></i></span>
+          </div>
+          <div class="label-selected">
+            <label class="label-title-selected"></label>
+            <span class="label-value-selected">[Business Rule] ATB ∈ (“amika”, “vanco”, “genta”) <i *ngIf="isEditSuggestedContextVisible" class="bi bi-x-lg"></i>
+            </span>
+          </div>
+          <div class="label-selected">
+            <label class="label-title-selected"></label>
+            <span class="label-value-selected">[User Type] Researcher <i *ngIf="isEditSuggestedContextVisible" class="bi bi-x-lg"></i></span>
+          </div>
+          
+          <!-- mensaje para que empiece agregar componentes de contexto -->
+          <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
+            <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+            <div>
+              Context components can suggest and guide the selection of relevant data quality dimensions and factors, ensuring focus on key quality aspects.
+            </div>
+          </div>
+          <!--<button class="btn btn-light btn-sm  mb-4" (click)="openDimensionModal()">Add</button>-->
+          <button class="btn btn-light btn-sm mb-4" (click)="toggleSuggestedItemsVisibility('context')">
+            <i *ngIf="!isEditSuggestedContextVisible"></i>
+            <i *ngIf="isEditSuggestedContextVisible" class="bi bi-eye-slash"></i>
+            {{ isEditSuggestedContextVisible ? 'Hide' : 'Edit' }}
+          </button>
+
+          <span class="label-value d-flex align-items-center">
+            <div class="context-selection">
+              <div class="selected-components mt-3" *ngIf="selectedComponents.length > 0">
+                <ul class="list-group">
+                  <li *ngFor="let component of selectedComponents" class="list-group-item">
+                    {{component.displayText}}
+                    <button class="btn btn-danger btn-sm float-end" 
+                            (click)="removeContextComponent(component)">
+                      X
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </span>
+
+          <!-- CTX COMPONENTS SELECTION (CHECKBOX BY TYPE) -->
+          <div *ngIf="isEditSuggestedContextVisible" class="ctx-selection-accordion-container">
+            <div class="accordion" id="accordionPanelsStayOpenExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                  <button class="accordion-button" type="button"  
+                    data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" 
+                    aria-expanded="true" 
+                    aria-controls="panelsStayOpen-collapseOne"
+                    style="padding: 0.6rem 0.9rem;"
+                  >
+                    Application Domain:
+                  </button>
+                </h2>
+                <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                  <div class="accordion-body">
+                    <div class="ms-2 form-check">
+                      <input class="form-check-input" type="checkbox" id="">
+                      <label class="form-check-label" for="">
+                        Pharmacology <i class="bi bi-info-circle"></i>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+                  <button class="accordion-button collapsed" type="button"  
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#panelsStayOpen-collapseTwo" 
+                    aria-expanded="false" 
+                    aria-controls="panelsStayOpen-collapseTwo"
+                    style="padding: 0.6rem 0.9rem;">
+                    Business Rules:
+                  </button>
+                </h2>
+                <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
+                  <div class="accordion-body">
+                    <div class="ms-2 form-check">
+                      <input class="form-check-input" type="checkbox" id="">
+                      <label class="form-check-label" for="">
+                        ATB ∈ (“amika”, “vanco”, “genta”) <i class="bi bi-info-circle"></i>
+                      </label>
+                    </div>
+                    <div class="ms-2 form-check">
+                      <input class="form-check-input" type="checkbox" id="">
+                      <label class="form-check-label" for="">
+                        CBFConc 6= NULL → ATB = “vanco” <i class="bi bi-info-circle"></i>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="panelsStayOpen-headingThree">
+                  <button class="accordion-button collapsed" type="button"  
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#panelsStayOpen-collapseThree" 
+                    aria-expanded="false" 
+                    aria-controls="panelsStayOpen-collapseThree"
+                    style="padding: 0.6rem 0.9rem;"
+                  >
+                    User Types:
+                  </button>
+                </h2>
+                <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingThree">
+                  <div class="accordion-body">
+                    <div class="ms-2 form-check">
+                      <input class="form-check-input" type="checkbox" id="">
+                      <label class="form-check-label" for="">
+                        Collector <i class="bi bi-info-circle"></i>
+                      </label>
+                    </div>
+                    <div class="ms-2 form-check">
+                      <input class="form-check-input" type="checkbox" id="">
+                      <label class="form-check-label" for="">
+                        Researcher <i class="bi bi-info-circle"></i>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div> <!--end context selecion div-->
+      </div>
+
+       <!--DQ Problems-->
+       <div class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
+        <div class="from-ctx-components  flex-fill ">
+
+          <!--<label class="label-title-selection-ctx mb-2 mt-2">From Context Components:</label>-->
+          <div class="label-selected">
+            <label class="label-title-selected-ctx">From DQ Problems:</label>
+            <!--<span class="label-value-selected">{{ getSelectedDimension()?.semantic }}</span>-->
+          </div>
+          <div class="label-selected">
+            <span class="label-value-selected">Inconsistent Date Formats <i *ngIf="isEditSuggestedDQProblemsVisible" class="bi bi-x-lg"></i></span>
+          </div>
+          <div class="label-selected">
+            <span class="label-value-selected">Invalid Identification Numbers <i *ngIf="isEditSuggestedDQProblemsVisible" class="bi bi-x-lg"></i></span>
+          </div>
+          
+          <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
+            <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+            <div>
+              Prioritized data quality problems can guide the selection of relevant DQ dimensions and factors, helping to focus on the most critical areas for improvement.
+            </div>
+          </div>
+          <!--<button class="btn btn-light btn-sm  mb-4" (click)="openDimensionModal()">Add</button>-->
+          <button class="btn btn-light btn-sm mb-4" (click)="toggleSuggestedItemsVisibility('dqproblems')">
+            <i *ngIf="!isEditSuggestedDQProblemsVisible"></i>
+            <i *ngIf="isEditSuggestedDQProblemsVisible" class="bi bi-eye-slash"></i>
+            {{ isEditSuggestedDQProblemsVisible ? 'Hide' : 'Edit' }}
+          </button>
+
+          <span class="label-value d-flex align-items-center">
+            <div class="context-selection">
+              <div class="selected-components mt-3" *ngIf="selectedComponents.length > 0">
+                <ul class="list-group">
+                  <li *ngFor="let component of selectedComponents" class="list-group-item">
+                    {{component.displayText}}
+                    <button class="btn btn-danger btn-sm float-end" 
+                            (click)="removeContextComponent(component)">
+                      X
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </span>
+
+          <!-- DQ PROBLEMS SELECTION (CHECKBOX) -->
+          <div *ngIf="isEditSuggestedDQProblemsVisible" class="ctx-selection-accordion-container">
+            <div class="checkbox-container">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox1">
+                <label class="form-check-label" for="checkbox1">Inconsistent Date Formats</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox2">
+                <label class="form-check-label" for="checkbox2">Missing Age Fields</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox3">
+                <label class="form-check-label" for="checkbox3">Duplicate Patient Records</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox4">
+                <label class="form-check-label" for="checkbox4">Invalid Identification Numbers</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox5">
+                <label class="form-check-label" for="checkbox5">Incorrect Order of Follow-up Dates</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox6">
+                <label class="form-check-label" for="checkbox6">Scores Values Not Following Trend</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox7">
+                <label class="form-check-label" for="checkbox7">Outliers in Measurements</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox8">
+                <label class="form-check-label" for="checkbox8">Incomplete Address Fields</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox9">
+                <label class="form-check-label" for="checkbox9">Incorrect Spelling in Names</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox10">
+                <label class="form-check-label" for="checkbox10">Inconsistent Measurement Units</label>
+              </div>
+            </div>
+            
+          </div>
+
+        </div> <!--end context selecion div-->
+      </div>
+
+
+      <button class="btn btn-dark btn-sm mt-4">Add to DQ Model</button>
+      <button class="btn btn-light btn-sm mt-4 mx-3">Ignore</button>
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!--SECTION (SELECTION): Add Dimensions and Factors from scratch -->
+  <p class="subtitle-description  mt-4" *ngIf="this.currentDQModel?.status !== 'finished'">Add Dimensions and Factors from scratch</p>
+  <!--<p class="selection-subtitle">Add DQ Dimensions and DQ Factors from scratch</p>-->
+  <div class="flex-container" id="dimension-factor-selection" *ngIf="this.currentDQModel?.status !== 'finished'">
     <!--<div class="from-scratch-section-container">-->
     <div class="suggested-section-container">
 
@@ -110,8 +374,7 @@
               </div>  
             </div>
 
-            <button class="btn btn-light btn-sm mx-4 my-2 mb-4" (click)="openDimensionModal()">Edit</button>
-            <button class="btn btn-light btn-sm my-2 mb-4" (click)="openDimensionModal()">Delete</button>
+            <!--<button type="button" class="btn btn-sm btn-outline-danger">Delete</button>-->
           </div>
 
           <div class="label mt-2">
@@ -183,16 +446,15 @@
           <div *ngIf="selectedFactor !== null">
             <div class="label-container-selected py-2 px-4">
               <div class="label-selected">
-                <span class="label-name-selected">{{ getSelectedFactor()?.name }}</span>
+                <span class="label-name-selected">{{ this.selectedFactorDetails?.name }}</span>
               </div>
               <div class="label-selected">
                 <label class="label-title-selected">Semantic:</label>
-                <span class="label-value-selected">{{ getSelectedFactor()?.semantic }}</span>
+                <span class="label-value-selected">{{ this.selectedFactorDetails?.semantic }}</span>
               </div>
             </div>
-          
-            <button class="btn btn-light btn-sm mx-4 my-2 mb-4" (click)="openDimensionModal()">Edit</button>
-            <button class="btn btn-light btn-sm my-2 mb-4" (click)="openDimensionModal()">Delete</button>
+            <!--<button type="button" class="btn btn-sm btn-outline-danger">Delete</button>-->
+            <!--<button class="btn btn-light btn-sm my-2 mb-4" (click)="openDimensionModal()">Delete</button>-->
           </div>
 
         </div>
@@ -235,10 +497,15 @@
             <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
               <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
               <div>
-                Discover available context components to help suggest and choose data quality dimensions and factors, and associate them with your selection.
+                Identify available context components to help suggest and choose data quality dimensions and factors, and associate them with your selection.
               </div>
             </div>
-            <button class="btn btn-light btn-sm  mb-4" (click)="openDimensionModal()">Add</button>
+            <!--<button class="btn btn-light btn-sm  mb-4" (click)="openDimensionModal()">Add</button>-->
+            <button class="btn btn-light btn-sm mb-4" (click)="toggleCtxSelectionAccordionVisibility()">
+              <i *ngIf="!isCtxSelectionAccordionVisible"></i>
+              <i *ngIf="isCtxSelectionAccordionVisible" class="bi bi-eye-slash"></i>
+              {{ isCtxSelectionAccordionVisible ? 'Hide' : 'Select' }}
+            </button>
 
             <span class="label-value d-flex align-items-center">
             <!--<button class="btn btn-light btn-sm" >
@@ -272,7 +539,7 @@
                 <ul class="list-group">
                   <li *ngFor="let component of selectedComponents" class="list-group-item">
                     {{component.displayText}}
-                    <button class="btn btn-danger btn-sm float-end" 
+                    <button class="btn btn-outline-danger btn-sm float-end" 
                             (click)="removeContextComponent(component)">
                       X
                     </button>
@@ -289,7 +556,7 @@
             </span>
 
             <!-- CTX COMPONENTS SELECTION (CHECKBOX BY TYPE) -->
-            <div class="ctx-selection-accordion-container">
+            <div *ngIf="isCtxSelectionAccordionVisible" class="ctx-selection-accordion-container">
               <div class="accordion" id="accordionPanelsStayOpenExample">
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="panelsStayOpen-headingOne">
@@ -417,34 +684,192 @@
         </div>
       </div>
       -->
-
-        <!-- Card Flotante -->
-        <!-- Contenedor de la tarjeta -->
-        <div id="dqCard" class="dq-card" [ngClass]="{'minimized': isMinimized}" (mousedown)="onMouseDown($event)">
-          <div class="dq-card-header">
-            <h6 class="pt-2">Prioritized DQ Problems</h6>
-            <button (click)="toggleMinimize()" class="btn">
-              <!-- Cambia el ícono dependiendo de si está minimizado o no -->
-              <!--<i class="bi" [ngClass]="isMinimized ? 'bi-chevron-up' : 'bi-dash'"></i>-->
-              <i class="bi" [ngClass]="isMinimized ? 'bi-arrows-fullscreen' : 'bi-fullscreen-exit'"></i>
-            </button>
-          </div>
-          <div class="dq-card-body" *ngIf="!isMinimized">
-            <ol class="dq-problems-list">
-              <li><span class="badge rounded-pill bg-danger">High </span>Inconsistent Date Formats</li> <li><span class="badge rounded-pill bg-danger">High</span>Missing Age Fields</li> <li><span class="badge rounded-pill bg-danger">High</span>Duplicate Patient Records</li> <li><span class="badge rounded-pill bg-danger">High</span>Invalid Identification Numbers</li> <li><span class="badge rounded-pill bg-warning">Medium</span>Incorrect Order of Follow-up Dates</li> <li><span class="badge rounded-pill bg-warning">Medium</span>Scores Values Not Following Trend</li> <li><span class="badge rounded-pill bg-warning">Medium</span>Outliers in Measurements</li> <li><span class="badge rounded-pill bg-warning">Medium</span>Incomplete Address Fields</li> <li><span class="badge rounded-pill bg-success">Low</span>Incorrect Spelling in Names</li> <li><span class="badge rounded-pill bg-success">Low</span>Inconsistent Measurement Units</li>
-            </ol>
-          </div>
-        </div>
       
       <!--</div> <div class="problems-view">-->
    
-      
-
     </div>
   </div>
   
 
-  <h3 class="mt-4 selection-subtitle">DQ Dimensions and DQ Factors added to DQ Model</h3>
+
+   <!--SECTION (SELECTION): Add Dimensions and Factors from DQ Problems -->
+   <p class="subtitle-description mt-4" *ngIf="currentDQModel?.status !== 'finished'">Add Dimensions and Factors from DQ Problems</p>
+   <div class="flex-container" *ngIf="currentDQModel?.status !== 'finished'">
+     <div class="suggested-section-container">
+       <div class="dq-problem-container">
+         <div class="label-container mb-3">
+           <div class="label">
+             <label class="label-title-problems">DQ Problem:</label>
+             <span class="label-problem-title">Inconsistent Date Formats </span><span class="badge rounded-pill bg-danger">High</span>
+             
+           </div>
+           <span class="label-problem-description">Dates are not in a consistent format.</span>
+         </div>
+
+         <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
+            <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+            <div>
+              Select the data quality dimensions and factors that best match your prioritized data quality problems, focusing on the most critical areas to improve.
+            </div>
+          </div>
+ 
+         <!-- Dimensions and Factors SELECTION (CHECKBOX) -->
+         <div class="label-container container-dim-factors ms-4">
+
+          <!-- DQ Dimension: Accuracy -->
+          <div class="label">
+            <label class="label-title">DQ Dimension:</label>
+            <span class="label-value">Accuracy <i class="bi bi-info-circle"></i></span>
+          </div>
+          <div class="label">
+            <label class="label-title">DQ Factors:</label>
+          </div>
+            <!-- Accuracy factors -->
+            <div class="factors-container ms-4">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="semanticAccuracy">
+                <label class="form-check-label" for="semanticAccuracy">
+                  Semantic Accuracy <i class="bi bi-info-circle"></i>
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="syntacticAccuracy">
+                <label class="form-check-label" for="syntacticAccuracy">
+                  Syntactic Accuracy <i class="bi bi-info-circle"></i>
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="precision">
+                <label class="form-check-label" for="precision">
+                  Precision <i class="bi bi-info-circle"></i>
+                </label>
+              </div>
+            </div>
+            <br>
+          
+          <!-- DQ Dimension: Completeness -->
+          <div class="label">
+            <label class="label-title">DQ Dimension:</label>
+            <span class="label-value">Completeness <i class="bi bi-info-circle"></i></span>
+          </div>
+          <div class="label">
+            <label class="label-title">DQ Factors:</label>
+          </div>
+            <!-- Completeness factors -->
+            <div class="factors-container ms-4">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="coverage">
+                <label class="form-check-label" for="coverage">
+                  Coverage <i class="bi bi-info-circle"></i>
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="density">
+                <label class="form-check-label" for="density">
+                  Density <i class="bi bi-info-circle"></i>
+                </label>
+              </div>
+            </div>
+
+          <br>
+          <!-- DQ Dimension: Freshness -->
+          <div class="label">
+            <label class="label-title">DQ Dimension:</label>
+            <span class="label-value">Freshness <i class="bi bi-info-circle"></i></span>
+          </div>
+          <div class="label">
+            <label class="label-title">DQ Factors:</label>
+          </div>
+            <!-- Freshness factors -->
+            <div class="factors-container ms-4">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="currency">
+                <label class="form-check-label" for="currency">
+                  Currency <i class="bi bi-info-circle"></i>
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="timeliness">
+                <label class="form-check-label" for="timeliness">
+                  Timeliness <i class="bi bi-info-circle"></i>
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="volatility">
+                <label class="form-check-label" for="volatility">
+                  Volatility <i class="bi bi-info-circle"></i>
+                </label>
+              </div>
+            </div>
+          <br>
+        
+          <!-- DQ Dimension: Consistency -->
+          <div class="label">
+            <label class="label-title">DQ Dimension:</label>
+            <span class="label-value">Consistency <i class="bi bi-info-circle"></i></span>
+          </div>
+          <div class="label">
+            <label class="label-title">DQ Factors:</label>
+          </div>
+            <!-- Consistency factors -->
+            <div class="factors-container ms-4">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="domainIntegrity">
+                <label class="form-check-label" for="domainIntegrity">
+                  Domain Integrity <i class="bi bi-info-circle"></i>
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="intraRelationIntegrity">
+                <label class="form-check-label" for="intraRelationIntegrity">
+                  Intra-Relation Integrity <i class="bi bi-info-circle"></i>
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="interRelationIntegrity">
+                <label class="form-check-label" for="interRelationIntegrity">
+                  Inter-Relation Integrity <i class="bi bi-info-circle"></i>
+                </label>
+              </div>
+            </div>
+        
+          <br>
+          <!-- DQ Dimension: Uniqueness -->
+          <div class="label">
+            <label class="label-title">DQ Dimension:</label>
+            <span class="label-value">Uniqueness <i class="bi bi-info-circle"></i></span>
+          </div>
+          <div class="label">
+            <label class="label-title">DQ Factors:</label>
+          </div>
+          <!-- Uniqueness factors -->
+            <div class="factors-container ms-4">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="duplicationFree">
+                <label class="form-check-label" for="duplicationFree">
+                  Duplication-Free <i class="bi bi-info-circle"></i>
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="contradictionFree">
+                <label class="form-check-label" for="contradictionFree">
+                  Contradiction-Free <i class="bi bi-info-circle"></i>
+                </label>
+              </div>
+            </div>
+        </div>
+        
+ 
+         <button class="btn btn-dark btn-sm mt-4">Add to DQ Model</button>
+       </div>
+     </div>
+   </div>
+
+
+   
+  <!-- SECTION (DQ MODEL VIEW): Dimensions and Factors in DQMODEL -->
+  <!--<h3 class="mt-4 selection-subtitle">DQ Dimensions and DQ Factors added to DQ Model</h3>-->
+  <p class="subtitle-description mt-4">Dimensions and Factors added to DQ Model</p>
   <div class="flex-container">
     <div class="suggested-section-container">
       
@@ -572,7 +997,7 @@
                             <!-- DQ Factors button -->
                             <div *ngIf="currentDQModel.status === 'draft'">
                               <br>
-                              <button (click)="deleteFactor(factor.id)" class="btn btn-danger btn-sm">
+                              <button (click)="deleteFactor(factor.id)" class="btn btn-outline-danger btn-sm">
                                 Remove Factor
                               </button> 
                             </div>
@@ -584,7 +1009,7 @@
                     <!-- DQ Dimensions buttons -->
                     <div *ngIf="currentDQModel.status === 'draft'">
                       <br> <br>
-                      <button (click)="deleteDimension(item.dimension.id)" class="btn btn-danger btn-sm">
+                      <button (click)="deleteDimension(item.dimension.id)" class="btn btn-outline-danger btn-sm">
                         Remove Dimension
                       </button>
                       <button (click)="scrollToDiv('dimension-factor-selection')" class="btn btn-light btn-sm ms-2">
@@ -608,92 +1033,31 @@
   </div> <!-- end flex-container div -->
 
 
-   <!-- SECCION: Add Dimensions and Factors from DQ Problems -->
-   <p class="subtitle-description">Add Dimensions and Factors from DQ Problems</p>
-   <div class="flex-container">
-     <div class="suggested-section-container">
-       <div class="dq-problem-container">
-         <div class="label-container mb-3">
-           <div class="label">
-             <label class="label-title-problems">DQ Problem:</label>
-             <span class="label-problem-title">Inconsistent Date Formats</span>
-             
-           </div>
-           <span class="label-problem-description">Dates are not in a consistent format.</span>
-         </div>
- 
-         <div class="label-container container-dim-factors ms-4">
-           <div class="label">
-             <label class="label-title">DQ Dimension:</label>
-             <span class="label-value">Accuracy <i class="bi bi-info-circle"></i></span>
-           </div>
-           <div class="label">
-             <label class="label-title">DQ Factors:</label>
-           </div>
-           
-           <!-- Contenedor para alinear los checkboxes en fila -->
-           <div class="factors-container ms-4">
-             <div class="form-check">
-               <input class="form-check-input" type="checkbox" id="semanticAccuracy">
-               <label class="form-check-label" for="semanticAccuracy">
-                 Semantic Accuracy <i class="bi bi-info-circle"></i>
-               </label>
-             </div>
-             <div class="form-check">
-               <input class="form-check-input" type="checkbox" id="syntacticAccuracy">
-               <label class="form-check-label" for="syntacticAccuracy">
-                 Syntactic Accuracy <i class="bi bi-info-circle"></i>
-               </label>
-             </div>
-             <div class="form-check">
-               <input class="form-check-input" type="checkbox" id="precision">
-               <label class="form-check-label" for="precision">
-                 Precision <i class="bi bi-info-circle"></i>
-               </label>
-             </div>
-           </div>
-         </div>
-         
- 
- 
-         <!-- Add New Custom Section 
-         <div class="add-custom-section mt-4 pt-3 border-top">
-           <div class="mb-3">
-             <div class="d-flex gap-2 mb-3">
-               <input type="text" class="form-control form-control-sm" placeholder="New DQ Dimension">
-               <input type="text" class="form-control form-control-sm" placeholder="New DQ Factor">
-               <button class="btn btn-light btn-sm">Add</button>
-             </div>
-           </div>
-         </div>-->
- 
-         <!-- Custom Added Items -->
-         <div class="custom-items-section mt-4">
-           <div class="label-container-selected py-2">
-             <div class="label-selected">
-               <span class="label-name-selected">Dimension personalized added 1</span>
-             </div>
-             <div class="label-selected">
-               <label class="label-title-selected">DQ Factor:</label>
-               <span class="label-value-selected">Factor personalized added 1</span>
-             </div>
-           </div>
- 
-           <div class="label-container-selected py-2 mt-3">
-             <div class="label-selected">
-               <span class="label-name-selected">Dimension personalized added 2</span>
-             </div>
-             <div class="label-selected">
-               <label class="label-title-selected">DQ Factor:</label>
-               <span class="label-value-selected">Factor personalized added 2</span>
-             </div>
-           </div>
-         </div>
- 
-         <button class="btn btn-dark btn-sm mt-4">Add to DQ Model</button>
-       </div>
-     </div>
-   </div>
+  <!-- FLOATING CARD: PRIORITIZED DQ PROBLEMS  -->
+  <div id="dqCard" class="dq-card" [ngClass]="{'minimized': isMinimized}" (mousedown)="onMouseDown($event)">
+    <div class="dq-card-header">
+      <h6 class="pt-2">Prioritized DQ Problems</h6>
+      <button (click)="toggleMinimize()" class="btn">
+        <!--<i class="bi" [ngClass]="isMinimized ? 'bi-chevron-up' : 'bi-dash'"></i>-->
+        <i class="bi" [ngClass]="isMinimized ? 'bi-arrows-fullscreen' : 'bi-fullscreen-exit'"></i>
+      </button>
+    </div>
+    <div class="dq-card-body" *ngIf="!isMinimized">
+      <ol class="dq-problems-list">
+        <li><span class="badge rounded-pill bg-danger">High </span>Inconsistent Date Formats <i class="bi bi-info-circle"></i></li> 
+        <li><span class="badge rounded-pill bg-danger">High</span>Missing Age Fields <i class="bi bi-info-circle"></i></li> 
+        <li><span class="badge rounded-pill bg-danger">High</span>Duplicate Patient Records <i class="bi bi-info-circle"></i></li> 
+        <li><span class="badge rounded-pill bg-danger">High</span>Invalid Identification Numbers <i class="bi bi-info-circle"></i></li> 
+        <li><span class="badge rounded-pill bg-warning">Medium</span>Incorrect Order of Follow-up Dates <i class="bi bi-info-circle"></i></li> 
+        <li><span class="badge rounded-pill bg-warning">Medium</span>Scores Values Not Following Trend <i class="bi bi-info-circle"></i></li> 
+        <li><span class="badge rounded-pill bg-warning">Medium</span>Outliers in Measurements <i class="bi bi-info-circle"></i></li> 
+        <li><span class="badge rounded-pill bg-warning">Medium</span>Incomplete Address Fields <i class="bi bi-info-circle"></i></li> 
+        <li><span class="badge rounded-pill bg-success">Low</span>Incorrect Spelling in Names <i class="bi bi-info-circle"></i></li> 
+        <li><span class="badge rounded-pill bg-success">Low</span>Inconsistent Measurement Units <i class="bi bi-info-circle"></i></li>
+      </ol>
+    </div>
+  </div>
 
-   
+  
+  
 <app-context-components></app-context-components>
