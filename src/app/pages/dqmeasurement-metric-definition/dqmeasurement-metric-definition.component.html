@@ -1,0 +1,124 @@
+<div class="container my-4">
+  <h2 class="title">Stage 4: DQ Model Definition</h2>
+  <h2 class="title-activity">Metric Definition</h2>
+  
+  <p class="subtitle-description">Create metrics for the selected factors</p>
+  <div class="container-section">
+    <div class="d-flex justify-content-center">
+      <div class="w-100">
+        <div cdkDropList>
+          <div *ngFor="let factor of factorsByDim">
+            <!-- Contenedor Expandible para Factores -->
+            <div (click)="factor.expanded = !factor.expanded" style="cursor: pointer; padding: 10px; background-color: #f8f9fa; border-radius: 5px; margin-bottom: 10px;" class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center">
+                <h3 class="m-0">DQ Factor: <strong class="ms-2">{{ factor.factor_name }}</strong></h3>
+                <i [class]="factor.expanded ? 'bi bi-chevron-up ms-3' : 'bi bi-chevron-down ms-3'"></i>
+              </div>
+              <button class="btn btn-dark btn-sm" (click)="openModalBase(factor); $event.stopPropagation()">Add Base Metric</button>
+              <button class="btn btn-dark btn-sm" (click)="openModal(factor); $event.stopPropagation()">Add DQ Metric</button>
+            </div>
+
+            <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalBaseOpen}" [style.display]="isModalBaseOpen ? 'block' : 'none'">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Add new DQ Metric</h5>
+                    <button type="button" class="close" aria-label="Close" (click)="closeModalBase()">
+                      <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <form>
+                      <div class="form-group">
+                        <label for="MetName">Name</label>
+                        <input type="text" name="MetName" [(ngModel)]="newBaseMetric.name" placeholder="Metric Name" class="form-control" [ngModelOptions]="{standalone: true}" />
+                      </div>
+                      <div class="form-group">
+                        <label for="MetPurpose" >Purpose</label>
+                        <input type="text" name="MetPurpose" [(ngModel)]="newBaseMetric.purpose" placeholder="Metric Purpose" class="form-control" [ngModelOptions]="{standalone: true}"/>
+                      </div>
+                      <div class="form-group">
+                        <label for="MetGranularity">Granularity</label>
+                        <input type="text" name="MetGranularity" [(ngModel)]="newBaseMetric.granularity" placeholder="Metric Granularity" class="form-control" [ngModelOptions]="{standalone: true}"/>
+                      </div>
+                      <div class="form-group">
+                        <label for="MetDomain">Domain</label>
+                        <input type="text" name="MetDomain" [(ngModel)]="newBaseMetric.domain" placeholder="Metric Domain" class="form-control" [ngModelOptions]="{standalone: true}"/>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-light" (click)="closeModalBase()">Cancel</button>
+                    <button type="button" class="btn btn-sm btn-dark" (click)="addBaseMetric(factor)">Confirm</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Add new DQ Metric</h5>
+                    <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+                      <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <form>
+                      <div class="form-group">
+                        <label for="MetName">Name</label>
+                        <select name="MetName" [(ngModel)]="newMetric.name" class="form-select" [ngModelOptions]="{standalone: true}" >
+                          <option *ngFor="let metrics of factor.baseMetrics" [value]="metrics.id"> {{ metrics.id }} - {{metrics.name}} </option>
+                        </select> 
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-light" (click)="closeModal()">Cancel</button>
+                    <button type="button" class="btn btn-sm btn-dark" (click)="addMetric(factor)">Confirm</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Métricas Definidas (Expandibles) -->
+            <div *ngIf="factor.expanded">
+              <h5>DQ Metrics:</h5>
+              <div *ngFor="let metric of factor.definedMetrics" class="metric-container mt-3">
+                <div (click)="metric.expanded = !metric.expanded" class="metric-title p-2" style="background-color: #f8f9fa; cursor: pointer;">
+                  <h4 class="d-flex align-items-center m-0">
+                    <i [class]="metric.expanded ? 'bi bi-chevron-down' : 'bi bi-chevron-right'"></i>
+                    <span class="ms-2">Dq Metric: {{ metric.baseAttr.name }}</span>
+                  </h4>
+                </div>
+                <div *ngIf="metric.expanded" class="metric-details p-3" style="border: 1px solid #ccc;">
+                  <div class="form-group mb-3">
+                    <label for="Mname">Name:</label>
+                    <input type="text" id="Mname" name="Mname" class="form-control" readonly [(ngModel)]="metric.baseAttr.name" [ngModelOptions]="{standalone: true}" />
+                  </div>
+                  <div class="form-group mb-3">
+                    <label for="Mpurpose">Puropose:</label>
+                    <input type="text" id="Mpurpose" name="Mpurpose" class="form-control" readonly [(ngModel)]="metric.baseAttr.purpose" [ngModelOptions]="{standalone: true}" />
+                  </div>
+                  <div class="form-group mb-3">
+                    <label for="Mgranularity">Granularity:</label>
+                    <input type="text" id="Mgranularity" name="Mgranularity" class="form-control" readonly [(ngModel)]="metric.baseAttr.granularity" [ngModelOptions]="{standalone: true}" />
+                  </div>
+                  <div class="form-group mb-3">
+                    <label for="Mdomain">Domain:</label>
+                    <input type="text" id="Mdomain" name="Mdomain" class="form-control" readonly [(ngModel)]="metric.baseAttr.resultDomain" [ngModelOptions]="{standalone: true}" />
+                  </div>
+                  <div class="form-group mb-3">
+                    <button class="btn btn-outline-danger btn-sm" (click)="deleteMetric(factor, metric)">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </div>  
+          </div>
+        </div>
+        <button (click)="saveMetrics()" class="btn btn-primary btn-sm mt-3">Confirmar Metricas</button>
+      </div>
+    </div>
+  </div>
+</div>

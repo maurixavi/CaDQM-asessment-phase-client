@@ -1007,6 +1007,10 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     this.isCtxSelectionAccordionVisible = !this.isCtxSelectionAccordionVisible;
   }
 
+  goToMetricSelection(){
+    this.router.navigate(['/step4']);
+  }
+
 
 
   // HABILITAR EDITAR DIMENSIONES y FACTORES SUGERIDOS

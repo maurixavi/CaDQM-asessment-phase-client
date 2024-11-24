@@ -12,6 +12,8 @@ import { FormsModule } from '@angular/forms';
 
 import { DQProblemsPriorizationComponent } from './pages/dqproblems-priorization/dqproblems-priorization.component';
 import { DQProblemsSelectionComponent } from './pages/dqproblems-selection/dqproblems-selection.component';
+import {DQMetricDefinitionComponent} from './pages/dqmeasurement-metric-definition/dqmeasurement-metric-definition.component';
+import {DqDimensionsMethodsDefinitionComponent} from './pages/dq-dimensions-methods-definition/dq-dimensions-methods-definition.component';
 
 import { DqDimensionsFactorsSelectionComponent } from './pages/dq-dimensions-factors-selection/dq-dimensions-factors-selection.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
@@ -38,6 +40,8 @@ import { DqModelService } from './services/dq-model.service';
     HeaderComponent,
     DashboardComponent,
     DQMeasurementPreviewComponent,
+    DQMetricDefinitionComponent,
+    DqDimensionsMethodsDefinitionComponent,
     ContextComponentsComponent,
     DQModelConfirmationComponent,
     StepNavigatorComponent

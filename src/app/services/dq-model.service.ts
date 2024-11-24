@@ -53,6 +53,8 @@ export class DqModelService {
   readonly API_URL_DQMODELS = `${this.baseUrl}/dqmodels/`;  //"http://localhost:8000/api/dqmodels/"
   readonly API_URL_DIMENSIONS_DQMODEL = `${this.baseUrl}/dimensions/`; //"http://localhost:8000/api/dimensions/"
   readonly API_URL_FACTORS_DQMODEL = `${this.baseUrl}/factors/`; //"http://localhost:8000/api/factors/"
+  readonly API_URL_METRICS_DQMODEL = `${this.baseUrl}/metrics/`; //"http://localhost:8000/api/metrics/"
+  readonly API_URL_METHODS_DQMODEL = `${this.baseUrl}/methods/`; //"http://localhost:8000/api/methods/"
   // http://localhost:8000/api/dqmodels/1/dimensions/6/factors/52/metrics/3/methods/
 
 
@@ -228,6 +230,55 @@ export class DqModelService {
     return this.http.delete<any>(`${this. API_URL_FACTORS_DQMODEL}${factorId}/`)
   }
 
+  //METRICS DQ MODEL
+  //obtener Metricas asociadas a un factor/dimension/modelo especifico
+  getMetricsByDQModelDimensionAndFactor(dqmodelId: number, dimensionId: number, factorId: number): Observable<any[]> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/${dimensionId}/factors/${factorId}/metrics`;
+    //console.log("Obteniendo factores de la dimensión:", url);
+    return this.http.get<any[]>(url).pipe(
+      catchError(err => {
+        console.error(`Error al obtener metricas para DQModel ${dqmodelId}, Dimension ${dimensionId} y Factor ${factorId} :`, err);
+        throw err;
+      })
+    );
+  }
+
+  addMetricToDQModel(metricData: { dq_model: number; metric_base: number; factor:number}): Observable<any> {
+    return this.http.post<any>(this.API_URL_METRICS_DQMODEL, metricData).pipe(
+      catchError(err => {
+        console.error('Error al agregar el factor:', err);
+        throw err; // Re-lanzar el error para que pueda ser manejado en el componente
+      })
+    );
+  }
+  deletMetricFromDQModel(metricId: number): Observable<any> {
+    return this.http.delete<any>(`${this. API_URL_METRICS_DQMODEL}${metricId}/`)
+  }
+  //METRICS DQ MODEL
+  //obtener Metricas asociadas a un factor/dimension/modelo especifico
+  getMethodsByDQModelDimensionFactorAndMetric(dqmodelId: number, dimensionId: number, factorId: number, metricId: number): Observable<any[]> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/${dimensionId}/factors/${factorId}/metrics/${metricId}/methods`;
+    //console.log("Obteniendo factores de la dimensión:", url);
+    return this.http.get<any[]>(url).pipe(
+      catchError(err => {
+        console.error(`Error al obtener metricas para DQModel ${dqmodelId}, Dimension ${dimensionId}, Factor ${factorId} y Metrica ${metricId} :`, err);
+        throw err;
+      })
+    );
+  }
+
+  addMethodsToDQModel(methodData: { method_base: number; dimension: number, factorId: number, metricId: number }): Observable<any> {
+    return this.http.post<any>(this.API_URL_METRICS_DQMODEL, methodData).pipe(
+      catchError(err => {
+        console.error('Error al agregar el factor:', err);
+        throw err; // Re-lanzar el error para que pueda ser manejado en el componente
+      })
+    );
+  }
+  deletMethodFromDQModel(methodId: number): Observable<any> {
+    return this.http.delete<any>(`${this. API_URL_METHODS_DQMODEL}${methodId}/`)
+  }
+
   
   //DIMENSIONS BASE
   /*getDQDimensionsBase(): Observable<any> {
@@ -293,11 +344,32 @@ export class DqModelService {
 
   //METRICS BASE
   getDQMetricsBase(): Observable<any> {
-    return this.http.get<any[]>(this.API_URL_METRICS_BASE);
+    return this.http.get<any[]>(this.API_URL_METRICS_BASE).pipe(
+      tap(data => console.log('Fetched DQ Metrics Base:', data)),
+      catchError(this.handleError<any[]>('getAllDMetricsBase', []))
+    );
   }
 
   getDQMetricBaseById(metricBaseId: number): Observable<any> {
     return this.http.get<any>(`${this.API_URL_METRICS_BASE}${metricBaseId}/`);
+  }
+
+  getMetricsBaseByDimensionAndFactorId(dimensionId: number, factorId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.API_URL_DIMENSIONS_BASE}${dimensionId}/factors-base/${factorId}/metrics-base/`).pipe(
+      catchError(err => {
+        console.error(`Error al obtener metricas para dimension ${dimensionId} y factor ${factorId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  createDQMetric(metric: { name: string; purpose: string, granularity: string, resultDomain: string, measures: number }): Observable<any> {
+    return this.http.post<any>(this.API_URL_METRICS_BASE, metric).pipe(
+      catchError(err => {
+        console.error('Error al crear el factor:', err);
+        throw err; // Re-lanzar el error para que pueda ser manejado en el componente
+      })
+    );
   }
 
 

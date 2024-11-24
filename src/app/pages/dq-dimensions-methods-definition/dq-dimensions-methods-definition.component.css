@@ -1,0 +1,396 @@
+/*
+body{
+  background-color: #fefefe;
+  
+}*/
+
+.container {
+  /*max-width: 86%;*/
+  margin: auto;
+  color: #222; 
+  /*font-family: 'Open Sans', sans-serif;*/
+  /*font-family: 'Roboto', sans-serif;*/
+}
+
+.table {
+  font-size: 0.875rem; 
+}
+
+.table tbody tr td {
+  color: #222; 
+}
+
+.table th {
+  font-size: 0.78rem;  
+  color: #444; 
+  font-weight: bold;  
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: black;
+  font-style: italic;
+}
+
+.title-activity {
+  font-size: 1.5rem;
+	font-weight: lighter;
+}
+
+.title-description {
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+.subtitle-description {
+  font-size: 0.95rem;
+  font-style: italic;
+  /*margin-top: 20px;*/
+}
+
+.my-4 {
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.details-container {
+  border: 1px solid #ddd;
+  padding: 1rem;
+  margin-top: 1rem;
+  background-color: #f9f9f9;
+}
+
+.details-container h3 {
+  font-size: 1.2rem;
+}
+
+.details-container p, .details-container ul {
+  font-size: 0.9rem;
+}
+
+.details-container ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.details-container li {
+  margin-bottom: 0.5rem;
+}
+
+.go-back {
+  margin-bottom: 10px;
+}
+
+.go-back-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  color: #888;
+}
+
+.go-back-link {
+  font-size: 16px;
+  color: #888;
+  text-decoration: none;
+}
+
+.priority-high .bi-circle-fill {
+  color: #942e2e; 
+}
+
+.priority-medium .bi-circle-fill {
+  color: #d8c246; 
+}
+
+.priority-low .bi-circle-fill {
+  color: #3d773d;  
+}
+
+.problem-name {
+  font-size: 1.4rem;
+}
+
+.selected-problem-item {
+  /*border: 1px solid #ddd; */
+  background-color: #f9f9f9; 
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;  
+}
+
+.subtitle {
+  font-size: 1.3rem;
+  font-weight: lighter;
+  color: #333;
+  margin-top: 20px;
+}
+
+.subtitle-selected {
+  font-size: 1.2rem;
+  color: #333;
+  margin-top: 20px;
+}
+
+.subtitle-problem {
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.dimensions-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+  
+}
+
+.dimension-box {
+  flex: 1;
+  min-width: 180px; 
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #fff;
+  /*background-color: #f5f5f5;*/
+  font-size: 0.875rem; 
+  border: 1px solid #ddd;
+}
+
+.dimension-box h4 {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+hr.my-4 {
+  border: none;
+  border-top: 1px solid #fff; 
+  margin: 2rem 0;
+}
+
+
+.from-ctx-components-title {
+  font-weight: 500;
+}
+
+
+
+
+.context-list, .factors-list {
+  list-style-type: none; 
+  padding-left: 0;
+}
+
+.context-list li, .factors-list li {
+  margin-bottom: 0.5rem;
+}
+
+.btn {
+	font-size: 0.9rem;
+  font-weight: 500;
+  /*border-radius: 8px;*/
+}
+.btn-dark {
+  background-color: #222; 
+  color: #fff; 
+  border: 1px solid  #111; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-dark:hover {
+  background-color: #333; 
+  border: 1px solid #333; 
+}
+
+.btn-light {
+  background-color: #fff; 
+  color: #111; 
+  border: 1px solid #bbb; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-light:hover {
+  background-color: #222; 
+  color: #fff; 
+  border: 1px solid  #222; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-add-added {
+  min-width: 92px;
+}
+
+.next-step-btn-container{
+	display: flex;
+  justify-content: flex-end; 
+}
+
+.flex-container {
+  display: flex;
+  justify-content: center;
+}
+/*
+.container-section {
+  width: 98%;
+  border: 1px solid #ddd; 
+  background-color: #fff; 
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;  
+}*/
+
+
+.suggested-section-container {
+  width: 100%;
+  /*border: 1px solid #ddd; */
+  border: 1px solid #eeeeee;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  background-color: #fff; 
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;  
+}
+
+.label-container {
+  display: flex;
+  flex-direction: column; /* Coloca cada par de label y value en una nueva línea */
+  gap: 4px; /* Espacio entre cada fila */
+  font-size: 16px;  
+  font-weight: 500;
+}
+
+.label {
+  display: flex; /* Permite que el título y el valor estén en línea */
+  align-items: center; /* Centra verticalmente el contenido */
+}
+
+.label-title {
+  width: 120px;
+}
+
+.label-value {
+  max-width: 80%;
+  font-weight: 700;
+}
+
+/*Selected */
+.label-container-selected {
+  display: flex;
+  flex-direction: column;  
+  gap: 4px; 
+  font-size: 14px;  
+}
+
+.label-selected {
+  display: flex;
+  align-items: flex-start; 
+}
+
+.label-name-selected {
+  font-weight: 700;
+  font-size: 16px; 
+}
+
+.label-title-selected {
+  width: 100px;
+  margin-right: 10px;
+}
+
+.label-value-selected {
+  max-width: 70%;
+  font-weight: 400;
+}
+
+
+
+
+
+.dqmodel-element-name {
+  font-size: 16px;  
+  font-weight: 400;
+}
+
+
+.dropdown {
+  position: absolute;
+  z-index: 1000;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-right: 18px;
+  width: 40%; /* Para que el dropdown tome todo el ancho del botón */
+}
+
+.list-group-item {
+  cursor: pointer;
+}
+
+.list-group-item:hover {
+  background-color: #f1f1f1;
+}
+
+
+
+.modal.show {
+  display: block;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  position: relative;
+}
+
+.modal-header .close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #999;
+  cursor: pointer;
+  outline: none;
+}
+
+.modal-header .close span {
+  display: inline-block;
+}
+
+.modal-header .close:hover {
+  color: #222;
+}
+
+.modal-body .form-group {
+  margin-bottom: 16px;
+}
+
+.modal-body label {
+  font-weight: 500;
+  font-size: 14px;  
+  margin-bottom: px;
+}
+
+.modal-body input {
+  font-size: 0.875rem; 
+  color: #222;
+}
+
+
