@@ -77,6 +77,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   factorsByDim: any[] = [];
   private contextModel: any; // Para almacenar el modelo de contexto completo
   allMetrics: any[] = [];
+  currentMetric: any;
   
   contextComponentsGrouped: { type: string; ids: number[] }[] = [];
   
@@ -100,7 +101,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
 
   possibleOutputs: string[] = ['Entero', 'Real', 'Booleano'];
   domains: string[] = ['Entero', 'Real', 'Booleano'];
-  newMethod: QualityMethod = {
+  newMethod: any = {
     name: '', input: '', output: '', algorithm: '', expanded: false,  metric: undefined};
   definedMetrics: QualityMethod[] = [];
   qualityMetrics: QualityMetric[]= [
@@ -201,6 +202,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
         this.dqmodel_dimensions = dimensions;
         this.dimensionsWithFactorsInDQModel = [];
         this.factorsByDim = [];
+        this.allMetrics = [];
   
         const dimensionsData = await Promise.all(dimensions.map(async (dimension) => {
           try {
@@ -295,16 +297,28 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
 
   getBaseMetricsByFactor(){
     this.factorsByDim.forEach(async item => {
-      const baseMetricForFact = await this.modelService.getMetricsBaseByDimensionAndFactorId(item.dimension, item.id).toPromise();
-      item.baseMetrics = baseMetricForFact;
+      //const baseMetricForFact = await this.modelService.getMetricsBaseByDimensionAndFactorId(item.dimension, item.id).toPromise();
+      //item.baseMetrics = baseMetricForFact;
       const dqMetricForFact = await this.modelService.getMetricsByDQModelDimensionAndFactor(item.dq_model, item.dimension, item.id).toPromise();
       item.definedMetrics = dqMetricForFact;
-      item.definedMetrics.forEach((dqMet:any) => {
-        let baseAttr = item.baseMetrics.find((elem:any) => elem.id == dqMet.metric_base);
-        dqMet.baseAttr = baseAttr;
+      // item.definedMetrics.forEach((dqMet:any) => {
+      //   let baseAttr = item.baseMetrics.find((elem:any) => elem.id == dqMet.metric_base);
+      //   dqMet.baseAttr = baseAttr;
+      // });
+      item.definedMetrics.forEach(async (metric:any) => {
+        const dqBaseMethods = await this.modelService.getMethodsBaseByDimensionFactorAndMetricId(item.dimension, item.id, metric.metric_base).toPromise();
+        metric.baseMethods = dqBaseMethods;
+        const dqMethods = await this.modelService.getMethodsByDQModelDimensionFactorAndMetric(item.dq_model,item.dimension, item.id, metric.metric_base).toPromise();
+        metric.definedMethods = dqMethods;
+        metric.definedMethods.array.forEach((dqMeth:any) => {
+          let baseAttr = metric.dqBaseMethods.find((elem:any)=> elem.id == dqMeth.method_base);
+          dqMeth.baseAttr = baseAttr;
+        });
       });
       this.allMetrics = this.allMetrics.concat(item.definedMetrics);
     });
+
+    
   }
 
 
@@ -388,7 +402,8 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
 
   isModalOpen = false;
 
-  openModal() {
+  openModal(metric:any) {
+    this.currentMetric = metric;
     this.isModalOpen = true;
   }
 
@@ -404,10 +419,13 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   }
 
   addMethod(metric: QualityMetric){
-    this.openModal();
-    if (metric.newMethod.name && metric.newMethod.input && metric.newMethod.output && metric.newMethod.algorithm) {
-      metric.definedMethods.push({ ...metric.newMethod });
-      metric.newMethod = { name: '', input: '', output: '', algorithm: '', expanded:false };
+    //this.openModal();
+    if (this.newMethod.name) {
+      var newMetric = this.currentMetric!;
+      let dqMetric = this.allMetrics.find(item => item.id == newMetric.id)
+      //metric.definedMethods.push({ ...metric.newMethod });
+      const methodData = {dq_model: dqMetric.dq_model, }
+      this.newMethod = { name: '', input: '', output: '', algorithm: '', expanded:false };
     }
     this.closeModal();
   }

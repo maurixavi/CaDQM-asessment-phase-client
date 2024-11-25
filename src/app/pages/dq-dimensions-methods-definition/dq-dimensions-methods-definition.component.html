@@ -12,10 +12,10 @@
             <!-- Barra de la métrica expandible con botón para agregar método -->
             <div (click)="metric.expanded = !metric.expanded" style="cursor: pointer; padding: 10px; background-color: #f8f9fa; border-radius: 5px; margin-bottom: 10px;" class="d-flex align-items-center justify-content-between">
               <div class="d-flex align-items-center">
-                <h3 class="m-0">DQ Metric: <strong class="ms-2">{{ metric.name }}</strong></h3>
+                <h3 class="m-0">DQ Metric: <strong class="ms-2">{{ metric.metric_name }}</strong></h3>
                 <i [class]="metric.expanded ? 'bi bi-chevron-up ms-3' : 'bi bi-chevron-down ms-3'"></i>
               </div>
-              <button class="btn btn-dark btn-sm" (click)="openModal(); $event.stopPropagation()">Add Method</button>
+              <button class="btn btn-dark btn-sm" (click)="openModal(metric); $event.stopPropagation()">Add Method</button>
             </div>
 
             <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
@@ -30,27 +30,10 @@
                   <div class="modal-body">
                     <form>
                       <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" id="name" name="name" class="form-control" [(ngModel)]="metric.newMethod.name"/>
-                      </div>
-      
-                      <div class="form-group">
-                        <label for="inputDataType">Input Data Type</label>
-                        <select [(ngModel)]="metric.newMethod.input" class="form-select" id="inputDataType" name="inputDataType">
-                          <option *ngFor="let domain of domains" [value]="domain">{{ domain }}</option>
-                        </select>
-                      </div>
-      
-                      <div class="form-group">
-                        <label for="outputDataType">Output Data Type</label>
-                        <select [(ngModel)]="metric.newMethod.output" class="form-select" id="outputDataType" name="outputDataType">
-                          <option *ngFor="let po of possibleOutputs" [value]="po">{{ po }}</option>
-                        </select>
-                      </div>
-      
-                      <div class="form-group">
-                        <label for="algorithm">Algorithm</label>
-                        <textarea id="algorithm" name="algorithm" rows="4" class="form-control" placeholder="Write your code!" [(ngModel)]="metric.newMethod.algorithm"></textarea>
+                        <label for="MetName">Name</label>
+                        <select name="MetName" [(ngModel)]="newMethod.name" class="form-select" [ngModelOptions]="{standalone: true}" >
+                          <option *ngFor="let methods of metric.baseMethods" [value]="methods.id"> {{ methods.id }} - {{methods.name}} </option>
+                        </select> 
                       </div>
                     </form>
                   </div>

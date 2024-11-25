@@ -383,6 +383,15 @@ export class DqModelService {
     return this.http.get<any>(`${this.API_URL_METHODS_BASE}${methodBaseId}/`);
   }
 
+  getMethodsBaseByDimensionFactorAndMetricId(dimensionId: number, factorId: number, metricId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.API_URL_DIMENSIONS_BASE}${dimensionId}/factors-base/${factorId}/metrics-base/${metricId}/methods-base/`).pipe(
+      catchError(err => {
+        console.error(`Error al obtener metodos para dimension ${dimensionId} , factor ${factorId} y metrica ${metricId}:`, err);
+        throw err;
+      })
+    );
+  }
+
 
 
   //---- CONTEXT ------
