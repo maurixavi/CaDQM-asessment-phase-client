@@ -14,8 +14,6 @@
                 <h3 class="m-0">DQ Factor: <strong class="ms-2">{{ factor.factor_name }}</strong></h3>
                 <i [class]="factor.expanded ? 'bi bi-chevron-up ms-3' : 'bi bi-chevron-down ms-3'"></i>
               </div>
-              <button class="btn btn-dark btn-sm" (click)="openModalBase(factor); $event.stopPropagation()">Add Base Metric</button>
-              <button class="btn btn-dark btn-sm" (click)="openModal(factor); $event.stopPropagation()">Add DQ Metric</button>
             </div>
 
             <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalBaseOpen}" [style.display]="isModalBaseOpen ? 'block' : 'none'">
@@ -84,13 +82,26 @@
 
             <!-- Métricas Definidas (Expandibles) -->
             <div *ngIf="factor.expanded">
-              <h5>DQ Metrics:</h5>
+              <div class="label-selected">
+                <label class="label-title-selected">Semantic: </label>
+                <span class="label-value-selected">{{" " +  factor.baseAttributes.semantic }}</span>
+              </div>
+  
+              <div class="label-selected">
+                <label class="label-title-selected">Ctx (Suggested by): </label>
+                <span class="label-value-selected"> BR1, BR2</span>
+              </div>
+  
+              <div class="label-selected-dqelement">
+                <label class="label-title-selected">DQ Metrics: </label>
+                <!-- SHOW BTN <span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span> -->
+              </div>
               <div *ngFor="let metric of factor.definedMetrics" class="metric-container mt-3">
                 <div (click)="metric.expanded = !metric.expanded" class="metric-title p-2" style="background-color: #f8f9fa; cursor: pointer;">
-                  <h4 class="d-flex align-items-center m-0">
+                  <label class="label-title d-flex align-items-center m-0">
                     <i [class]="metric.expanded ? 'bi bi-chevron-down' : 'bi bi-chevron-right'"></i>
                     <span class="ms-2">Dq Metric: {{ metric.baseAttr.name }}</span>
-                  </h4>
+                  </label>
                 </div>
                 <div *ngIf="metric.expanded" class="metric-details p-3" style="border: 1px solid #ccc;">
                   <div class="form-group mb-3">
@@ -114,11 +125,20 @@
                   </div>
                 </div>
               </div>
-            </div>  
+              <div *ngIf="currentDQModel.status === 'draft'">
+                <br> <br>
+                <button (click)="openModalBase(factor)" class="btn btn-dark btn-sm">
+                  Add Base Metric
+                </button>
+                <button (click)="openModal(factor)" class="btn btn-light btn-sm ms-2">
+                  Add DQ Metric
+                </button>
+              </div>
+            </div> 
           </div>
         </div>
-        <button (click)="saveMetrics()" class="btn btn-primary btn-sm mt-3">Confirmar Metricas</button>
       </div>
     </div>
+    <button (click)="saveMetrics()" class="btn btn-primary btn-sm mt-3">Confirmar Metricas</button>
   </div>
 </div>

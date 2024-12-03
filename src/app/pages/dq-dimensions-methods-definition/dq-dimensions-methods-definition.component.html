@@ -15,7 +15,6 @@
                 <h3 class="m-0">DQ Metric: <strong class="ms-2">{{ metric.metric_name }}</strong></h3>
                 <i [class]="metric.expanded ? 'bi bi-chevron-up ms-3' : 'bi bi-chevron-down ms-3'"></i>
               </div>
-              <button class="btn btn-dark btn-sm" (click)="openModal(metric); $event.stopPropagation()">Add Method</button>
             </div>
 
             <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
@@ -44,6 +43,52 @@
                 </div>
               </div>
             </div>
+            
+            <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalBaseOpen}" [style.display]="isModalBaseOpen ? 'block' : 'none'">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Add new DQ Methods</h5>
+                    <button type="button" class="close" aria-label="Close" (click)="closeModalBase()">
+                      <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <form>
+                      <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" class="form-control" [(ngModel)]="newMethod.name"/>
+                      </div>
+      
+                      <div class="form-group">
+                        <label for="inputDataType">Input Data Type</label>
+                        <select [(ngModel)]="newMethod.input" class="form-select" id="inputDataType" name="inputDataType">
+                          <option *ngFor="let domain of domains" [value]="domain">{{ domain }}</option>
+                        </select>
+                      </div>
+      
+                      <div class="form-group">
+                        <label for="outputDataType">Output Data Type</label>
+                        <select [(ngModel)]="newMethod.output" class="form-select" id="outputDataType" name="outputDataType">
+                          <option *ngFor="let po of possibleOutputs" [value]="po">{{ po }}</option>
+                        </select>
+                      </div>
+      
+                      <div class="form-group">
+                        <label for="algorithm">Algorithm</label>
+                        <textarea id="algorithm" name="algorithm" rows="4" class="form-control" placeholder="Write your code!" [(ngModel)]="newMethod.algorithm"></textarea>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-light" (click)="closeModalBase()">Cancel</button>
+                    <button type="button" class="btn btn-sm btn-dark" (click)="addBaseMethod(metric)">Confirm</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            
 
             <!-- Contenedor expandible para contenido de la métrica -->
             <div *ngIf="metric.expanded">
@@ -53,7 +98,7 @@
               <div *ngFor="let item of metric.definedMethods" class="mt-4">
                 <div class="dq-model-element-container mb-2" (click)="item.expanded = !item.expanded" style="cursor: pointer;">
                   <span class="dq-model-element-name d-flex align-items-center">
-                    DQ Method: <strong class="ms-2">{{ item.name }}</strong>
+                    DQ Method: <strong class="ms-2">{{ item.method_name }}</strong>
                     <i [class]="item.expanded ? 'bi bi-chevron-up ms-auto' : 'bi bi-chevron-down ms-auto'"></i>
                   </span>
                 </div>
@@ -62,32 +107,42 @@
                 <div *ngIf="item.expanded" class="p-3" style="background-color: #f8f9fa;">
                   <div class="form-group mb-3">
                     <label for="output">Name:</label>
-                    <input type="text" id="name" name="name" class="form-control" readonly [(ngModel)]="item.name" [ngModelOptions]="{standalone: true}" />
+                    <input type="text" id="name" name="name" class="form-control" readonly [(ngModel)]="item.baseAttr.name" [ngModelOptions]="{standalone: true}" />
                   </div>
 
                   <div class="form-group mb-3">
                     <label for="output">Output:</label>
-                    <input type="text" id="output" name="output" class="form-control" readonly [(ngModel)]="item.output" [ngModelOptions]="{standalone: true}" />
+                    <input type="text" id="output" name="output" class="form-control" readonly [(ngModel)]="item.baseAttr.outputDataType" [ngModelOptions]="{standalone: true}" />
                   </div>
                   
                   <div class="form-group mb-3">
                     <label for="input">Input:</label>
-                    <input type="text" id="input" name="input" class="form-control" readonly [(ngModel)]="item.input" [ngModelOptions]="{standalone: true}"/>
+                    <input type="text" id="input" name="input" class="form-control" readonly [(ngModel)]="item.baseAttr.inputDataType" [ngModelOptions]="{standalone: true}"/>
                   </div>
                   
                   <div class="form-group mb-3">
                     <label for="algShow">Algorithm</label>
-                    <textarea id="algShow" name="algShow" rows="4" class="form-control" readonly [(ngModel)]="item.algorithm" [ngModelOptions]="{standalone: true}"></textarea>
+                    <textarea id="algShow" name="algShow" rows="4" class="form-control" readonly [(ngModel)]="item.baseAttr.algorithm" [ngModelOptions]="{standalone: true}"></textarea>
                   </div>
                   <div class="form-group mb-3">
                     <button class="btn btn-outline-danger btn-sm" (click)="deleteMethod(metric, item)">Delete</button>
                   </div>
                 </div>
               </div> 
+              <div *ngIf="currentDQModel.status === 'draft'">
+                <br> <br>
+                <button (click)="openModalBase(metric)" class="btn btn-dark btn-sm">
+                  Add Base Metric
+                </button>
+                <button (click)="openModal(metric)" class="btn btn-light btn-sm ms-2">
+                  Add DQ Metric
+                </button>
+              </div>
             </div>        
           </div>
         </div>
       </div>
     </div>
+    <button (click)="saveMetrics()" class="btn btn-primary btn-sm mt-3">Confirmar Metricas</button>
   </div>
 </div>

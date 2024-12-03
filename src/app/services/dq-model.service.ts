@@ -267,10 +267,10 @@ export class DqModelService {
     );
   }
 
-  addMethodsToDQModel(methodData: { method_base: number; dimension: number, factorId: number, metricId: number }): Observable<any> {
-    return this.http.post<any>(this.API_URL_METRICS_DQMODEL, methodData).pipe(
+  addMethodsToDQModel(methodData: { method_base: number; dimension: number, factorId: number, metric: number }): Observable<any> {
+    return this.http.post<any>(this.API_URL_METHODS_DQMODEL, methodData).pipe(
       catchError(err => {
-        console.error('Error al agregar el factor:', err);
+        console.error('Error al agregar el metodo:', err);
         throw err; // Re-lanzar el error para que pueda ser manejado en el componente
       })
     );
@@ -388,6 +388,15 @@ export class DqModelService {
       catchError(err => {
         console.error(`Error al obtener metodos para dimension ${dimensionId} , factor ${factorId} y metrica ${metricId}:`, err);
         throw err;
+      })
+    );
+  }
+
+  createDQMethod(method: { name: string; inputDataType: string, outputDataType: string, algorithm: string, implements: number }): Observable<any> {
+    return this.http.post<any>(this.API_URL_METHODS_BASE, method).pipe(
+      catchError(err => {
+        console.error('Error al crear el factor:', err);
+        throw err; // Re-lanzar el error para que pueda ser manejado en el componente
       })
     );
   }

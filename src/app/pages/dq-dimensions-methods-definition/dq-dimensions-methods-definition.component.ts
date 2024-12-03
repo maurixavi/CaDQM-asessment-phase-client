@@ -83,6 +83,8 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   
   dqFactorsBase: any[] = [];
 
+  isModalBaseOpen = false;
+
   contextComponents: ContextComponent[] = [];
   selectedComponents: ContextComponent[] = []; // Para almacenar componentes seleccionados
   dropdownOpen: boolean = false; // Para manejar la apertura/cierre del dropdown
@@ -297,23 +299,24 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
 
   getBaseMetricsByFactor(){
     this.factorsByDim.forEach(async item => {
-      //const baseMetricForFact = await this.modelService.getMetricsBaseByDimensionAndFactorId(item.dimension, item.id).toPromise();
-      //item.baseMetrics = baseMetricForFact;
+      const baseMetricForFact = await this.modelService.getMetricsBaseByDimensionAndFactorId(item.dimension, item.id).toPromise();
+      item.baseMetrics = baseMetricForFact;
       const dqMetricForFact = await this.modelService.getMetricsByDQModelDimensionAndFactor(item.dq_model, item.dimension, item.id).toPromise();
       item.definedMetrics = dqMetricForFact;
-      // item.definedMetrics.forEach((dqMet:any) => {
-      //   let baseAttr = item.baseMetrics.find((elem:any) => elem.id == dqMet.metric_base);
-      //   dqMet.baseAttr = baseAttr;
-      // });
       item.definedMetrics.forEach(async (metric:any) => {
+        let baseAttrMetric = item.baseMetrics.find((elem:any) => elem.id == metric.metric_base);
+        metric.baseAttr = baseAttrMetric;
         const dqBaseMethods = await this.modelService.getMethodsBaseByDimensionFactorAndMetricId(item.dimension, item.id, metric.metric_base).toPromise();
         metric.baseMethods = dqBaseMethods;
-        const dqMethods = await this.modelService.getMethodsByDQModelDimensionFactorAndMetric(item.dq_model,item.dimension, item.id, metric.metric_base).toPromise();
-        metric.definedMethods = dqMethods;
-        metric.definedMethods.array.forEach((dqMeth:any) => {
-          let baseAttr = metric.dqBaseMethods.find((elem:any)=> elem.id == dqMeth.method_base);
-          dqMeth.baseAttr = baseAttr;
-        });
+        const dqMethods = await this.modelService.getMethodsByDQModelDimensionFactorAndMetric(item.dq_model,item.dimension, item.id, metric.id).toPromise();
+        if (dqMethods) {
+          metric.definedMethods = dqMethods;
+          metric.definedMethods.forEach((dqMeth:any) => {
+            let baseAttr = metric.baseMethods.find((elem:any)=> elem.id == dqMeth.method_base);
+            dqMeth.baseAttr = baseAttr;
+          });
+        }
+        
       });
       this.allMetrics = this.allMetrics.concat(item.definedMetrics);
     });
@@ -406,15 +409,42 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     this.currentMetric = metric;
     this.isModalOpen = true;
   }
+  openModalBase(metric:any) {
+    this.currentMetric = metric;
+    this.isModalBaseOpen = true;
+  }
 
   closeModal() {
     this.isModalOpen = false;
   }
 
-  deleteMethod(metric: QualityMetric, method: QualityMethod): void {
+  deleteMethod(metric: any, method: any): void {
     const index = metric.definedMethods.indexOf(method);
     if (index > -1) {
-      metric.definedMethods.splice(index, 1);
+      const userConfirmed = confirm(
+        "¿Está seguro que desea eliminar esta metrica del DQ Model? Esto también eliminará los metodos asociados."
+      );
+    
+      if (userConfirmed) {
+        console.log(`Eliminando la dimensión con ID: ${method.id}`);
+        this.modelService.deletMethodFromDQModel(method.id).subscribe(
+          response => {
+            alert(response?.message || "Metrica y metodos asociados eliminados exitosamente.");
+            // Filtrar la dimensión eliminada sin recargar toda la lista
+            metric.definedMethods = metric.definedMethods.filter(
+              (item:any) => item.id !== method.id
+            );
+            //this.loadDQModelDimensionsAndFactors();
+          },
+          error => {
+            alert("Error al eliminar la metrica.");
+            console.error("Error al eliminar la metrica:", error);
+          }
+        );
+      } else {
+        console.log("Eliminación de la dimensión cancelada por el usuario.");
+      }
+      
     }
   }
 
@@ -423,11 +453,70 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     if (this.newMethod.name) {
       var newMetric = this.currentMetric!;
       let dqMetric = this.allMetrics.find(item => item.id == newMetric.id)
+      let dqFactor = this.factorsByDim.find(item => item.id == dqMetric.factor);
       //metric.definedMethods.push({ ...metric.newMethod });
-      const methodData = {dq_model: dqMetric.dq_model, }
+      const methodToAdd = {
+        dq_model: parseInt(dqMetric.dq_model),
+        method_base: parseInt(this.newMethod.name),
+        metric: parseInt(dqMetric.id),
+        dimension: parseInt(dqFactor.baseAttributes.dimension),
+        factorId: parseInt(dqMetric.factor)
+
+      };
       this.newMethod = { name: '', input: '', output: '', algorithm: '', expanded:false };
+      this.modelService.addMethodsToDQModel(methodToAdd).subscribe({
+        next: (data) => {
+          console.log("Metric added:", data);
+          this.loadDQModelDimensionsAndFactors(); 
+          alert("Metric successfully added to DQ Model.");
+        },
+        error: (err) => {
+          console.error("Error adding the metric:", err);
+          alert("An error occurred while trying to add the metric.");
+        }
+      });
+      this.closeModal();
     }
-    this.closeModal();
+    else {
+      alert("Missing fields. Please complete all.")
+    }
+  }
+
+
+  addBaseMethod(factor: any): void {
+    if (this.newMethod.name && this.newMethod.output &&this.newMethod.input && this.newMethod.algorithm){
+      var newMetric = this.currentMetric!;
+      let dqMetric = this.allMetrics.find(item => item.id == newMetric.id)
+      //newFactor.definedMetrics.push({ ...this.newMetric });
+      const methodBaseToAdd = {
+        implements: parseInt(dqMetric.baseAttr.id),
+        name: this.newMethod.name,
+        inputDataType: this.newMethod.input,
+        outputDataType: this.newMethod.output,
+        algorithm: this.newMethod.algorithm
+      };
+      this.newMethod = {
+        name: '', input: '', output: '', algorithm: '', expanded: false,  metric: undefined}
+      this.modelService.createDQMethod(methodBaseToAdd).subscribe({
+        next: (data) => {
+          console.log("Base Metric created:", data);
+          this.loadDQModelDimensionsAndFactors(); 
+          alert("Base Metric successfully created.");
+        },
+        error: (err) => {
+          console.error("Error creating the metric:", err);
+          alert("An error occurred while trying to create the metric.");
+        }
+      });
+      this.closeModalBase();
+    }
+    else {
+      alert("Missing fields. Please complete all.")
+    }
+  }
+
+  closeModalBase() {
+    this.isModalBaseOpen = false;
   }
   
   saveMetrics(){
