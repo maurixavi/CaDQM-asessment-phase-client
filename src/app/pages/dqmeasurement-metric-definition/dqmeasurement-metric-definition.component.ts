@@ -64,6 +64,11 @@ export class DQMetricDefinitionComponent implements OnInit {
   
   contextComponentsGrouped: { type: string; ids: number[] }[] = [];
   isModalBaseOpen: boolean = false;
+  currentStep: number = 3;
+  pageStepTitle: string = 'Selection of DQ Metrics';
+  phaseTitle: string = 'Phase 2: DQ Assessment';
+  stageTitle: string = 'Stage 4: DQ Model Definition';
+
 
   constructor(private router: Router, private dqProblemsService: DqProblemsService,
     private modelService: DqModelService,

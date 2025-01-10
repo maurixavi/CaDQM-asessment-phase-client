@@ -62,8 +62,8 @@ interface QualityMethod {
 })
 export class DqDimensionsMethodsDefinitionComponent implements OnInit {
 
-  currentStep: number = 2; // Step 3
-  pageStepTitle: string = 'Selection of DQ dimensions and DQ factors';
+  currentStep: number = 4; // Step 3
+  pageStepTitle: string = 'Selection of DQ Methods';
   phaseTitle: string = 'Phase 2: DQ Assessment';
   stageTitle: string = 'Stage 4: DQ Model Definition';
   project: any;
