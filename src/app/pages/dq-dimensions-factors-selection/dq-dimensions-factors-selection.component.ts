@@ -44,7 +44,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
   /* CONTEXT variables */
   //contextComponents: any[] = []; 
-  contextComponents: ContextComponent[] = [];
+
   selectedComponents: ContextComponent[] = [];
   selectedComponent: ContextComponent | undefined;  // Cambiado a undefined
   private contextModel: any; // Para almacenar el modelo de contexto completo
@@ -100,9 +100,12 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   ) { }
 
   
+
+
   //inicializacion, pruebas
   context: any; // Variable para almacenar el contexto obtenido
   id_context: number = 1; // Inicializa con el ID que deseas probar.
+  contextVersionId: number = -1; // Inicializa con el ID que deseas probar.
 
   currentDQModel: any; // Variable para almacenar el DQ Model obtenido
 
@@ -124,11 +127,9 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     //this.loadCompleteCurrentDQModel();
 
 
-    //this.loadContextData();
 
-    //others - context
-    this.getContext();
-    this.loadContextById(this.id_context);
+
+  
 
     //Pruebas metodos, endpoints, etc
     //this.getDQModels();
@@ -143,6 +144,14 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
       next: (project) => {
         this.project = project;
         console.log('Proyecto cargado en el componente:', this.project);
+        this.contextVersionId = project.context_version;
+        console.log("this.contextVersionId ", this.contextVersionId );
+
+        if (this.contextVersionId !== -1){
+          this.getContextComponents(this.contextVersionId);
+          this.getSelectedPrioritizedDqProblems(this.project.dqmodel_version);
+        }
+        
 
         //Load complete DQ Model (with Dimensions,Factors...) of current project
         this.loadCompleteCurrentDQModel();
@@ -152,6 +161,115 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
       }
     });
   }
+
+  getAllContextComponents(contextVersionId: number): void {
+    this.projectService.getContextComponents(contextVersionId).subscribe({
+      next: (data) => {
+        console.log('---Context Components context_version:---', data);
+        this.context_Components = data;
+      },
+      error: (err) => console.error('Error fetching context components:', err)
+    });
+  }
+
+  applicationDomain: any[] = [];
+  businessRule: any[] = [];
+  dataFiltering: any[] = [];
+  dqMetadata: any[] = [];
+  dqRequirement: any[] = [];
+  otherData: any[] = [];
+  otherMetadata: any[] = [];
+  systemRequirement: any[] = [];
+  taskAtHand: any[] = [];
+  userType: any[] = [];
+
+  context_Components: any; // Variable para almacenar el contexto obtenido
+
+  //context_Components: any = {};
+  categories: string[] = [
+    'applicationDomain',
+    'businessRule',
+    'dataFiltering',
+    'dqMetadata',
+    'dqRequirement',
+    'otherData',
+    'otherMetadata',
+    'systemRequirement',
+    'taskAtHand',
+    'userType',
+  ];
+
+  //getContextComponentsByType
+  getContextComponents(contextVersionId: number): void {
+    this.projectService.getContextComponents(contextVersionId).subscribe({
+      next: (data) => {
+        this.context_Components = data;
+        console.log('**--Context Components:--**', data);
+        
+        // Asignar los datos a las variables correspondientes
+        this.applicationDomain = data.applicationDomain || [];
+        this.businessRule = data.businessRule || [];
+        this.dataFiltering = data.dataFiltering || [];
+        this.dqMetadata = data.dqMetadata || [];
+        this.dqRequirement = data.dqRequirement || [];
+        this.otherData = data.otherData || [];
+        this.otherMetadata = data.otherMetadata || [];
+        this.systemRequirement = data.systemRequirement || [];
+        this.taskAtHand = data.taskAtHand || [];
+        this.userType = data.userType || [];
+        console.log("this.applicationDomain", this.applicationDomain)
+      },
+      error: (err) => console.error('Error fetching context components:', err),
+    });
+  }
+  //para mostrar componentes de contexto por categoria
+  formatCategoryName(category: string): string {
+    return category.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+  }
+
+  getFirstNonIdAttribute(item: any): string {
+    const keys = Object.keys(item);
+    const firstNonIdKey = keys.find((key) => key !== 'id');
+    return firstNonIdKey ? item[firstNonIdKey] : '';
+  }
+  
+  //seleccion de componentes de contexto
+  selected_Components: { id: number; category: string; value: string }[] = [];
+
+
+  onCheckboxChange(id: number, category: string, value: string, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const isChecked = input?.checked || false;
+  
+    if (isChecked) {
+      // Agregar el componente seleccionado
+      this.selected_Components.push({ id, category, value });
+    } else {
+      // Eliminar el componente desmarcado
+      this.selected_Components = this.selected_Components.filter(
+        (component) => !(component.category === category && component.value === value)
+      );
+    }
+  }
+
+  // Validar si un componente está seleccionado
+  isComponentSelected(category: string, value: string): boolean {
+    return this.selected_Components.some(
+      (component) => component.category === category && component.value === value
+    );
+  }
+
+  removeSelectedComponent(componentToRemove: any): void {
+    // Filtra la lista para excluir el componente a eliminar
+    this.selected_Components = this.selected_Components.filter(
+      (component) => component !== componentToRemove
+    );
+  }
+
+  
+
+
+
 
   loadCompleteCurrentDQModel(): void {
     // Asigna el dqModelId desde el proyecto, o -1 si no existe DQ Model asociado a Project
@@ -168,26 +286,47 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     // Cargar Dimensiones y Factores del DQ Model
     this.loadDQModelDimensionsAndFactors();
 
-    // CARGAR CONTEXTO 
-    this.getContext();
+
   }
 
 
+  // PROBLEMAS PRIORIZADOS SELECCIONADOS
+  selectedPrioritizedProblems: any[] = [];
 
-  contextData: any[] = []; // Variable para almacenar los datos
+  getSelectedPrioritizedDqProblems(dqModelId: number): void {
+    this.modelService.getSelectedPrioritizedDqProblems(dqModelId).subscribe({
+      next: (selectedProblems) => {
+        if (selectedProblems && selectedProblems.length > 0) {
+          this.selectedPrioritizedProblems = selectedProblems;
+          console.log('*SELECTED Prioritized problems:', this.selectedPrioritizedProblems);
 
-
-  loadContextData(): void {
-    this.modelService.getContext().subscribe({
-      next: (data) => {
-        this.contextData = data;
-        console.log("Datos de contexto recibidos:", this.contextData);
+        } else {
+          console.log('*** No selected problems found.');
+        }
       },
       error: (err) => {
-        console.error("Error al obtener datos de contexto:", err);
+        console.error('*Error al verificar los problemas seleccionados:', err);
+        // Aquí puedes manejar el error si ocurre
       }
     });
   }
+
+  selectedProblems: any[] = []; // Array para almacenar los problemas seleccionados
+  //isEditSuggestedDQProblemsVisible = true; // Mostrar/ocultar checkboxes
+
+  // Maneja los cambios en los checkboxes
+  onCheckboxProblemsChange(problem: any, event: Event) {
+    const checkbox = event.target as HTMLInputElement;
+    if (checkbox.checked) {
+      this.selectedProblems.push(problem);
+    } else {
+      this.selectedProblems = this.selectedProblems.filter(p => p.id !== problem.id);
+    }
+    console.log("CHECQUEADO: ", this.selectedProblems)
+  }
+
+
+
 
 
   //GET CURRENT DQ MODEL IN PROJECT
@@ -213,85 +352,8 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   
 
 
-  loadContextById(id: number) {
-    this.modelService.getContextById(id).subscribe({
-      next: (data) => {
-        this.context = data; // Almacena el contexto obtenido
-        if (this.context) {
-          console.log('Contexto obtenido:', this.context);
-        } else {
-          console.error('Contexto no encontrado.');
-        }
-      },
-      error: (err) => {
-        console.error('Error al obtener contexto:', err);
-      }
-    });
-  }
+ 
 
-
-  // Nueva versión de getContext
-  getContext() {
-    this.modelService.getCtxComponents().subscribe({
-      next: (data) => {
-        console.log("Context components loaded:", data);
-        this.contextModel = data.context_model;
-        this.contextComponents = [];
-  
-        if (this.contextModel) {
-          this.groupContextComponents(this.contextModel);
-        }
-      },
-      error: (err) => console.error("Error loading context components:", err)
-    });
-  }
-
-  loadContextOptions() {
-    //console.log('Loading context options...');
-    this.contextComponents = [];
-    
-    if (!this.contextModel) {
-      console.error('Context model is null or undefined');
-      return;
-    }
-  
-    try {
-      for (const type in this.contextModel) {
-        if (this.contextModel.hasOwnProperty(type)) {
-          const items = this.contextModel[type];
-          
-          if (Array.isArray(items)) {
-            items.forEach((item: any) => {
-              const component: ContextComponent = {
-                type: type,
-                id: item.id,
-                // Asigna el nombre en lugar del id en displayText
-                displayText: `${this.formatTypeLabel(type)}: ${item.name || item.statement || item.path || ""}` 
-              };
-              this.contextComponents.push(component);
-            });
-          } else {
-            //console.warn(`Items for type ${type} is not an array:`, items);
-          }
-        }
-      }
-      
-    } catch (error) {
-      console.error('Error in loadContextOptions:', error);
-    }
-  }
-
-  private formatTypeLabel(type: string): string {
-    try {
-      return type
-        .split('_')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-    } catch (error) {
-      console.error('Error formatting type label:', error);
-      return type;
-    }
-  }
 
   addContextComponent() {
     if (this.selectedComponent && 
@@ -304,120 +366,10 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     }
   }
 
-  /*removeContextComponent(component: ContextComponent) {
-    const index = this.selectedComponents.findIndex(
-      c => c.id === component.id && c.type === component.type
-    );
-    if (index > -1) {
-      this.selectedComponents.splice(index, 1);
-      console.log('Updated selected components after removal:', this.selectedComponents);
-    }
-  }*/
+ 
 
-  // Método auxiliar para debug
-  logContextData() {
-    console.log('Current state:');
-    console.log('contextComponents:', this.contextComponents);
-    console.log('selectedComponent:', this.selectedComponent);
-    console.log('selectedComponents:', this.selectedComponents);
-    console.log('contextModel:', this.contextModel);
-  }
 
-  // Versión anterior de getContext 
-  /*
-  getContext() {
-    this.modelService.getCtxComponents().subscribe({
-      next: (data) => {
-        console.log("Context components loaded:", data);
-        const contextModel = data.context_model;
-        this.contextComponents = [];
-  
-        if (contextModel) {
-          this.groupContextComponents(contextModel);
-        }
-      },
-      error: (err) => console.error("Error loading context components:", err)
-    });
-  }
-  */
 
-  groupContextComponents(contextModel: any) {
-    this.contextComponentsGrouped = [];
-  
-    for (const key in contextModel) {
-      if (contextModel.hasOwnProperty(key)) {
-        const items = contextModel[key];
-  
-        if (Array.isArray(items)) {
-          items.forEach(item => {
-            const type = key;
-            const id = item.id;
-  
-            const existingGroup = this.contextComponentsGrouped.find(group => group.type === type);
-            
-            if (existingGroup) {
-              existingGroup.ids.push(id);
-            } else {
-              this.contextComponentsGrouped.push({ type: type, ids: [id] });
-            }
-          });
-        }
-      }
-    }
-  
-    console.log("Grouped Context Components:", this.contextComponentsGrouped);
-  }
-
-  // Nueva versión de getComponentByTypeAndId
-  getComponentByTypeAndId(type: string, id: number): any {
-    if (!this.contextModel) {
-      console.error('Context model not loaded');
-      return null;
-    }
-
-    if (!this.contextModel[type]) {
-      console.error(`Type "${type}" not found in context model`);
-      return null;
-    }
-
-    const component = this.contextModel[type].find((item: any) => item.id === id);
-    
-    if (!component) {
-      console.error(`Component with id ${id} not found in type "${type}"`);
-      return null;
-    }
-
-    return component;
-  }
-
-  onComponentSelect() {
-    // Verificar si hay un componente seleccionado y que no esté ya en la lista
-    if (this.selectedComponent && !this.selectedComponents.includes(this.selectedComponent)) {
-      this.selectedComponents.push(this.selectedComponent);
-      this.selectedComponent = undefined;  // Reinicia la selección después de agregar
-    }
-  }
-
-  removeContextComponent(component: ContextComponent) {
-    const index = this.selectedComponents.indexOf(component);
-    if (index > -1) {
-      this.selectedComponents.splice(index, 1);
-    }
-  }
-  // Versión anterior de getComponentByTypeAndId (comentada)
-  /*
-  getComponentByTypeAndId(type: string, id: number): any {
-    const group = this.contextComponentsGrouped.find(g => g.type === type);
-    
-    if (group) {
-      const componentArray = this.contextComponents;
-      const component = componentArray.find(item => item.id === id);
-      return component || null;
-    }
-  
-    return null;
-  }
-  */
 
 
   //DQ MODELS
@@ -641,10 +593,71 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
 
   /*------- DQ MODEL: DIMENSIONS AND FACTORS -------*/
+  // Agregar COMPONENTES DE CONTEXTO ENDPOINT
+  buildContextComponents(): any {
+    const contextComponents = {
+      applicationDomain: this.selected_Components
+        .filter((comp) => comp.category === "applicationDomain")
+        .map((comp) => comp.id),
+      businessRule: this.selected_Components
+        .filter((comp) => comp.category === "businessRule")
+        .map((comp) => comp.id),
+      dataFiltering: this.selected_Components
+        .filter((comp) => comp.category === "dataFiltering")
+        .map((comp) => comp.id),
+      dqMetadata: this.selected_Components
+        .filter((comp) => comp.category === "dqMetadata")
+        .map((comp) => comp.id),
+      dqRequirement: this.selected_Components
+        .filter((comp) => comp.category === "dqRequirement")
+        .map((comp) => comp.id),
+      otherData: this.selected_Components
+        .filter((comp) => comp.category === "otherData")
+        .map((comp) => comp.id),
+      otherMetadata: this.selected_Components
+        .filter((comp) => comp.category === "otherMetadata")
+        .map((comp) => comp.id),
+      systemRequirement: this.selected_Components
+        .filter((comp) => comp.category === "systemRequirement")
+        .map((comp) => comp.id),
+      taskAtHand: this.selected_Components
+        .filter((comp) => comp.category === "taskAtHand")
+        .map((comp) => comp.id),
+      userType: this.selected_Components
+        .filter((comp) => comp.category === "userType")
+        .map((comp) => comp.id),
+    };
+  
+    return contextComponents;
+  }
+
 
   // ADD DIMENSIONS-FACTORS to DQ MODEL
   addToDQModel(): void {
     this.submitNewDimension();
+    console.log("--this.selected_Components--", this.selected_Components);
+  }
+
+  mergeContextComponents(existing: any, newComponents: any) {
+    // Crear una copia profunda del objeto existente
+    const merged = JSON.parse(JSON.stringify(existing));
+  
+    // Iterar sobre cada categoría en los nuevos componentes
+    Object.keys(newComponents).forEach((category) => {
+      if (!Array.isArray(merged[category])) {
+        merged[category] = [];
+      }
+  
+      // Filtrar y agregar solo los elementos nuevos que no existan
+      const uniqueNewComponents = newComponents[category].filter(
+        (id: number) => !merged[category].includes(id)
+      );
+  
+      // Agregar los nuevos componentes únicos al array existente
+      merged[category] = [...merged[category], ...uniqueNewComponents];
+    });
+  
+    return merged;
   }
 
   submitNewDimension(): void {
@@ -659,16 +672,74 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   
       if (existingDimension) {
         // Si la dimensión ya existe, solo agrega el factor asociado a la Dimension
-        this.addedDimensionId = existingDimension.id; // Usar el ID existente para Factor
+        this.addedDimensionId = existingDimension.id;
         console.log("Dimensión ya existente, ID:", this.addedDimensionId);
-        this.submitNewFactor(); 
+        console.log("Dimensión ya existente, Ctx Components:", existingDimension.context_components);
+    
+        const existingComponents = existingDimension.context_components;
+        const newComponents = this.buildContextComponents();
+        
+        // Crear una copia del objeto existente para combinar los componentes
+        const mergedComponents = JSON.parse(JSON.stringify(existingComponents));
+    
+        // Combinar los componentes existentes con los nuevos, evitando duplicados
+        Object.keys(newComponents).forEach((category) => {
+            if (!Array.isArray(mergedComponents[category])) {
+                mergedComponents[category] = [];
+            }
+            
+            // Agregar solo los componentes que no existen
+            newComponents[category].forEach((id: number) => {
+                if (!mergedComponents[category].includes(id)) {
+                    mergedComponents[category].push(id);
+                }
+            });
+        });
+    
+        // Verificar si hay cambios en alguna categoría
+        const hasChanges = Object.keys(mergedComponents).some(category => 
+            JSON.stringify(mergedComponents[category]) !== JSON.stringify(existingComponents[category])
+        );
+    
+        if (hasChanges) {
+            const updatedDimension = {
+                context_components: mergedComponents
+            };
+    
+            this.modelService.updateDQDimensionContextComponents(existingDimension.id, updatedDimension).subscribe({
+                next: () => {
+                    console.log("Componentes actualizados exitosamente en la dimensión.");
+                    this.submitNewFactor();
+                },
+                error: (err) => {
+                    console.error("Error al actualizar la dimensión:", err);
+                    alert("Error updating dimension context components.");
+                }
+            });
+        } else {
+            console.log("No hay cambios en los componentes.");
+            this.submitNewFactor();
+        }
+    
+
       } else {
-        // Si no existe, agregar una nueva dimensión
+        // Construir los context_components
+        const contextComponents = this.buildContextComponents();
+        console.log("***DIM: this.buildContextComponents()", this.buildContextComponents())
+
+        // Crear una nueva dimensión con los context_components
+        const dimensionToAdd = {
+          dq_model: this.dqModelId,
+          dimension_base: this.selectedDimension!,
+          context_components: contextComponents,
+        };
+        
+        /* Si no existe, agregar una nueva dimensión
         const dimensionToAdd = {
           dq_model: this.dqModelId,
           dimension_base: this.selectedDimension!,
           context_components: []
-        };
+        };*/
   
         this.modelService.addDimensionToDQModel(dimensionToAdd).subscribe({
           next: (data) => {
@@ -695,6 +766,8 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     });
   }
 
+
+
   submitNewFactor(): void { 
     if (this.selectedFactor === null) {
       console.error("No factor selected.");
@@ -711,10 +784,14 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
         alert("This factor already exists in the selected dimension.");
       } else {
         // Si no existe, añadir el nuevo factor
+        const contextComponents = this.buildContextComponents();
+        console.log("***FACT: this.buildContextComponents()", this.buildContextComponents())
+
         const factorToAdd = {
           factor_base: this.selectedFactor!,
           dimension: this.addedDimensionId!,
           dq_model: this.dqModelId,
+          context_components: contextComponents,
         };
   
         this.modelService.addFactorToDQModel(factorToAdd).subscribe({
@@ -786,7 +863,9 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
         }
   
         this.dqmodel_dimensions = dimensions;
+        console.log("+++ this.dqmodel_dimensions: ", this.dqmodel_dimensions);
         this.dimensionsWithFactorsInDQModel = [];
+        
   
         const dimensionsData = await Promise.all(dimensions.map(async (dimension) => {
           try {
@@ -801,17 +880,34 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
             // Obtener detalles de la dimensión base
             const baseAttributes = await this.modelService.getDQDimensionBaseById(dimension.dimension_base).toPromise();
   
+            // Obtener componentes de contexto de la dimensión
+            const dimensionContextComponents = dimension.context_components || [];
+            console.log(`Context components for dimension ${dimension.dimension_name}:`, dimensionContextComponents);
+
+
             // Obtener los detalles del factor base para cada factor
-            const factorsWithBaseAttributes = await Promise.all(factors.map(async (factor) => {
+            const factorsWithBaseAttributes  = await Promise.all(factors.map(async (factor) => {
               const factorBaseAttributes = await this.modelService.getFactorBaseById(factor.factor_base).toPromise();
-              return { ...factor, baseAttributes: factorBaseAttributes };
+              
+              // Obtener componentes de contexto del factor
+              const factorContextComponents = factor.context_components || [];
+              console.log(`Context components for factor ${factor.factor_name}:`, factorContextComponents);
+              
+              return {
+                ...factor,
+                baseAttributes: factorBaseAttributes,
+                context_components: factorContextComponents,
+              };
+
             }));
   
             return {
               dimension,
               baseAttributes,
-              factors: factorsWithBaseAttributes
+              factors: factorsWithBaseAttributes,
+              context_components: dimensionContextComponents,
             };
+
           } catch (error) {
             console.error(`Error loading data for dimension ${dimension.dimension_name}:`, error);
             this.errorMessage = `Failed to load data for dimension ${dimension.dimension_name}.`;
@@ -821,6 +917,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   
         // Filtrar cualquier entrada nula debido a errores y luego asignar los datos completos
         this.dimensionsWithFactorsInDQModel = dimensionsData.filter((dim) => dim !== null);
+        console.log("!!! dimensionsWithFactorsInDQModel:  ", this.dimensionsWithFactorsInDQModel)
       },
       (error) => {
         if (error.status === 404) {
@@ -831,64 +928,45 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
       }
     );
   }
+
+  getKeys(obj: any): string[] {
+    return Object.keys(obj);
+  }
+
+  formatContextComponents(contextComponents: any): string {
+    const formattedComponents: string[] = [];
   
-  /* error al agregar la primera dimension
-  loadDQModelDimensionsAndFactors(): void {
-    this.modelService.getDimensionsByDQModel(this.dqModelId).subscribe(
-      (dimensions) => {
-        // Verificar si no hay dimensiones y manejar el caso adecuadamente
-        if (dimensions.length === 0) {
-          this.noDimensionsMessage = 'No dimensions found for this DQ Model.';
-          this.dqmodel_dimensions = [];
-          this.dimensionsWithFactorsInDQModel = [];
-          return;
-        }
-        
-        // Si hay dimensiones, proceder a procesarlas
-        this.dqmodel_dimensions = dimensions;
-        this.dimensionsWithFactorsInDQModel = [];
-  
-        dimensions.forEach(dimension => {
-          this.modelService.getFactorsByDQModelAndDimension(this.dqModelId, dimension.id).subscribe(
-            (factors) => {
-              // Obtener detalles de la dimension base
-              this.modelService.getDQDimensionBaseById(dimension.dimension_base).subscribe(
-                (baseAttributes) => {
-                  // Para cada factor, obtener los detalles del factor base
-                  const factorsWithBaseAttributes = factors.map(factor => {
-                    return this.modelService.getFactorBaseById(factor.factor_base).toPromise()
-                      .then(factorBaseAttributes => ({ ...factor, baseAttributes: factorBaseAttributes }));
-                  });
-  
-                  Promise.all(factorsWithBaseAttributes).then(fullFactors => {
-                    this.dimensionsWithFactorsInDQModel.push({
-                      dimension,
-                      baseAttributes,
-                      factors: fullFactors
-                    } as any);
-                  });
-                },
-                (error) => {
-                  this.errorMessage = `Failed to load attributes for the base dimension ${dimension.dimension_name}.`;
-                }
-              );
-            },
-            (error) => {
-              this.errorMessage = `Failed to load factors for the dimension ${dimension.dimension_name}.`;
-            }
-          );
-        });
-      },
-      (error) => {
-        if (error.status === 404) {
-          this.noDimensionsMessage = 'No dimensions found for this DQ Model.';
-        } else {
-          this.noDimensionsMessage = 'Failed to load the dimensions of the DQ Model.';
-        }
+    // Iterar sobre las claves del objeto
+    for (const key of Object.keys(contextComponents)) {
+      const values = contextComponents[key];
+      if (values.length > 0) {
+        // Formatear cada clave y sus valores con HTML
+        const formattedValues = values.map((v: any) => `${key}${v}`).join(', ');
+        formattedComponents.push(`<strong>${key}:</strong> ${formattedValues}`);
       }
-    );
-  }*/
+    }
   
+    // Combinar los resultados con punto y coma
+    return formattedComponents.join('; ');
+  }
+  
+  formatContextComponents0(contextComponents: any): string {
+    const formattedComponents: string[] = [];
+  
+    // Iterar sobre las claves del objeto
+    for (const key of Object.keys(contextComponents)) {
+      const values = contextComponents[key];
+      if (values.length > 0) {
+        // Formatear cada clave y sus valores
+        const formattedValues = values.map((v: any) => `${key}${v}`).join(', ');
+        formattedComponents.push(`${key}: ${formattedValues}`);
+      }
+    }
+  
+    // Combinar los resultados con punto y coma
+    return formattedComponents.join('; ');
+  }
+
 
   
   //REMOVE DIMENSIONS or FACTORS from DQ MODEL
@@ -1019,5 +1097,24 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     } else if (type === 'dqproblems') {
       this.isEditSuggestedDQProblemsVisible = !this.isEditSuggestedDQProblemsVisible;
     }
+  }
+
+
+  isSuggestionsSectionVisible: boolean = false;  
+
+  toggleSuggestionsSectionVisibility() {
+    this.isSuggestionsSectionVisible = !this.isSuggestionsSectionVisible;  
+  }
+
+  isFromProblemsSectionVisible: boolean = false;  
+
+  toggleFromProblemsSectionVisibility() {
+    this.isFromProblemsSectionVisible = !this.isFromProblemsSectionVisible;  
+  }
+
+  isFromScratchSectionVisible: boolean = true;  
+
+  toggleFromScratchSectionVisibility() {
+    this.isFromScratchSectionVisible = !this.isFromScratchSectionVisible;  
   }
 }
