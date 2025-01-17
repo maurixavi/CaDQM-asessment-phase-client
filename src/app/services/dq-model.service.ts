@@ -40,6 +40,51 @@ export class DqModelService {
 
   private readonly baseUrl = "http://localhost:8000/api"
 
+
+
+  getSelectedPrioritizedDqProblems(dqModelId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/selected-prioritized-dq-problems/`;
+    return this.http.get(url);
+  }
+
+
+  readonly API_URL_PRIORITIZED_DQ_PROBLEMS = `${this.baseUrl}/prioritized-dq-problems/`;
+
+ // Método para crear problemas priorizados
+  createPrioritizedProblems(dqProblems: any[], dqModelId: number): Observable<any> {
+    const prioritizedProblems = dqProblems.map(problem => ({
+      dq_model: dqModelId,
+      description: problem.description,
+      date: new Date(problem.date * 1000).toISOString() 
+    }));
+
+    return this.http.post(this.API_URL_PRIORITIZED_DQ_PROBLEMS, prioritizedProblems);
+  }
+
+  // obtener problemas priorizados del DQ Model
+  // url: http://localhost:8000/api/dqmodels/${dqModelId}/prioritized-dq-problems/
+  getPrioritizedDqProblems(dqModelId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/prioritized-dq-problems/`;
+    return this.http.get(url);
+  }
+
+
+  updatePrioritizedProblem(dqModelId: number, problemId: number, updatedData: any) {
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/prioritized-dq-problems/${problemId}/`;
+    return this.http.put(url, updatedData);
+  }
+
+  updatePrioritizedProblemAttribute(dqModelId: number, problemId: number, updatedData: any) {
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/prioritized-dq-problems/${problemId}/`;
+    return this.http.patch(url, updatedData); // Usa PATCH en lugar de PUT
+  }
+
+
+
+
+  readonly API_URL_METHODS_BASE_GENERATION = `${this.baseUrl}/generate-dqmethod-suggestion/`;
+  
+
   //API ENDPOINT PROJECTS
   readonly API_URL_PROJECTS = `${this.baseUrl}/projects/`;
 
@@ -82,6 +127,25 @@ export class DqModelService {
     this.methods = [];
     
     this.ctx_components = [];
+  }
+
+  createDQMethodBase(method: { name: string; inputDataType: string; outputDataType: string; algorithm: string; implements: number  }): Observable<any> {
+    return this.http.post<any>(this.API_URL_METHODS_BASE, method).pipe(
+      catchError(err => {
+        console.error('Error al crear el DQ Method:', err);
+        throw err; // Re-lanzar el error para que pueda ser manejado en el componente
+      })
+    );
+  }
+
+  // Método para generar la sugerencia de DQMethod
+  generateDQMethodSuggestion(dqMetricData: any): Observable<any> {
+    return this.http.post<any>(this.API_URL_METHODS_BASE_GENERATION, dqMetricData).pipe(
+      catchError(err => {
+        console.error('Error al generar la sugerencia de DQMethod:', err);
+        return throwError(() => err);
+      })
+    );
   }
 
 
@@ -177,6 +241,12 @@ export class DqModelService {
     );
   }
 
+
+  getDQDimensionDetails(dqmodelId: number, dimensionId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/${dimensionId}`;
+    return this.http.get<any>(url);
+  }
+
   getDimensionsByDQModel2(dqmodelId: number): Observable<any[]> {
     const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/`;
     console.log("DqModels/Dimensions - Accediendo a la URL:", url);
@@ -200,6 +270,14 @@ export class DqModelService {
   deleteDimensionFromDQModel(dimensionId: number): Observable<any> {
     return this.http.delete<any>(`${this. API_URL_DIMENSIONS_DQMODEL}${dimensionId}/`)
   }
+
+  //readonly API_URL_DIMENSIONS_DQMODEL = `${this.baseUrl}/dimensions/`; //"http://localhost:8000/api/dimensions/"
+  updateDQDimensionContextComponents(dimensionId: number, updatedData: any): Observable<any> {
+    const url = `${this.API_URL_DIMENSIONS_DQMODEL}${dimensionId}/`;
+    return this.http.patch<any>(url, updatedData);
+  }
+
+  
 
 
   //FACTORS DQ MODEL
@@ -311,6 +389,8 @@ export class DqModelService {
     return this.http.get<any>(`${this.API_URL_METHODS_BASE}${methodBaseId}/`);
   }
 
+  
+
 
 
   //---- CONTEXT ------
@@ -352,5 +432,7 @@ export class DqModelService {
       })
     );
   }
+
+
 
 }

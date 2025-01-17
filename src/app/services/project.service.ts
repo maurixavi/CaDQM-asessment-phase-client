@@ -11,6 +11,49 @@ export class ProjectService {
 
   private readonly baseUrl = "http://localhost:8000/api"
 
+  // API endpoint para context versions
+  readonly API_URL_DQ_PROBLEMS = `${this.baseUrl}/dq-problems/`;
+
+  // Método para obtener los context versions desde el endpoint
+  getDQProblems(): Observable<any> {
+    return this.http.get<any>(this.API_URL_DQ_PROBLEMS).pipe(
+      tap(data => console.log('Fetched DQ Problems:', data)), 
+      catchError(this.handleError<any[]>('getDQProblems', [])) 
+    );
+  }
+
+  
+
+  // API endpoint para context versions
+  readonly API_URL_CONTEXT_VERSIONS = `${this.baseUrl}/context-versions/`;
+
+  // Método para obtener los context versions desde el endpoint
+  getContextVersions(): Observable<any> {
+    return this.http.get<any>(this.API_URL_CONTEXT_VERSIONS).pipe(
+      tap(data => console.log('Fetched Context Versions:', data)), // Imprime los datos de la respuesta
+      catchError(this.handleError<any[]>('getContextVersions', [])) // Maneja errores si ocurren
+    );
+  }
+  // Método para obtener un contexto específico por su ID (context version)
+  getContextByVersion(contextVersionId: number): Observable<any> {
+    const url = `${this.API_URL_CONTEXT_VERSIONS}${contextVersionId}/`; // URL para obtener el contexto por ID
+    return this.http.get<any>(url).pipe(
+      tap((data) => console.log(`Fetched Context Version with ID=${contextVersionId}:`, data)),
+      catchError(this.handleError<any>(`getContextByVersion id=${contextVersionId}`))
+    );
+  }
+
+
+  getContextComponents(contextVersionId: number): Observable<any> {
+    const url = `${this.API_URL_CONTEXT_VERSIONS}${contextVersionId}/context-components/`;
+    return this.http.get<any>(url).pipe(
+      tap((data) => console.log(`Fetched Context Components for Version ID=${contextVersionId}:`, data)),
+      catchError(this.handleError<any>(`getContextComponents id=${contextVersionId}`))
+    );
+  }
+  
+
+
   //API ENDPOINT PROJECTS
   readonly API_URL_PROJECTS = `${this.baseUrl}/projects/`;
   //readonly API_URL_PROJECTS = "http://localhost:8000/api/projects/"
