@@ -21,9 +21,8 @@
               <tr>
                 <th scope="col"></th>
                 <th scope="col">#</th>
-                <th scope="col" class="col-problema">Quality problem</th>
-                <th scope="col" class="col-descripcion">Description</th>
-                <!--<th scope="col" class="col-contexto">Componentes de Contexto asociados</th>-->
+                <th scope="col" class="col-description">Data Quality Problem</th>
+                <th scope="col" class="col-date">Date</th>
                 <th scope="col" class="col-tipoprioridad">Priority</th>
               </tr>
             </thead>
@@ -31,27 +30,13 @@
               <tr *ngFor="let problem of problems; let i = index" cdkDrag>
                 <td><i class="bi bi-grip-vertical"></i></td>
                 <th scope="row">{{ problem.priority }}°</th>
-                <td class="col-problema"><strong>{{ problem.name }}</strong></td>
-                <td class="col-descripcion">{{ problem.description }}</td>
-                <!--<td class="col-contexto">
-                  <select (change)="addContextComponent(problem, $event)" class="select-short">
-                    <option value="">Seleccionar Componentes de Contexto</option>
-                    <option *ngFor="let context of contextComponents" [value]="context.id">
-                      {{ context.id }}: {{ context.description }}
-                    </option>
-                  </select>
-                  <ul style="list-style-type: none; padding-left: 0;">
-                    <li *ngFor="let contextId of problem.contextcomp_related_to">
-                      {{ contextId }}: {{ getContextDescription(contextId) }}
-                      <button (click)="removeContextComponent(problem, contextId)" class="btn-remove"><i class="bi bi-x-lg"></i></button>
-                    </li>
-                  </ul>
-                </td>-->
+                <td class="col-description">{{ problem.description }}</td>
+                <td >{{ problem.date | date:'MMM dd HH:mm yyyy'}}</td>
                 <td>
-                  <select [(ngModel)]="problem.priorityType" class="select-short">
-                    <option value="Alta">High</option>
-                    <option value="Media">Medium</option>
-                    <option value="Baja">Low</option>
+                  <select [(ngModel)]="problem.priority_type" class="select-short">
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
                   </select>
                 </td>
               </tr>
@@ -66,6 +51,8 @@
     </div>
     </div>
   </div>
+
+  <!--<button class="btn btn-primary" (click)="confirmPriorities()">CONFIRMAR ORDEN</button>-->
 
   <div class="next-step-btn-container">
     <button (click)="saveOrder()" class="btn btn-dark btn-sm">Next ></button>

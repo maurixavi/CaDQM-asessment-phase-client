@@ -45,16 +45,21 @@ interface QualityFactor {
 })
 export class DQProblemsPriorizationComponent implements OnInit {
 
+  dqModelId = -1;
+
   currentStep: number = 0;
   pageStepTitle: string = 'Prioritization of DQ problems';
   phaseTitle: string = 'Phase 2: DQ Assessment';
   stageTitle: string = 'Stage 4: DQ Model Definition';
 
-  problems: DataQualityProblem[] = [];
+  //problems: DataQualityProblem[] = [];
   contextComponents: ContextComponent[] = [];
   selectedProblem: DataQualityProblem | null = null;
   detailsVisible: boolean = false;
   isOrderConfirmed: boolean = false;
+
+  // PROBLEMAS PRIORIZADOS
+  problems: any[] = [];
 
   constructor(
     private router: Router, 
@@ -128,6 +133,9 @@ export class DQProblemsPriorizationComponent implements OnInit {
     });
 
     this.contextComponents = contextComponentsJson as ContextComponent[];
+
+
+    //this.loadDQProblems();
   }
 
   loadCurrentProject(): void {
@@ -135,6 +143,14 @@ export class DQProblemsPriorizationComponent implements OnInit {
       next: (project) => {
         this.project = project;
         console.log('Proyecto cargado en el componente:', this.project);
+
+        //Load complete DQ Model (with Dimensions,Factors...) of current project
+        //this.loadCurrentDQModel();
+        //OBTENER ID DQMODEL
+        this.dqModelId = this.project?.dqmodel_version ?? -1; 
+        console.log("---DQ MODEL ID: ", this.dqModelId)
+        this.loadDQProblems();
+
       },
       error: (err) => {
         console.error('Error al cargar el proyecto en el componente:', err);
@@ -179,9 +195,41 @@ export class DQProblemsPriorizationComponent implements OnInit {
 
   updatePriority() {
     this.problems.forEach((problem, index) => {
-      problem.priority = index + 1;
+      problem.priority = index + 1; // Actualiza la prioridad localmente
     });
   }
+
+  confirmPriorities() {
+    this.problems.forEach((problem, index) => {
+      //const updatedData = { priority: index + 1 }; // Asigna la nueva prioridad
+      console.log(`Problem ID: ${problem.id}, Priority Type: ${problem.priority_type}`); // Verifica el valor actualizado
+      
+      // valor de priority_type elegido por el usuario
+      const newPriorityType = problem.priority_type; 
+
+    
+      const updatedData = { 
+        priority: index + 1,   
+        description: problem.description,  // mantiene la descripción original
+        dq_model: problem.dq_model,  // mantiene el dq_model original
+        priority_type: newPriorityType
+      };
+      //console.log("EACH PROBLEM: ", problem);
+      console.log("UPDATED DATA: ", updatedData);
+  
+      if (!problem.dq_model) {
+        console.error(`El problema con ID ${problem.id} no tiene asociado un dq_model.`);
+        return; // O manejar el error de otra forma
+      }
+  
+      this.modelService.updatePrioritizedProblem(problem.dq_model, problem.id, updatedData)
+        .subscribe({
+          next: () => console.log(`Prioridad del problema ${problem.id} actualizada correctamente.`),
+          error: (err) => console.error(`Error al actualizar el problema ${problem.id}:`, err),
+        });
+    });
+  }
+
 
   /*saveOrder() {
     this.isOrderConfirmed = true;
@@ -189,9 +237,10 @@ export class DQProblemsPriorizationComponent implements OnInit {
     console.log(this.problems); 
   }*/
   saveOrder() {
+    this.confirmPriorities();
     // Lógica para guardar el orden
     this.isOrderConfirmed = true;
-    this.dqProblemsService.updateProblems(this.problems); // Suponiendo que `this.problems` contiene los problemas a actualizar
+    //this.dqProblemsService.updateProblems(this.problems);
     console.log(this.problems);
 
     // Redirigir solo si la orden se confirma
@@ -222,4 +271,64 @@ export class DQProblemsPriorizationComponent implements OnInit {
       problem.contextcomp_related_to.splice(index, 1);
     }
   }
+
+
+
+  // DQ PROBLEMS
+
+  dqProblems: any[] = []; // Almacenar las versiones del contexto
+
+
+  loadDQProblems(): void {
+    this.projectService.getDQProblems().subscribe({
+      next: (dqproblems) => {
+        this.dqProblems = dqproblems;
+        console.log('*** Project original DQ Problems:', this.dqProblems);
+
+        //this.createPrioritizedProblems();
+        this.checkIfPrioritizedProblemsExist(this.dqModelId);
+
+      },
+      error: (err) => {
+        console.error('*** Error al cargar los DQ Problems:', err);
+      }
+    });
+  }
+
+  checkIfPrioritizedProblemsExist(dqModelId: number): void {
+    this.modelService.getPrioritizedDqProblems(dqModelId).subscribe({
+      next: (prioritizedProblems) => {
+        if (prioritizedProblems && prioritizedProblems.length > 0) {
+          this.problems = prioritizedProblems;
+          console.log('*** Prioritized problems already exist:', this.problems);
+          // Aquí puedes manejar la situación si los problemas ya existen (e.g., mostrar un mensaje al usuario)
+        } else {
+          console.log('*** No prioritized problems found. Creating new ones.');
+          this.createPrioritizedProblems(); // Crear nuevos problemas si no existen
+        }
+      },
+      error: (err) => {
+        console.error('*** Error al verificar los problemas priorizados:', err);
+        // Aquí puedes manejar el error si ocurre
+      }
+    });
+  }
+  
+
+  
+  createPrioritizedProblems(): void {
+    // Pasamos los problemas al servicio para crear los problemas priorizados
+    this.modelService.createPrioritizedProblems(this.dqProblems, this.dqModelId).subscribe(
+      response => {
+        this.problems = response;
+        console.log('Prioritized problems created:', this.problems);
+        
+      },
+      error => {
+        console.error('Error creating prioritized problems:', error);
+      }
+    );
+  }
+
+  
 }
