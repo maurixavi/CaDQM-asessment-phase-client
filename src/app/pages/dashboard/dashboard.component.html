@@ -115,6 +115,8 @@
 
   <!--<div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" style="display: {{ isModalOpen ? 'block' : 'none' }};">-->
   <!--
+
+    
   <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -152,3 +154,169 @@
     </div>
   </div>
   -->
+
+
+<!-- Modal de formulario de sugerencia -->
+<div id="suggestionModal" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create DQ Method</h5>
+        <button type="button" class="close" (click)="closeSuggestionModal()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="dqMethodForm" (ngSubmit)="createDQMethod()" class="dq-method-form">
+          <div class="form-group">
+            <label for="name">Name:</label>
+            <input 
+              id="name" 
+              type="text" 
+              formControlName="name" 
+              class="form-control"
+              [value]="suggestion?.name || ''">
+          </div>
+
+          <div class="form-group">
+            <label for="inputDataType">Input Data Type:</label>
+            <input 
+              id="inputDataType" 
+              type="text" 
+              formControlName="inputDataType" 
+              class="form-control"
+              [value]="suggestion?.inputDataType || ''">
+          </div>
+
+          <div class="form-group">
+            <label for="outputDataType">Output Data Type:</label>
+            <input 
+              id="outputDataType" 
+              type="text" 
+              formControlName="outputDataType" 
+              class="form-control"
+              [value]="suggestion?.outputDataType || ''">
+          </div>
+
+          <div class="form-group">
+            <label for="algorithm">Algorithm:</label>
+            <textarea 
+              id="algorithm" 
+              formControlName="algorithm" 
+              class="form-control" 
+              rows="3"
+              [value]="suggestion?.algorithm || ''"></textarea>
+          </div>
+
+          <div class="form-group" [ngStyle]="{ 'display': 'none' }">
+            <label for="implements">Implements (DQ Metric):</label>
+            <input 
+              id="implements" 
+              type="text" 
+              formControlName="implements" 
+              class="form-control"
+              [value]="suggestion?.implements || ''">
+          </div>
+
+          <!-- Button and Config button in the same line -->
+          <div class="form-actions d-flex mt-3">
+            <button type="button" class="btn btn-info" (click)="generateNewSuggestion()" style="width: auto;">
+              <i class="bi bi-lightning"></i> Generate New
+            </button>
+
+            <!-- Config button 
+            <button type="button" class="btn btn-secondary ml-3" (click)="openModelConfig()">
+              <i class="bi bi-gear"></i>
+            </button>-->
+          </div>
+
+           <!--Configuración del Modelo
+            <div class="form-actions mt-3">
+            <div class="form-group">
+              <label for="modelSelect">Select Model:</label>
+              <div class="input-group">
+                <select id="modelSelect" class="form-control">
+                  <option value="llama3-8b-8192">llama3-8b-8192</option>
+                  <option value="llama3-70b-8192">llama3-70b-8192</option>
+                  <option value="mixtral-8x7b-32768">mixtral-8x7b-32768</option>
+                </select>
+                <button type="button" class="btn btn-secondary" (click)="openModelConfig()">
+                  <i class="bi bi-gear"></i> Select Model
+                </button>
+              </div>
+            </div>
+          </div> -->
+          
+          
+        </form>
+      </div>
+      <div class="modal-footer">
+        <!-- Cancel button on the left and Confirm button on the right -->
+        <button type="button" class="btn btn-secondary" (click)="closeSuggestionModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" (click)="createDQMethod()">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+  <div class="container my-4">
+    <!-- Tarjeta para mostrar atributos de la DQ Metric -->
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">DQ Metric</h5>
+        
+        <!-- Muestra los atributos de la DQ Metric -->
+        <div class="form-group">
+          <label for="metricName">Name:</label>
+          <input 
+            id="metricName" 
+            type="text" 
+            class="form-control"
+            [value]="dqMetricData.name || ''" 
+            readonly>
+        </div> <br>
+  
+        <div class="form-group">
+          <label for="metricPurpose">Purpose:</label>
+          <input 
+            id="metricPurpose" 
+            type="text" 
+            class="form-control"
+            [value]="dqMetricData.purpose || ''" 
+            readonly>
+        </div> <br>
+  
+        <div class="form-group">
+          <label for="metricGranularity">Granularity:</label>
+          <input 
+            id="metricGranularity" 
+            type="text" 
+            class="form-control"
+            [value]="dqMetricData.granularity || ''" 
+            readonly>
+        </div> <br>
+  
+        <div class="form-group">
+          <label for="metricResultDomain">Result Domain:</label>
+          <input 
+            id="metricResultDomain" 
+            type="text" 
+            class="form-control"
+            [value]="dqMetricData.resultDomain || ''" 
+            readonly>
+        </div> <br>
+        
+        <!-- Botón para generar la sugerencia debajo de los atributos -->
+        <button type="button" class="btn btn-info" (click)="generateSuggestionModal()">
+          <i class="bi bi-lightning"></i> Generate DQ Method
+        </button>
+      </div>
+    </div>
+  </div>
+  

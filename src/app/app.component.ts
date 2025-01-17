@@ -38,10 +38,12 @@ export class AppComponent implements OnInit {
 
   //ID PROJECT inicial
   //projectId: number | null | undefined = 1; //deberia venir desde aplicacion Phase 1
-  projectId: number = 1;  //DQ Model (draft)
-  //projectId: number = 13; Sin DQModel ni Ctx
+  //projectId: number = 1;  //DQ Model (draft)
+  //projectId: number = 13; //Sin DQModel ni Ctx
   //projectId: number = 44;
-  //projectId: number = 21; DQ Model finished
+  //projectId: number = 21;// DQ Model finished
+  //projectId: number = 46;
+  projectId: number = 57;
 
   project: any; //cargar current Project
 
