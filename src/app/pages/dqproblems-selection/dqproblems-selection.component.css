@@ -23,16 +23,14 @@
 }
 
 .table th {
-  font-size: 0.78rem;  
-  color: #444; 
-  font-weight: bold;  
+  font-weight: 500;  
 }
-
 
 .subtitle-description {
-  font-size: 0.95rem;
+  font-size: 16px;
   font-style: italic;
 }
+
 
 .selection-subtitle {
   font-size: 1.3rem;
