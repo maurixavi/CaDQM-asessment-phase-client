@@ -1,7 +1,26 @@
 .container {
-  max-width: 80%;
+  /*max-width: 86%;*/
   margin: auto;
-  color: #222; 
+  color: #222;    
+  /*font-family: 'Open Sans', sans-serif;*/
+  /*font-family: 'Roboto', sans-serif;*/
+}
+
+.flex-container {
+  display: flex;
+  justify-content: center;
+}
+
+.suggested-section-container {
+  width: 100%;
+  /*border: 1px solid #ddd; */
+  border: 1px solid #eeeeee;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  background-color: #fff; 
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;  
 }
 
 .title {
@@ -79,3 +98,72 @@
   color: #222;
 }
 
+.label-container-selected {
+  display: flex;
+  flex-direction: column;  
+  gap: 4px; 
+  font-size: 14px;  
+}
+
+.label-selected {
+  display: flex;
+  align-items: flex-start; 
+  padding-bottom: 16px;
+  font-size: 15px;
+}
+
+.project-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.label-name-project {
+  font-weight: 700;
+  font-size: 18px; 
+}
+
+.label-title-selected {
+  width: 140px;
+  margin-right: 10px;
+  font-weight: 500;
+}
+
+.btn {
+	font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.btn-dark {
+  background-color: #222; 
+  color: #fff; 
+  border: 1px solid  #111; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-dark:hover {
+  background-color: #333; 
+  border: 1px solid #333; 
+}
+
+.btn-light {
+  background-color: #fff; 
+  color: #111; 
+  border: 1px solid #bbb; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-light:hover {
+  background-color: #222; 
+  color: #fff; 
+  border: 1px solid  #222; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.custom-modal {
+  margin-top: 100px; 
+}

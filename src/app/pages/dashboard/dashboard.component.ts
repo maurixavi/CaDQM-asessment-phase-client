@@ -14,7 +14,7 @@ export class DashboardComponent implements OnInit {
 
   // Datos iniciales para crear un DQ Model
   newDQModel = {
-    version: 'DQModel APP v1.00',
+    version: 'DQ Model Nuevo Creado desde Dashboard',
     status: "draft",
     model_dimensions: [],
     model_factors: [],
@@ -127,6 +127,9 @@ export class DashboardComponent implements OnInit {
       next: (project) => {
         this.project = project;
         console.log('Proyecto cargado en el componente:', this.project);
+
+        this.projectId = this.project.id;
+        console.log("this.projectId", this.projectId)
  
         if (this.project && this.project.dqmodel_version) {
           this.loadCurrentDQModel(this.project.dqmodel_version);
@@ -171,15 +174,20 @@ export class DashboardComponent implements OnInit {
         alert('Modelo DQ creado con éxito.');
 
         const newDQModelId = response.id;
+        console.log('Id nuevo DQ Model creado:', newDQModelId);
+        console.log('Proyecto antes de actualizar:', this.project);
+
 
         if (this.projectId !== null) {
           this.assignDQModelToProject(this.projectId, newDQModelId);
+          console.log('Proyecto despues de actualizar:', this.project);
         } else {
           console.error("No se ha establecido un ID de proyecto válido.");
         }
         
-        this.loadCurrentProject();
+        
         this.navigateCreateDQModelNext();
+        this.loadCurrentProject();
       },
       error: err => {
         console.error('Error al crear el modelo DQ:', err);
@@ -199,6 +207,9 @@ export class DashboardComponent implements OnInit {
         ...this.project,
         dqmodel_version: dqmodelId
       };
+
+      console.log('Proyecto antes de actualizar:', this.project);
+
       
       this.projectService.updateProject(projectId, updatedProject).subscribe({
         next: updatedProject => {
@@ -232,7 +243,7 @@ export class DashboardComponent implements OnInit {
   }
 
   createNewProject(): void {
-    const name = 'Nuevo Proyecto';
+    const name = 'Nuevo Proyecto al crear nueva version DQ Model';
     const description = 'Descripción del nuevo proyecto';
     const dqmodel_version = this.newDQModelVersionId; 
     const context_version = this.project?.context_version;
@@ -273,17 +284,32 @@ export class DashboardComponent implements OnInit {
     this.isModalOpen = false;
   }
 
+
+  showNewProjectButtons = false;
+
   openConfirmationModal(action: string): void {
     this.selectedAction = action;
-    if (action === 'create') {
+
+    if (action === 'newProject') {
+      this.modalTitle = 'New Project';
+      this.modalMessage = `Define a new DQ Model from the current Context version.`;
+
+      this.showNewProjectButtons = true;
+    }
+    else if (action === 'create') {
       this.modalTitle = 'Create New DQ Model';
       this.modalMessage = `Here you are about to <strong>define a new DQ Model from scratch</strong>. 
                          This action will start a fresh model that will be associated with this context version.`;
-    } else if (action === 'edit') {
+
+      this.showNewProjectButtons = false;
+    } 
+    else if (action === 'edit') {
       this.modalTitle = 'Update and Create New DQ Model Version';
       this.modalMessage = `Here you are about to <strong>edit the existing DQ Model</strong> and <strong>define a new version</strong> 
                          based on current settings. This new version will be associated with this context version.`;
-    }
+
+      this.showNewProjectButtons = false;
+    } 
     (document.getElementById('confirmationModal') as HTMLElement).style.display = 'block';
   }
 

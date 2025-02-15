@@ -1,85 +1,116 @@
+
 <div class="container my-4">
+
 	<h2 class="title">Phase 2: DQ Assessment</h2>
   <p class="title-description"></p>
 
-  <div class="row">
-    <div class="col-sm-6">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Current Project</h5>
-    
-          <!-- Mostrar los detalles del proyecto si están disponibles -->
-          <ng-container *ngIf="project; else noProject">
-            <p class="card-text">Name: {{ project.name }}</p>
-            <p class="card-text">Description: {{ project.description }}</p>
-            <p class="card-text">Created at: {{ project.created_at | date:'medium' }}</p>
-            <p class="card-text">Context Version: {{ project.context_version }}</p>
-            <p class="card-text">DQ Model Version: {{ project.dqmodel_version }}</p>
-            <p class="card-text">Stage: {{ project.stage }} | Status: {{ project.status }}</p>
+  <div class="flex-container">
+    <div class="suggested-section-container">
 
-            <!-- Mostrar botones según el estado del proyecto -->
-            <a
-              *ngIf="project.dqmodel_version === null"
-              class="btn btn-primary"
+      <!-- CURRENT PROJECT DETAILS -->  
+      <ng-container *ngIf="project; else noProject">
+        <div class="label-container-selected py-2 px-4">
+          <div class="project-title">
+            <span class="label-name-project">{{ project.name }}</span>
+            <span *ngIf="project.status === 'to_do'" class="badge bg-secondary" >{{ project.stage }}: To Do </span>
+            <span *ngIf="project.status === 'in_progress'" class="badge bg-secondary" >{{ project.stage }}: In Progress </span>
+            <span *ngIf="project.status === 'done'" class="badge bg-secondary" >{{ project.stage }}: Done </span>
+
+          </div>
+          <div class="label-selected">
+            <label class="label-title-selected">Description: </label>
+            <span class="label-value-selected">{{ project.description }}</span>
+          </div> 
+          <div class="label-selected">
+            <label class="label-title-selected">Creation date: </label>
+            <span class="label-value-selected">{{ project.created_at | date:'medium' }}</span>
+          </div> 
+          <div class="label-selected">
+            <label class="label-title-selected">Context version: </label>
+            <span class="label-value-selected">{{ project.context_version }}</span>
+          </div>  
+          <div class="label-selected" *ngIf="project.dqmodel_version !== null">
+            <label class="label-title-selected">DQ Model version: </label>
+            <span class="label-value-selected">{{ project.dqmodel_version }}</span>
+          </div>  
+          <div class="label-selected">
+            <label class="label-title-selected">Data at hand:</label>
+            <span class="label-value-selected">Dataset A</span>
+          </div> 
+          <div class="label-selected">
+            <label class="label-title-selected">Stage:</label>
+            <span class="label-value-selected">{{ project.stage }} - DQ Model Definition ({{ project.status }})</span>
+          </div> 
+
+          <!-- Buttons according to Project and DQ Model Status -->
+          <div *ngIf="project.dqmodel_version === null">
+            <button
+              class="btn btn-light btn-sm mt-2"
               (click)="createDQModel()"
             >
               Create DQ Model
-            </a>
-            <a
-              *ngIf="project.dqmodel_version !== null && project.status !== 'done'"
-              class="btn btn-secondary"
+            </button>
+          </div>
+
+          <div *ngIf="project.dqmodel_version !== null && project.status !== 'done'">
+            <button
+              class="btn btn-dark btn-sm mt-2"
               (click)="navigateToResumeDQModel()"
             >
               Resume DQ Model
-            </a>
-            <a
-              *ngIf="project.dqmodel_version !== null && project.status === 'done'"
-              class="btn btn-secondary"
+            </button>
+          </div>
+
+          <div *ngIf="project.dqmodel_version !== null && project.status === 'done'">
+            <button
+              class="btn btn-dark btn-sm mt-2"
               (click)="navigateToViewDQModel()"
             >
               View DQ Model
-            </a>
-          </ng-container>
-    
-          <!-- Mensaje si no se encuentra el proyecto -->
-          <ng-template #noProject>
-            <p class="card-text">{{ noProjectMessage }}</p>
-          </ng-template>
-        </div>
-      </div>
-    </div>
-
-    <!-- Mostrar solo si el DQ Model esta confirmado -->
-    <div class="col-sm-6" *ngIf="currentDQModel?.status === 'finished'">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">New Project</h5>
-          <p class="card-text">Define a new DQ Model from the current Context version.</p>  
-          <a class="btn btn-primary" (click)="openConfirmationModal('create')">DQ Model from scratch</a>
-          <a class="btn btn-primary mx-2" (click)="openConfirmationModal('edit')">New DQ Model version</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal de confirmación -->
-    <div id="confirmationModal" class="modal" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">{{ modalTitle }}</h5>
-            <button type="button" class="close" (click)="closeConfirmationModal()" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
+            </button>
+            <button
+              class="btn btn-light btn-sm mt-2 mx-3 "
+              (click)="openConfirmationModal('newProject')" 
+            >
+              New DQ Model
             </button>
           </div>
-          <div class="modal-body">
-            <p [innerHTML]="modalMessage"></p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeConfirmationModal()">Cancel</button>
-            <button type="button" class="btn btn-primary" (click)="confirmAction()">Confirm</button>
+        </div>
+
+      </ng-container>
+      
+      <!-- Mensaje si no se encuentra el proyecto -->
+      <ng-template #noProject>
+        <p class="card-text">{{ noProjectMessage }}</p>
+      </ng-template>
+
+      <!-- Modal -->
+      <div id="confirmationModal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog custom-modal" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">{{ modalTitle }}</h5>
+              <button type="button" class="close" (click)="closeConfirmationModal()" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p [innerHTML]="modalMessage"></p>
+            </div>
+            <div class="modal-footer">
+              <div *ngIf="showNewProjectButtons">
+                <button type="button" class="btn btn-sm btn-light mx-2" (click)="openConfirmationModal('create')">DQ Model from Scratch</button>
+                <button type="button" class="btn btn-sm btn-light mx-2" (click)="openConfirmationModal('edit')">New DQ Model Version</button>
+              </div>
+              <div *ngIf="!showNewProjectButtons">
+                <button type="button" class="btn btn-sm btn-light mx-2" (click)="closeConfirmationModal()">Cancel</button>
+                <button type="button" class="btn btn-sm btn-dark mx-2" (click)="confirmAction()">Confirm</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -264,14 +295,12 @@
 
 
   
-
+<!-- GENERACION DQ METRICS 
   <div class="container my-4">
-    <!-- Tarjeta para mostrar atributos de la DQ Metric -->
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">DQ Metric</h5>
-        
-        <!-- Muestra los atributos de la DQ Metric -->
+
         <div class="form-group">
           <label for="metricName">Name:</label>
           <input 
@@ -312,11 +341,10 @@
             readonly>
         </div> <br>
         
-        <!-- Botón para generar la sugerencia debajo de los atributos -->
         <button type="button" class="btn btn-info" (click)="generateSuggestionModal()">
           <i class="bi bi-lightning"></i> Generate DQ Method
         </button>
       </div>
     </div>
   </div>
-  
+  -->
