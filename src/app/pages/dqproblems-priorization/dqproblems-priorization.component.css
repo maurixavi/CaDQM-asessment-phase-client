@@ -1,10 +1,14 @@
 
 .container {
-  /*max-width: 86%;*/
   margin: auto;
   color: #222; 
   /*font-family: 'Open Sans', sans-serif;*/
   /*font-family: 'Roboto', sans-serif;*/
+}
+
+.subtitle-description {
+  font-size: 16px;
+  font-style: italic;
 }
 
 table {
@@ -15,10 +19,9 @@ table {
   color: #222; 
 }
 
+
 th {
-  font-size: 0.78rem;  
-  color: #444; 
-  font-weight: bold;  
+  font-weight: 500; 
 }
 .col-date {
 	width: 30%;
@@ -126,6 +129,7 @@ select {
   font-size: 0.875rem;  
 }
 
+
 .next-step-btn-container{
 	display: flex;
   justify-content: flex-end; 
@@ -135,3 +139,4 @@ select {
   display: flex;
   justify-content: center;
 }
+

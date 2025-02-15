@@ -242,10 +242,17 @@ export class DQProblemsPriorizationComponent implements OnInit {
     this.isOrderConfirmed = true;
     //this.dqProblemsService.updateProblems(this.problems);
     console.log(this.problems);
+    alert("DQ Problems piorizitation was saved")
 
+
+  }
+
+  nextStep() {
     // Redirigir solo si la orden se confirma
     if (this.isOrderConfirmed) {
       this.router.navigate(['/step2']);
+    } else {
+      alert("Please confirm order")
     }
   }
 
