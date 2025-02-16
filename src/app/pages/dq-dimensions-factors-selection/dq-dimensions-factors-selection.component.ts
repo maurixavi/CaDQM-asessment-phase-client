@@ -117,6 +117,9 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
   //currentDQModel: any = null; 
 
+  dimensionsWithFactors: { dimension: any, factors: any[] }[] = [];
+
+
   ngOnInit() {
     //Cargar opciones select Dimensiones y Factores base
     this.getDQDimensionsBase();
@@ -125,8 +128,6 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     //Cargar Proyecto actual y DQ Model asociado
     this.loadCurrentProject();
     //this.loadCompleteCurrentDQModel();
-
-
 
 
   
@@ -289,6 +290,26 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
   }
 
+  
+  getSelectedProblemDetails(): any {
+    if (this.selectedProblem && this.selectedPrioritizedProblems.length > 0) {
+      return this.selectedPrioritizedProblems.find(problem => problem.id === this.selectedProblem);
+    }
+    return null;
+  }
+  
+// Propiedad para almacenar el problema seleccionado
+  selectedProblem: number | null = null;
+
+  // Método para manejar el cambio de selección
+  onProblemChange(): void {
+    if (this.selectedProblem) {
+      console.log('Problema seleccionado:', this.selectedProblem);
+      // Aquí puedes agregar lógica adicional, como cargar detalles del problema seleccionado
+    } else {
+      console.log('Ningún problema seleccionado.');
+    }
+  }
 
   // PROBLEMAS PRIORIZADOS SELECCIONADOS
   selectedPrioritizedProblems: any[] = [];
@@ -411,8 +432,21 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
       next: (data) => {
         this.dqDimensionsBase = data;
         //console.log('*All DIMENSIONS BASE loaded:', data);
+        this.loadFactorsForAllDimensions(data); // Cargar factores para todas las dimension
       },
       error: (err) => console.error("Error loading Dimensions Base:", err)
+    });
+  }
+
+  loadFactorsForAllDimensions(dimensions: any[]) {
+    dimensions.forEach((dimension) => {
+      this.modelService.getFactorsBaseByDimensionId(dimension.id).subscribe({
+        next: (factors) => {
+          this.dimensionsWithFactors.push({ dimension, factors });
+          console.log("this.dimensionsWithFactors: ", this.dimensionsWithFactors)
+        },
+        error: (err) => console.error(`Error loading factors for dimension ${dimension.id}:`, err),
+      });
     });
   }
 
@@ -636,6 +670,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   addToDQModel(): void {
     this.submitNewDimension();
     console.log("--this.selected_Components--", this.selected_Components);
+    this.loadDQModelDimensionsAndFactors();
   }
 
   mergeContextComponents(existing: any, newComponents: any) {
@@ -1106,13 +1141,13 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     this.isSuggestionsSectionVisible = !this.isSuggestionsSectionVisible;  
   }
 
-  isFromProblemsSectionVisible: boolean = false;  
+  isFromProblemsSectionVisible: boolean = true;  
 
   toggleFromProblemsSectionVisibility() {
     this.isFromProblemsSectionVisible = !this.isFromProblemsSectionVisible;  
   }
 
-  isFromScratchSectionVisible: boolean = true;  
+  isFromScratchSectionVisible: boolean = false;  
 
   toggleFromScratchSectionVisibility() {
     this.isFromScratchSectionVisible = !this.isFromScratchSectionVisible;  

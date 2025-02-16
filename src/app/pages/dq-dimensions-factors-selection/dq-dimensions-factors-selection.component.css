@@ -423,8 +423,8 @@ hr.my-4 {
   white-space: nowrap; 
 }
 
-.label-problem-title {
-  font-weight: 500;
+.label-selected-problem-title {
+  font-weight: 700;
   font-size: 17px;
   margin-right: 8px;
 }
@@ -443,10 +443,11 @@ hr.my-4 {
 
 .label-selected {
   display: flex;
-  align-items: flex-start; 
+  align-items: center; 
   padding-bottom: 16px;
   font-size: 15px;
 }
+
 
 .label-selected-dqelement {
   display: flex;
@@ -465,6 +466,14 @@ hr.my-4 {
   font-weight: 700;
   font-size: 17px; 
 }
+
+.label-problem-selected {
+  font-weight: 700;
+  font-size: 17px; 
+  margin-right: 8px;
+}
+
+
 
 .label-name-dqmodel {
   font-weight: 700;
@@ -656,8 +665,8 @@ hr.my-4 {
 .dq-card {
   font-size: 13px;
   position: fixed;
-  top: 20px;
-  right: 20px;
+  bottom: 0; /* Fijamos la tarjeta en la parte inferior */
+  right: 140px; /* Pegada al borde derecho */
   width: 320px;
   max-height: 400px;
   background-color: #f8f9fa;
@@ -667,9 +676,38 @@ hr.my-4 {
   z-index: 1000; /* encima de otros elementos */
   display: block;
   padding: 0.5rem;
-  transition: transform 0.3s ease; 
-  cursor: pointer; 
+  transition: transform 0.3s ease;
+  cursor: pointer;
 }
+
+.dq-card.minimized {
+  height: 54px;
+  width: 230px;
+  overflow: hidden;
+  position: fixed;
+  right: 30px;
+  bottom: 120px;  
+  border-radius: 10px;
+  transform: scale(0.95);
+  opacity: 1;
+  z-index: 999;
+  background-color: #f8f9fa;
+  cursor: pointer;
+}
+/*.dq-card.minimized {
+  height: 54px;
+  width: 230px;
+  overflow: hidden;
+  position: fixed;
+  right: 240px;
+  bottom: 0;  
+  border-radius: 10px;
+  transform: scale(0.9);
+  opacity: 1;
+  z-index: 999;
+  background-color: #f8f9fa;
+  cursor: pointer;
+}*/
 
 .dq-card-header {
   display: flex;
@@ -703,20 +741,6 @@ hr.my-4 {
   cursor: pointer;
 }
 
-.dq-card.minimized {
-  height: 54px; 
-  width: 260px;
-  overflow: hidden;
-  position: fixed;
-  right: 40px;
-  bottom: 40px;
-  border-radius: 10px; 
-  transform: scale(0.9);
-  opacity: 0.9;
-  z-index: 999;
-  background-color: #f8f9fa; 
-  cursor: pointer;
-}
 
 
 .selection-subtitle {
@@ -725,4 +749,50 @@ hr.my-4 {
   /*color: #333;*/
   margin-top: 20px;
   margin-bottom: 10px;
+}
+
+
+/* Card flotante */
+.ctx-card {
+  font-size: 13px;
+  position: fixed;
+  bottom: 0; 
+  right: 140px; 
+  width: 320px;
+  max-height: 400px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* encima de otros elementos */
+  display: block;
+  padding: 0.5rem;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+
+.ctx-card.minimized {
+  height: 54px;
+  width: 230px;
+  overflow: hidden;
+  position: fixed;
+  right: 20px;
+  bottom: 0; 
+  border-radius: 10px;
+  transform: scale(0.9);
+  opacity: 1;
+  z-index: 999;
+  background-color: #f8f9fa;
+  cursor: pointer;
+}
+
+.ctx-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #e9ecef;
+  padding-left: 10px;
+  border-radius: 5px 5px 0 0;
+  margin-bottom: 6px;
 }
