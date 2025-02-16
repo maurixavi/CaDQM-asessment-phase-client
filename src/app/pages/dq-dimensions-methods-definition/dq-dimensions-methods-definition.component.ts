@@ -4,6 +4,7 @@ import contextComponentsJson from '../../../assets/context-components.json';
 import { Router } from '@angular/router';
 import { DqModelService } from '../../services/dq-model.service';
 import { ProjectService } from '../../services/project.service';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 interface ContextComponent {
   id: string;
@@ -62,12 +63,14 @@ interface QualityMethod {
 })
 export class DqDimensionsMethodsDefinitionComponent implements OnInit {
 
+  
+  dqMethodForm: FormGroup;
   currentStep: number = 4; // Step 3
   pageStepTitle: string = 'Selection of DQ Methods';
   phaseTitle: string = 'Phase 2: DQ Assessment';
   stageTitle: string = 'Stage 4: DQ Model Definition';
   project: any;
-  dqModelId: number = -1;
+  dqModelId: number = 1;
   currentDQModel:any;
   noModelMessage: string = "";  
   noDimensionsMessage: string = "";
@@ -78,6 +81,9 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   private contextModel: any; // Para almacenar el modelo de contexto completo
   allMetrics: any[] = [];
   currentMetric: any;
+  suggestion: any = null;
+  error: string = '';
+  
   
   contextComponentsGrouped: { type: string; ids: number[] }[] = [];
   
@@ -122,7 +128,15 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
 
 
   constructor(private router: Router, private problemsService: DqProblemsService, private modelService: DqModelService,
-    private projectService: ProjectService) { }
+    private projectService: ProjectService, private fb:FormBuilder) { 
+        // Inicialización del formulario en el constructor
+        this.dqMethodForm = this.fb.group({
+          name: [''],
+          inputDataType: [''],
+          outputDataType: [''],
+          algorithm: ['']
+        });
+    }
 
   ngOnInit() {
     this.getDQFactorsBase();
@@ -483,36 +497,115 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   }
 
 
-  addBaseMethod(factor: any): void {
-    if (this.newMethod.name && this.newMethod.output &&this.newMethod.input && this.newMethod.algorithm){
-      var newMetric = this.currentMetric!;
-      let dqMetric = this.allMetrics.find(item => item.id == newMetric.id)
-      //newFactor.definedMetrics.push({ ...this.newMetric });
-      const methodBaseToAdd = {
-        implements: parseInt(dqMetric.baseAttr.id),
-        name: this.newMethod.name,
-        inputDataType: this.newMethod.input,
-        outputDataType: this.newMethod.output,
-        algorithm: this.newMethod.algorithm
-      };
-      this.newMethod = {
-        name: '', input: '', output: '', algorithm: '', expanded: false,  metric: undefined}
-      this.modelService.createDQMethod(methodBaseToAdd).subscribe({
+  // addBaseMethod(factor: any): void {
+  //   if (this.newMethod.name && this.newMethod.output &&this.newMethod.input && this.newMethod.algorithm){
+  //     var newMetric = this.currentMetric!;
+  //     let dqMetric = this.allMetrics.find(item => item.id == newMetric.id)
+  //     //newFactor.definedMetrics.push({ ...this.newMetric });
+  //     const methodBaseToAdd = {
+  //       implements: parseInt(dqMetric.baseAttr.id),
+  //       name: this.newMethod.name,
+  //       inputDataType: this.newMethod.input,
+  //       outputDataType: this.newMethod.output,
+  //       algorithm: this.newMethod.algorithm
+  //     };
+  //     this.newMethod = {
+  //       name: '', input: '', output: '', algorithm: '', expanded: false,  metric: undefined}
+  //     this.modelService.createDQMethod(methodBaseToAdd).subscribe({
+  //       next: (data) => {
+  //         console.log("Base Metric created:", data);
+  //         this.loadDQModelDimensionsAndFactors(); 
+  //         alert("Base Metric successfully created.");
+  //       },
+  //       error: (err) => {
+  //         console.error("Error creating the metric:", err);
+  //         alert("An error occurred while trying to create the metric.");
+  //       }
+  //     });
+  //     this.closeModalBase();
+  //   }
+  //   else {
+  //     alert("Missing fields. Please complete all.")
+  //   }
+  // }
+
+  addBaseMethod(factor: any) : void {
+    if (this.dqMethodForm.valid) {
+      var methodData = this.dqMethodForm.value;
+      methodData.implements = this.currentMetric.metric_base;
+      
+      this.modelService.createDQMethodBase(methodData).subscribe({
         next: (data) => {
-          console.log("Base Metric created:", data);
+          console.log('Nuevo DQ Method Base creado:', data);
+          
           this.loadDQModelDimensionsAndFactors(); 
-          alert("Base Metric successfully created.");
+          alert('DQ Method Base creado con éxito.');
+          this.dqMethodForm.reset();
+          this.closeModalBase();
         },
-        error: (err) => {
-          console.error("Error creating the metric:", err);
-          alert("An error occurred while trying to create the metric.");
+        error: (error) => {
+          console.error('Error al crear el DQ Method Base:', error);
+          alert('Error al crear el DQ Method Base. Intenta nuevamente.');
         }
       });
-      this.closeModalBase();
+    } else {
+      alert('Por favor, completa todos los campos requeridos.');
     }
-    else {
-      alert("Missing fields. Please complete all.")
+  }
+
+  generateNewSuggestion() {
+
+    this.generateSuggestion();
+
+  }
+  // DQ METHOD SUGGESTION METHODS
+  generateSuggestion() {
+    console.log('Generando sugerencia...');
+    let metric = {
+      id: this.currentMetric.metric_base,
+      name: this.currentMetric.metric_name,
+      purpose: this.currentMetric.baseAttr.purpose,
+      granularity: this.currentMetric.baseAttr.granularity,
+      resultDomain: this.currentMetric.baseAttr.resultDomain
     }
+    this.modelService.generateDQMethodSuggestion(metric).subscribe({
+      next: (response) => {
+        console.log('Sugerencia recibida:', response);
+        this.suggestion = response;
+        this.error = '';
+
+        // Asegurarse de que el formulario esté inicializado
+        if (this.dqMethodForm) {
+          // Actualizar el formulario con los valores de la sugerencia
+          this.dqMethodForm.patchValue({
+            name: response.name || '',
+            inputDataType: response.inputDataType || '',
+            outputDataType: response.outputDataType || '',
+            algorithm: response.algorithm || ''
+          });
+
+          console.log('Formulario actualizado:', this.dqMethodForm.value);
+        } else {
+          console.error('El formulario no está inicializado');
+        }
+
+        // Mostrar los valores en un confirm para verificar
+        const confirmMessage = `
+          Sugerencia generada:
+          Nombre: ${response.name}
+          Tipo de entrada: ${response.inputDataType}
+          Tipo de salida: ${response.outputDataType}
+          Algoritmo: ${response.algorithm}
+          Implementación: ${response.implements}
+        `;
+        console.log(confirmMessage);
+      },
+      error: (err) => {
+        console.error('Error al generar la sugerencia:', err);
+        this.error = 'Error al generar la sugerencia. Por favor intente nuevamente.';
+        this.suggestion = null;
+      }
+    });
   }
 
   closeModalBase() {

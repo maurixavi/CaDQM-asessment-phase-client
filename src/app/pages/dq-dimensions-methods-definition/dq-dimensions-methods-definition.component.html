@@ -88,29 +88,28 @@
                           </div>
                           <div class="modal-body">
                             <form>
-                              <div class="form-group">
+                              <div [formGroup]="dqMethodForm" class="form-group"> 
                                 <label for="name">Name</label>
-                                <input type="text" id="name" name="name" class="form-control" [(ngModel)]="newMethod.name"/>
+                                <input type="text" id="name" formControlName="name" name="name" class="form-control" [value]="suggestion?.name || ''"/>
                               </div>
-                              <div class="form-group">
+                              <div [formGroup]="dqMethodForm" class="form-group">
                                 <label for="inputDataType">Input Data Type</label>
-                                <select [(ngModel)]="newMethod.input" class="form-select" id="inputDataType" name="inputDataType">
-                                  <option *ngFor="let domain of domains" [value]="domain">{{ domain }}</option>
-                                </select>
+                                <input type="text" class="form-control" id="inputDataType" formControlName="inputDataType" name="inputDataType" [value]="suggestion?.inputDataType || ''"/>     
                               </div>
-                              <div class="form-group">
+                              <div [formGroup]="dqMethodForm" class="form-group">
                                 <label for="outputDataType">Output Data Type</label>
-                                <select [(ngModel)]="newMethod.output" class="form-select" id="outputDataType" name="outputDataType">
-                                  <option *ngFor="let po of possibleOutputs" [value]="po">{{ po }}</option>
-                                </select>
+                                <input type="text" class="form-control" formControlName="outputDataType" id="outputDataType" name="outputDataType" [value]="suggestion?.outputDataType || ''"/>
                               </div>
-                              <div class="form-group">
+                              <div [formGroup]="dqMethodForm" class="form-group">
                                 <label for="algorithm">Algorithm</label>
-                                <textarea id="algorithm" name="algorithm" rows="4" class="form-control" placeholder="Write your code!" [(ngModel)]="newMethod.algorithm"></textarea>
+                                <textarea id="algorithm" name="algorithm" formControlName="algorithm" rows="4" class="form-control" placeholder="Write your code!" [value]="suggestion?.algorithm || ''"></textarea>
                               </div>
                             </form>
                           </div>
                           <div class="modal-footer">
+                              <button type="button" class="btn btn-info" (click)="generateNewSuggestion()" style="width: auto;">
+                                <i class="bi bi-lightning"></i> Generate New
+                              </button>
                             <button type="button" class="btn btn-sm btn-light" (click)="closeModalBase()">Cancel</button>
                             <button type="button" class="btn btn-sm btn-dark" (click)="addBaseMethod(metric)">Confirm</button>
                           </div>

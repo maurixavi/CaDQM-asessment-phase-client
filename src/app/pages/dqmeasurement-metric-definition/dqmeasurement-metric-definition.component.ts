@@ -85,7 +85,7 @@ export class DQMetricDefinitionComponent implements OnInit {
     { id: 5, name: 'Unicidad (uniqueness)' }
   ];
   project: any;
-  dqModelId: number = -1;
+  dqModelId: number = 1;
   currentDQModel:any;
   noModelMessage: string = "";  
   noDimensionsMessage: string = "";
@@ -404,7 +404,7 @@ export class DQMetricDefinitionComponent implements OnInit {
         purpose: this.newBaseMetric.purpose,
         granularity: this.newBaseMetric.granularity,
         resultDomain:  this.newBaseMetric.domain,
-        measures: parseInt(factor.id)
+        measures: newFactor.id
       };
       
       this.newBaseMetric = { name: '', purpose: '', granularity: '', domain: ''};
@@ -457,6 +457,7 @@ export class DQMetricDefinitionComponent implements OnInit {
     this.router.navigate(['/step5']);
     
   }
+  
 
   isModalOpen = false;
 
