@@ -274,6 +274,74 @@
           </div> 
         </div>
 
+        <!--DQ Problems-->
+        <div class="d-flex justify-content-between px-4 " style="gap: 20px;">
+          <div class="from-ctx-components  flex-fill ">
+  
+            <!--<label class="label-title-selection-ctx mb-2 mt-2">From Context Components:</label>-->
+            <div class="label-selected">
+              <label class="label-title-selected-ctx">From DQ Problems:</label>
+              <!--<span class="label-value-selected">{{ getSelectedDimension()?.semantic }}</span>-->
+            </div>
+            <div *ngFor="let problem of selectedProblems" class="label-selected">
+              <span class="label-value-selected">
+                {{ problem.description }} 
+                <i *ngIf="isEditSuggestedDQProblemsVisible" class="bi bi-x-lg"></i>
+              </span>
+            </div>
+            
+            <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
+              <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+              <div>
+                Prioritized data quality problems can guide your selection of relevant data quality dimensions and factors, helping you focus on the most critical areas for improvement.
+              </div>
+            </div>
+            <!--<button class="btn btn-light btn-sm  mb-4" (click)="openDimensionModal()">Add</button>-->
+            <button class="btn btn-light btn-sm mb-4" (click)="toggleSuggestedItemsVisibility('dqproblems')">
+              <i *ngIf="!isEditSuggestedDQProblemsVisible"></i>
+              <i *ngIf="isEditSuggestedDQProblemsVisible" class="bi bi-eye-slash"></i>
+              {{ isEditSuggestedDQProblemsVisible ? 'Hide' : 'Select' }}
+            </button>
+  
+            <span class="label-value d-flex align-items-center">
+              <div class="context-selection">
+                <div class="selected-components mt-3" *ngIf="selectedComponents.length > 0">
+                  <ul class="list-group">
+                    <li *ngFor="let component of selectedComponents" class="list-group-item">
+                      {{component.displayText}}
+                      <button class="btn btn-danger btn-sm float-end" 
+                              >
+                        X
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </span>
+  
+            <!-- DQ PROBLEMS SELECTION (CHECKBOX) -->
+            <!-- DQ PROBLEMS SELECTION (CHECKBOX) -->
+            <div *ngIf="isEditSuggestedDQProblemsVisible" class="ctx-selection-accordion-container">
+              <div class="checkbox-container">
+                <div *ngFor="let problem of selectedPrioritizedProblems; let i = index" class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [id]="'checkbox' + i"
+                    [value]="problem"
+                    (change)="onCheckboxProblemsChange(problem, $event)"
+                  />
+                  <label class="form-check-label" [for]="'checkbox' + i">
+                    {{ problem.description }}
+                  </label>
+                </div>
+              </div>
+            </div>
+  
+  
+          </div> <!--end context selecion div-->
+        </div>
+
 
         <button 
           type="button" 
@@ -289,27 +357,7 @@
         </div>
       </div>
 
-      <!-- PROBLEMS ASIDE SELECTION
-        <div class="problems-view">
-        <div class="dq-problems-container">
-          <h5>Prioritized DQ Problems</h5>
-          <ol class="dq-problems-list">
-            <li>(Media) Inconsistent Date Formats</li>
-            <li>(Media) Missing Age Fields</li>
-            <li>(Media) Duplicate Patient Records</li>
-            <li>(Media) Invalid Identification Numbers</li>
-            <li>(Media) Incorrect Order of Follow-up Dates</li>
-            <li>(Media) Scores Values Not Following Trend</li>
-            <li>(Media) Outliers in Measurements</li>
-            <li>(Media) Incomplete Address Fields</li>
-            <li>(Media) Incorrect Spelling in Names</li>
-            <li>(Media) Inconsistent Measurement Units</li>
-          </ol>
-        </div>
-      </div>
-      -->
-      
-      <!--</div> <div class="problems-view">-->
+  
    
     </div>
   </div>
@@ -447,7 +495,7 @@
           <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
             <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
             <div>
-              Prioritized data quality problems can guide the selection of relevant DQ dimensions and factors, helping to focus on the most critical areas for improvement.
+              Use prioritized data quality problems to guide your selection of relevant data quality dimensions and factors, helping you focus on the most critical areas for improvement, and associate them with your selection.
             </div>
           </div>
           <!--<button class="btn btn-light btn-sm  mb-4" (click)="openDimensionModal()">Add</button>-->
@@ -516,167 +564,130 @@
    <div class="flex-container" *ngIf="isFromProblemsSectionVisible && currentDQModel?.status !== 'finished'">
      <div class="suggested-section-container">
        <div class="dq-problem-container">
-         <div class="label-container mb-3">
-           <div class="label">
-             <label class="label-title-problems">DQ Problem:</label>
-             <span class="label-problem-title">Inconsistent Date Formats </span><span class="badge rounded-pill bg-danger">High</span>
-             
-           </div>
-           <span class="label-problem-description">Dates are not in a consistent format.</span>
-         </div>
 
-         <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
-            <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
-            <div>
-              Select the data quality dimensions and factors that best match your prioritized data quality problems, focusing on the most critical areas to improve.
-            </div>
-          </div>
- 
-         <!-- Dimensions and Factors SELECTION (CHECKBOX) -->
-         <div class="label-container container-dim-factors ms-4">
-
-          <!-- DQ Dimension: Accuracy -->
-          <div class="label">
-            <label class="label-title">DQ Dimension:</label>
-            <span class="label-value">Accuracy <i class="bi bi-info-circle"></i></span>
-          </div>
-          <div class="label">
-            <label class="label-title">DQ Factors:</label>
-          </div>
-            <!-- Accuracy factors -->
-            <div class="factors-container ms-4">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="semanticAccuracy">
-                <label class="form-check-label" for="semanticAccuracy">
-                  Semantic Accuracy <i class="bi bi-info-circle"></i>
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="syntacticAccuracy">
-                <label class="form-check-label" for="syntacticAccuracy">
-                  Syntactic Accuracy <i class="bi bi-info-circle"></i>
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="precision">
-                <label class="form-check-label" for="precision">
-                  Precision <i class="bi bi-info-circle"></i>
-                </label>
-              </div>
-            </div>
-            <br>
+        <!--<div class="dim-factor-selection-div">-->
+        <div class="dim-factor-selection-container">
           
-          <!-- DQ Dimension: Completeness -->
-          <div class="label">
-            <label class="label-title">DQ Dimension:</label>
-            <span class="label-value">Completeness <i class="bi bi-info-circle"></i></span>
-          </div>
-          <div class="label">
-            <label class="label-title">DQ Factors:</label>
-          </div>
-            <!-- Completeness factors -->
-            <div class="factors-container ms-4">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="coverage">
-                <label class="form-check-label" for="coverage">
-                  Coverage <i class="bi bi-info-circle"></i>
-                </label>
+            <div class="label-container">
+              <div class="label">
+                <label class="label-title">DQ Problem:</label>
+                <span class="label-value d-flex align-items-center">
+    
+                  <select 
+                    class="form-select select-style"   
+                    id="dqProblem"
+                    [(ngModel)]="selectedProblem" 
+                    (change)="onProblemChange()"
+                    aria-label="Default select example"
+                  >
+                    <option value="" disabled>Select existing</option>
+                    <option *ngFor="let problem of selectedPrioritizedProblems" [ngValue]="problem.id">
+                      {{ problem.description }} 
+                    </option>
+                  </select>
+         
+                </span>
               </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="density">
-                <label class="form-check-label" for="density">
-                  Density <i class="bi bi-info-circle"></i>
-                </label>
+
+   
+              <!--Mostrar Dimension seleccionada/creado-->
+              <div *ngIf="selectedProblem !== null">
+                <div class="label-container-selected py-2 px-4">
+                  <div class="label-selected">
+                    <span class="label-selected-problem-title">
+                      {{ getSelectedProblemDetails()?.description }}</span> 
+                    <span
+                      class="badge rounded-pill"
+                      [ngClass]="{
+                        'bg-danger': getSelectedProblemDetails()?.priority_type === 'High',
+                        'bg-warning': getSelectedProblemDetails()?.priority_type === 'Medium',
+                        'bg-success': getSelectedProblemDetails()?.priority_type === 'Low'
+                      }"
+                    >
+                      {{ getSelectedProblemDetails()?.priority_type }}
+                    </span>
+                  </div>
+                  <div class="label-selected">
+                    <label class="label-title-selected">Date:</label>
+                    <span class="label-value-selected">{{ getSelectedProblemDetails()?.date }}</span>
+                  </div> 
+                </div>
+    
+                <!--<button type="button" class="btn btn-sm btn-outline-danger">Delete</button>-->
               </div>
+    
+           
+    
             </div>
 
-          <br>
-          <!-- DQ Dimension: Freshness -->
-          <div class="label">
-            <label class="label-title">DQ Dimension:</label>
-            <span class="label-value">Freshness <i class="bi bi-info-circle"></i></span>
-          </div>
-          <div class="label">
-            <label class="label-title">DQ Factors:</label>
-          </div>
-            <!-- Freshness factors -->
-            <div class="factors-container ms-4">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="currency">
-                <label class="form-check-label" for="currency">
-                  Currency <i class="bi bi-info-circle"></i>
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="timeliness">
-                <label class="form-check-label" for="timeliness">
-                  Timeliness <i class="bi bi-info-circle"></i>
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="volatility">
-                <label class="form-check-label" for="volatility">
-                  Volatility <i class="bi bi-info-circle"></i>
-                </label>
-              </div>
+
+
+            
+            <!--Context Components-->
+            <div class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
+              <div class="from-ctx-components  flex-fill ">
+      
+         
+                <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
+                  <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+                  <div>
+                    Select the data quality dimensions and factors that best match your prioritized data quality problems, focusing on the most critical areas to improve.
+                  </div>
+                </div>
+       
+               <!-- Dimensions and Factors SELECTION (CHECKBOX) -->
+                <div class="label-container container-dim-factors ms-4">
+
+                  <div *ngFor="let dimFactor of dimensionsWithFactors" class="label-container">
+                    <!-- DQ Dimension -->
+                    <div class="label">
+                      <label class="label-title">DQ Dimension:</label>
+                      <span class="label-value">{{ dimFactor.dimension.name }} <i class="bi bi-info-circle"></i></span>
+                    </div>
+      
+                    <!-- DQ Factors -->
+                    <div class="label">
+                      <label class="label-title">DQ Factors:</label>
+                    </div>
+                    <div class="factors-container ms-4">
+                      <div *ngFor="let factor of dimFactor.factors" class="form-check">
+                        <input class="form-check-input" type="checkbox" [id]="'factor-' + factor.id">
+                        <label class="form-check-label" [for]="'factor-' + factor.id">
+                          {{ factor.name }} <i class="bi bi-info-circle"></i>
+                        </label>
+                      </div>
+                    </div>
+                    <br>
+                  </div>
+                
+                </div>
+
+                
+                <!-- mensaje para que empiece agregar componentes de contexto -->
+                <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                  <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                  </symbol>
+                  <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                  </symbol>
+                  <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                  </symbol>
+                </svg>
+  
+    
+    
+    
+              </div> 
             </div>
-          <br>
-        
-          <!-- DQ Dimension: Consistency -->
-          <div class="label">
-            <label class="label-title">DQ Dimension:</label>
-            <span class="label-value">Consistency <i class="bi bi-info-circle"></i></span>
+    
+  
           </div>
-          <div class="label">
-            <label class="label-title">DQ Factors:</label>
-          </div>
-            <!-- Consistency factors -->
-            <div class="factors-container ms-4">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="domainIntegrity">
-                <label class="form-check-label" for="domainIntegrity">
-                  Domain Integrity <i class="bi bi-info-circle"></i>
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="intraRelationIntegrity">
-                <label class="form-check-label" for="intraRelationIntegrity">
-                  Intra-Relation Integrity <i class="bi bi-info-circle"></i>
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="interRelationIntegrity">
-                <label class="form-check-label" for="interRelationIntegrity">
-                  Inter-Relation Integrity <i class="bi bi-info-circle"></i>
-                </label>
-              </div>
-            </div>
-        
-          <br>
-          <!-- DQ Dimension: Uniqueness -->
-          <div class="label">
-            <label class="label-title">DQ Dimension:</label>
-            <span class="label-value">Uniqueness <i class="bi bi-info-circle"></i></span>
-          </div>
-          <div class="label">
-            <label class="label-title">DQ Factors:</label>
-          </div>
-          <!-- Uniqueness factors -->
-            <div class="factors-container ms-4">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="duplicationFree">
-                <label class="form-check-label" for="duplicationFree">
-                  Duplication-Free <i class="bi bi-info-circle"></i>
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="contradictionFree">
-                <label class="form-check-label" for="contradictionFree">
-                  Contradiction-Free <i class="bi bi-info-circle"></i>
-                </label>
-              </div>
-            </div>
-        </div>
+
+
+
+         
         
  
          <button class="btn btn-dark btn-sm mt-4">Add to DQ Model</button>
@@ -862,7 +873,7 @@
   <!-- FLOATING CARD: PRIORITIZED DQ PROBLEMS  -->
   <div id="dqCard" class="dq-card" [ngClass]="{'minimized': isMinimized}" (mousedown)="onMouseDown($event)">
     <div class="dq-card-header">
-      <h6 class="pt-2">Prioritized DQ Problems</h6>
+      <h6 class="pt-2">DQ Problems</h6>
       <button (click)="toggleMinimize()" class="btn">
         <!--<i class="bi" [ngClass]="isMinimized ? 'bi-chevron-up' : 'bi-dash'"></i>-->
         <i class="bi" [ngClass]="isMinimized ? 'bi-arrows-fullscreen' : 'bi-fullscreen-exit'"></i>
@@ -888,12 +899,40 @@
     </div>
   </div>
 
+  <!--
+  <div id="dqCard" class="ctx-card" [ngClass]="{'minimized': isMinimized}" (mousedown)="onMouseDown($event)">
+    <div class="ctx-card-header">
+      <h6 class="pt-2">Context Components</h6>
+      <button (click)="toggleMinimize()" class="btn">
+        <i class="bi" [ngClass]="isMinimized ? 'bi-arrows-fullscreen' : 'bi-fullscreen-exit'"></i>
+      </button>
+    </div>
+    <div class="ctx-card-body" *ngIf="!isMinimized">
+      <ol class="dq-problems-list">
+        <li *ngFor="let problem of selectedPrioritizedProblems">
+          <span
+            class="badge rounded-pill"
+            [ngClass]="{
+              'bg-danger': problem.priority_type === 'High',
+              'bg-warning': problem.priority_type === 'Medium',
+              'bg-success': problem.priority_type === 'Low'
+            }"
+          >
+            {{ problem.priority_type }}
+          </span>
+          {{ problem.description }}
+          <i class="bi bi-info-circle"></i>-
+        </li>
+      </ol>
+    </div>
+  </div>
+  -->
 
   <div class="next-step-btn-container">
     <button (click)="confirmAllFactors()" class="btn btn-dark">Next ></button>
   </div>
 
 </div>
-  
-  
+
 <app-context-components></app-context-components>
+
