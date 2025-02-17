@@ -295,7 +295,7 @@ export class DQMetricDefinitionComponent implements OnInit {
 
   getBaseMetricsByFactor(){
     this.factorsByDim.forEach(async item => {
-      const baseMetricForFact = await this.modelService.getMetricsBaseByDimensionAndFactorId(item.dimension, item.id).toPromise();
+      const baseMetricForFact = await this.modelService.getMetricsBaseByDimensionAndFactorId(item.dimension, item.factor_base).toPromise();
       item.baseMetrics = baseMetricForFact;
       const dqMetricForFact = await this.modelService.getMetricsByDQModelDimensionAndFactor(item.dq_model, item.dimension, item.id).toPromise();
       item.definedMetrics = dqMetricForFact;
@@ -404,7 +404,7 @@ export class DQMetricDefinitionComponent implements OnInit {
         purpose: this.newBaseMetric.purpose,
         granularity: this.newBaseMetric.granularity,
         resultDomain:  this.newBaseMetric.domain,
-        measures: newFactor.id
+        measures: dqFactor.factor_base
       };
       
       this.newBaseMetric = { name: '', purpose: '', granularity: '', domain: ''};
