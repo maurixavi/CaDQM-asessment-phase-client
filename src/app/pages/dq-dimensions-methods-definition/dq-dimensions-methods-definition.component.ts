@@ -313,14 +313,14 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
 
   getBaseMetricsByFactor(){
     this.factorsByDim.forEach(async item => {
-      const baseMetricForFact = await this.modelService.getMetricsBaseByDimensionAndFactorId(item.dimension, item.id).toPromise();
+      const baseMetricForFact = await this.modelService.getMetricsBaseByDimensionAndFactorId(item.dimension, item.factor_base).toPromise();
       item.baseMetrics = baseMetricForFact;
       const dqMetricForFact = await this.modelService.getMetricsByDQModelDimensionAndFactor(item.dq_model, item.dimension, item.id).toPromise();
       item.definedMetrics = dqMetricForFact;
       item.definedMetrics.forEach(async (metric:any) => {
         let baseAttrMetric = item.baseMetrics.find((elem:any) => elem.id == metric.metric_base);
         metric.baseAttr = baseAttrMetric;
-        const dqBaseMethods = await this.modelService.getMethodsBaseByDimensionFactorAndMetricId(item.dimension, item.id, metric.metric_base).toPromise();
+        const dqBaseMethods = await this.modelService.getMethodsBaseByDimensionFactorAndMetricId(item.dimension, item.factor_base, metric.metric_base).toPromise();
         metric.baseMethods = dqBaseMethods;
         const dqMethods = await this.modelService.getMethodsByDQModelDimensionFactorAndMetric(item.dq_model,item.dimension, item.id, metric.id).toPromise();
         if (dqMethods) {
