@@ -209,7 +209,21 @@ hr.my-4 {
 
 
 .select-style {
-  width: 340px;
+  width: 440px;
+  font-size: 0.9rem; 
+  font-weight: 500;  
+  padding-left: 14px;  
+  padding-right: 14px;  
+  border: 1px solid #bbb;  
+  border-radius: 0.25rem;  
+  background-color: #fff; 
+  color: #111;  
+  cursor: pointer;  
+}
+
+.select-style-problems {
+  width: auto;
+  max-width: 440px;
   font-size: 0.9rem; 
   font-weight: 500;  
   padding-left: 14px;  
@@ -513,7 +527,10 @@ hr.my-4 {
 }
 
 
-
+.label-value-dim-from-problem {
+  max-width: 70%;
+  font-weight: 700;
+}
 
 
 .dqmodel-element-name {
@@ -595,12 +612,6 @@ hr.my-4 {
 }
 
 
-/* Nuevos estilos a agregar al CSS existente */
-
-.dimension-section {
- 
-}
-
 .container-dim-factors{
   border-bottom: 1px solid #eee;
   padding-bottom: 1rem;
@@ -630,6 +641,9 @@ hr.my-4 {
 
 }
 
+.dimension-selected .label-value {
+  font-weight: 100; /* Aumenta el grosor de la fuente */
+}
 
 
 .form-check-input:checked + .form-check-label {
@@ -796,3 +810,4 @@ hr.my-4 {
   border-radius: 5px 5px 0 0;
   margin-bottom: 6px;
 }
+

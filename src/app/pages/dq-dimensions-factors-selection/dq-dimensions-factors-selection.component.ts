@@ -1,9 +1,11 @@
-import { Component, OnInit, ViewEncapsulation, HostListener } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, HostListener, AfterViewInit } from '@angular/core';
 import { DqProblemsService } from '../../shared/dq-problems.service';
 import { DqModelService } from '../../services/dq-model.service';
 import { Router } from '@angular/router';
 
 import { ProjectService } from '../../services/project.service';
+
+declare var bootstrap: any; 
 
 // Definición de interfaces
 interface ContextComponent {
@@ -137,6 +139,66 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     
   }
 
+
+  // Dimensiones seleccionadas en "From DQ Problems"
+  selectedDimensionsFromDQProblems: Set<number> = new Set<number>();
+
+  // Factores seleccionados en "From DQ Problems"
+  selectedFactorsFromDQProblems: Set<number> = new Set<number>();
+
+  
+
+  // Método para manejar la selección de un factor en "From DQ Problems"
+  onFactorChangeFromDQProblems(factorId: number, dimensionId: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const isChecked = input.checked;
+
+    // Actualizar la selección del factor
+    if (isChecked) {
+      this.selectedFactorsFromDQProblems.add(factorId);
+    } else {
+      this.selectedFactorsFromDQProblems.delete(factorId);
+    }
+
+    // Verificar si al menos un factor de la dimensión está seleccionado
+    const dimension = this.dimensionsWithFactors.find(d => d.dimension.id === dimensionId);
+    if (dimension) {
+      const atLeastOneFactorSelected = dimension.factors.some(factor => this.selectedFactorsFromDQProblems.has(factor.id));
+
+      // Actualizar la selección de la dimensión
+      if (atLeastOneFactorSelected) {
+        this.selectedDimensionsFromDQProblems.add(dimensionId);
+      } else {
+        this.selectedDimensionsFromDQProblems.delete(dimensionId);
+      }
+    }
+
+
+    /*console.log('Factores seleccionados:', this.selectedFactorsFromDQProblems);
+    console.log('Dimensiones seleccionadas:', this.selectedDimensionsFromDQProblems);*/
+  }
+
+  // Método para verificar si un factor está seleccionado
+  isFactorSelectedFromDQProblems(factorId: number): boolean {
+    return this.selectedFactorsFromDQProblems.has(factorId);
+  }
+
+  // Método para verificar si una dimensión está seleccionada
+  isDimensionSelectedFromDQProblems(dimensionId: number): boolean {
+    return this.selectedFactorsFromDQProblems.has(dimensionId);
+  }
+
+
+
+
+/*  ngAfterViewInit() {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  }*/
+
+  
 
   
   // PROJECT
@@ -297,7 +359,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     }
     return null;
   }
-  
+
 // Propiedad para almacenar el problema seleccionado
   selectedProblem: number | null = null;
 
@@ -485,6 +547,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   }
 
   onDimensionChange(): void {
+    this.clearSelectedComponents();  // Limpiar la selección de componentes
     console.log(`Dimensión seleccionada: ${this.selectedDimension}`);
     if (this.selectedDimension) {
       this.getFactorsBaseByDimension(this.selectedDimension); 
@@ -628,7 +691,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
   /*------- DQ MODEL: DIMENSIONS AND FACTORS -------*/
   // Agregar COMPONENTES DE CONTEXTO ENDPOINT
-  buildContextComponents(): any {
+  buildContextComponents_(): any {
     const contextComponents = {
       applicationDomain: this.selected_Components
         .filter((comp) => comp.category === "applicationDomain")
@@ -664,15 +727,46 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   
     return contextComponents;
   }
+  buildContextComponents(selectedComponents: { id: number; category: string; value: string }[]): any {
+    const contextComponents = {
+      applicationDomain: selectedComponents
+        .filter((comp) => comp.category === "applicationDomain")
+        .map((comp) => comp.id),
+      businessRule: selectedComponents
+        .filter((comp) => comp.category === "businessRule")
+        .map((comp) => comp.id),
+      dataFiltering: selectedComponents
+        .filter((comp) => comp.category === "dataFiltering")
+        .map((comp) => comp.id),
+      dqMetadata: selectedComponents
+        .filter((comp) => comp.category === "dqMetadata")
+        .map((comp) => comp.id),
+      dqRequirement: selectedComponents
+        .filter((comp) => comp.category === "dqRequirement")
+        .map((comp) => comp.id),
+      otherData: selectedComponents
+        .filter((comp) => comp.category === "otherData")
+        .map((comp) => comp.id),
+      otherMetadata: selectedComponents
+        .filter((comp) => comp.category === "otherMetadata")
+        .map((comp) => comp.id),
+      systemRequirement: selectedComponents
+        .filter((comp) => comp.category === "systemRequirement")
+        .map((comp) => comp.id),
+      taskAtHand: selectedComponents
+        .filter((comp) => comp.category === "taskAtHand")
+        .map((comp) => comp.id),
+      userType: selectedComponents
+        .filter((comp) => comp.category === "userType")
+        .map((comp) => comp.id),
+    };
+  
+    return contextComponents;
+  }
+  
 
 
   // ADD DIMENSIONS-FACTORS to DQ MODEL
-  addToDQModel(): void {
-    this.submitNewDimension();
-    console.log("--this.selected_Components--", this.selected_Components);
-    this.loadDQModelDimensionsAndFactors();
-  }
-
   mergeContextComponents(existing: any, newComponents: any) {
     // Crear una copia profunda del objeto existente
     const merged = JSON.parse(JSON.stringify(existing));
@@ -695,13 +789,209 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     return merged;
   }
 
-  submitNewDimension(): void {
-    if (this.selectedDimension === null) {
+  addToDQModel(): void {
+    this.submitNewDimension__();
+    console.log("--this.selected_Components--", this.selected_Components);
+    this.loadDQModelDimensionsAndFactors();
+  }
+
+  addToDQModelParams(selectedDimension2: any, selectedFactor2: any, selectedComponents: { id: number; category: string; value: string }[]) {
+
+    if (!selectedDimension2 || !selectedFactor2) {
+      console.log('Por favor, selecciona una dimensión y un factor.');
+      return;
+    }
+    // Manejar la lógica aquí con los parámetros recibidos
+    console.log('Dimensión seleccionada:', selectedDimension2);
+    console.log('Factor seleccionado:', selectedFactor2);
+    console.log("--selected_Components in addToDQModel--", selectedComponents);
+
+    this.submitNewDimension(selectedDimension2, selectedFactor2, selectedComponents);
+    this.loadDQModelDimensionsAndFactors();
+  }
+
+  
+  
+  submitNewDimension(selectedDimension: any, selectedFactor: any, selectedComponents: { id: number; category: string; value: string }[]): void {
+
+    if (!selectedDimension) {
       console.error("No se ha seleccionado ninguna dimensión base.");
-      return; // salir si no hay una dimensión seleccionada
+      return; 
+    }
+
+    // Buscar los objetos correspondientes en los arrays dqDimensionsBase y dqFactorsBase
+    const dimensionObj = this.dqDimensionsBase.find(dim => dim.id === selectedDimension);
+    const factorObj = this.dqFactorsBase.find(factor => factor.id === selectedFactor);
+
+    const dimensionName = dimensionObj ? dimensionObj.name : 'Dimension';
+    const factorName = factorObj ? factorObj.name : 'Factor';
+
+    // Mensaje de confirmación
+    const confirmMessage = `Are you sure you want to add the DQ Dimension "${dimensionName}" and the DQ Factor "${factorName}" to the DQ Model?`;
+
+    if (window.confirm(confirmMessage)) {
+  
+      // verificar si la dimension ya existe
+      this.modelService.getDimensionsByDQModel(this.dqModelId).subscribe((existingDimensions) => {
+        const existingDimension = existingDimensions.find(dim => dim.dimension_base === selectedDimension);
+    
+        if (existingDimension) {
+          // Si la dimensión ya existe, solo agrega el factor asociado a la Dimension
+          this.addedDimensionId = existingDimension.id;
+          console.log("Dimensión ya existente, ID:", this.addedDimensionId);
+          console.log("Dimensión ya existente, Ctx Components:", existingDimension.context_components);
+      
+          const existingComponents = existingDimension.context_components;
+          const newComponents = this.buildContextComponents(selectedComponents);
+          
+          // Crear una copia del objeto existente para combinar los componentes
+          const mergedComponents = JSON.parse(JSON.stringify(existingComponents));
+      
+          // Combinar los componentes existentes con los nuevos, evitando duplicados
+          Object.keys(newComponents).forEach((category) => {
+              if (!Array.isArray(mergedComponents[category])) {
+                  mergedComponents[category] = [];
+              }
+              
+              // Agregar solo los componentes que no existen
+              newComponents[category].forEach((id: number) => {
+                  if (!mergedComponents[category].includes(id)) {
+                      mergedComponents[category].push(id);
+                  }
+              });
+          });
+      
+          // Verificar si hay cambios en alguna categoría
+          const hasChanges = Object.keys(mergedComponents).some(category => 
+              JSON.stringify(mergedComponents[category]) !== JSON.stringify(existingComponents[category])
+          );
+      
+          if (hasChanges) {
+              const updatedDimension = {
+                  context_components: mergedComponents
+              };
+      
+              this.modelService.updateDQDimensionContextComponents(existingDimension.id, updatedDimension).subscribe({
+                  next: () => {
+                      console.log("Componentes actualizados exitosamente en la dimensión.");
+                      this.submitNewFactor(selectedFactor, selectedComponents);
+                  },
+                  error: (err) => {
+                      console.error("Error al actualizar la dimensión:", err);
+                      alert("Error updating dimension context components.");
+                  }
+              });
+          } else {
+              console.log("No hay cambios en los componentes.");
+              this.submitNewFactor(selectedFactor, selectedComponents);
+          }
+      
+
+        } else {
+          // Construir los context_components
+          const contextComponents = this.buildContextComponents(selectedComponents);
+          console.log("***DIM: this.buildContextComponents()", this.buildContextComponents(selectedComponents))
+
+          // Crear una nueva dimensión con los context_components
+          const dimensionToAdd = {
+            dq_model: this.dqModelId,
+            dimension_base: selectedDimension!,
+            context_components: contextComponents,
+          };
+          
+          /* Si no existe, agregar una nueva dimensión
+          const dimensionToAdd = {
+            dq_model: this.dqModelId,
+            dimension_base: this.selectedDimension!,
+            context_components: []
+          };*/
+    
+          this.modelService.addDimensionToDQModel(dimensionToAdd).subscribe({
+            next: (data) => {
+              console.log("Dimension añadida:", data);
+              this.addedDimensionId = data.id; // obtiene el ID de la dimension agregada
+              
+              // Carga las dimensiones y factores después de añadir la nueva dimensión
+              this.loadDQModelDimensionsAndFactors(); 
+
+              window.alert("Dimension successfully added to DQ Model.");
+
+              this.submitNewFactor(selectedFactor, selectedComponents);
+            },
+            error: (err) => {
+              console.error("Error al añadir la dimension:", err);
+              if (err.error && err.error.non_field_errors) {
+                  window.alert(err.error.non_field_errors[0]);  
+              } else {
+                  window.alert("An error occurred while trying to add the dimension."); 
+              }
+            }
+          });
+        }
+      });
+      
+    }
+  }
+
+  submitNewFactor(selectedFactor: any, selectedComponents: { id: number; category: string; value: string }[]): void { 
+    /*if (this.selectedFactor === null) {
+      console.error("No factor selected.");
+      alert("Please select a factor to add.");
+      return; // Salir si no se ha seleccionado un factor
+    }*/
+    if (!selectedFactor) {
+      console.error("No factor selected.");
+      alert("Please select a factor to add.");
+      return; 
     }
   
-    // Primero verifica si la dimension ya existe
+    // Verificar si el factor ya existe en la dimension seleccionada en el DQ Model
+    this.modelService.getFactorsByDQModelAndDimension(this.dqModelId!, this.addedDimensionId!).subscribe((existingFactors) => {
+      const duplicateFactor = existingFactors.find(factor => factor.factor_base === selectedFactor);
+  
+      if (duplicateFactor) {
+        console.warn("Factor already exists in the dimension.");
+        alert("This factor already exists in the selected dimension.");
+      } else {
+        // Si no existe, añadir el nuevo factor
+        const contextComponents = this.buildContextComponents(selectedComponents);
+        console.log("***FACT: this.buildContextComponents()", this.buildContextComponents(selectedComponents))
+
+        const factorToAdd = {
+          factor_base: selectedFactor!,
+          dimension: this.addedDimensionId!,
+          dq_model: this.dqModelId,
+          context_components: contextComponents,
+        };
+  
+        this.modelService.addFactorToDQModel(factorToAdd).subscribe({
+          next: (data) => {
+            console.log("Factor added:", data);
+            this.loadDQModelDimensionsAndFactors(); 
+            alert("Factor successfully added to DQ Model.");
+            this.clearSelectedComponents();  // Limpiar la selección de componentes
+          },
+          error: (err) => {
+            console.error("Error adding the factor:", err);
+            alert("An error occurred while trying to add the factor.");
+          }
+        });
+      }
+    });
+  }
+
+  clearSelectedComponents(): void {
+    this.selected_Components = [];  // Limpiar la lista de componentes seleccionados
+  }
+
+
+  submitNewDimension__(): void {
+    if (this.selectedDimension === null) {
+      console.error("No se ha seleccionado ninguna dimensión base.");
+      return; 
+    } 
+  
+    // verificar si la dimension ya existe
     this.modelService.getDimensionsByDQModel(this.dqModelId).subscribe((existingDimensions) => {
       const existingDimension = existingDimensions.find(dim => dim.dimension_base === this.selectedDimension);
   
@@ -712,7 +1002,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
         console.log("Dimensión ya existente, Ctx Components:", existingDimension.context_components);
     
         const existingComponents = existingDimension.context_components;
-        const newComponents = this.buildContextComponents();
+        const newComponents = this.buildContextComponents_();
         
         // Crear una copia del objeto existente para combinar los componentes
         const mergedComponents = JSON.parse(JSON.stringify(existingComponents));
@@ -744,7 +1034,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
             this.modelService.updateDQDimensionContextComponents(existingDimension.id, updatedDimension).subscribe({
                 next: () => {
                     console.log("Componentes actualizados exitosamente en la dimensión.");
-                    this.submitNewFactor();
+                    this.submitNewFactor_();
                 },
                 error: (err) => {
                     console.error("Error al actualizar la dimensión:", err);
@@ -753,14 +1043,14 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
             });
         } else {
             console.log("No hay cambios en los componentes.");
-            this.submitNewFactor();
+            this.submitNewFactor_();
         }
     
 
       } else {
         // Construir los context_components
-        const contextComponents = this.buildContextComponents();
-        console.log("***DIM: this.buildContextComponents()", this.buildContextComponents())
+        const contextComponents = this.buildContextComponents_();
+        console.log("***DIM: this.buildContextComponents()", this.buildContextComponents_())
 
         // Crear una nueva dimensión con los context_components
         const dimensionToAdd = {
@@ -786,7 +1076,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
             window.alert("Dimension successfully added to DQ Model.");
 
-            this.submitNewFactor(); 
+            this.submitNewFactor_(); 
           },
           error: (err) => {
             console.error("Error al añadir la dimension:", err);
@@ -799,11 +1089,12 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
         });
       }
     });
+    
   }
 
 
 
-  submitNewFactor(): void { 
+  submitNewFactor_(): void { 
     if (this.selectedFactor === null) {
       console.error("No factor selected.");
       alert("Please select a factor to add.");
@@ -818,75 +1109,145 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
         console.warn("Factor already exists in the dimension.");
         alert("This factor already exists in the selected dimension.");
       } else {
-        // Si no existe, añadir el nuevo factor
-        const contextComponents = this.buildContextComponents();
-        console.log("***FACT: this.buildContextComponents()", this.buildContextComponents())
 
-        const factorToAdd = {
-          factor_base: this.selectedFactor!,
-          dimension: this.addedDimensionId!,
-          dq_model: this.dqModelId,
-          context_components: contextComponents,
-        };
-  
-        this.modelService.addFactorToDQModel(factorToAdd).subscribe({
-          next: (data) => {
-            console.log("Factor added:", data);
-            this.loadDQModelDimensionsAndFactors(); 
-            alert("Factor successfully added to DQ Model.");
-          },
-          error: (err) => {
-            console.error("Error adding the factor:", err);
-            alert("An error occurred while trying to add the factor.");
-          }
-        });
+        // Mensaje de confirmación
+        const confirmMessage = `¿Está seguro de agregar la dimension ${this.selectedDimension} y el factor "${this.selectedFactor}" al DQ Model?`;
+
+
+        // Mostrar ventana de confirmación antes de proceder
+        if (window.confirm(confirmMessage)) {
+          // Si no existe, añadir el nuevo factor
+          const contextComponents = this.buildContextComponents_();
+          console.log("***FACT: this.buildContextComponents()", this.buildContextComponents_())
+
+          const factorToAdd = {
+            factor_base: this.selectedFactor!,
+            dimension: this.addedDimensionId!,
+            dq_model: this.dqModelId,
+            context_components: contextComponents,
+          };
+    
+          this.modelService.addFactorToDQModel(factorToAdd).subscribe({
+            next: (data) => {
+              console.log("Factor added:", data);
+              this.loadDQModelDimensionsAndFactors(); 
+              alert("Factor successfully added to DQ Model.");
+            },
+            error: (err) => {
+              console.error("Error adding the factor:", err);
+              alert("An error occurred while trying to add the factor.");
+            }
+          });
+        }
       }
     });
   }
 
-  // DQ MODEL: SHOW DIMENSIONS and FACTORS added  
-  /*loadDQModelDimensionsAndFactors(): void {
-    this.modelService.getDimensionsByDQModel(this.dqModelId).subscribe(
-      (dimensions) => {
-        this.dqmodel_dimensions = dimensions;
-        
-        this.dimensionsWithFactorsInDQModel = [];
-        dimensions.forEach(dimension => {
-          this.modelService.getFactorsByDQModelAndDimension(this.dqModelId, dimension.id).subscribe(
-            (factors) => {
-              // Obtener detalles de la dimension base
-              this.modelService.getDQDimensionBaseById(dimension.dimension_base).subscribe(
-                (baseAttributes) => {
-                  // Para cada factor, obtener los detalles del factor base
-                  const factorsWithBaseAttributes = factors.map(factor => {
-                    return this.modelService.getFactorBaseById(factor.factor_base).toPromise()
-                      .then(factorBaseAttributes => ({ ...factor, baseAttributes: factorBaseAttributes }));
-                  });
+
+  getSelectedFactorsDetails(): void {
+    // Convertir el Set de factores seleccionados en un array
+    const selectedFactorsArray = Array.from(this.selectedFactorsFromDQProblems);
+    console.log(selectedFactorsArray);
   
-                  Promise.all(factorsWithBaseAttributes).then(fullFactors => {
-                    this.dimensionsWithFactorsInDQModel.push({
-                      dimension,
-                      baseAttributes,
-                      factors: fullFactors
-                    } as any);
-                  });
-                },
-                (error) => {
-                  this.errorMessage = `Failed to load attributes for the base dimension ${dimension.dimension_name}.`;
-                }
-              );
-            },
-            (error) => {
-              this.errorMessage = `Failed to load factors for the dimension ${dimension.dimension_name}.`;
-            }
-          );
-        });
-      },
-      (error) => {
-        this.noDimensionsMessage = 'Failed to load the dimensions of the DQ Model.';
-      }
-    );
-  }*/
+    // Recorrer cada factor seleccionado
+    selectedFactorsArray.forEach(factorId => {
+      // Obtener los atributos del factor usando el servicio
+      this.modelService.getFactorBaseById(factorId).subscribe({
+        next: (factorDetails) => {
+          console.log(`Detalles del factor ${factorId}:`, factorDetails);
+          // Aquí puedes hacer algo con los detalles del factor, como almacenarlos o mostrarlos
+        },
+        error: (err) => {
+          console.error(`Error al obtener detalles del factor ${factorId}:`, err);
+        }
+      });
+    });
+  }
+
+
+  addDimensionsAndFactorsFromDQProblems(): void {
+    console.log('Factores seleccionados:', this.selectedFactorsFromDQProblems);
+    console.log('Dimensiones seleccionadas:', this.selectedDimensionsFromDQProblems);
+  
+    const selectedFactorsArray = Array.from(this.selectedFactorsFromDQProblems);
+    console.log('Array de factores seleccionados:', selectedFactorsArray);
+  
+    // Diccionario para almacenar dimensiones y sus factores seleccionados
+    const dimensionsWithSelectedFactors: { [dimensionId: number]: number[] } = {};
+  
+    // Recorrer cada factor seleccionado
+    selectedFactorsArray.forEach(factorId => {
+      // Obtener los atributos del factor usando el servicio
+      this.modelService.getFactorBaseById(factorId).subscribe({
+        next: (factorDetails) => {
+          console.log(`Detalles del factor ${factorId}:`, factorDetails);
+  
+          // Obtener el ID de la dimensión base (facetOf)
+          const dimensionId = factorDetails.facetOf;
+
+          this.addToDQModelParams(dimensionId, factorId, []);
+  
+          // Inicializar el array de factores para la dimensión si no existe
+          /*if (!dimensionsWithSelectedFactors[dimensionId]) {
+            dimensionsWithSelectedFactors[dimensionId] = [];
+          }*/
+  
+          // Agregar el factor al array de la dimensión correspondiente
+          //dimensionsWithSelectedFactors[dimensionId].push(factorId);
+  
+          // Imprimir el diccionario actualizado
+          //console.log('Diccionario actualizado:', dimensionsWithSelectedFactors);
+        },
+        error: (err) => {
+          console.error(`Error al obtener detalles del factor ${factorId}:`, err);
+        }
+      });
+    });
+  }
+  
+
+  addDimensionsAndFactorsFromDQProblems_(): void {
+    console.log('Factores seleccionados:', this.selectedFactorsFromDQProblems);
+    console.log('Dimensiones seleccionadas:', this.selectedDimensionsFromDQProblems);
+  
+    const selectedFactorsArray = Array.from(this.selectedFactorsFromDQProblems);
+    console.log('Array de factores seleccionados:', selectedFactorsArray);
+  
+    // Diccionario para almacenar dimensiones y sus factores seleccionados
+    const dimensionsWithSelectedFactors: { [dimensionId: number]: number[] } = {};
+  
+    // Recorrer cada factor seleccionado
+    selectedFactorsArray.forEach(factorId => {
+      // Obtener los atributos del factor usando el servicio
+      this.modelService.getFactorBaseById(factorId).subscribe({
+        next: (factorDetails) => {
+          console.log(`Detalles del factor ${factorId}:`, factorDetails);
+  
+          // Obtener el ID de la dimensión base (facetOf)
+          const dimensionId = factorDetails.facetOf;
+  
+          // Inicializar el array de factores para la dimensión si no existe
+          if (!dimensionsWithSelectedFactors[dimensionId]) {
+            dimensionsWithSelectedFactors[dimensionId] = [];
+          }
+  
+          // Agregar el factor al array de la dimensión correspondiente
+          dimensionsWithSelectedFactors[dimensionId].push(factorId);
+  
+          // Imprimir el diccionario actualizado
+          console.log('Diccionario actualizado:', dimensionsWithSelectedFactors);
+        },
+        error: (err) => {
+          console.error(`Error al obtener detalles del factor ${factorId}:`, err);
+        }
+      });
+    });
+  }
+
+  
+
+
+  // DQ MODEL: SHOW DIMENSIONS and FACTORS added  
   loadDQModelDimensionsAndFactors(): void {
     this.modelService.getDimensionsByDQModel(this.dqModelId).subscribe(
       async (dimensions) => {
@@ -926,7 +1287,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
               
               // Obtener componentes de contexto del factor
               const factorContextComponents = factor.context_components || [];
-              console.log(`Context components for factor ${factor.factor_name}:`, factorContextComponents);
+              /* console.log(`Context components for factor ${factor.factor_name}:`, factorContextComponents); */
               
               return {
                 ...factor,
@@ -1019,7 +1380,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
           this.dimensionsWithFactorsInDQModel = this.dimensionsWithFactorsInDQModel.filter(
             item => item.dimension.id !== dimensionId
           );
-          //this.loadDQModelDimensionsAndFactors();
+          this.loadDQModelDimensionsAndFactors();
         },
         error => {
           alert("Error al eliminar la dimensión.");
@@ -1048,6 +1409,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
             ...dimension,
             factors: dimension.factors.filter((factor: { id: number }) => factor.id !== factorId)
           }));
+          this.loadDQModelDimensionsAndFactors();
         },
         error => {
           alert("Error while removing the factor.");
@@ -1067,7 +1429,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     }
   }
   
-  confirmAllFactors() {
+  goToNextStep() {
     this.router.navigate(['/step4']);
   }
 
@@ -1141,13 +1503,13 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     this.isSuggestionsSectionVisible = !this.isSuggestionsSectionVisible;  
   }
 
-  isFromProblemsSectionVisible: boolean = true;  
+  isFromProblemsSectionVisible: boolean = false;  
 
   toggleFromProblemsSectionVisibility() {
     this.isFromProblemsSectionVisible = !this.isFromProblemsSectionVisible;  
   }
 
-  isFromScratchSectionVisible: boolean = false;  
+  isFromScratchSectionVisible: boolean = true;  
 
   toggleFromScratchSectionVisibility() {
     this.isFromScratchSectionVisible = !this.isFromScratchSectionVisible;  

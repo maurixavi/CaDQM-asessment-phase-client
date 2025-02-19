@@ -7,180 +7,370 @@
 		[currentStep]="currentStep">
 	</app-step-navigator>
 
+  <!-- SECTION #1: Add Dimensions and Factors from scratch -->
+  <div>
+    <p 
+      class="subtitle-description mt-4" 
+      *ngIf="this.currentDQModel?.status !== 'finished'" 
+      (click)="toggleFromScratchSectionVisibility()" style="cursor: pointer;"
+    >
+      Add Dimensions and Factors from scratch
+      <i class="bi" [ngClass]="isFromScratchSectionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+    </p>
 
-
-
-
-
-
-  <!--SECTION (SELECTION): Add Dimensions and Factors from scratch -->
-  <p class="subtitle-description  mt-4" *ngIf="this.currentDQModel?.status !== 'finished'" (click)="toggleFromScratchSectionVisibility()" style="cursor: pointer;">
-    Add Dimensions and Factors from scratch
-    <i class="bi" [ngClass]="isFromScratchSectionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-  </p>
-
-  <!--<p class="selection-subtitle">Add DQ Dimensions and DQ Factors from scratch</p>-->
-  <div class="flex-container" id="dimension-factor-selection" *ngIf="isFromScratchSectionVisible && this.currentDQModel?.status !== 'finished'">
-    <!--<div class="from-scratch-section-container">-->
-    <div class="suggested-section-container">
-
-      <div class="dim-factor-selection-container">
-      <!--<div class="dim-factor-selection-div">-->
-        <div class="label-container">
-          <div class="label">
-            <label class="label-title">DQ Dimension:</label>
-            <span class="label-value d-flex align-items-center">
-
-              <select 
-                class="form-select select-style"   
-                id="dqDimension"
-                [(ngModel)]="selectedDimension" 
-                (change)="onDimensionChange()"
-                aria-label="Default select example"
-              >
-                <option value="" disabled>Select existing</option>
-                <option *ngFor="let dimension of dqDimensionsBase" [ngValue]="dimension.id">
-                  {{ dimension.name }}
-                </option>
-              </select>
-          
-              <button class="btn btn-light  mx-2" (click)="openDimensionModal()">Create</button>
-            </span>
-          </div>
-
-          <!-- Add New Dimension modal form -->
-          <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isDimensionModalOpen}" [style.display]="isDimensionModalOpen ? 'block' : 'none'">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title">Add new DQ Dimension</h5>
-                  <button type="button" class="close" aria-label="Close" (click)="closeDimensionModal()">
-                    <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <form (ngSubmit)="createDimension()">
-                    <div class="form-group">
-                      <label for="dimensionName">Name</label>
-                      <input type="text" class="form-control" id="dimensionName" [(ngModel)]="dimensionName" name="dimensionName" placeholder="Enter DQ Dimension name" required>
-                    </div>
-                    <div class="form-group">
-                      <label for="dimensionSemantic">Semantic</label>
-                      <input type="text" class="form-control" id="dimensionSemantic" [(ngModel)]="dimensionSemantic" name="dimensionSemantic" placeholder="Enter DQ Dimension semantic" required>
-                    </div>
-                    <div *ngIf="errorMessage" class="text-danger">{{ errorMessage }}</div>
-                  </form>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-sm btn-light" (click)="closeDimensionModal()">Cancel</button>
-                  <button type="submit" class="btn btn-sm btn-dark" (click)="createDimension()">Confirm</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-          <!--Mostrar Dimension seleccionada/creado-->
-          <div *ngIf="selectedDimension !== null">
-            <div class="label-container-selected py-2 px-4">
-              <div class="label-selected">
-                <span class="label-name-selected">{{ getSelectedDimension()?.name }}</span>
-              </div>
-              <div class="label-selected">
-                <label class="label-title-selected">Semantic:</label>
-                <span class="label-value-selected">{{ getSelectedDimension()?.semantic }}</span>
-              </div>  
-            </div>
-
-            <!--<button type="button" class="btn btn-sm btn-outline-danger">Delete</button>-->
-          </div>
-
-          <div class="label mt-2">
-            <label class="label-title">DQ Factor:</label>
-            <span class="label-value d-flex align-items-center">
-              <select 
-                id="dqFactor" 
-                class="form-select select-style" 
-                [(ngModel)]="selectedFactor"
-                (change)="onFactorChange()"
-                aria-label="Select a factor">
-                <option value="" disabled selected>Select existing</option>
-                <ng-container *ngIf="selectedDimension">
-                  <option *ngFor="let factor of availableFactors" [ngValue]="factor.id">
-                    {{ factor.name }}
+    <div 
+      class="flex-container" 
+      id="dimension-factor-selection" 
+      *ngIf="isFromScratchSectionVisible && this.currentDQModel?.status !== 'finished'"
+    >
+      <div class="suggested-section-container">
+        <div class="dim-factor-selection-container">
+          <div class="label-container">
+            <!-- DQ Dimension -->
+            <div class="label">
+              <label class="label-title">DQ Dimension:</label>
+              <span class="label-value d-flex align-items-center">
+                <select 
+                  class="form-select select-style"   
+                  id="dqDimension"
+                  [(ngModel)]="selectedDimension" 
+                  (change)="onDimensionChange()"
+                  aria-label="Default select example"
+                >
+                  <option value="" disabled>Select existing</option>
+                  <option *ngFor="let dimension of dqDimensionsBase" [ngValue]="dimension.id">
+                    {{ dimension.name }}
                   </option>
-                </ng-container>
-              </select>
+                </select>
+            
+                <button class="btn btn-light  mx-2" (click)="openDimensionModal()">Create</button>
+              </span>
+            </div>
 
-              <button class="btn btn-light  mx-2" (click)="openFactorModal()">Create</button>
-            </span>
-          </div>
-          <!-- Mensaje informativo si no hay factores -->
-          <div *ngIf="noFactorsMessage" class="alert alert-warning mt-2">
-            {{ noFactorsMessage }}
-          </div>
-
-          <!-- Modal para Agregar Nuevo Factor -->
-          <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isFactorModalOpen}" [style.display]="isFactorModalOpen ? 'block' : 'none'">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title">Add New DQ Factor</h5>
-                  <button type="button" class="close" aria-label="Close" (click)="closeFactorModal()">
-                    <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <form (ngSubmit)="createFactor()">
-                    <div class="form-group">
-                      <label for="factorName">Name</label>
-                      <input type="text" class="form-control" id="factorName" [(ngModel)]="factorName" name="factorName" placeholder="Enter DQ Factor name" required>
-                    </div>
-                    <div class="form-group">
-                      <label for="factorSemantic">Semantic</label>
-                      <input type="text" class="form-control" id="factorSemantic" [(ngModel)]="factorSemantic" name="factorSemantic" placeholder="Enter DQ Factor semantic" required>
-                    </div>
-
-                    <!-- Mostrar la Dimensión Seleccionada -->
-                    <div class="form-group">
-                      <label for="selectedDimension">Selected Dimension</label>
-                      <input type="text" class="form-control" id="selectedDimension" [value]="selectedDimensionName" readonly>
-                    </div>
-
-                    
-                  </form>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-sm btn-light" (click)="closeFactorModal()">Cancel</button>
-                  <button type="submit" class="btn btn-sm btn-dark" (click)="createFactor()">Confirm</button>
+            <!-- Add New Dimension modal form -->
+            <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isDimensionModalOpen}" [style.display]="isDimensionModalOpen ? 'block' : 'none'">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Add new DQ Dimension</h5>
+                    <button type="button" class="close" aria-label="Close" (click)="closeDimensionModal()">
+                      <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <form (ngSubmit)="createDimension()">
+                      <div class="form-group">
+                        <label for="dimensionName">Name</label>
+                        <input type="text" class="form-control" id="dimensionName" [(ngModel)]="dimensionName" name="dimensionName" placeholder="Enter DQ Dimension name" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="dimensionSemantic">Semantic</label>
+                        <input type="text" class="form-control" id="dimensionSemantic" [(ngModel)]="dimensionSemantic" name="dimensionSemantic" placeholder="Enter DQ Dimension semantic" required>
+                      </div>
+                      <div *ngIf="errorMessage" class="text-danger">{{ errorMessage }}</div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-light" (click)="closeDimensionModal()">Cancel</button>
+                    <button type="submit" class="btn btn-sm btn-dark" (click)="createDimension()">Confirm</button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div *ngIf="errorMessage" class="text-danger">{{ errorMessage }}</div>
-
-          <!--Mostrar Factor seleccionado/creado-->
-          <div *ngIf="selectedFactor !== null">
-            <div class="label-container-selected py-2 px-4">
-              <div class="label-selected">
-                <span class="label-name-selected">{{ this.selectedFactorDetails?.name }}</span>
+            <!-- Show Selected Dimension -->
+            <div *ngIf="selectedDimension !== null">
+              <div class="label-container-selected py-2 px-4">
+                <div class="label-selected">
+                  <span class="label-name-selected">{{ getSelectedDimension()?.name }}</span>
+                </div>
+                <div class="label-selected">
+                  <label class="label-title-selected">Semantic:</label>
+                  <span class="label-value-selected">{{ getSelectedDimension()?.semantic }}</span>
+                </div>  
               </div>
-              <div class="label-selected">
-                <label class="label-title-selected">Semantic:</label>
-                <span class="label-value-selected">{{ this.selectedFactorDetails?.semantic }}</span>
+              <!--<button type="button" class="btn btn-sm btn-outline-danger">Delete</button>-->
+            </div>
+
+            <!-- DQ Factor -->
+            <div class="label mt-2">
+              <label class="label-title">DQ Factor:</label>
+              <span class="label-value d-flex align-items-center">
+                <select 
+                  id="dqFactor" 
+                  class="form-select select-style" 
+                  [(ngModel)]="selectedFactor"
+                  (change)="onFactorChange()"
+                  aria-label="Select a factor">
+                  <option value="" disabled selected>Select existing</option>
+                  <ng-container *ngIf="selectedDimension">
+                    <option *ngFor="let factor of availableFactors" [ngValue]="factor.id">
+                      {{ factor.name }}
+                    </option>
+                  </ng-container>
+                </select>
+
+                <button class="btn btn-light  mx-2" (click)="openFactorModal()">Create</button>
+              </span>
+            </div>
+
+            <!-- No Factors message -->
+            <div *ngIf="noFactorsMessage" class="alert alert-warning mt-2">
+              {{ noFactorsMessage }}
+            </div>
+
+            <!-- Add New Factor modal form -->
+            <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isFactorModalOpen}" [style.display]="isFactorModalOpen ? 'block' : 'none'">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Add New DQ Factor</h5>
+                    <button type="button" class="close" aria-label="Close" (click)="closeFactorModal()">
+                      <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <form (ngSubmit)="createFactor()">
+                      <div class="form-group">
+                        <label for="factorName">Name</label>
+                        <input type="text" class="form-control" id="factorName" [(ngModel)]="factorName" name="factorName" placeholder="Enter DQ Factor name" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="factorSemantic">Semantic</label>
+                        <input type="text" class="form-control" id="factorSemantic" [(ngModel)]="factorSemantic" name="factorSemantic" placeholder="Enter DQ Factor semantic" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="selectedDimension">Selected Dimension</label>
+                        <input type="text" class="form-control" id="selectedDimension" [value]="selectedDimensionName" readonly>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-light" (click)="closeFactorModal()">Cancel</button>
+                    <button type="submit" class="btn btn-sm btn-dark" (click)="createFactor()">Confirm</button>
+                  </div>
+                </div>
               </div>
             </div>
-            <!--<button type="button" class="btn btn-sm btn-outline-danger">Delete</button>-->
-            <!--<button class="btn btn-light btn-sm my-2 mb-4" (click)="openDimensionModal()">Delete</button>-->
+
+            <div *ngIf="errorMessage" class="text-danger">{{ errorMessage }}</div>
+
+            <!-- Show Selected Factor -->
+            <div *ngIf="selectedFactor !== null">
+              <div class="label-container-selected py-2 px-4">
+                <div class="label-selected">
+                  <span class="label-name-selected">{{ this.selectedFactorDetails?.name }}</span>
+                </div>
+                <div class="label-selected">
+                  <label class="label-title-selected">Semantic:</label>
+                  <span class="label-value-selected">{{ this.selectedFactorDetails?.semantic }}</span>
+                </div>
+              </div>
+              <!--<button type="button" class="btn btn-sm btn-outline-danger">Delete</button>-->
+              <!--<button class="btn btn-light btn-sm my-2 mb-4" (click)="openDimensionModal()">Delete</button>-->
+            </div>
+
+          </div>
+          
+          <!-- From Context Components selection -->
+          <div class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
+            <div class="from-ctx-components  flex-fill ">
+              <!--<label class="label-title-selection-ctx mb-2 mt-2">From Context Components:</label>-->
+              <div class="label-selected">
+                <label class="label-title-selected-ctx">From Context Components:</label>
+              </div>
+              <div *ngFor="let selected of selected_Components" class="label-selected">
+                <label class="label-title-selected">{{ selected?.category }}</label>
+                <span class="label-value-selected">
+                  {{ selected?.value }}
+                  <i 
+                    *ngIf="isEditSuggestedContextVisible" 
+                    class="bi bi-x-lg" 
+                    (click)="removeSelectedComponent(selected)">
+                  </i>
+                </span>
+              </div>
+              
+              <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                </symbol>
+                <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                </symbol>
+                <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </symbol>
+              </svg>
+              <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
+                <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+                <div>
+                  Identify available context components to help suggest and choose data quality dimensions and factors, and associate them with your selection.
+                </div>
+              </div>
+              
+              <button class="btn btn-light btn-sm mb-4" (click)="toggleCtxSelectionAccordionVisibility()">
+                <i *ngIf="!isCtxSelectionAccordionVisible"></i>
+                <i *ngIf="isCtxSelectionAccordionVisible" class="bi bi-eye-slash"></i>
+                {{ isCtxSelectionAccordionVisible ? 'Hide' : 'Select' }}
+              </button>
+
+  
+              <!-- Components select values -->
+              <div *ngIf="isCtxSelectionAccordionVisible" class="ctx-selection-accordion-container">
+                <div class="accordion" id="accordionPanelsStayOpenExample">
+                  <div *ngFor="let category of categories; let i = index" class="accordion-item">
+                    <h2 class="accordion-header" [id]="'panelsStayOpen-heading' + i">
+                      <button
+                        class="accordion-button"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        [attr.data-bs-target]="'#panelsStayOpen-collapse' + i"
+                        [attr.aria-controls]="'panelsStayOpen-collapse' + i"
+                        [attr.aria-expanded]="i === 0 ? 'true' : 'false'"
+                        [class.collapsed]="i !== 0"
+                        style="padding: 0.6rem 0.9rem;"
+                      >
+                        {{ formatCategoryName(category) }}
+                      </button>
+                    </h2>
+                    <div
+                      [id]="'panelsStayOpen-collapse' + i"
+                      class="accordion-collapse collapse"
+                      [class.show]="i === 0"
+                      [attr.aria-labelledby]="'panelsStayOpen-heading' + i"
+                    >
+                      <div class="accordion-body">
+                        <div *ngFor="let item of context_Components[category]" class="ms-2 form-check">
+                          <input
+                          class="form-check-input"
+                          type="checkbox"
+                          [id]="'checkbox-' + category + '-' + item.id"
+                          [checked]="isComponentSelected(category, getFirstNonIdAttribute(item))"
+                          (change)="onCheckboxChange(item.id, category, getFirstNonIdAttribute(item), $event)"
+                          />
+                          <label class="form-check-label" [for]="'checkbox-' + category + '-' + item.id">
+                            {{ getFirstNonIdAttribute(item) }} <i class="bi bi-info-circle"></i>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> 
+          </div>
+
+          <!-- From DQ Problems selection -->
+          <div class="d-flex justify-content-between px-4 " style="gap: 20px;">
+            <div class="from-ctx-components  flex-fill ">
+    
+              <!--<label class="label-title-selection-ctx mb-2 mt-2">From Context Components:</label>-->
+              <div class="label-selected">
+                <label class="label-title-selected-ctx">From DQ Problems:</label>
+                <!--<span class="label-value-selected">{{ getSelectedDimension()?.semantic }}</span>-->
+              </div>
+              <div *ngFor="let problem of selectedProblems" class="label-selected">
+                <span class="label-value-selected">
+                  {{ problem.description }} 
+                  <i *ngIf="isEditSuggestedDQProblemsVisible" class="bi bi-x-lg"></i>
+                </span>
+              </div>
+              
+              <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
+                <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+                <div>
+                  Prioritized data quality problems can guide your selection of relevant data quality dimensions and factors, helping you focus on the most critical areas for improvement.
+                </div>
+              </div>
+              <!--<button class="btn btn-light btn-sm  mb-4" (click)="openDimensionModal()">Add</button>-->
+              <button class="btn btn-light btn-sm mb-4" (click)="toggleSuggestedItemsVisibility('dqproblems')">
+                <i *ngIf="!isEditSuggestedDQProblemsVisible"></i>
+                <i *ngIf="isEditSuggestedDQProblemsVisible" class="bi bi-eye-slash"></i>
+                {{ isEditSuggestedDQProblemsVisible ? 'Hide' : 'Select' }}
+              </button>
+    
+              <span class="label-value d-flex align-items-center">
+                <div class="context-selection">
+                  <div class="selected-components mt-3" *ngIf="selectedComponents.length > 0">
+                    <ul class="list-group">
+                      <li *ngFor="let component of selectedComponents" class="list-group-item">
+                        {{component.displayText}}
+                        <button class="btn btn-danger btn-sm float-end" 
+                                >
+                          X
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </span>
+    
+              <!-- DQ Problems select values -->
+              <div *ngIf="isEditSuggestedDQProblemsVisible" class="ctx-selection-accordion-container">
+                <div class="checkbox-container">
+                  <div *ngFor="let problem of selectedPrioritizedProblems; let i = index" class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      [id]="'checkbox' + i"
+                      [value]="problem"
+                      (change)="onCheckboxProblemsChange(problem, $event)"
+                    />
+                    <label class="form-check-label" [for]="'checkbox' + i">
+                      {{ problem.description }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+            </div> 
+          </div>
+
+
+          <button 
+            type="button" 
+            class="btn btn-dark mt-4" 
+            (click)="addToDQModelParams(selectedDimension, selectedFactor, selected_Components)" 
+            [disabled]="!selectedDimension || !selectedFactor">
+            Add to DQ Model
+          </button>
+
+          <div *ngIf="duplicateFactor" class="alert alert-warning mt-2">
+            Este par de dimensión y factor ya ha sido agregado.
           </div>
 
         </div>
+      </div>
+    </div>
+  </div>
+  
+
+  <!-- SECTION #2: Suggested Dimensions and Factors -->
+  <div>
+    <p class="subtitle-description mt-4" *ngIf="this.currentDQModel?.status !== 'finished'" (click)="toggleSuggestionsSectionVisibility()" style="cursor: pointer;">
+      Suggested Dimensions and Factors
+      <i class="bi" [ngClass]="isSuggestionsSectionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+    </p>
+
+    <div class="flex-container" *ngIf="isSuggestionsSectionVisible && this.currentDQModel?.status !== 'finished'">
+      <div class="suggested-section-container">
+        <div class="suggested-section-div">
+          <div class="label-container">
+            <div class="label">
+              <label class="label-title">DQ Dimension:</label>
+              <span class="label-value">Accuracy <i class="bi bi-info-circle"></i></span>
+            </div>
+            <div class="label">
+              <label class="label-title">DQ Factor:</label>
+              <span class="label-value">Syntactic Accuracy <i class="bi bi-info-circle"></i></span>
+            </div>
+          </div>
         
         <!--Context Components-->
         <div class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
           <div class="from-ctx-components  flex-fill ">
-  
+
             <!--<label class="label-title-selection-ctx mb-2 mt-2">From Context Components:</label>-->
             <div class="label-selected">
               <label class="label-title-selected-ctx">From Context Components:</label>
@@ -198,86 +388,80 @@
               </span>
             </div>
             
+
+
+            
+            
             <!-- mensaje para que empiece agregar componentes de contexto -->
-            <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-              <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-              </symbol>
-              <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
-              </symbol>
-              <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-              </symbol>
-            </svg>
             <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
               <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
               <div>
-                Identify available context components to help suggest and choose data quality dimensions and factors, and associate them with your selection.
+                Context components can suggest and guide the selection of relevant data quality dimensions and factors, ensuring focus on key quality aspects.
               </div>
             </div>
-            <!--<button class="btn btn-light btn-sm  mb-4" (click)="openDimensionModal()">Add</button>-->
-            <button class="btn btn-light btn-sm mb-4" (click)="toggleCtxSelectionAccordionVisibility()">
-              <i *ngIf="!isCtxSelectionAccordionVisible"></i>
-              <i *ngIf="isCtxSelectionAccordionVisible" class="bi bi-eye-slash"></i>
-              {{ isCtxSelectionAccordionVisible ? 'Hide' : 'Select' }}
+
+            <button class="btn btn-light btn-sm mb-4" (click)="toggleSuggestedItemsVisibility('context')">
+              <i *ngIf="!isEditSuggestedContextVisible"></i>
+              <i *ngIf="isEditSuggestedContextVisible" class="bi bi-eye-slash"></i>
+              {{ isEditSuggestedContextVisible ? 'Hide' : 'Edit' }}
             </button>
 
-            <span class="label-value d-flex align-items-center">
- 
-            </span>
+            
 
+            
 
             <!-- CTX COMPONENTS SELECTION (CHECKBOX BY TYPE) -->
-            <!-- CTX COMPONENTS SELECTION (CHECKBOX BY TYPE) -->
-          <div *ngIf="isCtxSelectionAccordionVisible" class="ctx-selection-accordion-container">
-            <div class="accordion" id="accordionPanelsStayOpenExample">
-              <div *ngFor="let category of categories; let i = index" class="accordion-item">
-                <h2 class="accordion-header" [id]="'panelsStayOpen-heading' + i">
-                  <button
-                    class="accordion-button"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    [attr.data-bs-target]="'#panelsStayOpen-collapse' + i"
-                    [attr.aria-controls]="'panelsStayOpen-collapse' + i"
-                    [attr.aria-expanded]="i === 0 ? 'true' : 'false'"
-                    [class.collapsed]="i !== 0"
-                    style="padding: 0.6rem 0.9rem;"
+            <div *ngIf="isEditSuggestedContextVisible" class="ctx-selection-accordion-container">
+              <div class="accordion" id="accordionPanelsStayOpenExample">
+                <div *ngFor="let category of categories; let i = index" class="accordion-item">
+                  <h2 class="accordion-header" [id]="'panelsStayOpen-heading' + i">
+                    <button
+                      class="accordion-button"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      [attr.data-bs-target]="'#panelsStayOpen-collapse' + i"
+                      [attr.aria-controls]="'panelsStayOpen-collapse' + i"
+                      [attr.aria-expanded]="i === 0 ? 'true' : 'false'"
+                      [class.collapsed]="i !== 0"
+                      style="padding: 0.6rem 0.9rem;"
+                    >
+                      {{ formatCategoryName(category) }}
+                    </button>
+                  </h2>
+                  <div
+                    [id]="'panelsStayOpen-collapse' + i"
+                    class="accordion-collapse collapse"
+                    [class.show]="i === 0"
+                    [attr.aria-labelledby]="'panelsStayOpen-heading' + i"
                   >
-                    {{ formatCategoryName(category) }}
-                  </button>
-                </h2>
-                <div
-                  [id]="'panelsStayOpen-collapse' + i"
-                  class="accordion-collapse collapse"
-                  [class.show]="i === 0"
-                  [attr.aria-labelledby]="'panelsStayOpen-heading' + i"
-                >
-                  <div class="accordion-body">
-                    <div *ngFor="let item of context_Components[category]" class="ms-2 form-check">
-                      <input
-                      class="form-check-input"
-                      type="checkbox"
-                      [id]="'checkbox-' + category + '-' + item.id"
-                      [checked]="isComponentSelected(category, getFirstNonIdAttribute(item))"
-                      (change)="onCheckboxChange(item.id, category, getFirstNonIdAttribute(item), $event)"
-                      />
-                      <label class="form-check-label" [for]="'checkbox-' + category + '-' + item.id">
-                        {{ getFirstNonIdAttribute(item) }} <i class="bi bi-info-circle"></i>
-                      </label>
+                    <div class="accordion-body">
+                      <div *ngFor="let item of context_Components[category]" class="ms-2 form-check">
+                        <input
+                        class="form-check-input"
+                        type="checkbox"
+                        [id]="'checkbox-' + category + '-' + item.id"
+                        [checked]="isComponentSelected(category, getFirstNonIdAttribute(item))"
+                        (change)="onCheckboxChange(item.id, category, getFirstNonIdAttribute(item), $event)"
+                        />
+                        <label class="form-check-label" [for]="'checkbox-' + category + '-' + item.id">
+                          {{ getFirstNonIdAttribute(item) }} <i class="bi bi-info-circle"></i>
+                        </label>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          </div> 
+
+
+
+          </div> <!--end context selecion div-->
         </div>
 
-        <!--DQ Problems-->
-        <div class="d-flex justify-content-between px-4 " style="gap: 20px;">
+          <!--DQ Problems-->
+          <div class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
           <div class="from-ctx-components  flex-fill ">
-  
+
             <!--<label class="label-title-selection-ctx mb-2 mt-2">From Context Components:</label>-->
             <div class="label-selected">
               <label class="label-title-selected-ctx">From DQ Problems:</label>
@@ -293,16 +477,16 @@
             <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
               <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
               <div>
-                Prioritized data quality problems can guide your selection of relevant data quality dimensions and factors, helping you focus on the most critical areas for improvement.
+                Use prioritized data quality problems to guide your selection of relevant data quality dimensions and factors, helping you focus on the most critical areas for improvement, and associate them with your selection.
               </div>
             </div>
             <!--<button class="btn btn-light btn-sm  mb-4" (click)="openDimensionModal()">Add</button>-->
             <button class="btn btn-light btn-sm mb-4" (click)="toggleSuggestedItemsVisibility('dqproblems')">
               <i *ngIf="!isEditSuggestedDQProblemsVisible"></i>
               <i *ngIf="isEditSuggestedDQProblemsVisible" class="bi bi-eye-slash"></i>
-              {{ isEditSuggestedDQProblemsVisible ? 'Hide' : 'Select' }}
+              {{ isEditSuggestedDQProblemsVisible ? 'Hide' : 'Edit' }}
             </button>
-  
+
             <span class="label-value d-flex align-items-center">
               <div class="context-selection">
                 <div class="selected-components mt-3" *ngIf="selectedComponents.length > 0">
@@ -318,7 +502,7 @@
                 </div>
               </div>
             </span>
-  
+
             <!-- DQ PROBLEMS SELECTION (CHECKBOX) -->
             <!-- DQ PROBLEMS SELECTION (CHECKBOX) -->
             <div *ngIf="isEditSuggestedDQProblemsVisible" class="ctx-selection-accordion-container">
@@ -337,537 +521,337 @@
                 </div>
               </div>
             </div>
-  
-  
+
+
           </div> <!--end context selecion div-->
         </div>
 
 
-        <button 
-          type="button" 
-          class="btn btn-dark mt-4" 
-          (click)="addToDQModel()" 
-          [disabled]="!selectedDimension || !selectedFactor">
-          Add to DQ Model
-        </button>
-
-        <!-- Mensaje de Alerta -->
-        <div *ngIf="duplicateFactor" class="alert alert-warning mt-2">
-          Este par de dimensión y factor ya ha sido agregado.
+        <button class="btn btn-dark btn-sm mt-4">Add to DQ Model</button>
+        <button class="btn btn-light btn-sm mt-4 mx-3">Ignore</button>
         </div>
+
       </div>
 
-  
-   
     </div>
   </div>
   
 
+  <!-- SECTION #3: Add Dimensions and Factors from DQ Problems -->
+  <div>
+    <p 
+      class="subtitle-description mt-4" 
+      *ngIf="currentDQModel?.status !== 'finished'" 
+      (click)="toggleFromProblemsSectionVisibility()" 
+      style="cursor: pointer;"
+    >
+      Add Dimensions and Factors from DQ Problems
+      <i class="bi" [ngClass]="isFromProblemsSectionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+    </p>
 
-
-  <!-- SECTION (SELECTION): Suggested Dimensions and Factors -->
-  <p class="subtitle-description" *ngIf="this.currentDQModel?.status !== 'finished'" (click)="toggleSuggestionsSectionVisibility()" style="cursor: pointer;">
-    Suggested Dimensions and Factors
-    <i class="bi" [ngClass]="isSuggestionsSectionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-  </p>
-
-  <div class="flex-container" *ngIf="isSuggestionsSectionVisible && this.currentDQModel?.status !== 'finished'">
-    <div class="suggested-section-container">
-      <div class="suggested-section-div">
-        <div class="label-container">
-          <div class="label">
-            <label class="label-title">DQ Dimension:</label>
-            <span class="label-value">Accuracy <i class="bi bi-info-circle"></i></span>
-          </div>
-          <div class="label">
-            <label class="label-title">DQ Factor:</label>
-            <span class="label-value">Syntactic Accuracy <i class="bi bi-info-circle"></i></span>
-          </div>
-        </div>
-      
-      <!--Context Components-->
-      <div class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
-        <div class="from-ctx-components  flex-fill ">
-
-          <!--<label class="label-title-selection-ctx mb-2 mt-2">From Context Components:</label>-->
-          <div class="label-selected">
-            <label class="label-title-selected-ctx">From Context Components:</label>
-            <!--<span class="label-value-selected">{{ getSelectedDimension()?.semantic }}</span>-->
-          </div>
-          <div *ngFor="let selected of selected_Components" class="label-selected">
-            <label class="label-title-selected">{{ selected?.category }}</label>
-            <span class="label-value-selected">
-              {{ selected?.value }}
-              <i 
-                *ngIf="isEditSuggestedContextVisible" 
-                class="bi bi-x-lg" 
-                (click)="removeSelectedComponent(selected)">
-              </i>
-            </span>
-          </div>
-          
-
-
-          
-          
-          <!-- mensaje para que empiece agregar componentes de contexto -->
-          <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
-            <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
-            <div>
-              Context components can suggest and guide the selection of relevant data quality dimensions and factors, ensuring focus on key quality aspects.
-            </div>
-          </div>
-
-          <button class="btn btn-light btn-sm mb-4" (click)="toggleSuggestedItemsVisibility('context')">
-            <i *ngIf="!isEditSuggestedContextVisible"></i>
-            <i *ngIf="isEditSuggestedContextVisible" class="bi bi-eye-slash"></i>
-            {{ isEditSuggestedContextVisible ? 'Hide' : 'Edit' }}
-          </button>
-
-          
-
-          
-
-          <!-- CTX COMPONENTS SELECTION (CHECKBOX BY TYPE) -->
-          <div *ngIf="isEditSuggestedContextVisible" class="ctx-selection-accordion-container">
-            <div class="accordion" id="accordionPanelsStayOpenExample">
-              <div *ngFor="let category of categories; let i = index" class="accordion-item">
-                <h2 class="accordion-header" [id]="'panelsStayOpen-heading' + i">
-                  <button
-                    class="accordion-button"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    [attr.data-bs-target]="'#panelsStayOpen-collapse' + i"
-                    [attr.aria-controls]="'panelsStayOpen-collapse' + i"
-                    [attr.aria-expanded]="i === 0 ? 'true' : 'false'"
-                    [class.collapsed]="i !== 0"
-                    style="padding: 0.6rem 0.9rem;"
-                  >
-                    {{ formatCategoryName(category) }}
-                  </button>
-                </h2>
-                <div
-                  [id]="'panelsStayOpen-collapse' + i"
-                  class="accordion-collapse collapse"
-                  [class.show]="i === 0"
-                  [attr.aria-labelledby]="'panelsStayOpen-heading' + i"
-                >
-                  <div class="accordion-body">
-                    <div *ngFor="let item of context_Components[category]" class="ms-2 form-check">
-                      <input
-                      class="form-check-input"
-                      type="checkbox"
-                      [id]="'checkbox-' + category + '-' + item.id"
-                      [checked]="isComponentSelected(category, getFirstNonIdAttribute(item))"
-                      (change)="onCheckboxChange(item.id, category, getFirstNonIdAttribute(item), $event)"
-                      />
-                      <label class="form-check-label" [for]="'checkbox-' + category + '-' + item.id">
-                        {{ getFirstNonIdAttribute(item) }} <i class="bi bi-info-circle"></i>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-
-        </div> <!--end context selecion div-->
-      </div>
-
-        <!--DQ Problems-->
-        <div class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
-        <div class="from-ctx-components  flex-fill ">
-
-          <!--<label class="label-title-selection-ctx mb-2 mt-2">From Context Components:</label>-->
-          <div class="label-selected">
-            <label class="label-title-selected-ctx">From DQ Problems:</label>
-            <!--<span class="label-value-selected">{{ getSelectedDimension()?.semantic }}</span>-->
-          </div>
-          <div *ngFor="let problem of selectedProblems" class="label-selected">
-            <span class="label-value-selected">
-              {{ problem.description }} 
-              <i *ngIf="isEditSuggestedDQProblemsVisible" class="bi bi-x-lg"></i>
-            </span>
-          </div>
-          
-          <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
-            <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
-            <div>
-              Use prioritized data quality problems to guide your selection of relevant data quality dimensions and factors, helping you focus on the most critical areas for improvement, and associate them with your selection.
-            </div>
-          </div>
-          <!--<button class="btn btn-light btn-sm  mb-4" (click)="openDimensionModal()">Add</button>-->
-          <button class="btn btn-light btn-sm mb-4" (click)="toggleSuggestedItemsVisibility('dqproblems')">
-            <i *ngIf="!isEditSuggestedDQProblemsVisible"></i>
-            <i *ngIf="isEditSuggestedDQProblemsVisible" class="bi bi-eye-slash"></i>
-            {{ isEditSuggestedDQProblemsVisible ? 'Hide' : 'Edit' }}
-          </button>
-
-          <span class="label-value d-flex align-items-center">
-            <div class="context-selection">
-              <div class="selected-components mt-3" *ngIf="selectedComponents.length > 0">
-                <ul class="list-group">
-                  <li *ngFor="let component of selectedComponents" class="list-group-item">
-                    {{component.displayText}}
-                    <button class="btn btn-danger btn-sm float-end" 
-                            >
-                      X
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </span>
-
-          <!-- DQ PROBLEMS SELECTION (CHECKBOX) -->
-          <!-- DQ PROBLEMS SELECTION (CHECKBOX) -->
-          <div *ngIf="isEditSuggestedDQProblemsVisible" class="ctx-selection-accordion-container">
-            <div class="checkbox-container">
-              <div *ngFor="let problem of selectedPrioritizedProblems; let i = index" class="form-check">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  [id]="'checkbox' + i"
-                  [value]="problem"
-                  (change)="onCheckboxProblemsChange(problem, $event)"
-                />
-                <label class="form-check-label" [for]="'checkbox' + i">
-                  {{ problem.description }}
-                </label>
-              </div>
-            </div>
-          </div>
-
-
-        </div> <!--end context selecion div-->
-      </div>
-
-
-      <button class="btn btn-dark btn-sm mt-4">Add to DQ Model</button>
-      <button class="btn btn-light btn-sm mt-4 mx-3">Ignore</button>
-      </div>
-
-    </div>
-
-  </div>
-
-  
-   <!--SECTION (SELECTION): Add Dimensions and Factors from DQ Problems -->
-   <p class="subtitle-description mt-4" *ngIf="currentDQModel?.status !== 'finished'" (click)="toggleFromProblemsSectionVisibility()" style="cursor: pointer;">
-     Add Dimensions and Factors from DQ Problems
-     <i class="bi" [ngClass]="isFromProblemsSectionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-   </p>
-
-
-   <div class="flex-container" *ngIf="isFromProblemsSectionVisible && currentDQModel?.status !== 'finished'">
-     <div class="suggested-section-container">
-       <div class="dq-problem-container">
-
-        <!--<div class="dim-factor-selection-div">-->
-        <div class="dim-factor-selection-container">
-          
-            <div class="label-container">
-              <div class="label">
-                <label class="label-title">DQ Problem:</label>
-                <span class="label-value d-flex align-items-center">
-    
-                  <select 
-                    class="form-select select-style"   
-                    id="dqProblem"
-                    [(ngModel)]="selectedProblem" 
-                    (change)="onProblemChange()"
-                    aria-label="Default select example"
-                  >
-                    <option value="" disabled>Select existing</option>
-                    <option *ngFor="let problem of selectedPrioritizedProblems" [ngValue]="problem.id">
-                      {{ problem.description }} 
-                    </option>
-                  </select>
-         
-                </span>
-              </div>
-
-   
-              <!--Mostrar Dimension seleccionada/creado-->
-              <div *ngIf="selectedProblem !== null">
-                <div class="label-container-selected py-2 px-4">
-                  <div class="label-selected">
-                    <span class="label-selected-problem-title">
-                      {{ getSelectedProblemDetails()?.description }}</span> 
-                    <span
-                      class="badge rounded-pill"
-                      [ngClass]="{
-                        'bg-danger': getSelectedProblemDetails()?.priority_type === 'High',
-                        'bg-warning': getSelectedProblemDetails()?.priority_type === 'Medium',
-                        'bg-success': getSelectedProblemDetails()?.priority_type === 'Low'
-                      }"
+    <div class="flex-container" *ngIf="isFromProblemsSectionVisible && currentDQModel?.status !== 'finished'">
+      <div class="suggested-section-container">
+        <div class="dq-problem-container">
+          <div class="dim-factor-selection-container">
+              <div class="label-container">
+                <div class="label">
+                  <label class="label-title">DQ Problem:</label>
+                  <span class="label-value d-flex align-items-center">
+                    <select 
+                      class="form-select select-style-problems"   
+                      id="dqProblem"
+                      [(ngModel)]="selectedProblem" 
+                      (change)="onProblemChange()"
+                      aria-label="Default select example"
                     >
-                      {{ getSelectedProblemDetails()?.priority_type }}
-                    </span>
+                      <option value="" disabled>Select existing</option>
+                      <option *ngFor="let problem of selectedPrioritizedProblems" [ngValue]="problem.id">
+                        {{ problem.description }} 
+                      </option>
+                    </select>
+                  </span>
+                </div>
+
+                <!-- Select Problem -->
+                <div *ngIf="selectedProblem !== null">
+                  <div class="label-container-selected py-4 px-4">
+                    <div class="label-selected">
+                      <span class="label-selected-problem-title">
+                        {{ getSelectedProblemDetails()?.description }}
+                      </span> 
+                      <span
+                        class="badge rounded-pill"
+                        [ngClass]="{
+                          'bg-danger': getSelectedProblemDetails()?.priority_type === 'High',
+                          'bg-warning': getSelectedProblemDetails()?.priority_type === 'Medium',
+                          'bg-success': getSelectedProblemDetails()?.priority_type === 'Low'
+                        }"
+                      >
+                        {{ getSelectedProblemDetails()?.priority_type }}
+                      </span>
+                    </div>
+                    <div class="label-selected">
+                      <label class="label-title-selected">Date:</label>
+                      <span class="label-value-selected">
+                        {{ getSelectedProblemDetails()?.date | date:'MMM dd HH:mm yyyy' }}
+                      </span>
+                    </div> 
                   </div>
-                  <div class="label-selected">
-                    <label class="label-title-selected">Date:</label>
-                    <span class="label-value-selected">{{ getSelectedProblemDetails()?.date }}</span>
-                  </div> 
                 </div>
     
-                <!--<button type="button" class="btn btn-sm btn-outline-danger">Delete</button>-->
               </div>
-    
-           
-    
-            </div>
 
-
-
-            
-            <!--Context Components-->
-            <div class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
-              <div class="from-ctx-components  flex-fill ">
-      
-         
-                <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
-                  <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
-                  <div>
-                    Select the data quality dimensions and factors that best match your prioritized data quality problems, focusing on the most critical areas to improve.
+              <div class="d-flex justify-content-between px-4 py-4" style="gap: 20px;">
+                <div>
+                  <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                      <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                      </symbol>
+                      <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                      </symbol>
+                      <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                      </symbol>
+                    </svg>
+                    <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+                    <div>
+                      Select the data quality dimensions and factors that best match your prioritized data quality problems, focusing on the most critical areas to improve.
+                    </div>
                   </div>
-                </div>
-       
-               <!-- Dimensions and Factors SELECTION (CHECKBOX) -->
-                <div class="label-container container-dim-factors ms-4">
-
-                  <div *ngFor="let dimFactor of dimensionsWithFactors" class="label-container">
-                    <!-- DQ Dimension -->
-                    <div class="label">
-                      <label class="label-title">DQ Dimension:</label>
-                      <span class="label-value">{{ dimFactor.dimension.name }} <i class="bi bi-info-circle"></i></span>
-                    </div>
-      
-                    <!-- DQ Factors -->
-                    <div class="label">
-                      <label class="label-title">DQ Factors:</label>
-                    </div>
-                    <div class="factors-container ms-4">
-                      <div *ngFor="let factor of dimFactor.factors" class="form-check">
-                        <input class="form-check-input" type="checkbox" [id]="'factor-' + factor.id">
-                        <label class="form-check-label" [for]="'factor-' + factor.id">
-                          {{ factor.name }} <i class="bi bi-info-circle"></i>
-                        </label>
-                      </div>
-                    </div>
-                    <br>
-                  </div>
-                
-                </div>
-
-                
-                <!-- mensaje para que empiece agregar componentes de contexto -->
-                <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-                  <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-                  </symbol>
-                  <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
-                  </symbol>
-                  <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-                  </symbol>
-                </svg>
-  
-    
-    
-    
-              </div> 
-            </div>
-    
-  
-          </div>
-
-
-
-         
         
- 
-         <button class="btn btn-dark btn-sm mt-4">Add to DQ Model</button>
-       </div>
-     </div>
-   </div>
+                  <!-- Dimensions and Factors selection -->
+                  <div class="label-container container-dim-factors">
+                    <div *ngFor="let dimFactor of dimensionsWithFactors" class="label-container">
+                      <!-- DQ Dimension -->
+                      <div class="label" [ngClass]="{ 'dimension-selected': isDimensionSelectedFromDQProblems(dimFactor.dimension.id) }">
+                        <label class="label-title">DQ Dimension:</label>
+                        <span class="label-value-dim-from-problem">
+                          {{ dimFactor.dimension.name }} 
+                          <i 
+                            class="bi bi-info-circle" 
+                            data-bs-toggle="tooltip" 
+                            data-bs-placement="top" 
+                            [attr.title]="dimFactor.dimension.semantic">
+                          </i>
+                          <!-- Checkbox para la dimensión (solo lectura, refleja el estado derivado) -->
+                          <input 
+                            type="checkbox" 
+                            [checked]="isDimensionSelectedFromDQProblems(dimFactor.dimension.id)" 
+                            disabled> <!-- Deshabilitado porque el estado se deriva de los factores -->
+                        </span>
+                      </div>
+                  
+                      <!-- DQ Factors of given Dimension -->
+                      <div class="label">
+                        <label class="label-title">DQ Factors:</label>
+                      </div>
+                      <div class="factors-container ms-4">
+                        <div *ngFor="let factor of dimFactor.factors" class="form-check">
+                          <input 
+                            class="form-check-input" 
+                            type="checkbox" 
+                            [id]="'factor-' + factor.id" 
+                            [checked]="isFactorSelectedFromDQProblems(factor.id)" 
+                            (change)="onFactorChangeFromDQProblems(factor.id, dimFactor.dimension.id, $event)">
+                          <label class="form-check-label" [for]="'factor-' + factor.id">
+                            {{ factor.name }} 
+                            <i 
+                              class="bi bi-info-circle" 
+                              data-bs-toggle="tooltip" 
+                              data-bs-placement="top" 
+                              [attr.title]="factor.semantic">
+                            </i>
+                          </label>
+                        </div>
+                      </div>
+                      <br>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+            </div>
 
+          <button class="btn btn-dark btn-sm mt-4" (click)="addDimensionsAndFactorsFromDQProblems()" >Add to DQ Model</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
    
-  <!-- SECTION (DQ MODEL VIEW): Dimensions and Factors in DQMODEL -->
-  <!--<h3 class="mt-4 selection-subtitle">DQ Dimensions and DQ Factors added to DQ Model</h3>-->
-  <p class="subtitle-description mt-4">Dimensions and Factors added to DQ Model</p>
-  <div class="flex-container">
-    <div class="suggested-section-container">
-      
-      <!-- DQ DIMENSIONS and DQ FACTORS ADDED to DQ MODEL -->
-      <div *ngIf="dimensionsWithFactorsInDQModel && dimensionsWithFactorsInDQModel.length">
-        <!--<h5 class="pb-2">DQ Model: Dimensions and Factors</h5>-->
+  <!-- SECTION - DQ MODEL VIEW: Dimensions and Factors in DQMODEL -->
+  <div>
+    <p class="subtitle-description mt-4">Dimensions and Factors added to DQ Model</p>
+    <div class="flex-container">
+      <div class="suggested-section-container">
         
-        <!-- DQ MODEL Details with nested DIMENSIONS/FACTORS -->
-        <div class="label-container-selected py-2 px-4">
-          <div class="dqmodel-title">
-            <span class="label-name-dqmodel">{{ currentDQModel.version }} (id: {{ project.dqmodel_version }})</span>
-            <span *ngIf="currentDQModel.status === 'finished'" class="badge rounded-pill bg-dark">Finished</span>
-            <span *ngIf="currentDQModel.status === 'draft'" class="badge rounded-pill bg-warning">Draft</span>
-          </div>
-          <div class="label-selected">
-            <label class="label-title-selected">Creation date:</label>
-            <span class="label-value-selected">{{ currentDQModel.created_at | date:'MMM dd HH:mm yyyy' }}</span>
-          </div> 
-          <div class="label-selected">
-            <label class="label-title-selected">Context version:</label>
-            <span class="label-value-selected">CtxA v1.0 (id: {{ project.context_version }})</span>
-          </div>  
-          <div class="label-selected">
-            <label class="label-title-selected">Data at hand:</label>
-            <span class="label-value-selected">Dataset A</span>
-          </div> 
-          <div class="label-selected-dqelement">
-            <label class="label-title-selected">DQ Dimensions:</label>
-            <!-- SHOW BTN <span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span> -->
-          </div>
-
-          <!-- Accordion DIMENSIONS DQMODEL -->
-          <div class="dimensions-factors-selected-accordion-container">
-            <div class="accordion mt-3 mx-5" id="accordionDimensions">
-              <div class="accordion-item mb-3" *ngFor="let item of dimensionsWithFactorsInDQModel; let i = index"
-              style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden; margin-top: 8px;">
-                <h2 class="accordion-header" [id]="'heading' + i">
-                  <button
-                    class="accordion-button"
-                    [ngClass]="{ 'collapsed': i !== 0 }"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    [attr.data-bs-target]="'#collapse' + i"
-                    [attr.aria-expanded]="i === 0 ? 'true' : 'false'"
-                    [attr.aria-controls]="'collapse' + i"
-                    style="padding: 0.6rem 0.9rem;"
-                  >
-                  <span>
-                    <label class="label-title">DQ Dimension:</label> <span class="dimension-name">{{ item.dimension.dimension_name }}</span>
-                  </span>
-                  
-                  </button>
-                </h2>
-                <div
-                  [id]="'collapse' + i"
-                  class="accordion-collapse collapse"
-                  [class.show]="i === 0"
-                  [attr.aria-labelledby]="'heading' + i"
-                  
-                >
-                  <div class="accordion-body">
-                    <div class="label-selected">
-                      <label class="label-title-selected">Semantic:</label>
-                      <span class="label-value-selected">{{ item.baseAttributes.semantic }}</span>
-                    </div>
-
-                    <div class="label-selected">
-                      <label class="label-title-selected">Ctx (Suggested by):</label>
-                      <!--<span class="label-value-selected">{{ formatContextComponents(item.dimension.context_components) }}</span>-->
-                      <span class="label-value-selected" [innerHTML]="formatContextComponents(item.dimension.context_components)"></span>
-                    </div>
-
-                    <!-- Context Components 
-                    <div class="context-components">
-                      <h5>Context Components</h5>
-                      <div *ngFor="let key of getKeys(item.dimension.context_components)">
-                        <h6>{{ key }}</h6>
-                        <ul *ngIf="item.dimension.context_components[key].length > 0">
-                          <li *ngFor="let value of item.dimension.context_components[key]">
-                            {{ key }}{{ value }}
-                          </li>
-                        </ul>
-                        <p *ngIf="item.dimension.context_components[key].length === 0">No items found for {{ key }}</p>
-                      </div>
-                    </div>-->
-                              
-
-                    <div class="label-selected-dqelement">
-                      <label class="label-title-selected">DQ Factors:</label>
-                      <!-- SHOW BTN <span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span> -->
-                    </div>
-                    
-                    <div class="accordion mt-3 mx-5" [id]="'factorAccordion' + i">
-                      <div
-                        class="accordion-item"
-                        *ngFor="let factor of item.factors; let j = index"
-                      >
-                        <h2 class="accordion-header" [id]="'factorHeading' + i + '-' + j">
-                          <button
-                            class="accordion-button collapsed"
-                            type="button"
-                            data-bs-toggle="collapse"
-                            [attr.data-bs-target]="'#factorCollapse' + i + '-' + j"
-                            aria-expanded="false"
-                            [attr.aria-controls]="'factorCollapse' + i + '-' + j"
-                            style="padding: 0.6rem 0.9rem;"
-                          >
-                            <span>
-                              <label class="label-title">DQ Factor:</label> <span class="dimension-name">{{ factor.factor_name }}</span>
-                            </span>
-                          </button>
-                        </h2>
-                        <div
-                          [id]="'factorCollapse' + i + '-' + j"
-                          class="accordion-collapse collapse"
-                          [attr.aria-labelledby]="'factorHeading' + i + '-' + j"
-                          [attr.data-bs-parent]="'#factorAccordion' + i"
-                          
-                        >
-                          <div class="accordion-body">
-                            <div class="label-selected">
-                              <label class="label-title-selected">Semantic:</label>
-                              <span class="label-value-selected">{{ factor.baseAttributes.semantic }}</span>
-                            </div>
+        <!-- DQ DIMENSIONS and DQ FACTORS ADDED to DQ MODEL -->
+        <div *ngIf="dimensionsWithFactorsInDQModel && dimensionsWithFactorsInDQModel.length">
+          <!--<h5 class="pb-2">DQ Model: Dimensions and Factors</h5>-->
           
-                            <div class="label-selected">
-                              <label class="label-title-selected">Ctx (Arises from):</label>
-                              <span class="label-value-selected">BR1</span>
-                            </div>
+          <!-- DQ MODEL Details with nested DIMENSIONS/FACTORS -->
+          <div class="label-container-selected py-2 px-4">
+            <div class="dqmodel-title">
+              <span class="label-name-dqmodel">{{ currentDQModel.version }} (id: {{ project.dqmodel_version }})</span>
+              <span *ngIf="currentDQModel.status === 'finished'" class="badge rounded-pill bg-dark">Finished</span>
+              <span *ngIf="currentDQModel.status === 'draft'" class="badge rounded-pill bg-warning">Draft</span>
+            </div>
+            <div class="label-selected">
+              <label class="label-title-selected">Creation date:</label>
+              <span class="label-value-selected">{{ currentDQModel.created_at | date:'MMM dd HH:mm yyyy' }}</span>
+            </div> 
+            <div class="label-selected">
+              <label class="label-title-selected">Context version:</label>
+              <span class="label-value-selected">CtxA v1.0 (id: {{ project.context_version }})</span>
+            </div>  
+            <div class="label-selected">
+              <label class="label-title-selected">Data at hand:</label>
+              <span class="label-value-selected">Dataset A</span>
+            </div> 
+            <div class="label-selected-dqelement">
+              <label class="label-title-selected">DQ Dimensions:</label>
+              <!-- SHOW BTN <span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span> -->
+            </div>
+
+            <!-- Accordion DIMENSIONS DQMODEL -->
+            <div class="dimensions-factors-selected-accordion-container">
+              <div class="accordion mt-3 mx-5" id="accordionDimensions">
+                <div class="accordion-item mb-3" *ngFor="let item of dimensionsWithFactorsInDQModel; let i = index"
+                style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden; margin-top: 8px;">
+                  <h2 class="accordion-header" [id]="'heading' + i">
+                    <button
+                      class="accordion-button"
+                      [ngClass]="{ 'collapsed': i !== 0 }"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      [attr.data-bs-target]="'#collapse' + i"
+                      [attr.aria-expanded]="i === 0 ? 'true' : 'false'"
+                      [attr.aria-controls]="'collapse' + i"
+                      style="padding: 0.6rem 0.9rem;"
+                    >
+                    <span>
+                      <label class="label-title">DQ Dimension:</label> <span class="dimension-name">{{ item.dimension.dimension_name }}</span>
+                    </span>
+                    
+                    </button>
+                  </h2>
+                  <div
+                    [id]="'collapse' + i"
+                    class="accordion-collapse collapse"
+                    [class.show]="i === 0"
+                    [attr.aria-labelledby]="'heading' + i"
+                    
+                  >
+                    <div class="accordion-body">
+                      <div class="label-selected">
+                        <label class="label-title-selected">Semantic:</label>
+                        <span class="label-value-selected">{{ item.baseAttributes.semantic }}</span>
+                      </div>
+
+                      <div class="label-selected">
+                        <label class="label-title-selected">Ctx (Suggested by):</label>
+                        <!--<span class="label-value-selected">{{ formatContextComponents(item.dimension.context_components) }}</span>-->
+                        <span class="label-value-selected" [innerHTML]="formatContextComponents(item.dimension.context_components)"></span>
+                      </div>
+
+                      <!-- Context Components 
+                      <div class="context-components">
+                        <h5>Context Components</h5>
+                        <div *ngFor="let key of getKeys(item.dimension.context_components)">
+                          <h6>{{ key }}</h6>
+                          <ul *ngIf="item.dimension.context_components[key].length > 0">
+                            <li *ngFor="let value of item.dimension.context_components[key]">
+                              {{ key }}{{ value }}
+                            </li>
+                          </ul>
+                          <p *ngIf="item.dimension.context_components[key].length === 0">No items found for {{ key }}</p>
+                        </div>
+                      </div>-->
+                                
+
+                      <div class="label-selected-dqelement">
+                        <label class="label-title-selected">DQ Factors:</label>
+                        <!-- SHOW BTN <span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span> -->
+                      </div>
+                      
+                      <div class="accordion mt-3 mx-5" [id]="'factorAccordion' + i">
+                        <div
+                          class="accordion-item"
+                          *ngFor="let factor of item.factors; let j = index"
+                        >
+                          <h2 class="accordion-header" [id]="'factorHeading' + i + '-' + j">
+                            <button
+                              class="accordion-button collapsed"
+                              type="button"
+                              data-bs-toggle="collapse"
+                              [attr.data-bs-target]="'#factorCollapse' + i + '-' + j"
+                              aria-expanded="false"
+                              [attr.aria-controls]="'factorCollapse' + i + '-' + j"
+                              style="padding: 0.6rem 0.9rem;"
+                            >
+                              <span>
+                                <label class="label-title">DQ Factor:</label> <span class="dimension-name">{{ factor.factor_name }}</span>
+                              </span>
+                            </button>
+                          </h2>
+                          <div
+                            [id]="'factorCollapse' + i + '-' + j"
+                            class="accordion-collapse collapse"
+                            [attr.aria-labelledby]="'factorHeading' + i + '-' + j"
+                            [attr.data-bs-parent]="'#factorAccordion' + i"
                             
-                            
-                            <!-- DQ Factors button -->
-                            <div *ngIf="currentDQModel.status === 'draft'">
-                              <br>
-                              <button (click)="deleteFactor(factor.id)" class="btn btn-outline-danger btn-sm">
-                                Remove Factor
-                              </button> 
+                          >
+                            <div class="accordion-body">
+                              <div class="label-selected">
+                                <label class="label-title-selected">Semantic:</label>
+                                <span class="label-value-selected">{{ factor.baseAttributes.semantic }}</span>
+                              </div>
+            
+                              <div class="label-selected">
+                                <label class="label-title-selected">Ctx (Arises from):</label>
+                                <span class="label-value-selected">BR1</span>
+                              </div>
+                              
+                              
+                              <!-- DQ Factors button -->
+                              <div *ngIf="currentDQModel.status === 'draft'">
+                                <br>
+                                <button (click)="deleteFactor(factor.id)" class="btn btn-outline-danger btn-sm">
+                                  Remove Factor
+                                </button> 
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    
-                    <!-- DQ Dimensions buttons -->
-                    <div *ngIf="currentDQModel.status === 'draft'">
-                      <br> <br>
-                      <button (click)="deleteDimension(item.dimension.id)" class="btn btn-outline-danger btn-sm">
-                        Remove Dimension
-                      </button>
-                      <button (click)="scrollToDiv('dimension-factor-selection')" class="btn btn-light btn-sm ms-2">
-                        Add more Factors
-                      </button>
-                    </div>
+                      
+                      <!-- DQ Dimensions buttons -->
+                      <div *ngIf="currentDQModel.status === 'draft'">
+                        <br> <br>
+                        <button (click)="deleteDimension(item.dimension.id)" class="btn btn-outline-danger btn-sm">
+                          Remove Dimension
+                        </button>
+                        <button (click)="scrollToDiv('dimension-factor-selection')" class="btn btn-light btn-sm ms-2">
+                          Add more Factors
+                        </button>
+                      </div>
 
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+
           </div>
-
         </div>
-      </div>
-      
-        <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
-        <p *ngIf="noDimensionsMessage" class="error-message">{{ noDimensionsMessage }}</p>
+        
+          <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+          <p *ngIf="noDimensionsMessage" class="error-message">{{ noDimensionsMessage }}</p>
 
-    </div><!-- end suggested-section-container div -->
-  </div> <!-- end flex-container div -->
+      </div><!-- end suggested-section-container div -->
+    </div> <!-- end flex-container div -->
+  </div>
 
 
   <!-- FLOATING CARD: PRIORITIZED DQ PROBLEMS  -->
@@ -929,7 +913,7 @@
   -->
 
   <div class="next-step-btn-container">
-    <button (click)="confirmAllFactors()" class="btn btn-dark">Next ></button>
+    <button (click)="goToNextStep()" class="btn btn-dark">Next ></button>
   </div>
 
 </div>
