@@ -206,7 +206,9 @@ hr.my-4 {
   margin-bottom: 0.5rem;
 }
 
-
+.hidden-checkbox {
+  display: none;
+}
 
 .select-style {
   width: 440px;
@@ -227,7 +229,7 @@ hr.my-4 {
   font-size: 0.9rem; 
   font-weight: 500;  
   padding-left: 14px;  
-  padding-right: 14px;  
+  padding-right: 34px;  
   border: 1px solid #bbb;  
   border-radius: 0.25rem;  
   background-color: #fff; 

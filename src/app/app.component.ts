@@ -43,7 +43,11 @@ export class AppComponent implements OnInit {
   //projectId: number = 44;
   //projectId: number = 21;// DQ Model finished
   //projectId: number = 46;
-  projectId: number = 57;
+  
+  //projectId: number = 60;
+  projectId: number = 62;
+  
+  //projectId: number = 57;
 
   project: any; //cargar current Project
 
@@ -69,19 +73,19 @@ export class AppComponent implements OnInit {
     //this.loadCurrentProject();
     //
 
-    this.issues = dataQualityIssuesJson as DataQualityIssue[];
+    /*this.issues = dataQualityIssuesJson as DataQualityIssue[];
     this.issues.forEach(issue => {
       issue.priorityType = 'Media';
-    });
+    });*/
 
-    console.log(this.issues);  // Verificar los datos cargados
-    this.contextComponents = contextComponentsJson as ContextComponent[];
+    /*console.log(this.issues);  
+    this.contextComponents = contextComponentsJson as ContextComponent[];*/
     //console.log(this.contextComponents);  // Verificar los datos cargados
 
 
     //Pruebas Endpoints API
     //this.getAllProjects();
-    this.getProjectById(null);
+    //this.getProjectById(null);
   }
 
 

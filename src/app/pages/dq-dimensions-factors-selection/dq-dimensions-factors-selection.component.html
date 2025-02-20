@@ -331,7 +331,7 @@
           <button 
             type="button" 
             class="btn btn-dark mt-4" 
-            (click)="addToDQModelParams(selectedDimension, selectedFactor, selected_Components)" 
+            (click)="addToDQModel(selectedDimension, selectedFactor, selected_Components)" 
             [disabled]="!selectedDimension || !selectedFactor">
             Add to DQ Model
           </button>
@@ -622,7 +622,7 @@
                   </div>
         
                   <!-- Dimensions and Factors selection -->
-                  <div class="label-container container-dim-factors">
+                  <div *ngIf="selectedProblem !== null" class="label-container container-dim-factors">
                     <div *ngFor="let dimFactor of dimensionsWithFactors" class="label-container">
                       <!-- DQ Dimension -->
                       <div class="label" [ngClass]="{ 'dimension-selected': isDimensionSelectedFromDQProblems(dimFactor.dimension.id) }">
@@ -639,7 +639,8 @@
                           <input 
                             type="checkbox" 
                             [checked]="isDimensionSelectedFromDQProblems(dimFactor.dimension.id)" 
-                            disabled> <!-- Deshabilitado porque el estado se deriva de los factores -->
+                            disabled
+                            class="hidden-checkbox"> <!-- Deshabilitado porque el estado se deriva de los factores -->
                         </span>
                       </div>
                   
@@ -671,9 +672,10 @@
                   </div>
                 </div> 
               </div>
-            </div>
 
-          <button class="btn btn-dark btn-sm mt-4" (click)="addDimensionsAndFactorsFromDQProblems()" >Add to DQ Model</button>
+              <button class="btn btn-dark btn-sm mt-4" (click)="addDimensionsAndFactorsFromDQProblems()" >Add to DQ Model</button>
+
+            </div>
         </div>
       </div>
     </div>
