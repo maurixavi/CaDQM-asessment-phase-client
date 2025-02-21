@@ -356,62 +356,68 @@
     <div class="flex-container" *ngIf="isSuggestionsSectionVisible && this.currentDQModel?.status !== 'finished'">
       <div class="suggested-section-container">
         <div class="suggested-section-div">
-          <div class="label-container">
-            <div class="label">
-              <label class="label-title">DQ Dimension:</label>
-              <span class="label-value">Accuracy <i class="bi bi-info-circle"></i></span>
-            </div>
-            <div class="label">
-              <label class="label-title">DQ Factor:</label>
-              <span class="label-value">Syntactic Accuracy <i class="bi bi-info-circle"></i></span>
-            </div>
+          <div class="label-selected">
+            <label class="label-title-selected-ctx">Suggested DQ Dimension & DQ Factor:</label>
           </div>
-        
-        <!--Context Components-->
-        <div class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
-          <div class="from-ctx-components  flex-fill ">
 
-            <!--<label class="label-title-selection-ctx mb-2 mt-2">From Context Components:</label>-->
-            <div class="label-selected">
-              <label class="label-title-selected-ctx">From Context Components:</label>
-              <!--<span class="label-value-selected">{{ getSelectedDimension()?.semantic }}</span>-->
-            </div>
-            <div *ngFor="let selected of selected_Components" class="label-selected">
-              <label class="label-title-selected">{{ selected?.category }}</label>
-              <span class="label-value-selected">
-                {{ selected?.value }}
-                <i 
-                  *ngIf="isEditSuggestedContextVisible" 
-                  class="bi bi-x-lg" 
-                  (click)="removeSelectedComponent(selected)">
-                </i>
-              </span>
-            </div>
+          <!-- mensaje informativo para la generacion de sugerencias -->
+          <div *ngIf="!getSuggestedFactor()">
+            <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+              <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+              </symbol>
+              <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+              </symbol>
+              <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+              </symbol>
+            </svg>
             
-
-
-            
-            
-            <!-- mensaje para que empiece agregar componentes de contexto -->
             <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
               <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
               <div>
-                Context components can suggest and guide the selection of relevant data quality dimensions and factors, ensuring focus on key quality aspects.
+                Context Components and Data Quality Problems can suggest and guide the selection of relevant data quality dimensions and factors, helping you focus on key data quality aspects, and associate them with your selection for tracking your selection.
               </div>
             </div>
+          </div>
 
-            <button class="btn btn-light btn-sm mb-4" (click)="toggleSuggestedItemsVisibility('context')">
-              <i *ngIf="!isEditSuggestedContextVisible"></i>
-              <i *ngIf="isEditSuggestedContextVisible" class="bi bi-eye-slash"></i>
-              {{ isEditSuggestedContextVisible ? 'Hide' : 'Edit' }}
-            </button>
 
+          <div *ngIf="getSuggestedFactor()" class="label-container">
+            <div class="label">
+              <label class="label-title">DQ Dimension</label>
+              <span class="label-value">
+                {{ getSuggestedDimension()?.name }}
+                <i *ngIf="getSuggestedDimension()" class="bi bi-info-circle"></i> 
+              </span>
+            </div>
+            <div class="label">
+              <label class="label-title">DQ Factor</label>
+              <span class="label-value">
+                {{ getSuggestedFactor()?.name }} 
+                <i *ngIf="getSuggestedFactor()" class="bi bi-info-circle"></i>
+              </span>
+            </div>
+          </div>
+          <br>
+          <button type="button" class="btn btn-info" (click)="generateSuggestion()" style="width: auto;">
+            <i class="bi bi-lightning"></i> Generate
+          </button>
+        
+        <!--Context Components-->
+   
+        <div *ngIf="getSuggestedFactor()" class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
+          <div class="from-ctx-components  flex-fill ">
+
+            <!--<label class="label-title-selection-ctx mb-2 mt-2">From Context Components:</label>-->
+            <div *ngIf="getSuggestedFactor()" class="label-selected">
+              <label class="label-title-selected-ctx">Based on the following Context Components:</label>
+              <!--<span class="label-value-selected">{{ getSelectedDimension()?.semantic }}</span>-->
+            </div>
             
-
             
-
             <!-- CTX COMPONENTS SELECTION (CHECKBOX BY TYPE) -->
-            <div *ngIf="isEditSuggestedContextVisible" class="ctx-selection-accordion-container">
+            <div *ngIf="getSuggestedFactor()" class="ctx-selection-accordion-container">
               <div class="accordion" id="accordionPanelsStayOpenExample">
                 <div *ngFor="let category of categories; let i = index" class="accordion-item">
                   <h2 class="accordion-header" [id]="'panelsStayOpen-heading' + i">
@@ -421,8 +427,8 @@
                       data-bs-toggle="collapse"
                       [attr.data-bs-target]="'#panelsStayOpen-collapse' + i"
                       [attr.aria-controls]="'panelsStayOpen-collapse' + i"
-                      [attr.aria-expanded]="i === 0 ? 'true' : 'false'"
-                      [class.collapsed]="i !== 0"
+                      [attr.aria-expanded]="hasSelectedComponents(category) ? 'true' : 'false'"
+                      [class.collapsed]="!hasSelectedComponents(category)"
                       style="padding: 0.6rem 0.9rem;"
                     >
                       {{ formatCategoryName(category) }}
@@ -431,7 +437,7 @@
                   <div
                     [id]="'panelsStayOpen-collapse' + i"
                     class="accordion-collapse collapse"
-                    [class.show]="i === 0"
+                    [class.show]="hasSelectedComponents(category)"
                     [attr.aria-labelledby]="'panelsStayOpen-heading' + i"
                   >
                     <div class="accordion-body">
@@ -440,8 +446,8 @@
                         class="form-check-input"
                         type="checkbox"
                         [id]="'checkbox-' + category + '-' + item.id"
-                        [checked]="isComponentSelected(category, getFirstNonIdAttribute(item))"
-                        (change)="onCheckboxChange(item.id, category, getFirstNonIdAttribute(item), $event)"
+                        [checked]="isComponentSelectedInSuggestions(category, getFirstNonIdAttribute(item))"
+                        (change)="onCheckboxChangeCtxSuggestions(item.id, category, getFirstNonIdAttribute(item), $event)"
                         />
                         <label class="form-check-label" [for]="'checkbox-' + category + '-' + item.id">
                           {{ getFirstNonIdAttribute(item) }} <i class="bi bi-info-circle"></i>
@@ -454,17 +460,43 @@
             </div>
 
 
+            <br>
+            <!-- mensaje para que empiece agregar componentes de contexto -->
+            <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+              <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+              </symbol>
+              <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+              </symbol>
+              <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+              </symbol>
+            </svg>
+            
+            <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
+              <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+              <div>
+                Context components can suggest and guide the selection of relevant data quality dimensions and factors, ensuring focus on key quality aspects.
+              </div>
+            </div>
+
+            <!--<button class="btn btn-light btn-sm mb-4" (click)="toggleSuggestedItemsVisibility('context')">
+              <i *ngIf="!isEditSuggestedContextVisible"></i>
+              <i *ngIf="isEditSuggestedContextVisible" class="bi bi-eye-slash"></i>
+              {{ isEditSuggestedContextVisible ? 'Hide' : 'Edit' }}
+            </button>-->
 
           </div> <!--end context selecion div-->
         </div>
 
           <!--DQ Problems-->
-          <div class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
+        <div *ngIf="getSuggestedFactor()" class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
           <div class="from-ctx-components  flex-fill ">
 
             <!--<label class="label-title-selection-ctx mb-2 mt-2">From Context Components:</label>-->
             <div class="label-selected">
-              <label class="label-title-selected-ctx">From DQ Problems:</label>
+              <label class="label-title-selected-ctx">Based on the following DQ Problems:</label>
               <!--<span class="label-value-selected">{{ getSelectedDimension()?.semantic }}</span>-->
             </div>
             <div *ngFor="let problem of selectedProblems" class="label-selected">
@@ -477,7 +509,7 @@
             <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
               <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
               <div>
-                Use prioritized data quality problems to guide your selection of relevant data quality dimensions and factors, helping you focus on the most critical areas for improvement, and associate them with your selection.
+                Data quality problems can guide your selection of relevant data quality dimensions and factors, helping you focus on the most critical areas for improvement, and associate them with your selection.
               </div>
             </div>
             <!--<button class="btn btn-light btn-sm  mb-4" (click)="openDimensionModal()">Add</button>-->
@@ -527,8 +559,8 @@
         </div>
 
 
-        <button class="btn btn-dark btn-sm mt-4">Add to DQ Model</button>
-        <button class="btn btn-light btn-sm mt-4 mx-3">Ignore</button>
+        <button *ngIf="getSuggestedFactor()" class="btn btn-dark btn-sm mt-4">Add to DQ Model</button>
+        <button *ngIf="getSuggestedFactor()" class="btn btn-light btn-sm mt-4 mx-3">Ignore</button>
         </div>
 
       </div>

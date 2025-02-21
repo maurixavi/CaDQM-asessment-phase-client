@@ -315,6 +315,22 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     }
   }
 
+ 
+  onCheckboxChangeCtxSuggestions(id: number, category: string, value: string, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const isChecked = input?.checked || false;
+  
+    if (isChecked) {
+      // Agregar el componente seleccionado
+      this.suggestionCtxComponents.push({ id, category, value });
+    } else {
+      // Eliminar el componente desmarcado
+      this.suggestionCtxComponents = this.suggestionCtxComponents.filter(
+        (component) => !(component.category === category && component.value === value)
+      );
+    }
+  }
+
   // Validar si un componente está seleccionado
   isComponentSelected(category: string, value: string): boolean {
     return this.selected_Components.some(
@@ -329,7 +345,20 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     );
   }
 
-  
+
+  isComponentSelectedInSuggestions(category: string, value: string): boolean {
+    return this.suggestionCtxComponents.some(
+      (component) => component.category === category && component.value === value
+    );
+  }
+
+  removeSelectedComponentInSuggestions(componentToRemove: any): void {
+    // Filtra la lista para excluir el componente a eliminar
+    this.suggestionCtxComponents = this.suggestionCtxComponents.filter(
+      (component) => component !== componentToRemove
+    );
+  }
+
 
 
 
@@ -1273,21 +1302,135 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   }
 
 
-  isSuggestionsSectionVisible: boolean = false;  
-
-  toggleSuggestionsSectionVisibility() {
-    this.isSuggestionsSectionVisible = !this.isSuggestionsSectionVisible;  
-  }
-
-  isFromProblemsSectionVisible: boolean = true;  
-
-  toggleFromProblemsSectionVisibility() {
-    this.isFromProblemsSectionVisible = !this.isFromProblemsSectionVisible;  
-  }
-
   isFromScratchSectionVisible: boolean = false;  
 
   toggleFromScratchSectionVisibility() {
     this.isFromScratchSectionVisible = !this.isFromScratchSectionVisible;  
   }
+
+  isFromProblemsSectionVisible: boolean = false;  
+
+  toggleFromProblemsSectionVisibility() {
+    this.isFromProblemsSectionVisible = !this.isFromProblemsSectionVisible;  
+  }
+
+  isSuggestionsSectionVisible: boolean = true;  
+
+  toggleSuggestionsSectionVisibility() {
+    this.isSuggestionsSectionVisible = !this.isSuggestionsSectionVisible;  
+  }
+
+
+  // Método para verificar si una categoría tiene componentes seleccionados
+  hasSelectedComponents(category: string): boolean {
+    return this.suggestionCtxComponents.some(component => component.category === category);
+  }
+
+  suggestedDQDimensionBase: any;
+  suggestedDQFactorBase: any;
+
+  suggestionCtxComponents: { id: number; category: string; value: string }[] = [];
+
+
+  selectRandomComponents() {
+    // Reinicia la selección
+    this.suggestionCtxComponents = [];
+
+    // Aplanar todos los componentes en un solo array
+    const allComponents: { id: number; category: string; value: string }[] = [];
+
+    const context_Components = this.context_Components
+
+    // Itera sobre cada categoría de componentes
+    Object.keys(context_Components).forEach(category => {
+      context_Components[category].forEach((component: { id: any; name: any; statement: any; filter: any; metadata: any; requirement: any; data: any; task: any; type: any; }) => {
+        allComponents.push({
+          id: component.id,
+          category: category,
+          value: component.name || component.statement || component.filter || component.metadata || component.requirement || component.data || component.task || component.type
+        });
+      });
+    });
+
+    // Seleccionar una cantidad aleatoria de componentes (entre 1 y el total de componentes)
+    const totalComponents = allComponents.length;
+    const numberOfComponentsToSelect = Math.floor(Math.random() * totalComponents) + 1; // Entre 1 y el total
+
+    // Seleccionar componentes aleatorios sin repetir
+    const suggestionCtxComponents = [];
+    for (let i = 0; i < numberOfComponentsToSelect; i++) {
+      const randomIndex = Math.floor(Math.random() * allComponents.length);
+      suggestionCtxComponents.push(allComponents[randomIndex]);
+      allComponents.splice(randomIndex, 1); // Eliminar el componente seleccionado para evitar duplicados
+    }
+
+    return suggestionCtxComponents;
+
+  }
+
+  // Función para seleccionar componentes aleatorios
+  selectRandomComponents_() {
+    // Reinicia la selección
+    this.suggestionCtxComponents = [];
+
+    const allCtxComponents = this.context_Components
+
+    // Itera sobre cada categoría de componentes
+    Object.keys(allCtxComponents).forEach(category => {
+      const components = allCtxComponents[category];
+
+      // Selecciona un componente aleatorio de la categoría actual
+      if (components.length > 0) {
+        const randomIndex = Math.floor(Math.random() * components.length);
+        const selectedComponent = components[randomIndex];
+
+        // Agrega el componente seleccionado a la lista
+        this.suggestionCtxComponents.push({
+          id: selectedComponent.id,
+          category: category,
+          value: selectedComponent.name || selectedComponent.statement || selectedComponent.filter || selectedComponent.metadata || selectedComponent.requirement || selectedComponent.data || selectedComponent.task || selectedComponent.type
+        });
+      }
+    });
+
+    console.log("suggestionCtxComponents", this.suggestionCtxComponents)
+
+  }
+
+  // Método para generar un DQ Factor y su DQ Dimension
+  generateSuggestion() {
+    /*
+    console.log("dqDimensionsBase", this.dqDimensionsBase);
+    console.log("dqFactorsBase", this.dqFactorsBase);*/
+
+    const randomIndex = Math.floor(Math.random() * this.dqFactorsBase.length);
+    console.log("randomIndex", randomIndex)
+
+    const generatedDQFactorBase = this.dqFactorsBase[randomIndex];
+    
+    this.suggestedDQFactorBase = generatedDQFactorBase
+
+    const suggestedDimensionId = generatedDQFactorBase.facetOf
+
+    const suggestedDimensionObj = this.dqDimensionsBase.find(dim => dim.id === suggestedDimensionId);
+
+    this.suggestedDQDimensionBase = suggestedDimensionObj
+
+    console.log("Factor sugerido:", this.suggestedDQFactorBase)
+    console.log("Dimension sugerida:", this.suggestedDQDimensionBase)
+  
+    // Seleccionar componentes de contexto aleatorios
+    this.suggestionCtxComponents = this.selectRandomComponents();
+    console.log("Componentes de contexto sugeridos:", this.suggestionCtxComponents);
+
+  }
+
+  getSuggestedDimension(): any {
+    return this.suggestedDQDimensionBase;
+  }
+
+  getSuggestedFactor(): any {
+    return this.suggestedDQFactorBase;
+  }
+
 }
