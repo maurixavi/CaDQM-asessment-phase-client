@@ -1433,4 +1433,12 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     return this.suggestedDQFactorBase;
   }
 
+
+  isCtxSuggestionVisible: boolean = true; 
+
+  toggleCtxSuggestionVisibility(): void {
+    this.isCtxSuggestionVisible = !this.isCtxSuggestionVisible;
+  }
+
+
 }

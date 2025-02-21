@@ -377,7 +377,7 @@
             <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
               <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
               <div>
-                Context Components and Data Quality Problems can suggest and guide the selection of relevant data quality dimensions and factors, helping you focus on key data quality aspects, and associate them with your selection for tracking your selection.
+                Context Components and Data Quality Problems can suggest and guide the selection of relevant data quality dimensions and factors, helping you focus on key aspects of data quality and associate them with your choices, which in turn helps track and trace your decisions during the creation or development of the Data Quality Model 
               </div>
             </div>
           </div>
@@ -385,22 +385,32 @@
 
           <div *ngIf="getSuggestedFactor()" class="label-container">
             <div class="label">
-              <label class="label-title">DQ Dimension</label>
+              <label class="label-title">DQ Dimension:</label>
               <span class="label-value">
                 {{ getSuggestedDimension()?.name }}
-                <i *ngIf="getSuggestedDimension()" class="bi bi-info-circle"></i> 
+                <i class="bi bi-info-circle" 
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="top" 
+                    title="{{ getSuggestedDimension()?.semantic }}">
+                </i>
+                <!--<i *ngIf="getSuggestedDimension()" class="bi bi-info-circle"></i> -->
               </span>
             </div>
             <div class="label">
-              <label class="label-title">DQ Factor</label>
+              <label class="label-title">DQ Factor:</label>
               <span class="label-value">
                 {{ getSuggestedFactor()?.name }} 
-                <i *ngIf="getSuggestedFactor()" class="bi bi-info-circle"></i>
+                <i class="bi bi-info-circle" 
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="top" 
+                    title="{{ getSuggestedFactor()?.semantic }}">
+                </i>
+                <!--<i *ngIf="getSuggestedFactor()" class="bi bi-info-circle"></i>-->
               </span>
             </div>
           </div>
           <br>
-          <button type="button" class="btn btn-info" (click)="generateSuggestion()" style="width: auto;">
+          <button  *ngIf="!getSuggestedFactor()"  type="button" class="btn btn-info" (click)="generateSuggestion()" style="width: auto;">
             <i class="bi bi-lightning"></i> Generate
           </button>
         
@@ -409,15 +419,15 @@
         <div *ngIf="getSuggestedFactor()" class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
           <div class="from-ctx-components  flex-fill ">
 
-            <!--<label class="label-title-selection-ctx mb-2 mt-2">From Context Components:</label>-->
-            <div *ngIf="getSuggestedFactor()" class="label-selected">
-              <label class="label-title-selected-ctx">Based on the following Context Components:</label>
-              <!--<span class="label-value-selected">{{ getSelectedDimension()?.semantic }}</span>-->
+            <!-- Título colapsable -->
+            <div class="label-selected">
+              <label class="label-title-selected-ctx" (click)="toggleCtxSuggestionVisibility()" style="cursor: pointer;">
+                Based on the following Context Components <i class="bi" [ngClass]="isCtxSuggestionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+              </label>
             </div>
             
-            
             <!-- CTX COMPONENTS SELECTION (CHECKBOX BY TYPE) -->
-            <div *ngIf="getSuggestedFactor()" class="ctx-selection-accordion-container">
+            <div *ngIf="isCtxSuggestionVisible" class="ctx-selection-accordion-container">
               <div class="accordion" id="accordionPanelsStayOpenExample">
                 <div *ngFor="let category of categories; let i = index" class="accordion-item">
                   <h2 class="accordion-header" [id]="'panelsStayOpen-heading' + i">
@@ -559,8 +569,9 @@
         </div>
 
 
-        <button *ngIf="getSuggestedFactor()" class="btn btn-dark btn-sm mt-4">Add to DQ Model</button>
-        <button *ngIf="getSuggestedFactor()" class="btn btn-light btn-sm mt-4 mx-3">Ignore</button>
+        <button *ngIf="getSuggestedFactor()" class="btn btn-dark btn-sm mt-4" style="width: auto;">Add to DQ Model</button>
+        <button *ngIf="getSuggestedFactor()" type="button"  class="btn btn-info btn-sm mt-4 mx-2"  (click)="generateSuggestion()" style="width: auto;"><i class="bi bi-lightning"></i> Generate</button>
+        <!--<button *ngIf="getSuggestedFactor()" class="btn btn-light btn-sm mt-4">Ignore</button>-->
         </div>
 
       </div>
