@@ -23,7 +23,7 @@
       id="dimension-factor-selection" 
       *ngIf="isFromScratchSectionVisible && this.currentDQModel?.status !== 'finished'"
     >
-      <div class="suggested-section-container">
+      <div class="section-container">
         <div class="dim-factor-selection-container">
           <div class="label-container">
             <!-- DQ Dimension -->
@@ -345,8 +345,155 @@
     </div>
   </div>
   
+  <!-- SECTION: Add Dimensions and Factors from DQ Problems -->
+  <div>
+    <p 
+      class="subtitle-description mt-4" 
+      *ngIf="currentDQModel?.status !== 'finished'" 
+      (click)="toggleFromProblemsSectionVisibility()" 
+      style="cursor: pointer;"
+    >
+      Add Dimensions and Factors from DQ Problems
+      <i class="bi" [ngClass]="isFromProblemsSectionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+    </p>
 
-  <!-- SECTION #2: Suggested Dimensions and Factors -->
+    <div class="flex-container" *ngIf="isFromProblemsSectionVisible && currentDQModel?.status !== 'finished'">
+      <div class="section-container">
+        <div>
+          <div class="dim-factor-selection-container">
+              <div class="label-container">
+                <div class="label">
+                  <label class="label-title">DQ Problem:</label>
+                  <span class="label-value d-flex align-items-center">
+                    <select 
+                      class="form-select select-style-problems"   
+                      id="dqProblem"
+                      [(ngModel)]="selectedProblem" 
+                      (change)="onProblemChange()"
+                      aria-label="Default select example"
+                    >
+                      <option value="" disabled>Select existing</option>
+                      <option *ngFor="let problem of selectedPrioritizedProblems" [ngValue]="problem.id">
+                        {{ problem.description }} 
+                      </option>
+                    </select>
+                  </span>
+                </div>
+
+                <!-- Select Problem -->
+                <div *ngIf="selectedProblem !== null">
+                  <div class="label-container-selected py-4 px-4">
+                    <div class="label-selected">
+                      <span class="label-selected-problem-title">
+                        {{ getSelectedProblemDetails()?.description }}
+                      </span> 
+                      <span
+                        class="badge rounded-pill"
+                        [ngClass]="{
+                          'bg-danger': getSelectedProblemDetails()?.priority_type === 'High',
+                          'bg-warning': getSelectedProblemDetails()?.priority_type === 'Medium',
+                          'bg-success': getSelectedProblemDetails()?.priority_type === 'Low'
+                        }"
+                      >
+                        {{ getSelectedProblemDetails()?.priority_type }}
+                      </span>
+                    </div>
+                    <div class="label-selected">
+                      <label class="label-title-selected">Date:</label>
+                      <span class="label-value-selected">
+                        {{ getSelectedProblemDetails()?.date | date:'MMM dd HH:mm yyyy' }}
+                      </span>
+                    </div> 
+                  </div>
+                </div>
+    
+              </div>
+
+              <div class="d-flex justify-content-between px-4 py-4" style="gap: 20px;">
+                <div>
+                  <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                      <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                      </symbol>
+                      <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                      </symbol>
+                      <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                      </symbol>
+                    </svg>
+                    <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+                    <div>
+                    Prioritized data quality problems can guide your selection of relevant data quality dimensions and factors, helping you focus on the most critical areas for improvement.
+                    </div>
+                    <!--<div>
+                      Select the data quality dimensions and factors that best match your prioritized data quality problems, focusing on the most critical areas to improve.
+                    </div>-->
+                  </div>
+        
+                  <!-- Dimensions and Factors selection -->
+                  <div *ngIf="selectedProblem !== null" class="label-container container-dim-factors">
+                    <div *ngFor="let dimFactor of dimensionsWithFactors" class="label-container">
+                      <!-- DQ Dimension -->
+                      <div class="label" [ngClass]="{ 'dimension-selected': isDimensionSelectedFromDQProblems(dimFactor.dimension.id) }">
+                        <label class="label-title">DQ Dimension:</label>
+                        <span class="label-value-dim-from-problem">
+                          {{ dimFactor.dimension.name }} 
+                          <i 
+                            class="bi bi-info-circle" 
+                            data-bs-toggle="tooltip" 
+                            data-bs-placement="top" 
+                            [attr.title]="dimFactor.dimension.semantic">
+                          </i>
+                          <!-- Checkbox para la dimensión (solo lectura, refleja el estado derivado) -->
+                          <input 
+                            type="checkbox" 
+                            [checked]="isDimensionSelectedFromDQProblems(dimFactor.dimension.id)" 
+                            disabled
+                            class="hidden-checkbox"> <!-- Deshabilitado porque el estado se deriva de los factores -->
+                        </span>
+                      </div>
+                  
+                      <!-- DQ Factors of given Dimension -->
+                      <div class="label">
+                        <label class="label-title">DQ Factors:</label>
+                      </div>
+                      <div class="factors-container ms-4">
+                        <div *ngFor="let factor of dimFactor.factors" class="form-check">
+                          <input 
+                            class="form-check-input" 
+                            type="checkbox" 
+                            [id]="'factor-' + factor.id" 
+                            [checked]="isFactorSelectedFromDQProblems(factor.id)" 
+                            (change)="onFactorChangeFromDQProblems(factor.id, dimFactor.dimension.id, $event)">
+                          <label class="form-check-label" [for]="'factor-' + factor.id">
+                            {{ factor.name }} 
+                            <i 
+                              class="bi bi-info-circle" 
+                              data-bs-toggle="tooltip" 
+                              data-bs-placement="top" 
+                              [attr.title]="factor.semantic">
+                            </i>
+                          </label>
+                        </div>
+                      </div>
+                      <br>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+
+              <button class="btn btn-dark btn-sm mt-4" (click)="addDimensionsAndFactorsFromDQProblems()" >Add to DQ Model</button>
+
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- SECTION: Suggested Dimensions and Factors -->
   <div>
     <p class="subtitle-description mt-4" *ngIf="this.currentDQModel?.status !== 'finished'" (click)="toggleSuggestionsSectionVisibility()" style="cursor: pointer;">
       Suggested Dimensions and Factors
@@ -470,21 +617,23 @@
             </div>
 
 
-            <br>
-            <!-- mensaje para que empiece agregar componentes de contexto -->
-            <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-              <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-              </symbol>
-              <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
-              </symbol>
-              <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-              </symbol>
-            </svg>
             
+            <!-- mensaje para que empiece agregar componentes de contexto -->
             <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
+
+              <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                </symbol>
+                <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                </symbol>
+                <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </symbol>
+              </svg>
+            
+            
               <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
               <div>
                 Context components can suggest and guide the selection of relevant data quality dimensions and factors, ensuring focus on key quality aspects.
@@ -580,156 +729,14 @@
   </div>
   
 
-  <!-- SECTION #3: Add Dimensions and Factors from DQ Problems -->
-  <div>
-    <p 
-      class="subtitle-description mt-4" 
-      *ngIf="currentDQModel?.status !== 'finished'" 
-      (click)="toggleFromProblemsSectionVisibility()" 
-      style="cursor: pointer;"
-    >
-      Add Dimensions and Factors from DQ Problems
-      <i class="bi" [ngClass]="isFromProblemsSectionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-    </p>
-
-    <div class="flex-container" *ngIf="isFromProblemsSectionVisible && currentDQModel?.status !== 'finished'">
-      <div class="suggested-section-container">
-        <div class="dq-problem-container">
-          <div class="dim-factor-selection-container">
-              <div class="label-container">
-                <div class="label">
-                  <label class="label-title">DQ Problem:</label>
-                  <span class="label-value d-flex align-items-center">
-                    <select 
-                      class="form-select select-style-problems"   
-                      id="dqProblem"
-                      [(ngModel)]="selectedProblem" 
-                      (change)="onProblemChange()"
-                      aria-label="Default select example"
-                    >
-                      <option value="" disabled>Select existing</option>
-                      <option *ngFor="let problem of selectedPrioritizedProblems" [ngValue]="problem.id">
-                        {{ problem.description }} 
-                      </option>
-                    </select>
-                  </span>
-                </div>
-
-                <!-- Select Problem -->
-                <div *ngIf="selectedProblem !== null">
-                  <div class="label-container-selected py-4 px-4">
-                    <div class="label-selected">
-                      <span class="label-selected-problem-title">
-                        {{ getSelectedProblemDetails()?.description }}
-                      </span> 
-                      <span
-                        class="badge rounded-pill"
-                        [ngClass]="{
-                          'bg-danger': getSelectedProblemDetails()?.priority_type === 'High',
-                          'bg-warning': getSelectedProblemDetails()?.priority_type === 'Medium',
-                          'bg-success': getSelectedProblemDetails()?.priority_type === 'Low'
-                        }"
-                      >
-                        {{ getSelectedProblemDetails()?.priority_type }}
-                      </span>
-                    </div>
-                    <div class="label-selected">
-                      <label class="label-title-selected">Date:</label>
-                      <span class="label-value-selected">
-                        {{ getSelectedProblemDetails()?.date | date:'MMM dd HH:mm yyyy' }}
-                      </span>
-                    </div> 
-                  </div>
-                </div>
-    
-              </div>
-
-              <div class="d-flex justify-content-between px-4 py-4" style="gap: 20px;">
-                <div>
-                  <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
-                    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-                      <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-                      </symbol>
-                      <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
-                      </symbol>
-                      <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-                      </symbol>
-                    </svg>
-                    <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
-                    <div>
-                      Select the data quality dimensions and factors that best match your prioritized data quality problems, focusing on the most critical areas to improve.
-                    </div>
-                  </div>
-        
-                  <!-- Dimensions and Factors selection -->
-                  <div *ngIf="selectedProblem !== null" class="label-container container-dim-factors">
-                    <div *ngFor="let dimFactor of dimensionsWithFactors" class="label-container">
-                      <!-- DQ Dimension -->
-                      <div class="label" [ngClass]="{ 'dimension-selected': isDimensionSelectedFromDQProblems(dimFactor.dimension.id) }">
-                        <label class="label-title">DQ Dimension:</label>
-                        <span class="label-value-dim-from-problem">
-                          {{ dimFactor.dimension.name }} 
-                          <i 
-                            class="bi bi-info-circle" 
-                            data-bs-toggle="tooltip" 
-                            data-bs-placement="top" 
-                            [attr.title]="dimFactor.dimension.semantic">
-                          </i>
-                          <!-- Checkbox para la dimensión (solo lectura, refleja el estado derivado) -->
-                          <input 
-                            type="checkbox" 
-                            [checked]="isDimensionSelectedFromDQProblems(dimFactor.dimension.id)" 
-                            disabled
-                            class="hidden-checkbox"> <!-- Deshabilitado porque el estado se deriva de los factores -->
-                        </span>
-                      </div>
-                  
-                      <!-- DQ Factors of given Dimension -->
-                      <div class="label">
-                        <label class="label-title">DQ Factors:</label>
-                      </div>
-                      <div class="factors-container ms-4">
-                        <div *ngFor="let factor of dimFactor.factors" class="form-check">
-                          <input 
-                            class="form-check-input" 
-                            type="checkbox" 
-                            [id]="'factor-' + factor.id" 
-                            [checked]="isFactorSelectedFromDQProblems(factor.id)" 
-                            (change)="onFactorChangeFromDQProblems(factor.id, dimFactor.dimension.id, $event)">
-                          <label class="form-check-label" [for]="'factor-' + factor.id">
-                            {{ factor.name }} 
-                            <i 
-                              class="bi bi-info-circle" 
-                              data-bs-toggle="tooltip" 
-                              data-bs-placement="top" 
-                              [attr.title]="factor.semantic">
-                            </i>
-                          </label>
-                        </div>
-                      </div>
-                      <br>
-                    </div>
-                  </div>
-                </div> 
-              </div>
-
-              <button class="btn btn-dark btn-sm mt-4" (click)="addDimensionsAndFactorsFromDQProblems()" >Add to DQ Model</button>
-
-            </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  
 
    
   <!-- SECTION - DQ MODEL VIEW: Dimensions and Factors in DQMODEL -->
   <div>
     <p class="subtitle-description mt-4">Dimensions and Factors added to DQ Model</p>
     <div class="flex-container">
-      <div class="suggested-section-container">
+      <div class="section-container">
         
         <!-- DQ DIMENSIONS and DQ FACTORS ADDED to DQ MODEL -->
         <div *ngIf="dimensionsWithFactorsInDQModel && dimensionsWithFactorsInDQModel.length">

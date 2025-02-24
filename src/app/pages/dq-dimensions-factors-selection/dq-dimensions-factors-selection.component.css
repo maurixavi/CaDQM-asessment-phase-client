@@ -397,6 +397,21 @@ hr.my-4 {
   border: 1px solid #eeeeee;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
   background-color: #fff; 
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
+  padding-top: 0.8rem;
+  padding-bottom: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;  
+}
+
+.section-container {
+  width: 100%;
+  /*border: 1px solid #ddd; */
+  border: 1px solid #eeeeee;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  background-color: #fff; 
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
