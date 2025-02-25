@@ -248,12 +248,13 @@ export class DQProblemsPriorizationComponent implements OnInit {
   }
 
   nextStep() {
+    this.router.navigate(['/step2']);
     // Redirigir solo si la orden se confirma
-    if (this.isOrderConfirmed) {
+    /*if (this.isOrderConfirmed) {
       this.router.navigate(['/step2']);
     } else {
       alert("Please confirm order")
-    }
+    }*/
   }
 
   getContextDescription(contextId: string): string {

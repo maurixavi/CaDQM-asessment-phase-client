@@ -6,113 +6,312 @@
 		[currentStep]="currentStep">
 	</app-step-navigator>
 
-  <p class="subtitle-description">Select the prioritized quality problems to define the DQ Model</p>
+  <div>
+    <p class="subtitle-description">Select the prioritized quality problems to define the DQ Model</p>
+    <div class="flex-container">
+      <div class="container-section">
+        <div class="py-2 px-4 row">
+          <div class="col-md-12">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="priority-column ">Priority</th>
+                  <th class="w-70">Data Quality Problem</th>
+                  <th class="w-10">Creation Date</th>
+                  <th class="w-10"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let problem of getFilteredProblems()" [ngClass]="{
+                  'priority-high': problem.priority_type === 'High',
+                  'priority-medium': problem.priority_type === 'Medium',
+                  'priority-low': problem.priority_type === 'Low'
+                }">
+                  <td>
+                    <span [ngClass]="{
+                      'badge': true,
+                      'badge-high': problem.priority_type === 'High',
+                      'badge-medium': problem.priority_type === 'Medium',
+                      'badge-low': problem.priority_type === 'Low'
+                    }">
+                      {{ problem.priority_type }}
+                    </span>
+                  </td>
+                  <!--<td><i class="bi bi-circle-fill"></i></td>
+                  <td>{{ problem.priorityType }}</td>-->
+                  <td>
+                    {{ problem.description }} 
+                    <i class="bi bi-info-circle" 
+                      data-bs-toggle="tooltip" 
+                      data-bs-placement="top" 
+                      title="{{ problem.description }}"></i>
+                  </td>
+                  <td>{{ problem.date | date:'MMM dd HH:mm yyyy'}}</td>
+                  <!--<td>Sep 23 18:20:01 2024</td>-->
+                  <td style="text-align: right;">
+                    <!--<button class="btn btn-outline-secondary btn-sm" (click)="showDetails(problem)">
+                      <i class="bi bi-zoom-in"></i>
+                    </button>-->
+                    <button class="btn btn-add-added btn-light btn-sm ms-1" (click)="addProblemToSelection(problem)">
+                      <!--<span [innerHTML]="loadedSelectedPrioritizedProblems.includes(problem) || selectedPrioritizedProblems.includes(problem) ? 'Added <i class=&quot;bi bi-check-lg&quot;></i>' : 'Add'"></span> -->
+                      <span [innerHTML]="isProblemSelected(problem) ? 'Added <i class=&quot;bi bi-check-lg&quot;></i>' : 'Add'"></span>  
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
-  <div class="flex-container">
-    <div class="container-section">
-      <div class="py-2 px-4 row">
-        <div class="col-md-12">
-          <table class="table">
-            <thead>
-              <tr>
-                <th class="priority-column ">Priority</th>
-                <th class="w-70">Data Quality Problem</th>
-                <th class="w-10">Creation Date</th>
-                <th class="w-10"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let problem of prioritizedProblems" [ngClass]="{
-                'priority-high': problem.priority_type === 'High',
-                'priority-medium': problem.priority_type === 'Medium',
-                'priority-low': problem.priority_type === 'Low'
-              }">
-                <td>
-                  <span [ngClass]="{
-                    'badge': true,
-                    'badge-high': problem.priority_type === 'High',
-                    'badge-medium': problem.priority_type === 'Medium',
-                    'badge-low': problem.priority_type === 'Low'
+            <!-- SELECCIONADOS EN EL MOMENTO -->
+            <div *ngIf="selectedPrioritizedProblems.length > 0" class="selected-problems-container">
+              <p class="selected-problems-container-title">Selected DQ Problems:</p>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th class="priority-column">Priority</th>
+                    <th class="w-70">Data Quality Problem</th>
+                    <th class="w-10">Creation Date</th>
+                    <th class="w-10"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let problem of selectedPrioritizedProblems" [ngClass]="{
+                    'priority-high': problem.priority_type === 'High',
+                    'priority-medium': problem.priority_type === 'Medium',
+                    'priority-low': problem.priority_type === 'Low'
                   }">
-                    {{ problem.priority_type }}
-                  </span>
-                </td>
-                <!--<td><i class="bi bi-circle-fill"></i></td>
-                <td>{{ problem.priorityType }}</td>-->
-                <td>
-                  {{ problem.description }} 
-                  <i class="bi bi-info-circle" 
-                    data-bs-toggle="tooltip" 
-                    data-bs-placement="top" 
-                    title="{{ problem.description }}"></i>
-                </td>
-                <td>{{ problem.date | date:'MMM dd HH:mm yyyy'}}</td>
-                <!--<td>Sep 23 18:20:01 2024</td>-->
-                <td style="text-align: right;">
-                  <!--<button class="btn btn-outline-secondary btn-sm" (click)="showDetails(problem)">
-                    <i class="bi bi-zoom-in"></i>
-                  </button>-->
-                  <button class="btn btn-add-added btn-light btn-sm ms-1" (click)="addProblemToSelection(problem)">
-                    <!--<span [innerHTML]="loadedSelectedPrioritizedProblems.includes(problem) || selectedPrioritizedProblems.includes(problem) ? 'Added <i class=&quot;bi bi-check-lg&quot;></i>' : 'Add'"></span> -->
-                    <span [innerHTML]="isProblemSelected(problem) ? 'Added <i class=&quot;bi bi-check-lg&quot;></i>' : 'Add'"></span>  
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div class="ms-4 me-4" *ngIf="selectedPrioritizedProblems.length > 0 || loadedSelectedPrioritizedProblems.length > 0">
-            <h3 class="mt-4 selection-subtitle">DQ problems selected</h3>
-            <!-- Mostrar Problemas Seleccionados (backend) -->
-            <div *ngFor="let problem of loadedSelectedPrioritizedProblems" class="selected-problem-container ms-2 me-2">
-              <div class="d-flex justify-content-between align-items-center" (click)="toggleSelectedProblemVisibility()" style="cursor: pointer;">
-                <h4 class="problem-selected-name">{{ problem.description }}</h4>
-                <i class="bi" [ngClass]="isSelectedProblemVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-                <!--<button class="btn btn-outline-danger btn-sm" (click)="removeSelectedProblem(problem)">
-                  Delete
-                </button>-->
-              </div>
-              <div class="problem-selected-info" *ngIf="isSelectedProblemVisible">
-                <p><strong>Priority:</strong> {{ problem.priority }}° ({{ problem.priority_type }})</p>
-                <p><strong>Description:</strong> {{ problem.description }}</p>
-                <p><strong>Date:</strong> {{ problem.date | date:'MMM dd HH:mm yyyy' }}</p>
-              </div>
-              <hr>
+                    <td>
+                      <span [ngClass]="{
+                        'badge': true,
+                        'badge-high': problem.priority_type === 'High',
+                        'badge-medium': problem.priority_type === 'Medium',
+                        'badge-low': problem.priority_type === 'Low'
+                      }">
+                        {{ problem.priority_type }}
+                      </span>
+                    </td>
+                    <td>
+                      {{ problem.description }} 
+                      <i class="bi bi-info-circle" 
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="top" 
+                        title="{{ problem.description }}"></i>
+                    </td>
+                    <td>{{ problem.date | date:'MMM dd HH:mm yyyy' }}</td>
+                    <td style="text-align: right;">
+                      <button class="btn btn-add-added btn-light btn-sm ms-1" (click)="removeSelectedProblem(problem)">
+                        <span>Cancel</span>  
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
+            <!-- SELECCIONADOS y AGRGADOS AL DQ MODEL -->
+            <!--<table *ngIf="loadedSelectedPrioritizedProblems.length > 0" class="table">
+              <thead>
+                <tr>
+                  <th class="priority-column">Priority</th>
+                  <th class="w-70">Data Quality Problem</th>
+                  <th class="w-10">Creation Date</th>
+                  <th class="w-10"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let problem of loadedSelectedPrioritizedProblems" [ngClass]="{
+                  'priority-high': problem.priority_type === 'High',
+                  'priority-medium': problem.priority_type === 'Medium',
+                  'priority-low': problem.priority_type === 'Low'
+                }">
+                  <td>
+                    <span [ngClass]="{
+                      'badge': true,
+                      'badge-high': problem.priority_type === 'High',
+                      'badge-medium': problem.priority_type === 'Medium',
+                      'badge-low': problem.priority_type === 'Low'
+                    }">
+                      {{ problem.priority_type }}
+                    </span>
+                  </td>
+                  <td>
+                    {{ problem.description }} 
+                    <i class="bi bi-info-circle" 
+                      data-bs-toggle="tooltip" 
+                      data-bs-placement="top" 
+                      title="{{ problem.description }}"></i>
+                  </td>
+                  <td>{{ problem.date | date:'MMM dd HH:mm yyyy' }}</td>
+                  <td style="text-align: right;">
+                    <button class="btn btn-add-added btn-outline-danger btn-sm ms-1" (click)="removeSelectedProblem(problem)">
+                      <span>Remove</span>  
+                    </button>
+    
+                  </td>
+                </tr>
+              </tbody>
+            </table>-->
 
-            <!-- Mostrar Problemas Seleccionados Parcialmente -->
-            <div *ngFor="let problem of selectedPrioritizedProblems" class="selected-problem-container ms-2 me-2">
-              <div class="d-flex justify-content-between align-items-center">
-                <h4 class="problem-selected-name">{{ problem.description }}</h4>
-                <button class="btn btn-outline-danger btn-sm" (click)="removeSelectedProblem(problem)">
-                  Cancel
-                </button>
-              </div>
-              <div class="problem-selected-info">
-                <p><strong>Priority:</strong> {{ problem.priority }}° ({{ problem.priority_type }})</p>
-                <p><strong>Description:</strong> {{ problem.description }}</p>
-                <p><strong>Date:</strong> {{ problem.date | date:'MMM dd HH:mm yyyy' }}</p>
 
-              </div>
-              <hr>
-            </div>
-            <button class="btn btn-dark btn-sm mt-3" (click)="confirmSelectedProblems()">Save selection</button>
-          </div>
-          
-        <div *ngIf="detailsVisible" class="col-md-4">
-          <div class="details-container">
-            <h3>Detalles del Problema:</h3>
-            <p><strong>Problema:</strong> {{ selectedProblem?.name }}</p>
-            <p><strong>Descripción:</strong> {{ selectedProblem?.description }}</p>
-            <p><strong>Prioridad:</strong> {{ selectedProblem?.priorityType }}</p>
+              <!-- Mostrar Problemas Seleccionados Parcialmente -->
+            <button 
+              class="btn btn-dark btn-sm mt-3" 
+              (click)="confirmSelectedProblems()"
+              [disabled]="selectedPrioritizedProblems.length === 0">
+              Save Selection
+            </button>
+       
 
-            <button class="btn btn-outline-secondary btn-sm" (click)="hideDetails()">Ocultar detalles</button>
-          </div>
         </div>
       </div>
+    </div> 
     </div>
-  </div> 
+  </div>
+
+  <div>
+    <p class="subtitle-description mt-4">Priorized DQ Problems added to DQ Model</p>
+    <div class="flex-container">
+      <div class="container-section">
+        <div class="py-2 px-4 row">
+          <div class="col-md-12">
+            <!-- ALL DQ PROBLEMS 
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="priority-column ">Priority</th>
+                  <th class="w-70">Data Quality Problem</th>
+                  <th class="w-10">Creation Date</th>
+                  <th class="w-10"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let problem of prioritizedProblems" [ngClass]="{
+                  'priority-high': problem.priority_type === 'High',
+                  'priority-medium': problem.priority_type === 'Medium',
+                  'priority-low': problem.priority_type === 'Low'
+                }">
+                  <td>
+                    <span [ngClass]="{
+                      'badge': true,
+                      'badge-high': problem.priority_type === 'High',
+                      'badge-medium': problem.priority_type === 'Medium',
+                      'badge-low': problem.priority_type === 'Low'
+                    }">
+                      {{ problem.priority_type }}
+                    </span>
+                  </td>
+                  <td>
+                    {{ problem.description }} 
+                    <i class="bi bi-info-circle" 
+                      data-bs-toggle="tooltip" 
+                      data-bs-placement="top" 
+                      title="{{ problem.description }}"></i>
+                  </td>
+                  <td>{{ problem.date | date:'MMM dd HH:mm yyyy'}}</td>
+                  <td style="text-align: right;">
+                    <button class="btn btn-add-added btn-light btn-sm ms-1" (click)="addProblemToSelection(problem)">
+                      <span [innerHTML]="isProblemSelected(problem) ? 'Added <i class=&quot;bi bi-check-lg&quot;></i>' : 'Add'"></span>  
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>-->
+
+
+            <!-- SELECCIONADOS y AGRGADOS AL DQ MODEL -->
+            <table *ngIf="loadedSelectedPrioritizedProblems.length > 0" class="table">
+              <thead>
+                <tr>
+                  <th class="priority-column">Priority</th>
+                  <th class="w-70">Data Quality Problem</th>
+                  <th class="w-10">Creation Date</th>
+                  <th class="w-10"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let problem of loadedSelectedPrioritizedProblems" [ngClass]="{
+                  'priority-high': problem.priority_type === 'High',
+                  'priority-medium': problem.priority_type === 'Medium',
+                  'priority-low': problem.priority_type === 'Low'
+                }">
+                  <td>
+                    <span [ngClass]="{
+                      'badge': true,
+                      'badge-high': problem.priority_type === 'High',
+                      'badge-medium': problem.priority_type === 'Medium',
+                      'badge-low': problem.priority_type === 'Low'
+                    }">
+                      {{ problem.priority_type }}
+                    </span>
+                  </td>
+                  <td>
+                    {{ problem.description }} 
+                    <i class="bi bi-info-circle" 
+                      data-bs-toggle="tooltip" 
+                      data-bs-placement="top" 
+                      title="{{ problem.description }}"></i>
+                  </td>
+                  <td>{{ problem.date | date:'MMM dd HH:mm yyyy' }}</td>
+                  <td style="text-align: right;">
+                    <button class="btn btn-add-added btn-outline-danger btn-sm ms-1" (click)="removeSelectedProblem(problem)">
+                      <span>Remove</span>  
+                    </button>
+    
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!--
+            <div class="ms-4 me-4" *ngIf="selectedPrioritizedProblems.length > 0 || loadedSelectedPrioritizedProblems.length > 0">
+              <h3 class="mt-4 selection-subtitle">DQ problems selected</h3>
+              <div *ngFor="let problem of loadedSelectedPrioritizedProblems" class="selected-problem-container ms-2 me-2">
+                <div class="d-flex justify-content-between align-items-center" (click)="toggleSelectedProblemVisibility()" style="cursor: pointer;">
+                  <h4 class="problem-selected-name">{{ problem.description }}</h4>
+                  <i class="bi" [ngClass]="isSelectedProblemVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                </div>
+                <div class="problem-selected-info" *ngIf="isSelectedProblemVisible">
+                  <p><strong>Priority:</strong> {{ problem.priority }}° ({{ problem.priority_type }})</p>
+                  <p><strong>Description:</strong> {{ problem.description }}</p>
+                  <p><strong>Date:</strong> {{ problem.date | date:'MMM dd HH:mm yyyy' }}</p>
+                </div>
+                <hr>
+              </div>
+
+
+              <div *ngFor="let problem of selectedPrioritizedProblems" class="selected-problem-container ms-2 me-2">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h4 class="problem-selected-name">{{ problem.description }}</h4>
+                  <button class="btn btn-outline-danger btn-sm" (click)="removeSelectedProblem(problem)">
+                    Cancel
+                  </button>
+                </div>
+                <div class="problem-selected-info">
+                  <p><strong>Priority:</strong> {{ problem.priority }}° ({{ problem.priority_type }})</p>
+                  <p><strong>Description:</strong> {{ problem.description }}</p>
+                  <p><strong>Date:</strong> {{ problem.date | date:'MMM dd HH:mm yyyy' }}</p>
+
+                </div>
+                <hr>
+              </div>
+              <button class="btn btn-dark btn-sm mt-3" (click)="confirmSelectedProblems()">Save selection</button>
+
+              <div *ngIf="detailsVisible" class="col-md-4">
+                <div class="details-container">
+                  <h3>Detalles del Problema:</h3>
+                  <p><strong>Problema:</strong> {{ selectedProblem?.name }}</p>
+                  <p><strong>Descripción:</strong> {{ selectedProblem?.description }}</p>
+                  <p><strong>Prioridad:</strong> {{ selectedProblem?.priorityType }}</p>
+
+                  <button class="btn btn-outline-secondary btn-sm" (click)="hideDetails()">Ocultar detalles</button>
+                </div>
+              </div>
+            </div>-->
+            
+
+        </div>
+      </div>
+    </div> 
+    </div>
   </div>
 
 <div class="next-step-btn-container">

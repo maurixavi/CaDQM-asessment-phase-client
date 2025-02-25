@@ -1302,7 +1302,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   }
 
 
-  isFromScratchSectionVisible: boolean = false;  
+  isFromScratchSectionVisible: boolean = true;  
 
   toggleFromScratchSectionVisibility() {
     this.isFromScratchSectionVisible = !this.isFromScratchSectionVisible;  
@@ -1314,7 +1314,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     this.isFromProblemsSectionVisible = !this.isFromProblemsSectionVisible;  
   }
 
-  isSuggestionsSectionVisible: boolean = true;  
+  isSuggestionsSectionVisible: boolean = false;  
 
   toggleSuggestionsSectionVisibility() {
     this.isSuggestionsSectionVisible = !this.isSuggestionsSectionVisible;  

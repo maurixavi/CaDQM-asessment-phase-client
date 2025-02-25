@@ -254,3 +254,14 @@
 .btn-context:hover {
   background-color: #0056b3; /* Color al pasar el cursor (ajusta según tu tema) */
 }
+
+.selected-problems-container{
+  padding: 0 6rem 0 3rem;
+}
+
+.selected-problems-container-title{
+  padding-top: 0.9rem;
+  font-size: 15px;
+  font-weight: 500;
+  font-style: italic;
+}

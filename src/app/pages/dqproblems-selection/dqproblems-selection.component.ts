@@ -271,4 +271,12 @@ export class DQProblemsSelectionComponent implements OnInit {
     return this.loadedSelectedPrioritizedProblems.some(p => p.id === problem.id) || 
            this.selectedPrioritizedProblems.some(p => p.id === problem.id);
   }
+
+
+  getFilteredProblems(): any[] {
+    return this.prioritizedProblems.filter(problem => 
+      !this.loadedSelectedPrioritizedProblems.some(p => p.id === problem.id) &&
+      !this.selectedPrioritizedProblems.some(p => p.id === problem.id)
+    );
+  }
 }
