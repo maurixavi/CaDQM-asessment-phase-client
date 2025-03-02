@@ -8,7 +8,7 @@
 
   <h2 class="title">Stage 4: DQ Model Definition</h2>
   <h2 class="title-activity">Metric Definition</h2>
-  <p class="subtitle-description mt-4">Metrics Added DQ Model</p>
+  <p class="subtitle-description mt-4">Add DQ Metrics from scratch</p>
 
   <div class="flex-container">
     <div class="suggested-section-container">
@@ -46,8 +46,7 @@
                     <div class="label-selected">
                       <label class="label-title-selected">Ctx (Suggested by):</label>
                       <span class="label-value-selected">BR1, BR2</span>
-                    </div>
-
+                    </div>                   
                     <h5 class="mt-3">DQ Metrics:</h5>
                     <div *ngFor="let metric of factor.definedMetrics; let j = index" class="mt-4">
                       <div class="dq-model-element-container mb-2" (click)="metric.expanded = !metric.expanded" style="cursor: pointer;">
@@ -160,6 +159,138 @@
       <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
     </div>
   </div>
+
+  <!-- SECTION: Show DQ Metrics added to DQ Model -->
+  <div>
+    <p class="subtitle-description mt-4">DQ Metrics added to DQ Model</p>
+    <div class="flex-container">
+      <div class="suggested-section-container">
+        <div *ngIf="factorsByDim && factorsByDim.length">
+          <div class="label-container-selected py-2 px-4">
+            
+            <h5 class="mt-3">{{ currentDQModel.version }}</h5>
+            <div class="label-selected">
+              <label class="label-title-selected">Creation date:</label>
+              <span class="label-value-selected">{{ currentDQModel.created_at | date:'MMM dd HH:mm yyyy' }}</span>
+            </div> 
+            <div class="label-selected">
+              <label class="label-title-selected">Context version:</label>
+              <span class="label-value-selected">CtxA v1.0 (id: {{ project.context_version }})</span>
+            </div>  
+            <div class="label-selected">
+              <label class="label-title-selected">Data at hand:</label>
+              <span class="label-value-selected">Dataset A</span>
+            </div>
+            <div class="label-selected">
+              <label class="label-title-selected">DQ Factors:</label>
+
+            </div>
+
+            <div class="dimensions-factors-selected-accordion-container">
+              <div class="accordion mt-3 mx-5" id="accordionMetrics">
+                <div class="accordion-item mb-3" *ngFor="let factor of factorsByDim; let i = index" style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
+                  <h2 class="accordion-header" [id]="'factorHeading' + i">
+                    <button
+                      class="accordion-button"
+                      [ngClass]="{ 'collapsed': !factor.expanded }"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      [attr.data-bs-target]="'#factorCollapse' + i"
+                      [attr.aria-expanded]="factor.expanded"
+                      [attr.aria-controls]="'factorCollapse' + i"
+                      style="padding: 0.6rem 0.9rem;">
+                      <span>
+                        <label class="label-title">DQ Factor:</label>
+                        <span class="dimension-name">{{ factor.factor_name }}</span>
+                      </span>
+                    </button>
+                  </h2>
+                  <div
+                    [id]="'factorCollapse' + i"
+                    class="accordion-collapse collapse"
+                    [class.show]="factor.expanded"
+                    [attr.aria-labelledby]="'factorHeading' + i">
+                    <div class="accordion-body">
+                      <div class="label-selected">
+                        <label class="label-title-selected">Semantic:</label>
+                        <span class="label-value-selected">{{ factor.baseAttributes.semantic }}</span>
+                      </div>
+                      <div class="label-selected">
+                        <label class="label-title-selected">Ctx (Arises from):</label>
+                        <span class="label-value-selected">BR1, BR2</span>
+                      </div>
+
+                      <div class="label-selected">
+                        <label class="label-title-selected">DQ Metrics:</label>
+                      </div>
+
+
+                      <!-- accordion anidado -->
+                      <div class="accordion mt-3 mx-5" id="accordionMetrics">
+                        <div class="accordion-item mb-3" *ngFor="let metric of factor.definedMetrics; let i = index" style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
+                          <h2 class="accordion-header" [id]="'factorHeading' + i">
+                            <button
+                              class="accordion-button"
+                              [ngClass]="{ 'collapsed': !factor.expanded }"
+                              type="button"
+                              data-bs-toggle="collapse"
+                              [attr.data-bs-target]="'#factorCollapse' + i"
+                              [attr.aria-expanded]="factor.expanded"
+                              [attr.aria-controls]="'factorCollapse' + i"
+                              style="padding: 0.6rem 0.9rem;">
+                              <span>
+                                <label class="label-title">DQ Metric:</label>
+                                <span class="dimension-name">{{ metric.baseAttr.name }}</span>
+                              </span>
+                            </button>
+                          </h2>
+                          <div
+                            [id]="'factorCollapse' + i"
+                            class="accordion-collapse collapse"
+                            [class.show]="factor.expanded"
+                            [attr.aria-labelledby]="'factorHeading' + i">
+                            <div class="accordion-body">
+                              <div class="label-selected">
+                                <label class="label-title-selected">Semantic:</label>
+                                <span class="label-value-selected">{{ metric.baseAttr.purpose }}</span>
+                              </div>
+                              <div class="label-selected">
+                                <label class="label-title-selected">Granularity:</label>
+                                <span class="label-value-selected">{{ metric.baseAttr.granularity }}</span>
+                              </div>
+                              <div class="label-selected">
+                                <label class="label-title-selected">Result Domain:</label>
+                                <span class="label-value-selected">{{ metric.baseAttr.resultDomain }}</span>
+                              </div>
+                              <div class="label-selected">
+                                <label class="label-title-selected">Ctx (Influenced by):</label>
+                                <span class="label-value-selected">BR1, BR2</span>
+                              </div>
+          
+                              <div class="mt-3">
+                                <button (click)="deleteMetric(factor, metric)" class="btn btn-outline-danger btn-sm">Delete</button>
+                              </div>
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      
+                    
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+      </div>
+    </div>
+  </div>
+
+
   <div class="next-step-btn-container">
     <button (click)="saveMetrics()" class="btn btn-dark">Next ></button>
   </div>
