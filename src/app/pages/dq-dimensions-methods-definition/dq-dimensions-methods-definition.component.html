@@ -8,7 +8,7 @@
 
   <h2 class="title">Stage 4: DQ Model Definition</h2>
   <h2 class="title-activity">Methods Definition</h2>
-  <p class="subtitle-description">Create Methods for each DQ Metric</p>
+  <p class="subtitle-description mt-4">Create Methods for each DQ Metric</p>
 
   <div class="flex-container">
     <div class="suggested-section-container">
@@ -154,6 +154,302 @@
       <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
     </div>
   </div>
+
+  <!-- SECTION: Show DQ Methods added to DQ Model -->
+  <div>
+    <p class="subtitle-description mt-4">DQ Methods added to DQ Model</p>
+    <div class="flex-container">
+      <div class="suggested-section-container">
+        <div *ngIf="allMetrics && allMetrics.length">
+          <div class="label-container-selected py-2 px-4">
+            
+            <h5 class="mt-3">{{ currentDQModel.version }}</h5>
+            <div class="label-selected">
+              <label class="label-title-selected">Creation date:</label>
+              <span class="label-value-selected">{{ currentDQModel.created_at | date:'MMM dd HH:mm yyyy' }}</span>
+            </div> 
+            <div class="label-selected">
+              <label class="label-title-selected">Context version:</label>
+              <span class="label-value-selected">CtxA v1.0 (id: {{ project.context_version }})</span>
+            </div>  
+            <div class="label-selected">
+              <label class="label-title-selected">Data at hand:</label>
+              <span class="label-value-selected">Dataset A</span>
+            </div>
+            <div class="label-selected">
+              <label class="label-title-selected">DQ Metrics:</label>
+            </div>
+
+            <div class="dimensions-factors-selected-accordion-container">
+              <div class="accordion mt-3 mx-5" id="accordionMetrics">
+                <div class="accordion-item mb-3" *ngFor="let metric of allMetrics; let i = index" style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
+                  <h2 class="accordion-header" [id]="'metricHeading' + i">
+                    <button
+                      class="accordion-button"
+                      [ngClass]="{ 'collapsed': !metric.expanded }"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      [attr.data-bs-target]="'#metricCollapse' + i"
+                      [attr.aria-expanded]="metric.expanded"
+                      [attr.aria-controls]="'metricCollapse' + i"
+                      style="padding: 0.6rem 0.9rem;">
+                      <span>
+                        <label class="label-title">DQ Metric:</label>
+                        <span class="dimension-name">{{ metric.metric_name }}</span>
+                      </span>
+                    </button>
+                  </h2>
+                  <div
+                    [id]="'metricCollapse' + i"
+                    class="accordion-collapse collapse"
+                    [class.show]="metric.expanded"
+                    [attr.aria-labelledby]="'metricHeading' + i">
+                    <div class="accordion-body">
+                      <div class="label-selected">
+                        <label class="label-title-selected">Semantic:</label>
+                        <span class="label-value-selected">{{ metric.baseAttr.semantic }}</span>
+                      </div>
+                      <div class="label-selected">
+                        <label class="label-title-selected">Ctx (Arises from):</label>
+                        <span class="label-value-selected">BR1, BR2</span>
+                      </div>
+
+                      <div class="label-selected">
+                        <label class="label-title-selected">DQ Methods:</label>
+                      </div>
+
+                      <!-- Nested accordion for DQ Methods -->
+                      <div class="accordion mt-3 mx-5" id="accordionMethods">
+                        <div class="accordion-item mb-3" *ngFor="let item of metric.definedMethods; let j = index" style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
+                          <h2 class="accordion-header" [id]="'methodHeading' + j">
+                            <button
+                              class="accordion-button"
+                              [ngClass]="{ 'collapsed': !item.expanded }"
+                              type="button"
+                              data-bs-toggle="collapse"
+                              [attr.data-bs-target]="'#methodCollapse' + j"
+                              [attr.aria-expanded]="item.expanded"
+                              [attr.aria-controls]="'methodCollapse' + j"
+                              style="padding: 0.6rem 0.9rem;">
+                              <span>
+                                <label class="label-title">DQ Method:</label>
+                                <span class="dimension-name">{{ item.method_name }}</span>
+                              </span>
+                            </button>
+                          </h2>
+                          <div
+                            [id]="'methodCollapse' + j"
+                            class="accordion-collapse collapse"
+                            [class.show]="item.expanded"
+                            [attr.aria-labelledby]="'methodHeading' + j">
+                            <div class="accordion-body">
+                              <div class="label-selected">
+                                <label class="label-title-selected">Name:</label>
+                                <span class="label-value-selected">{{ item.baseAttr.name }}</span>
+                              </div>
+                              <div class="label-selected">
+                                <label class="label-title-selected">Input:</label>
+                                <span class="label-value-selected">{{ item.baseAttr.inputDataType }}</span>
+                              </div>
+                              <div class="label-selected">
+                                <label class="label-title-selected">Output:</label>
+                                <span class="label-value-selected">{{ item.baseAttr.outputDataType }}</span>
+                              </div>
+                              <div class="label-selected">
+                                <label class="label-title-selected">Algorithm:</label>
+                                <pre class="label-value-selected">{{ item.baseAttr.algorithm }}</pre>
+                              </div>
+                              <div class="mt-3">
+                                <button (click)="deleteMethod(metric, item)" class="btn btn-outline-danger btn-sm">Delete</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: Create Applied DQ Methods -->
+  <!-- SECTION: Create Applied DQ Methods -->
+<div>
+  <p class="subtitle-description mt-4">Create Applied DQ Methods</p>
+  <div class="flex-container">
+    <div class="suggested-section-container">
+      <div class="label-container-selected py-2 px-4">
+        <div class="form-group">
+          <label for="methodSelect">Select Method</label>
+          <select id="methodSelect" class="form-select" [(ngModel)]="selectedMethod" (change)="onMethodChange($event)">
+            <option *ngFor="let method of allMethods" [value]="method.id">{{ method.method_name }}</option>
+          </select>
+        </div>
+        <div class="mt-3">
+          <button class="btn btn-dark" [disabled]="!selectedMethod" (click)="openCreateAppliedMethodModal(selectedMethod)">Create</button>
+        </div>
+
+        <!-- Display Applied Methods for the Selected Method -->
+        <div *ngIf="selectedMethodObject && (selectedMethodObject.applied_methods?.aggregations?.length > 0 || selectedMethodObject.applied_methods?.measurements?.length > 0)">
+          <h5 class="mt-4">Applied Methods for {{ selectedMethod.method_name }}</h5>
+
+          <!-- Accordion for Aggregated Applied Methods -->
+          <div *ngIf="selectedMethodObject.applied_methods.aggregations.length > 0">
+            <h6>Aggregated Methods</h6>
+            <div class="accordion mt-3" id="accordionAggregatedMethods">
+              <div class="accordion-item mb-3" *ngFor="let appliedMethod of selectedMethodObject.applied_methods.aggregations; let i = index" style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
+                <h2 class="accordion-header" [id]="'aggregatedHeading' + i">
+                  <button
+                    class="accordion-button"
+                    [ngClass]="{ 'collapsed': !appliedMethod.expanded }"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    [attr.data-bs-target]="'#aggregatedCollapse' + i"
+                    [attr.aria-expanded]="appliedMethod.expanded"
+                    [attr.aria-controls]="'aggregatedCollapse' + i"
+                    style="padding: 0.6rem 0.9rem;">
+                    <span>
+                      <label class="label-title">Aggregated Method:</label>
+                      <span class="dimension-name">{{ appliedMethod.name }}</span>
+                    </span>
+                  </button>
+                </h2>
+                <div
+                  [id]="'aggregatedCollapse' + i"
+                  class="accordion-collapse collapse"
+                  [class.show]="appliedMethod.expanded"
+                  [attr.aria-labelledby]="'aggregatedHeading' + i">
+                  <div class="accordion-body">
+                    <div class="label-selected">
+                      <label class="label-title-selected">Name:</label>
+                      <span class="label-value-selected">{{ appliedMethod.name }}</span>
+                    </div>
+                    <div class="label-selected">
+                      <label class="label-title-selected">Applied To:</label>
+                      <span class="label-value-selected">{{ appliedMethod.appliedTo }}</span>
+                    </div>
+                    <div class="mt-3">
+                      <button (click)="deleteAppliedMethod(appliedMethod)" class="btn btn-outline-danger btn-sm">Delete</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion for Measurement Applied Methods -->
+          <div *ngIf="selectedMethodObject.applied_methods.measurements.length > 0">
+            <h6>Measurement Methods</h6>
+            <div class="accordion mt-3" id="accordionMeasurementMethods">
+              <div class="accordion-item mb-3" *ngFor="let appliedMethod of selectedMethodObject.applied_methods.measurements; let j = index" style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
+                <h2 class="accordion-header" [id]="'measurementHeading' + j">
+                  <button
+                    class="accordion-button"
+                    [ngClass]="{ 'collapsed': !appliedMethod.expanded }"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    [attr.data-bs-target]="'#measurementCollapse' + j"
+                    [attr.aria-expanded]="appliedMethod.expanded"
+                    [attr.aria-controls]="'measurementCollapse' + j"
+                    style="padding: 0.6rem 0.9rem;">
+                    <span>
+                      <label class="label-title">Measurement Method:</label>
+                      <span class="dimension-name">{{ appliedMethod.name }}</span>
+                    </span>
+                  </button>
+                </h2>
+                <div
+                  [id]="'measurementCollapse' + j"
+                  class="accordion-collapse collapse"
+                  [class.show]="appliedMethod.expanded"
+                  [attr.aria-labelledby]="'measurementHeading' + j">
+                  <div class="accordion-body">
+                    <div class="label-selected">
+                      <label class="label-title-selected">Name:</label>
+                      <span class="label-value-selected">{{ appliedMethod.name }}</span>
+                    </div>
+                    <div class="label-selected">
+                      <label class="label-title-selected">Applied To:</label>
+                      <span class="label-value-selected">{{ appliedMethod.appliedTo }}</span>
+                    </div>
+                    <div class="mt-3">
+                      <button (click)="deleteAppliedMethod(appliedMethod)" class="btn btn-outline-danger btn-sm">Delete</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message when no applied methods exist -->
+        <div *ngIf="selectedMethod && selectedMethod.applied_methods?.aggregations?.length === 0 && selectedMethod.applied_methods?.measurements?.length === 0">
+          <p class="text-muted mt-3">No applied methods found for {{ selectedMethod.method_name }}.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Modal for Creating Applied DQ Method -->
+<div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isCreateAppliedMethodModalOpen}" [style.display]="isCreateAppliedMethodModalOpen ? 'block' : 'none'">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create Applied DQ Method</h5>
+        <button type="button" class="close" aria-label="Close" (click)="closeCreateAppliedMethodModal()">
+          <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="appliedMethodForm">
+          <div class="form-group">
+            <label for="appliedMethodName">Name</label>
+            <input
+              type="text"
+              id="appliedMethodName"
+              formControlName="name"
+              class="form-control"
+              placeholder="Enter the name of the applied method"
+            />
+          </div>
+          <div class="form-group">
+            <label for="appliedMethodAppliedTo">Applied To</label>
+            <input
+              type="text"
+              id="appliedMethodAppliedTo"
+              formControlName="appliedTo"
+              class="form-control"
+              placeholder="Enter where the method is applied"
+            />
+          </div>
+          <div class="form-group">
+            <label for="appliedMethodType">Type</label>
+            <select
+              id="appliedMethodType"
+              formControlName="type"
+              class="form-select"
+            >
+              <option value="Aggregated">Aggregated</option>
+              <option value="Measurement">Measurement</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-light" (click)="closeCreateAppliedMethodModal()">Cancel</button>
+        <button type="button" class="btn btn-sm btn-dark" (click)="createAppliedMethod()" [disabled]="appliedMethodForm.invalid">Create</button>
+      </div>
+    </div>
+  </div>
+</div>
+
   <div class="next-step-btn-container">
     <button (click)="saveMetrics()" class="btn btn-dark">Next ></button>
   </div>
