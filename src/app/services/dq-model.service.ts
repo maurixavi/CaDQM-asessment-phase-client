@@ -41,6 +41,18 @@ export class DqModelService {
   private readonly baseUrl = "http://localhost:8000/api"
 
 
+  // Método para obtener el DQModel completo con todas sus relaciones
+  getFullDQModel(dqModelId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/full/`; // URL del endpoint
+    return this.http.get<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error al obtener el DQModel completo ${dqModelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+
 
   getSelectedPrioritizedDqProblems(dqModelId: number): Observable<any> {
     const url = `${this.API_URL_DQMODELS}${dqModelId}/selected-prioritized-dq-problems/`;
@@ -169,7 +181,7 @@ export class DqModelService {
   getCurrentDQModel(dqModelId: number): Observable<any> {
     // Si el modelo está en caché y es el mismo ID, lo devolvemos
     if (this.currentDQModel && this.currentDQModel.id === dqModelId) {
-      console.log('DQ Model ya en caché:', this.currentDQModel);
+      console.log('Fetched DQ Model (already in cache):', this.currentDQModel);
       return of(this.currentDQModel);
     }
 
@@ -177,7 +189,7 @@ export class DqModelService {
     return this.http.get<DQModel>(`${this.API_URL_DQMODELS}${dqModelId}/`).pipe(
       map((data) => {
         this.currentDQModel = data; // Actualizamos el caché
-        console.log('DQ Model obtenido del servidor:', this.currentDQModel);
+        console.log('Fetched DQ Model (from server):', this.currentDQModel);
         return data;
       }),
       catchError((err) => {
@@ -229,7 +241,7 @@ export class DqModelService {
   //DIMENSIONS DQ MODEL
   getDimensionsByDQModel(dqmodelId: number): Observable<any[]> {
     const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/`;
-    console.log("DqModels/Dimensions - Accediendo a la URL:", url);
+    //console.log("DqModels/Dimensions - Accediendo a la URL:", url);
     return this.http.get<any[]>(url).pipe(
       catchError(err => {
         if (err.status === 404) {
@@ -260,7 +272,8 @@ export class DqModelService {
     );
   }
 
-  addDimensionToDQModel(dimensionData: { dimension_base: number; context_components: any[] }): Observable<any> {
+  addDimensionToDQModel(dimensionData: { dimension_base: number; context_components: any[], dq_problems: number[]  }): Observable<any> {
+    console.log("Sending dimensionData to backend:", dimensionData); // Verificar el cuerpo de la solicitud
     return this.http.post<any>(this.API_URL_DIMENSIONS_DQMODEL, dimensionData).pipe(
       catchError(err => {
         console.error('Error al agregar la dimensión:', err);
@@ -523,6 +536,30 @@ export class DqModelService {
       })
     );
   }
+
+
+
+
+
+  getDimensionBaseDetails(dimensionBaseId: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL_DIMENSIONS_BASE}${dimensionBaseId}/`);
+  }
+
+  getFactorBaseDetails(factorBaseId: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL_FACTORS_BASE}${factorBaseId}/`);
+  }
+
+  getMetricBaseDetails(metricBaseId: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL_METRICS_BASE}${metricBaseId}/`);
+  }
+  getMethodBaseDetails(methodBaseId: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL_METHODS_BASE}${methodBaseId}/`);
+  }
+
+  //APPLIED DQ METHODS
+  /*http://localhost:8000/api/measurement-methods/
+  http://localhost:8000/api/aggregation-methods/*/
+
 
 
 
