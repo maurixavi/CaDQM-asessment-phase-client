@@ -4,7 +4,7 @@ import contextComponentsJson from '../../../assets/context-components.json';
 import { Router } from '@angular/router';
 import { DqModelService } from '../../services/dq-model.service';
 import { ProjectService } from '../../services/project.service';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators  } from '@angular/forms';
 
 interface ContextComponent {
   id: string;
@@ -65,6 +65,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
 
   
   dqMethodForm: FormGroup;
+  appliedMethodForm: FormGroup;
   currentStep: number = 4; // Step 3
   pageStepTitle: string = 'Selection of DQ Methods';
   phaseTitle: string = 'Phase 2: DQ Assessment';
@@ -83,6 +84,10 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   currentMetric: any;
   suggestion: any = null;
   error: string = '';
+  isCreateAppliedMethodModalOpen = false;
+  selectedMethod: any;
+  allMethods: any[] = [];
+  selectedMethodObject: any;
   
   
   contextComponentsGrouped: { type: string; ids: number[] }[] = [];
@@ -135,6 +140,11 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
           inputDataType: [''],
           outputDataType: [''],
           algorithm: ['']
+        });
+        this.appliedMethodForm = this.fb.group({
+          name: ['', Validators.required],
+          appliedTo: ['', Validators.required],
+          type: ['Aggregated', Validators.required]
         });
     }
 
@@ -219,6 +229,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
         this.dimensionsWithFactorsInDQModel = [];
         this.factorsByDim = [];
         this.allMetrics = [];
+        this.allMethods = [];
   
         const dimensionsData = await Promise.all(dimensions.map(async (dimension) => {
           try {
@@ -312,8 +323,9 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   }
 
   getBaseMetricsByFactor(){
+    let that = this;
     this.factorsByDim.forEach(async item => {
-      const baseMetricForFact = await this.modelService.getMetricsBaseByDimensionAndFactorId(item.dimension, item.factor_base).toPromise();
+      const baseMetricForFact = await this.modelService.getMetricsBaseByDimensionAndFactorId(item.baseAttributes.facetOf, item.factor_base).toPromise();
       item.baseMetrics = baseMetricForFact;
       const dqMetricForFact = await this.modelService.getMetricsByDQModelDimensionAndFactor(item.dq_model, item.dimension, item.id).toPromise();
       item.definedMetrics = dqMetricForFact;
@@ -324,6 +336,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
         metric.baseMethods = dqBaseMethods;
         const dqMethods = await this.modelService.getMethodsByDQModelDimensionFactorAndMetric(item.dq_model,item.dimension, item.id, metric.id).toPromise();
         if (dqMethods) {
+          that.allMethods = that.allMethods.concat(dqMethods);
           metric.definedMethods = dqMethods;
           metric.definedMethods.forEach((dqMeth:any) => {
             let baseAttr = metric.baseMethods.find((elem:any)=> elem.id == dqMeth.method_base);
@@ -430,6 +443,110 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
 
   closeModal() {
     this.isModalOpen = false;
+  }
+
+  onMethodChange(event:any){
+    this.selectedMethodObject = this.allMethods.find(elem=> elem.id == event?.target.value);
+  }
+
+  openCreateAppliedMethodModal(method: any){
+    this.selectedMethodObject = this.allMethods.find(elem=> elem.id == method);
+    this.isCreateAppliedMethodModalOpen = true;
+  }
+
+  closeCreateAppliedMethodModal(){
+    this.isCreateAppliedMethodModalOpen = false;
+    this.appliedMethodForm.reset({ type: 'Aggregated' });
+  }
+
+  deleteAppliedMethod(appMethod: any){
+    if (appMethod) {
+      const userConfirmed = confirm(
+        "¿Está seguro que desea eliminar esta metodo aplicado del DQ Model?"
+      );
+    
+      if (userConfirmed) {
+        console.log(`Eliminando la metodo aplicado con ID: ${appMethod.id}`);
+        let dqMethod = this.allMethods.find(elem => elem.id == appMethod.associatedTo);
+        let isAggr = dqMethod.applied_methods.aggregations.find((item: any) => item === appMethod);
+        if (isAggr){
+          this.modelService.deleteAggregatedMethod(appMethod.id).subscribe(
+            response => {
+              alert(response?.message || "Metodo Aplicado eliminado correctamente");
+              // Filtrar la dimensión eliminada sin recargar toda la lista
+                dqMethod.definedMethods = dqMethod.applied_methods.aggregations.filter(
+                  (item:any) => item.id !== appMethod.id
+                );
+              //this.loadDQModelDimensionsAndFactors();
+            },
+            error => {
+              alert("Error al eliminar el metodo aplicado.");
+              console.error("Error al eliminar el metodo aplicado:", error);
+            }
+          );
+        } else {
+          this.modelService.deleteMeasurementdMethod(appMethod.id).subscribe(
+            response => {
+              alert(response?.message || "Metodo Aplicado eliminado correctamente");
+              // Filtrar la dimensión eliminada sin recargar toda la lista
+              dqMethod.definedMethods = dqMethod.applied_methods.measurements.filter(
+                (item:any) => item.id !== appMethod.id
+              );
+              //this.loadDQModelDimensionsAndFactors();
+            },
+            error => {
+              alert("Error al eliminar el metodo aplicado.");
+              console.error("Error al eliminar el metodo aplicado:", error);
+            }
+          );
+        }
+        
+        
+      } else {
+        console.log("Eliminación de la dimensión cancelada por el usuario.");
+      }
+      
+    }
+  }
+
+  createAppliedMethod(){
+    if (this.appliedMethodForm.valid) {
+      const appliedMethod = this.appliedMethodForm.value;
+      console.log('Applied Method Created:', appliedMethod);
+      const newAppMeth = {
+        name: this.appliedMethodForm.get("name")?.value,
+        appliedTo: this.appliedMethodForm.get("appliedTo")?.value,
+        associatedTo: this.selectedMethodObject.id
+      }
+      if( this.appliedMethodForm.get("type")?.value === "Aggregated"){
+        this.modelService.createAggregatedMethod(newAppMeth).subscribe({
+          next: (data) => {
+            console.log("Applied Method created:", data);
+            this.loadDQModelDimensionsAndFactors(); 
+            alert("Applied Method successfully created");
+          },
+          error: (err) => {
+            console.error("Error creating the Applied Method:", err);
+            alert("Error creating the Applied Method.");
+          }
+        });
+      } else {
+        this.modelService.createMeasurementMethod(newAppMeth).subscribe({
+          next: (data) => {
+            console.log("Applied Method created:", data);
+            this.loadDQModelDimensionsAndFactors(); 
+            alert("Applied Method successfully created");
+          },
+          error: (err) => {
+            console.error("Error creating the Applied Method:", err);
+            alert("Error creating the Applied Method.");
+          }
+        });
+      }
+      
+      this.closeCreateAppliedMethodModal();
+    }
+
   }
 
   deleteMethod(metric: any, method: any): void {

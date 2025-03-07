@@ -112,6 +112,8 @@ export class DqModelService {
   readonly API_URL_FACTORS_DQMODEL = `${this.baseUrl}/factors/`; //"http://localhost:8000/api/factors/"
   readonly API_URL_METRICS_DQMODEL = `${this.baseUrl}/metrics/`; //"http://localhost:8000/api/metrics/"
   readonly API_URL_METHODS_DQMODEL = `${this.baseUrl}/methods/`; //"http://localhost:8000/api/methods/"
+  readonly API_URL_AG_METHODS_DQMODEL = `${this.baseUrl}/aggregation-methods/`; //"http://localhost:8000/api/aggregation-methods/"
+  readonly API_URL_ME_METHODS_DQMODEL = `${this.baseUrl}/measurement-methods/`; //"http://localhost:8000/api/measurement-methods/"
   // http://localhost:8000/api/dqmodels/1/dimensions/6/factors/52/metrics/3/methods/
 
 
@@ -491,6 +493,32 @@ export class DqModelService {
         throw err; // Re-lanzar el error para que pueda ser manejado en el componente
       })
     );
+  }
+
+  createAggregatedMethod(agMeth: {name: string, appliedTo: string, associatedTo: number}){
+    return this.http.post<any>(this.API_URL_AG_METHODS_DQMODEL, agMeth).pipe(
+      catchError(err => {
+        console.error('Error al crear el factor:', err);
+        throw err; // Re-lanzar el error para que pueda ser manejado en el componente
+      })
+    );
+  }
+
+  createMeasurementMethod(agMeth: {name: string, appliedTo: string, associatedTo: number}){
+    return this.http.post<any>(this.API_URL_ME_METHODS_DQMODEL, agMeth).pipe(
+      catchError(err => {
+        console.error('Error al crear el factor:', err);
+        throw err; // Re-lanzar el error para que pueda ser manejado en el componente
+      })
+    );
+  }
+
+  deleteAggregatedMethod(agMeth: number){
+    return this.http.delete<any>(`${this. API_URL_AG_METHODS_DQMODEL}${agMeth}/`)
+  }
+
+  deleteMeasurementdMethod(agMeth: number){
+    return this.http.delete<any>(`${this. API_URL_ME_METHODS_DQMODEL}${agMeth}/`)
   }
 
   
