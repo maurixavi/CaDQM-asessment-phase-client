@@ -282,6 +282,15 @@ hr.my-4 {
   width: 120px;
 }
 
+.label-title-applied-methods {
+  width: 220px; 
+  font-weight: 500;
+  white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+  overflow: hidden; /* Oculta el texto que se desborda */
+  /*text-overflow: ellipsis;*/ /* Añade puntos suspensivos si el texto es demasiado largo */
+}
+
+
 .label-value {
   max-width: 80%;
   font-weight: 700;
@@ -462,4 +471,638 @@ hr.my-4 {
   font-family: 'Courier New', Courier, monospace;
   white-space: pre-wrap; /* Mantiene los saltos de línea */
   tab-size: 3;
+}
+
+
+/*-----------------------------*/
+
+.container {
+  margin: auto;
+  color: #222;
+}
+
+.table {
+  font-size: 0.875rem;
+}
+
+.table tbody tr td {
+  color: #222;
+}
+
+.table th {
+  font-size: 0.78rem;
+  color: #444;
+  font-weight: bold;
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: black;
+  font-style: italic;
+}
+
+.title-activity {
+  font-size: 1.5rem;
+  font-weight: lighter;
+}
+
+.title-description {
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+.subtitle-description {
+  font-size: 16px;
+  font-style: italic;
+}
+
+.my-4 {
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.details-container {
+  border: 1px solid #ddd;
+  padding: 1rem;
+  margin-top: 1rem;
+  background-color: #f9f9f9;
+}
+
+.details-container h3 {
+  font-size: 1.2rem;
+}
+
+.details-container p, .details-container ul {
+  font-size: 0.9rem;
+}
+
+.details-container ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.details-container li {
+  margin-bottom: 0.5rem;
+}
+
+.go-back {
+  margin-bottom: 10px;
+}
+
+.go-back-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  color: #888;
+}
+
+.go-back-link {
+  font-size: 16px;
+  color: #888;
+  text-decoration: none;
+}
+
+.priority-high .bi-circle-fill {
+  color: #942e2e;
+}
+
+.priority-medium .bi-circle-fill {
+  color: #d8c246;
+}
+
+.priority-low .bi-circle-fill {
+  color: #3d773d;
+}
+
+.problem-name {
+  font-size: 1.4rem;
+}
+
+.selected-problem-item {
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.subtitle {
+  font-size: 1.3rem;
+  font-weight: lighter;
+  color: #333;
+  margin-top: 20px;
+}
+
+.subtitle-selected {
+  font-size: 1.2rem;
+  color: #333;
+  margin-top: 20px;
+}
+
+.subtitle-problem {
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.dimensions-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.dimension-box {
+  flex: 1;
+  min-width: 180px;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #fff;
+  font-size: 0.875rem;
+  border: 1px solid #ddd;
+}
+
+.dimension-box h4 {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+hr.my-4 {
+  border: none;
+  border-top: 1px solid #fff;
+  margin: 2rem 0;
+}
+
+.from-ctx-components-title {
+  font-weight: 500;
+}
+
+.ctx-selection-accordion-container {
+  max-width: 640px;
+}
+
+.dimensions-factors-selected-accordion-container{
+  max-width: 100%;
+}
+
+.accordion-button {
+  height: 34px;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: #f9f9f9;
+  color: inherit;
+}
+
+.context-list, .factors-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.context-list li, .factors-list li {
+  margin-bottom: 0.5rem;
+}
+
+.hidden-checkbox {
+  display: none;
+}
+
+.select-style {
+  width: 440px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding-left: 14px;
+  padding-right: 14px;
+  border: 1px solid #bbb;
+  border-radius: 0.25rem;
+  background-color: #fff;
+  color: #111;
+  cursor: pointer;
+}
+
+.select-style-problems {
+  width: auto;
+  max-width: 440px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding-left: 14px;
+  padding-right: 34px;
+  border: 1px solid #bbb;
+  border-radius: 0.25rem;
+  background-color: #fff;
+  color: #111;
+  cursor: pointer;
+}
+
+.select-style-ctx {
+  width: 300px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding-left: 14px;
+  padding-right: 40px;
+  border: 1px solid #bbb;
+  border-radius: 0.25rem;
+  background-color: #fff;
+  color: #111;
+  cursor: pointer;
+}
+
+.select-style:focus {
+  border-color: #aaa;
+  box-shadow: none;
+}
+
+.select-style:hover {
+  border-color: #aaa;
+}
+
+.btn {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.btn-dark {
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #111;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.btn-dark:hover {
+  background-color: #333;
+  border: 1px solid #333;
+}
+
+.btn-light {
+  background-color: #fff;
+  color: #111;
+  border: 1px solid #bbb;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.btn-light:hover {
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #222;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.next-step-btn-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.flex-container {
+  display: flex;
+  justify-content: center;
+}
+
+.from-scratch-section-container {
+  width: 100%;
+  border: 1px solid #eeeeee;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  background-color: #fff;
+  padding: 2rem 1.8rem 2rem 2rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.dim-factor-selection-div {
+  flex: 1;
+  min-width: 60%;
+}
+
+.dim-factor-selection-container {
+  padding: 0.85rem 1rem 1rem 1.2rem;
+}
+
+@media (max-width: 400px) {
+  .from-scratch-section-container {
+    flex-direction: column;
+  }
+  .problems-view, .dim-factor-selection-div {
+    min-width: 100%;
+  }
+}
+
+.problems-view {
+  flex: 0 1 32%;
+  min-width: 200px;
+}
+
+.dq-problems-container {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: #f9f9f9;
+}
+
+.dq-problems-container h4 {
+  margin-bottom: 0.75rem;
+}
+
+.dq-problems-list {
+  list-style-type: none;
+}
+
+.dq-problems-list li {
+  margin-bottom: 1rem;
+}
+
+.badge {
+  min-width: 54px;
+  text-align: center;
+  margin-right: 0.5rem;
+}
+
+.suggested-section-container {
+  width: 100%;
+  border: 1px solid #eeeeee;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  background-color: #fff;
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
+  padding-top: 0.8rem;
+  padding-bottom: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.section-container {
+  width: 100%;
+  border: 1px solid #eeeeee;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.label-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+}
+
+.label-title {
+  width: 120px;
+  font-weight: 500;
+}
+
+.dimension-name {
+  font-weight: 700;
+}
+
+.label-title-problems {
+  width: auto;
+  margin-right: 8px;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.label-value {
+  max-width: 80%;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.label-selected-problem-title {
+  font-weight: 700;
+  font-size: 17px;
+  margin-right: 8px;
+}
+
+.label-title-selection-ctx {
+  font-size: 1rem;
+}
+
+.label-container-selected {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.label-selected {
+  display: flex;
+  align-items: center;
+  padding-bottom: 16px;
+  font-size: 15px;
+}
+
+.label-selected-dqelement {
+  display: flex;
+  align-items: flex-start;
+  font-size: 16px;
+}
+
+.dqmodel-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.label-name-selected {
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.label-problem-selected {
+  font-weight: 700;
+  font-size: 17px;
+  margin-right: 8px;
+}
+
+.label-name-dqmodel {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.label-title-selected {
+  width: 140px;
+  margin-right: 10px;
+  font-weight: 500;
+}
+
+.label-title-selected-ctx {
+  width: auto;
+  margin-top: 10px;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.label-value-selected {
+  max-width: 70%;
+  font-weight: 400;
+}
+
+.label-problem-description {
+  font-weight: 400;
+  font-size: 15px;
+}
+
+.label-value-dim-from-problem {
+  max-width: 70%;
+  font-weight: 700;
+}
+
+.dqmodel-element-name {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.dropdown {
+  position: absolute;
+  z-index: 1000;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-right: 18px;
+  width: 40%;
+}
+
+.modal.show {
+  display: block;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  position: relative;
+}
+
+.modal-header .close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #999;
+  cursor: pointer;
+  outline: none;
+}
+
+.modal-header .close:hover {
+  color: #222;
+}
+
+.modal-body .form-group {
+  margin-bottom: 16px;
+}
+
+.modal-body input {
+  font-size: 0.875rem;
+  color: #222;
+}
+
+.container-dim-factors {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
+  width: 90%;
+}
+
+.factors-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+}
+
+.form-check-label {
+  font-size: 16px;
+  margin-left: 0.5rem;
+}
+
+.form-check-input:checked + .form-check-label {
+  font-weight: 700;
+}
+
+.add-custom-section {
+  border-top: 1px solid #eee;
+}
+
+.custom-items-section {
+}
+
+.form-control-sm {
+  font-size: 0.875rem;
+  height: calc(1.5em + 0.5rem + 2px);
+}
+
+.dq-problem-container {
+  padding: 1rem;
+}
+
+.suggested-section-div {
+  padding: 1rem;
+}
+
+/* Card flotante */
+.dq-card {
+  font-size: 13px;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  margin: 20px;
+  background: white;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+  width: 230px;
+  border-radius: 8px;
+  z-index: 10;
+}
+
+.dq-card h5 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.dq-card-body {
+  padding: 1rem;
+}
+
+.dq-card-close {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #aaa;
 }

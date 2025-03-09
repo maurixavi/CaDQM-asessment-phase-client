@@ -7,282 +7,285 @@
 		[currentStep]="currentStep">
 	</app-step-navigator>
 
-  <p class="title-description">Defined DQ Model preview. Confirm or edit it by returning to a previous step</p>
-
-  <div class="flex-container">
-		<div class="container-section">
-
-			<div class="label-container p-3">
-				<div class="label">
-					<label class="label-title">DQ Model:</label>
-					<span class="label-value">
- 
-					</span>
-				</div>
-
-				<div>
-					<div class="label-container-selected py-2 px-4">
-						<div class="label-selected">
-							<span class="label-name-selected">DQM_v1.0</span>
-						</div>
-						<div class="label-selected">
-							<label class="label-title-selected">Creation date:</label>
-							<span class="label-value-selected">Sep 23 18:20:01 2024</span>
-						</div> 
-						<div class="label-selected">
-							<label class="label-title-selected">Context version:</label>
-							<span class="label-value-selected">CtxA v1.0</span>
-						</div>  
-						<div class="label-selected">
-							<label class="label-title-selected">Data at hand:</label>
-							<span class="label-value-selected">Dataset A</span>
-						</div> 
-						<div class="label-selected align-center py-2">
-							<label class="label-title-selected">DQ Dimensions:</label>
-							<span class="label-value">
-								<button class="btn btn-light btn-sm">Show <i class="bi bi-chevron-down"></i></button>
-							</span>
-						</div> 
-						
+	<!--<div *ngIf="completeDQModel && !isLoading">-->
+	<div *ngIf="completeDQModel && !isLoading">
+		<p class="subtitle-description mt-4">Defined DQ Model preview. Confirm or edit it by returning to a previous step</p>
+		<div class="flex-container">
+			<div class="section-container">
+				<div class="label-container-selected py-2 px-4">
+					<div class="dqmodel-title">
+						<span class="label-name-dqmodel">{{ completeDQModel.model.version }} (id: {{ project.dqmodel_version }})</span>
+						<span *ngIf="completeDQModel.model.status === 'finished'" class="badge rounded-pill bg-dark">Finished</span>
+						<span *ngIf="completeDQModel.model.status === 'draft'" class="badge rounded-pill bg-warning">Draft</span>
 					</div>
-
-					<!-- DIMENSIONS -->
-					<div class="label-container-selected ms-4 px-4 mt-2">
-						<!--Dimension closed-->
-						<div class="dq-model-element-container mb-2">
-							<span class="dq-model-element-name">DQ Dimension: <strong>Accuracy </strong><i class="bi bi-chevron-down"></i></span>
-						</div>
-						<!--Dimension 1-->
-						<div>
-							<!--<div class="label-selected">
-								<span class="label-name-selected">Domain integrity <i class="bi bi-zoom-in"></i></span>
-							</div>-->
-							<div class="dq-model-element-container mb-2">
-								<span class="dq-model-element-name">DQ Dimension: <strong>Consistency </strong><i class="bi bi-chevron-up"></i></span>
-							</div>
-							<div class="label-selected">
-								<label class="label-title-selected">Semantic:</label>
-								<span class="label-value-selected">It verifies the satisfaction of rules on the attribute content. It verifies the satisfaction of rules on the attribute content. It verifies the satisfaction of rules on the attribute content.</span>
-							</div>
-							<div class="label-selected">
-								<label class="label-title-selected">Ctx (Suggested by):</label>
-								<span class="label-value-selected">BR1, BR2</span>
-							</div>
-							<div class="label-selected py-2">
-								<label class="label-title-selected">DQ Factors:</label>
-								<span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span>
-							</div>
-							<!-- DQ Factors -->
-							<div class="label-container-selected ms-4 px-4 mt-2">
-								<!-- Factor 1 -->
-								<div>
-									<div class="dq-model-element-container mb-2">
-										<span class="dq-model-element-name">DQ Factor: <strong>Domain integrity </strong><i class="bi bi-chevron-up"></i></span>
-									</div>
-									<div class="label-selected">
-										<label class="label-title-selected">Semantic:</label>
-										<span class="label-value-selected">It verifies the satisfaction of rules on
-											the attribute content.</span>
-									</div>
-									<div class="label-selected">
-										<label class="label-title-selected">Ctx (Arises from):</label>
-										<span class="label-value-selected">BR1</span>
-									</div>
-									<div class="label-selected py-2">
-										<label class="label-title-selected">DQ Metrics:</label>
-										<span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span>
-									</div>
-									<!-- DQ Metrics -->
-									<div class="label-container-selected ms-4 px-4 mt-2">
-										<!-- Metric 1 -->
-										<div>
-											<div class="dq-model-element-container mb-2">
-												<span class="dq-model-element-name">DQ Metric: <strong>antibioticValidation </strong><i class="bi bi-chevron-up"></i></span>
-											</div>
-											<div class="label-selected">
-												<label class="label-title-selected">Purpose:</label>
-												<span class="label-value-selected">Check if antibiotic names is “amika”,
-													“vanco” or “genta”.</span>
-											</div>
-											<div class="label-selected">
-												<label class="label-title-selected">Granularity:</label>
-												<span class="label-value-selected">Value</span>
-											</div>
-											<div class="label-selected">
-												<label class="label-title-selected">Result domain:</label>
-												<span class="label-value-selected">Boolean</span>
-											</div>
-											<div class="label-selected">
-												<label class="label-title-selected">Purpose:</label>
-												<span class="label-value-selected">Check if antibiotic names is “amika”,
-													“vanco” or “genta”.</span>
-											</div>
-											<div class="label-selected mt-2 mb-2">
-												<label class="label-title-selected">Ctx (Influenced by):</label>
-												<span class="label-value-selected">BR1</span>
-											</div>
-											<div class="label-selected py-2">
-												<label class="label-title-selected">DQ Metrics:</label>
-												<span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span>
-											</div>
-											
-											<!-- DQ Methods -->
-											<div class="label-container-selected ms-4 px-4 mt-2">
-												<!-- Method 1 -->
-												<div>
-													<div class="dq-model-element-container mb-2">
-														<span class="dq-model-element-name">DQ Method: <strong>antibioticValidation_alg1 </strong><i class="bi bi-chevron-up"></i></span>
-													</div>
-													<div class="label-selected">
-														<label class="label-title-selected">Input data type:</label>
-														<span class="label-value-selected">String (value)</span>
-													</div>
-													<div class="label-selected">
-														<label class="label-title-selected">Output data type:</label>
-														<span class="label-value-selected">Boolean</span>
-													</div>
-													<div class="label-selected">
-														<label class="label-title-selected">Algorithm domain:</label>
-														<span class="code-block">
-															<pre><code>
-if value in ["amika", "vanco", "genta"] 
-	then return 1 
-	else return 0;  
-end;
-															</code></pre>
-														</span>
-													</div>
+					<div class="label-selected">
+						<label class="label-title-selected">Creation date:</label>
+						<span class="label-value-selected">{{ completeDQModel.model.created_at | date:'MMM dd HH:mm yyyy' }}</span>
+					</div>
+					<div class="label-selected">
+						<label class="label-title-selected">Context version:</label>
+						<span class="label-value-selected">CtxA v1.0 (id: {{ project.context_version }})</span>
+					</div>
+					<div class="label-selected">
+						<label class="label-title-selected">Data at hand:</label>
+						<span class="label-value-selected">Dataset A</span>
+					</div>
+					<div class="label-selected">
+						<label class="label-title-selected">DQ Dimensions:</label>
+					</div>
 	
-													<div class="label-selected mt-2 mb-2">
-														<label class="label-title-selected">Ctx (Uses):</label>
-														<span class="label-value-selected">BR1</span>
-													</div>
-													<div class="label-selected py-2">
-														<label class="label-title-selected">Applied DQ Methods:</label>
-														<span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span>
-													</div>
-												</div>
-
-												<!-- Method 2 -->
-												<div>
-													<div class="dq-model-element-container mt-3">
-														<span class="dq-model-element-name">DQ Method: <strong>antibioticValidation_alg2 </strong><i class="bi bi-chevron-down"></i></span>
-													</div>
-												</div>
-
-												<!-- Method 3 -->
-												<div>
-													<div class="dq-model-element-container mb-4 mt-3">
-														<span class="dq-model-element-name">DQ Method: <strong>antibioticValidation_alg3 </strong><i class="bi bi-chevron-down"></i></span>
-													</div>
-												</div>
-
-											</div>
-
+					<!-- Accordion DIMENSIONS -->
+					<div class="dimensions-factors-selected-accordion-container">
+						<div class="accordion mx-3" id="accordionDimensions">
+							<div class="accordion-item mb-2" *ngFor="let dimension of completeDQModel.dimensions; let i = index"
+							style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
+								<h2 class="accordion-header" [id]="'heading' + i">
+									 <button
+                      class="accordion-button"
+                      [ngClass]="{ 'collapsed': i !== 0 }"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      [attr.data-bs-target]="'#collapse' + i"
+                      [attr.aria-expanded]="i === 0 ? 'true' : 'false'"
+                      [attr.aria-controls]="'collapse' + i"
+                      style="padding: 0.6rem 0.9rem;"
+                    >
+										<span>
+											<label class="label-title">DQ Dimension:</label>
+											<span class="dimension-name">{{ dimension.dimension_name }}</span>
+										</span>
+									</button>
+								</h2>
+								<div 
+									[id]="'collapse' + i" 
+									class="accordion-collapse collapse" 
+									[attr.aria-labelledby]="'heading' + i"
+								>
+									<div class="accordion-body">
+										<div class="label-selected">
+											<label class="label-title-selected">Semantic:</label>
+											<span class="label-value-selected">{{ dimension.attributesBase?.semantic }}</span>
 										</div>
+										<div class="label-selected">
+											<label class="label-title-selected">Ctx (Suggested by):</label>
+											<span class="label-value-selected">{{ formatContextComponents(dimension.context_components) }}</span>
+											<!--<span class="label-value-selected" [innerHTML]="formatContextComponents(dimension.context_components)"></span>-->
+										</div>
+										<div class="label-selected">
+											<label class="label-title-selected">DQ Problems (Used):</label>
+											<span class="label-value-selected">{{ dimension.dq_problems.join(', ') }}</span>
+										</div>
+										<div class="label-selected">
+											<label class="label-title-selected">DQ Factors:</label>
+										</div>
+		
+										<!-- Accordion FACTORS -->
+										<div class="accordion mx-3 mb-2" [id]="'factorAccordion' + i">
+											<div class="accordion-item" *ngFor="let factor of dimension.factors; let j = index">
+												<h2 class="accordion-header" [id]="'factorHeading' + i + '-' + j">
+													<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#factorCollapse' + i + '-' + j" aria-expanded="false" [attr.aria-controls]="'factorCollapse' + i + '-' + j">
+														<span>
+															<label class="label-title">DQ Factor:</label>
+															<span class="dimension-name">{{ factor.factor_name }}</span>
+														</span>
+													</button>
+												</h2>
+												<div [id]="'factorCollapse' + i + '-' + j" class="accordion-collapse collapse" [attr.aria-labelledby]="'factorHeading' + i + '-' + j" [attr.data-bs-parent]="'#factorAccordion' + i">
+													<div class="accordion-body">
+														<div class="label-selected">
+															<label class="label-title-selected">Semantic:</label>
+															<span class="label-value-selected">{{ factor.attributesBase?.semantic }}</span>
+														</div>
+														<div class="label-selected">
+															<label class="label-title-selected">Ctx (Arises from):</label>
+															<!--<span class="label-value-selected" [innerHTML]="formatContextComponents(factor.context_components)"></span>-->
+															<span class="label-value-selected">{{ factor.context_components }}</span>
+														</div>
+														<div class="label-selected">
+															<label class="label-title-selected">DQ Problems (Used):</label>
+															<span class="label-value-selected">{{ factor.dq_problems.join(', ') }}</span>
+														</div>
+														<div class="label-selected">
+															<label class="label-title-selected">DQ Metrics:</label>
+														</div>
+		
+														<!-- Accordion METRICS -->
+														<div class="accordion mx-3 mb-2" [id]="'metricAccordion' + i + '-' + j">
+															<div class="accordion-item" *ngFor="let metric of factor.metrics; let k = index">
+																<h2 class="accordion-header" [id]="'metricHeading' + i + '-' + j + '-' + k">
+																	<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#metricCollapse' + i + '-' + j + '-' + k" aria-expanded="false" [attr.aria-controls]="'metricCollapse' + i + '-' + j + '-' + k">
+																		<span>
+																			<label class="label-title">DQ Metric:</label>
+																			<span class="dimension-name">{{ metric.metric_name }}</span>
+																		</span>
+																	</button>
+																</h2>
+																<div [id]="'metricCollapse' + i + '-' + j + '-' + k" class="accordion-collapse collapse" [attr.aria-labelledby]="'metricHeading' + i + '-' + j + '-' + k" [attr.data-bs-parent]="'#metricAccordion' + i + '-' + j">
+																	<div class="accordion-body">
+																		<div class="label-selected">
+																			<label class="label-title-selected">Purpose:</label>
+																			<span class="label-value-selected">{{ metric.attributesBase?.purpose }}</span>
+																		</div>
+																		<div class="label-selected">
+																			<label class="label-title-selected">Granularity:</label>
+																			<span class="label-value-selected">{{ metric.attributesBase?.granularity }}</span>
+																		</div>
+																		<div class="label-selected">
+																			<label class="label-title-selected">Result domain:</label>
+																			<span class="label-value-selected">{{ metric.attributesBase?.resultDomain }}</span>
+																		</div>
+																		<div class="label-selected">
+																			<label class="label-title-selected">DQ Methods:</label>
+																		</div>
 
+																		<!-- Accordion METHODS -->
+																		<div class="accordion mx-3 mb-2" [id]="'methodAccordion' + i + '-' + j + '-' + k">
+																			<div class="accordion-item" *ngFor="let method of metric.methods; let l = index">
+																				<h2 class="accordion-header" [id]="'methodHeading' + i + '-' + j + '-' + k + '-' + l">
+																					<button
+																						class="accordion-button collapsed"
+																						type="button"
+																						data-bs-toggle="collapse"
+																						[attr.data-bs-target]="'#methodCollapse' + i + '-' + j + '-' + k + '-' + l"
+																						aria-expanded="false"
+																						[attr.aria-controls]="'methodCollapse' + i + '-' + j + '-' + k + '-' + l"
+																					>
+																						<span>
+																							<label class="label-title">DQ Method:</label>
+																							<span class="dimension-name">{{ method.method_name }}</span>
+																						</span>
+																					</button>
+																				</h2>
+																				<div
+																					[id]="'methodCollapse' + i + '-' + j + '-' + k + '-' + l"
+																					class="accordion-collapse collapse"
+																					[attr.aria-labelledby]="'methodHeading' + i + '-' + j + '-' + k + '-' + l"
+																					[attr.data-bs-parent]="'#methodAccordion' + i + '-' + j + '-' + k"
+																				>
+																					<div class="accordion-body">
+																						<div class="label-selected">
+																							<label class="label-title-selected">Input data type:</label>
+																							<span class="label-value-selected">{{ method.attributesBase?.inputDataType }}</span>
+																						</div>
+																						<div class="label-selected">
+																							<label class="label-title-selected">Output data type:</label>
+																							<span class="label-value-selected">{{ method.attributesBase?.outputDataType }}</span>
+																						</div>
+																						<div class="label-selected">
+																							<label class="label-title-selected">Algorithm:</label>
+																							<span class="code-block">
+																								<pre><code>{{ method.attributesBase?.algorithm }}</code></pre>
+																							</span>
+																						</div>
+																						<div class="label-selected">
+																							<label class="label-title-selected">Applied DQ Methods:</label>
+																						</div>
+
+																						<!-- Applied Methods: Measurements -->
+																						<div *ngIf="method.applied_methods[0]?.measurements?.length > 0">
+																							<div class="accordion mt-2 mx-3" [id]="'measurementAccordion' + i + '-' + j + '-' + k + '-' + l">
+																								<div class="accordion-item" *ngFor="let measurement of method.applied_methods[0].measurements; let m = index">
+																									<h2 class="accordion-header" [id]="'measurementHeading' + i + '-' + j + '-' + k + '-' + l + '-' + m">
+																										<button
+																											class="accordion-button collapsed"
+																											type="button"
+																											data-bs-toggle="collapse"
+																											[attr.data-bs-target]="'#measurementCollapse' + i + '-' + j + '-' + k + '-' + l + '-' + m"
+																											aria-expanded="false"
+																											[attr.aria-controls]="'measurementCollapse' + i + '-' + j + '-' + k + '-' + l + '-' + m"
+																										>
+																											<span>
+																												<label class="label-title-applied-methods">Measurement DQ Method:</label>
+																												<span class="dimension-name">{{ measurement.name }}</span>
+																											</span>
+																										</button>
+																									</h2>
+																									<div
+																										[id]="'measurementCollapse' + i + '-' + j + '-' + k + '-' + l + '-' + m"
+																										class="accordion-collapse collapse"
+																										[attr.aria-labelledby]="'measurementHeading' + i + '-' + j + '-' + k + '-' + l + '-' + m"
+																										[attr.data-bs-parent]="'#measurementAccordion' + i + '-' + j + '-' + k + '-' + l"
+																									>
+																										<div class="accordion-body">
+																											<div class="label-selected">
+																												<label class="label-title-selected">Applied to:</label>
+																												<span class="label-value-selected">{{ measurement.appliedTo }}</span>
+																											</div>
+																											<div class="label-selected">
+																												<label class="label-title-selected">Associated to:</label>
+																												<span class="label-value-selected">{{ measurement.associatedTo }}</span>
+																											</div>
+																										</div>
+																									</div>
+																								</div>
+																							</div>
+																						</div>
+
+																						<!-- Applied Methods: Aggregations -->
+																						<div *ngIf="method.applied_methods[0]?.aggregations?.length > 0">
+																							<div class="accordion mt-3 mb-2 mx-3" [id]="'aggregationAccordion' + i + '-' + j + '-' + k + '-' + l">
+																								<div class="accordion-item" *ngFor="let aggregation of method.applied_methods[0].aggregations; let n = index">
+																									<h2 class="accordion-header" [id]="'aggregationHeading' + i + '-' + j + '-' + k + '-' + l + '-' + n">
+																										<button
+																											class="accordion-button collapsed"
+																											type="button"
+																											data-bs-toggle="collapse"
+																											[attr.data-bs-target]="'#aggregationCollapse' + i + '-' + j + '-' + k + '-' + l + '-' + n"
+																											aria-expanded="false"
+																											[attr.aria-controls]="'aggregationCollapse' + i + '-' + j + '-' + k + '-' + l + '-' + n"
+																										>
+																											<span>
+																												<label class="label-title-applied-methods">Aggregation DQ Method:</label>
+																												<span class="dimension-name">{{ aggregation.name }}</span>
+																											</span>
+																										</button>
+																									</h2>
+																									<div
+																										[id]="'aggregationCollapse' + i + '-' + j + '-' + k + '-' + l + '-' + n"
+																										class="accordion-collapse collapse"
+																										[attr.aria-labelledby]="'aggregationHeading' + i + '-' + j + '-' + k + '-' + l + '-' + n"
+																										[attr.data-bs-parent]="'#aggregationAccordion' + i + '-' + j + '-' + k + '-' + l"
+																									>
+																										<div class="accordion-body">
+																											<div class="label-selected">
+																												<label class="label-title-selected">Applied to:</label>
+																												<span class="label-value-selected">{{ aggregation.appliedTo }}</span>
+																											</div>
+																											<div class="label-selected">
+																												<label class="label-title-selected">Associated to:</label>
+																												<span class="label-value-selected">{{ aggregation.associatedTo }}</span>
+																											</div>
+																										</div>
+																									</div>
+																								</div>
+																							</div>
+																						</div>
+																					</div>
+																				</div>
+																			</div>
+																		</div>
+
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
 									</div>
-
 								</div>
-
-								<!-- Factor 2 -->
-								<div>
-									<div class="dq-model-element-container mb-2">
-										<span class="dq-model-element-name">DQ Factor: <strong>Domain integrity </strong><i class="bi bi-chevron-up"></i></span>
-									</div>
-									<div class="label-selected">
-										<label class="label-title-selected">Semantic:</label>
-										<span class="label-value-selected">It verifies the satisfaction of rules on the attribute content. It verifies the satisfaction of rules on the attribute content. It verifies the satisfaction of rules on the attribute content.</span>
-									</div>
-									<div class="label-selected">
-										<label class="label-title-selected">Ctx (Arises from):</label>
-										<span class="label-value-selected">BR1, BR2</span>
-									</div>
-									<div class="label-selected py-2">
-										<label class="label-title-selected">DQ Metrics:</label>
-										<span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span>
-									</div>
-								</div>
-
-								<!-- Factor 3 -->
-								<div>
-									<div class="dq-model-element-container mt-2 mb-2">
-										<span class="dq-model-element-name">DQ Factor: <strong>Domain integrity </strong><i class="bi bi-chevron-up"></i></span>
-									</div>
-									<div class="label-selected">
-										<label class="label-title-selected">Semantic:</label>
-										<span class="label-value-selected">It verifies the satisfaction of rules on
-											the attribute content.</span>
-									</div>
-									<div class="label-selected">
-										<label class="label-title-selected">Ctx (Arises from):</label>
-										<span class="label-value-selected">BR2</span>
-									</div>
-									<div class="label-selected py-2">
-										<label class="label-title-selected">DQ Metrics:</label>
-										<span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span>
-									</div>
-								</div>
-
-								<!-- Factor 4 -->
-								<div>
-									<div class="dq-model-element-container mt-2 mb-4">
-										<span class="dq-model-element-name">DQ Factor: <strong>Domain integrity </strong><i class="bi bi-chevron-down"></i></span>
-									</div>
-								</div>
-
 							</div>
-						
 						</div>
 
-						<!--Dimension 2-->
-						<div class="mt-2">
-							<div class="dq-model-element-container mb-2">
-								<span class="dq-model-element-name">DQ Dimension: <strong>Completeness </strong><i class="bi bi-chevron-down"></i></span>
-							</div>
-							<div class="label-selected">
-								<label class="label-title-selected">Semantic:</label>
-								<span class="label-value-selected">It indicates the portion of information
-									stored in the system.</span>
-							</div>
-							<div class="label-selected">
-								<label class="label-title-selected">Ctx (Suggested by):</label>
-								<span class="label-value-selected">DQR1</span>
-							</div>
-							<div class="label-selected py-2">
-								<label class="label-title-selected">DQ Factors:</label>
-								<span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span>
-							</div>
-						</div>
-
-						<!--Dimension x-->
-						<div class="mt-2">
-							<div class="dq-model-element-container mb-2">
-								<span class="dq-model-element-name">DQ Dimension: <strong>Completeness </strong><i class="bi bi-chevron-up"></i></span>
-							</div>
-						</div>
-
-					</div> <!-- end dimensions -->
-
-			
-				
-
+					</div>
+				</div>
 			</div>
-
-
-	
-
-			
-
 		</div>
 	</div>
 
-	
 
-
-</div>
 <div class="next-step-btn-container">
 	<button class="btn btn-dark btn-sm">Confirm DQ Model</button>
 </div>
-
 
