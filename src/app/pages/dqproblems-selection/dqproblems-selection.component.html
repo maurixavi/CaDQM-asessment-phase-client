@@ -1,224 +1,518 @@
 <div class="container my-4">
   <app-step-navigator 
-		[pageStepTitle]="pageStepTitle" 
-		[phaseTitle]="phaseTitle" 
-		[stageTitle]="stageTitle" 
-		[currentStep]="currentStep">
-	</app-step-navigator>
+    [pageStepTitle]="pageStepTitle" 
+    [phaseTitle]="phaseTitle" 
+    [stageTitle]="stageTitle" 
+    [currentStep]="currentStep">
+  </app-step-navigator>
 
   <div>
     <p class="subtitle-description">Select the prioritized quality problems to define the DQ Model</p>
     <div class="flex-container">
+      
+      
       <div class="container-section">
-        <div class="py-2 px-4 row">
-          <div class="col-md-12">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th class="priority-column ">Priority</th>
-                  <th class="w-70">Data Quality Problem</th>
-                  <th class="w-10">Creation Date</th>
-                  <th class="w-10"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let problem of getFilteredProblems()" [ngClass]="{
-                  'priority-high': problem.priority_type === 'High',
-                  'priority-medium': problem.priority_type === 'Medium',
-                  'priority-low': problem.priority_type === 'Low'
-                }">
-                  <td>
-                    <span [ngClass]="{
-                      'badge': true,
-                      'badge-high': problem.priority_type === 'High',
-                      'badge-medium': problem.priority_type === 'Medium',
-                      'badge-low': problem.priority_type === 'Low'
-                    }">
-                      {{ problem.priority_type }}
-                    </span>
-                  </td>
-                  <!--<td><i class="bi bi-circle-fill"></i></td>
-                  <td>{{ problem.priorityType }}</td>-->
-                  <td>
-                    {{ problem.description }} 
-                    <i class="bi bi-info-circle" 
-                      data-bs-toggle="tooltip" 
-                      data-bs-placement="top" 
-                      title="{{ problem.description }}"></i>
-                  </td>
-                  <td>{{ problem.date | date:'MMM dd HH:mm yyyy'}}</td>
-                  <!--<td>Sep 23 18:20:01 2024</td>-->
-                  <td style="text-align: right;">
-                    <!--<button class="btn btn-outline-secondary btn-sm" (click)="showDetails(problem)">
-                      <i class="bi bi-zoom-in"></i>
-                    </button>-->
-                    <button class="btn btn-add-added btn-light btn-sm ms-1" (click)="addProblemToSelection(problem)">
-                      <!--<span [innerHTML]="loadedSelectedPrioritizedProblems.includes(problem) || selectedPrioritizedProblems.includes(problem) ? 'Added <i class=&quot;bi bi-check-lg&quot;></i>' : 'Add'"></span> -->
-                      <span [innerHTML]="isProblemSelected(problem) ? 'Added <i class=&quot;bi bi-check-lg&quot;></i>' : 'Add'"></span>  
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
 
-            <!-- SELECCIONADOS EN EL MOMENTO -->
-            <div *ngIf="selectedPrioritizedProblems.length > 0" class="selected-problems-container">
-              <p class="selected-problems-container-title">Selected DQ Problems:</p>
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th class="priority-column">Priority</th>
-                    <th class="w-70">Data Quality Problem</th>
-                    <th class="w-10">Creation Date</th>
-                    <th class="w-10"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let problem of selectedPrioritizedProblems" [ngClass]="{
-                    'priority-high': problem.priority_type === 'High',
-                    'priority-medium': problem.priority_type === 'Medium',
-                    'priority-low': problem.priority_type === 'Low'
-                  }">
-                    <td>
-                      <span [ngClass]="{
-                        'badge': true,
-                        'badge-high': problem.priority_type === 'High',
-                        'badge-medium': problem.priority_type === 'Medium',
-                        'badge-low': problem.priority_type === 'Low'
-                      }">
-                        {{ problem.priority_type }}
-                      </span>
-                    </td>
-                    <td>
-                      {{ problem.description }} 
-                      <i class="bi bi-info-circle" 
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="top" 
-                        title="{{ problem.description }}"></i>
-                    </td>
-                    <td>{{ problem.date | date:'MMM dd HH:mm yyyy' }}</td>
-                    <td style="text-align: right;">
-                      <button class="btn btn-add-added btn-light btn-sm ms-1" (click)="removeSelectedProblem(problem)">
-                        <span>Cancel</span>  
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+        <!-- MAIN CONTAINER -->
+      <div class="problems-main-container">
 
-            <!-- SELECCIONADOS y AGRGADOS AL DQ MODEL -->
-            <!--<table *ngIf="loadedSelectedPrioritizedProblems.length > 0" class="table">
-              <thead>
-                <tr>
-                  <th class="priority-column">Priority</th>
-                  <th class="w-70">Data Quality Problem</th>
-                  <th class="w-10">Creation Date</th>
-                  <th class="w-10"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let problem of loadedSelectedPrioritizedProblems" [ngClass]="{
-                  'priority-high': problem.priority_type === 'High',
-                  'priority-medium': problem.priority_type === 'Medium',
-                  'priority-low': problem.priority_type === 'Low'
-                }">
-                  <td>
-                    <span [ngClass]="{
-                      'badge': true,
-                      'badge-high': problem.priority_type === 'High',
-                      'badge-medium': problem.priority_type === 'Medium',
-                      'badge-low': problem.priority_type === 'Low'
-                    }">
-                      {{ problem.priority_type }}
-                    </span>
-                  </td>
-                  <td>
-                    {{ problem.description }} 
-                    <i class="bi bi-info-circle" 
-                      data-bs-toggle="tooltip" 
-                      data-bs-placement="top" 
-                      title="{{ problem.description }}"></i>
-                  </td>
-                  <td>{{ problem.date | date:'MMM dd HH:mm yyyy' }}</td>
-                  <td style="text-align: right;">
-                    <button class="btn btn-add-added btn-outline-danger btn-sm ms-1" (click)="removeSelectedProblem(problem)">
-                      <span>Remove</span>  
-                    </button>
+        <!-- SELECCION DE PROBLEMAS -->
+        <div class="dq-problems-selection-container">
+          <div class="subsection-title"><p>Prioritized DQ Problems</p></div>
+          
+          <div class="d-flex justify-content-between">
+            <div class="from-ctx-components  flex-fill ">
+              <!-- DQ Problems checkbox (all values) -->
+              <div class="dq-problems-accordion-container">
+                <div >
+                  <div class="checkbox-container">
+                    <div>
+                      <div class="row">
+                        <div>
+                          <!-- Seleccion Problemas de Alta Prioridad -->
+                          <table class="table">
+                            <thead>
+                              <tr>                 
+                                <th class="w-90" (click)="togglePriorityVisibility('High')" style="cursor: pointer;">
+                                  <h6>High Priority <i class="bi" [ngClass]="isHighPriorityProblemsVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                                  </h6> 
+                                </th>
+                                <th class="w-10" style="text-align: right;">
+                                  <button class="btn btn-add-added btn-light btn-sm"  (click)="addAllProblems(highPriorityProblems, 'High')">
+                                  Select All
+                                  </button>
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody *ngIf="isHighPriorityProblemsVisible"> 
+                              <!-- Mostrar problemas de highPriorityProblemsSelected -->
+                              <tr *ngFor="let problem of highPriorityProblems">
+                                <td>
+                                  <div class="card-body">
+                                    <h5 class="card-title">{{ problem.description }}</h5>
+                                    <p class="card-text mt-2">
+                                      {{ problem.date | date:'MMM dd HH:mm yyyy' }} 
+                                      <span class="badge bg-danger rounded-pill mx-1">High</span>
+                                    </p>
+                                  </div>
+                                </td>
+                                <td style="text-align: right;">
+                                  <button 
+                                    class="btn btn-add-added btn-light btn-sm" 
+                                    (click)="addProblemToSelection(problem)"
+                                  >
+                                    <span 
+                                      [innerHTML]="isProblemSelected(problem) ? 'Added <i class=&quot;bi bi-check-lg&quot;></i>' : 'Add'">
+                                    </span>  
+                                  </button>
+                                </td>
+                              </tr>
+                            
+                              <!-- Mostrar problemas de fetchedSelectedHighPriorityProblems -->
+                              <tr *ngFor="let problem of fetchedSelectedHighPriorityProblems">
+                                <td>
+                                  <div class="card-body">
+                                    <h5 class="card-title">{{ problem.description }} (*)</h5>
+                                    <p class="card-text mt-2">
+                                      {{ problem.date | date:'MMM dd HH:mm yyyy' }} 
+                                      <span class="badge bg-danger rounded-pill mx-1">High</span>
+                                    </p>
+                                  </div>
+                                </td>
+                                <td style="text-align: right;">
+                                  <button 
+                                    class="btn btn-add-added btn-sm btn-light" 
+                                    [disabled]="isProblemSelected(problem)"
+                                  >
+                                    <span>Added <i class="bi bi-check-lg"></i></span>  
+                                  </button>
+                                </td>
+                              </tr>
+                            
+                              <!-- Mostrar mensaje de "No data" solo si ambos arreglos están vacíos -->
+                              <tr *ngIf="highPriorityProblems.length === 0 && fetchedSelectedHighPriorityProblems.length === 0">
+                                <td colspan="2" class="text-center">
+                                  <div class="empty-message">
+                                    <i class="bi bi-info-circle"></i> No high priority data quality problems available.
+                                  </div>
+                                </td>
+                              </tr>
+
+                              <div class="added-problems-message">
+                              (*) Data quality problems previously added.
+                              </div>
+
+                            </tbody>
     
-                  </td>
-                </tr>
-              </tbody>
-            </table>-->
+                          </table>
 
+                          <!-- Seleccion Problemas de Media Prioridad -->
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th class="w-90" (click)="togglePriorityVisibility('Medium')" style="cursor: pointer;"><h6>Medium Priority <i class="bi" [ngClass]="isMediumPriorityProblemsVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i></h6> </th>
+                                <th class="w-10" style="text-align: right;">
+                                  <button class="btn btn-add-added btn-light btn-sm"  (click)="addAllProblems(mediumPriorityProblems, 'Medium')">
+                                  Select All
+                                  </button>
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody *ngIf="isMediumPriorityProblemsVisible"> 
+                              <!-- Mostrar problemas de mediumPriorityProblemsSelected -->
+                              <tr *ngFor="let problem of mediumPriorityProblems">
+                                <td>
+                                  <div class="card-body">
+                                    <h5 class="card-title">{{ problem.description }}</h5>
+                                    <p class="card-text mt-2">
+                                      {{ problem.date | date:'MMM dd HH:mm yyyy' }} 
+                                      <span class="badge bg-warning rounded-pill mx-1">Medium</span>
+                                    </p>
+                                  </div>
+                                </td>
+                                <td style="text-align: right;">
+                                  <button class="btn btn-add-added btn-light btn-sm" (click)="addProblemToSelection(problem)">
+                                    <span [innerHTML]="isProblemSelected(problem) ? 'Added <i class=&quot;bi bi-check-lg&quot;></i>' : 'Add'"></span>  
+                                  </button>
+                                </td>
+                              </tr>
+                            
+                              <!-- Mostrar problemas de fetchedSelectedMediumPriorityProblems -->
+                              <tr *ngFor="let problem of fetchedSelectedMediumPriorityProblems">
+                                <td>
+                                  <div class="card-body">
+                                    <h5 class="card-title">{{ problem.description }} (*)</h5>
+                                    <p class="card-text mt-2">
+                                      {{ problem.date | date:'MMM dd HH:mm yyyy' }} 
+                                      <span class="badge bg-warning rounded-pill mx-1">Medium</span>
+                                    </p>
+                                  </div>
+                                </td>
+                                <td style="text-align: right;">
+                                  <button class="btn btn-add-added btn-sm btn-light" (click)="addProblemToSelection(problem)">
+                                    <span [innerHTML]="isProblemSelected(problem) ? 'Remove <i class=&quot;bi bi-check-lg&quot;></i>' : 'Added'"></span>  
+                                  </button>
+                                </td>
+                              </tr>
+                            
+                              <!-- Mostrar mensaje de "No data" solo si ambos arreglos están vacíos -->
+                              <tr *ngIf="mediumPriorityProblems.length === 0 && fetchedSelectedMediumPriorityProblems.length === 0">
+                                <td colspan="2" class="text-center">
+                                  <div class="empty-message">
+                                    <i class="bi bi-info-circle"></i> No high priority data quality problems available.
+                                  </div>
+                                </td>
+                              </tr>
 
-              <!-- Mostrar Problemas Seleccionados Parcialmente -->
+                              <div class="added-problems-message">
+                                (*) Data quality problems previously added.
+                              </div>
+                            </tbody>
+
+                            
+
+                          </table>
+
+                          <!-- Seleccion Problemas de Baja Prioridad -->
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th class="w-90" (click)="togglePriorityVisibility('Low')" style="cursor: pointer;"><h6>Low Priority <i class="bi" [ngClass]="isLowPriorityProblemsVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i></h6> </th>
+                                <th class="w-10" style="text-align: right;">
+                                  <button class="btn btn-add-added btn-light btn-sm"  (click)="addAllProblems(lowPriorityProblems, 'Low')">
+                                    Select All
+                                    </button>
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody *ngIf="isLowPriorityProblemsVisible"> 
+                              <!-- Mostrar problemas de lowPriorityProblems -->
+                              <tr *ngFor="let problem of lowPriorityProblems">
+                                <td>
+                                  <div class="card-body">
+                                    <h5 class="card-title">{{ problem.description }}</h5>
+                                    <p class="card-text mt-2">
+                                      {{ problem.date | date:'MMM dd HH:mm yyyy' }} 
+                                      <span class="badge bg-success rounded-pill mx-1">Low</span>
+                                    </p>
+                                  </div>
+                                </td>
+                                <td style="text-align: right;">
+                                  <button class="btn btn-add-added btn-light btn-sm" (click)="addProblemToSelection(problem)">
+                                    <span [innerHTML]="isProblemSelected(problem) ? 'Added <i class=&quot;bi bi-check-lg&quot;></i>' : 'Add'"></span>  
+                                  </button>
+                                </td>
+                              </tr>
+                            
+                              <!-- Mostrar problemas de fetchedSelectedLowPriorityProblems -->
+                              <tr *ngFor="let problem of fetchedSelectedLowPriorityProblems">
+                                <td>
+                                  <div class="card-body">
+                                    <h5 class="card-title">{{ problem.description }} (*)</h5>
+                                    <p class="card-text mt-2">
+                                      {{ problem.date | date:'MMM dd HH:mm yyyy' }} 
+                                      <span class="badge bg-success rounded-pill mx-1">Low</span>
+                                    </p>
+                                  </div>
+                                </td>
+                                <td style="text-align: right;">
+                                  <button class="btn btn-add-added btn-sm btn-light" (click)="addProblemToSelection(problem)">
+                                    <span [innerHTML]="isProblemSelected(problem) ? 'Remove <i class=&quot;bi bi-check-lg&quot;></i>' : 'Added'"></span>  
+                                  </button>
+                                </td>
+                              </tr>
+                            
+                              <!-- Mostrar mensaje de "No data" solo si ambos arreglos están vacíos -->
+                              <tr *ngIf="lowPriorityProblems.length === 0 && fetchedSelectedLowPriorityProblems.length === 0">
+                                <td colspan="2" class="text-center">
+                                  <div class="empty-message">
+                                    <i class="bi bi-info-circle"></i> No high priority data quality problems available.
+                                  </div>
+                                </td>
+                              </tr>
+
+                              <div class="added-problems-message">
+                                (*) Data quality problems previously added.
+                              </div>
+                            </tbody>
+                            
+                          </table>
+              
+                      
+  
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div> 
+          </div>
+        </div>
+
+        <div class="dq-problems-selection-container">
+          <div class="subsection-title"><p>DQ Problems Selection</p></div>
+          <div class="d-flex justify-content-between">
+            <div class="from-ctx-components  flex-fill ">
+              <!-- DQ Problems SELECTED -->
+              <div class="dq-problems-accordion-container">
+                <div >
+                  <div class="checkbox-container">
+                    <div>
+                      <div class="row">
+                        <div>
+                          <!-- Problemas de Alta Prioridad seleccionados -->
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th class="w-90" (click)="toggleSelectedProblemsPriorityVisibility('High')" style="cursor: pointer;">
+                                  <h6>High Priority <i class="bi" [ngClass]="isSelectedHighPriorityProblemsVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                                  </h6> 
+                                </th>
+                                <th class="w-10" style="text-align: right;">
+                                  <button class="btn btn-add-added btn-light btn-sm" (click)="removeAllProblems(highPriorityProblems, 'High')">
+                                    Clear
+                                  </button>
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <!-- Mostrar problemas de highPriorityProblemsSelected -->
+                              <tr *ngFor="let problem of highPriorityProblemsSelected">
+                                <td>
+                                  <div class="card-body">
+                                    <h5 class="card-title">{{ problem.description }}</h5>
+                                    <p class="card-text mt-2">
+                                      {{ problem.date | date:'MMM dd HH:mm yyyy' }} 
+                                      <span class="badge bg-danger rounded-pill mx-1">High</span>
+                                    </p>
+                                  </div>
+                                </td>
+                                <td style="text-align: right;">
+                                  <button class="btn btn-add-added btn-light btn-sm"  (click)="removeSelectedProblem(problem)">
+                                    Cancel  
+                                  </button>
+                                </td>
+                              </tr>
+                            
+                              <!-- Mostrar problemas de fetchedSelectedHighPriorityProblems -->
+                              <tr *ngFor="let problem of fetchedSelectedHighPriorityProblems">
+                                <td>
+                                  <div class="card-body">
+                                    <h5 class="card-title">{{ problem.description }} (*)</h5>
+                                    <p class="card-text mt-2">
+                                      {{ problem.date | date:'MMM dd HH:mm yyyy' }} 
+                                      <span class="badge bg-danger rounded-pill mx-1">High</span>
+                                    </p>
+                                  </div>
+                                </td>
+                                <td style="text-align: right;">
+                                  <button class="btn btn-add-added btn-sm btn-outline-danger" (click)="deleteDQProblemFromSelection(problem)">
+                                    <span [innerHTML]="isProblemSelected(problem) ? 'Remove <i class=&quot;bi bi-check-lg&quot;></i>' : 'Remove'"></span>  
+                                  </button>
+                                </td>
+                              </tr>
+                            
+                              <!-- Mostrar mensaje de "No data" solo si ambos arreglos están vacíos -->
+                              <tr *ngIf="highPriorityProblemsSelected.length === 0 && fetchedSelectedHighPriorityProblems.length === 0">
+                                <td colspan="2" class="text-center">
+                                  <div class="empty-message">
+                                    <i class="bi bi-info-circle"></i> No high priority data quality problems selected.
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                            
+                            
+                          </table>
+
+                          <!-- Problemas de Media Prioridad seleccionados -->
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th class="w-90" (click)="toggleSelectedProblemsPriorityVisibility('Medium')" style="cursor: pointer;">
+                                  <h6>Medium Priority <i class="bi" [ngClass]="isSelectedMediumPriorityProblemsVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                                  </h6> 
+                                </th>
+                                <th class="w-10" style="text-align: right;">
+                                  <button class="btn btn-add-added btn-light btn-sm" (click)="removeAllProblems(mediumPriorityProblems, 'Medium')">
+                                    Clear
+                                  </button>
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <!-- Mostrar problemas de mediumPriorityProblemsSelected -->
+                              <tr *ngFor="let problem of mediumPriorityProblemsSelected">
+                                <td>
+                                  <div class="card-body">
+                                    <h5 class="card-title">{{ problem.description }}</h5>
+                                    <p class="card-text mt-2">
+                                      {{ problem.date | date:'MMM dd HH:mm yyyy' }} 
+                                      <span class="badge bg-warning rounded-pill mx-1">Medium</span>
+                                    </p>
+                                  </div>
+                                </td>
+                                <td style="text-align: right;">
+                                  <button class="btn btn-add-added btn-light btn-sm" (click)="removeSelectedProblem(problem)">
+                                    Cancel 
+                                  </button>
+                                </td>
+                              </tr>
+                            
+                              <!-- Mostrar problemas de fetchedSelectedMediumPriorityProblems -->
+                              <tr *ngFor="let problem of fetchedSelectedMediumPriorityProblems">
+                                <td>
+                                  <div class="card-body">
+                                    <h5 class="card-title">{{ problem.description }} (*)</h5>
+                                    <p class="card-text mt-2">
+                                      {{ problem.date | date:'MMM dd HH:mm yyyy' }} 
+                                      <span class="badge bg-warning rounded-pill mx-1">Medium</span>
+                                    </p>
+                                  </div>
+                                </td>
+                                <td style="text-align: right;">
+                                  <button class="btn btn-add-added btn-sm btn-outline-danger" (click)="deleteDQProblemFromSelection(problem)">
+                                    <span [innerHTML]="isProblemSelected(problem) ? 'Remove <i class=&quot;bi bi-check-lg&quot;></i>' : 'Remove'"></span>  
+                                  </button>
+                                </td>
+                              </tr>
+                            
+                              <!-- Mostrar mensaje de "No data" solo si ambos arreglos están vacíos -->
+                              <tr *ngIf="mediumPriorityProblemsSelected.length === 0 && fetchedSelectedMediumPriorityProblems.length === 0">
+                                <td colspan="2" class="text-center">
+                                  <div class="empty-message">
+                                    <i class="bi bi-info-circle"></i> No high priority data quality problems selected.
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                            
+                            
+                          </table>
+
+                          <!-- Problemas de Baja Prioridad seleccionados -->
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th class="w-90" (click)="toggleSelectedProblemsPriorityVisibility('Low')" style="cursor: pointer;">
+                                  <h6>Low Priority <i class="bi" [ngClass]="isSelectedLowPriorityProblemsVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                                  </h6> 
+                                </th>
+                                <th class="w-10" style="text-align: right;">
+                                  <button class="btn btn-add-added btn-light btn-sm" (click)="removeAllProblems(lowPriorityProblems, 'Low')">
+                                    Clear
+                                  </button>
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <!-- Mostrar problemas de mediumPriorityProblemsSelected -->
+                              <tr *ngFor="let problem of lowPriorityProblemsSelected">
+                                <td>
+                                  <div class="card-body">
+                                    <h5 class="card-title">{{ problem.description }}</h5>
+                                    <p class="card-text mt-2">
+                                      {{ problem.date | date:'MMM dd HH:mm yyyy' }} 
+                                      <span class="badge bg-success rounded-pill mx-1">Low</span>
+                                    </p>
+                                  </div>
+                                </td>
+                                <td style="text-align: right;">
+                                  <button class="btn btn-add-added btn-light btn-sm" (click)="removeSelectedProblem(problem)">
+                                    Cancel  
+                                  </button>
+                                </td>
+                              </tr>
+                            
+                              <!-- Mostrar problemas de fetchedSelectedMediumPriorityProblems -->
+                              <tr *ngFor="let problem of fetchedSelectedLowPriorityProblems">
+                                <td>
+                                  <div class="card-body">
+                                    <h5 class="card-title">{{ problem.description }} (*)</h5>
+                                    <p class="card-text mt-2">
+                                      {{ problem.date | date:'MMM dd HH:mm yyyy' }} 
+                                      <span class="badge bg-success rounded-pill mx-1">Low</span>
+                                    </p>
+                                  </div>
+                                </td>
+                                <td style="text-align: right;">
+                                  <button class="btn btn-add-added btn-sm btn-outline-danger" (click)="deleteDQProblemFromSelection(problem)">
+                                    <span [innerHTML]="isProblemSelected(problem) ? 'Remove <i class=&quot;bi bi-check-lg&quot;></i>' : 'Remove'"></span>  
+                                  </button>
+                                </td>
+                              </tr>
+                            
+                              <!-- Mostrar mensaje de "No data" solo si ambos arreglos están vacíos -->
+                              <tr *ngIf="lowPriorityProblemsSelected.length === 0 && fetchedSelectedLowPriorityProblems.length === 0">
+                                <td colspan="2" class="text-center">
+                                  <div class="empty-message">
+                                    <i class="bi bi-info-circle"></i> No high priority data quality problems selected.
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                            
+                            
+                          </table>
+
+              
+                      
+  
+                        </div>
+                      </div>
+                      
+                    </div>
+                    
+                  </div>
+                </div>
+              </div>
+
+            </div> 
+          </div>
+          <!-- Botón para guardar la selección
+          <div>
             <button 
-              class="btn btn-dark btn-sm mt-3" 
-              (click)="confirmSelectedProblems()"
-              [disabled]="selectedPrioritizedProblems.length === 0">
+            class="btn btn-dark btn-sm mt-3" 
+            (click)="saveSelection()"
+            [disabled]="selectedPrioritizedDQProblems.length === 0"
+            >
               Save Selection
             </button>
-       
-
+          </div> -->
         </div>
+
+        <!-- Botón para guardar la selección-->
+          <div>
+            <button 
+            class="btn btn-dark btn-sm mx-3 mt-3" 
+            (click)="saveSelection()"
+            [disabled]="selectedPrioritizedDQProblems.length === 0"
+            >
+              Save Selection
+            </button>
+          </div> 
+
+    
       </div>
-    </div> 
+
+
+
+      </div>
     </div>
   </div>
 
-  <div>
-    <p class="subtitle-description mt-4">Priorized DQ Problems added to DQ Model</p>
+
+
+  <!--<div>
+    <p class="subtitle-description mt-4">Selected Prioritized DQ Problems </p>
     <div class="flex-container">
       <div class="container-section">
         <div class="py-2 px-4 row">
           <div class="col-md-12">
-            <!-- ALL DQ PROBLEMS 
-            <table class="table">
-              <thead>
-                <tr>
-                  <th class="priority-column ">Priority</th>
-                  <th class="w-70">Data Quality Problem</th>
-                  <th class="w-10">Creation Date</th>
-                  <th class="w-10"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let problem of prioritizedProblems" [ngClass]="{
-                  'priority-high': problem.priority_type === 'High',
-                  'priority-medium': problem.priority_type === 'Medium',
-                  'priority-low': problem.priority_type === 'Low'
-                }">
-                  <td>
-                    <span [ngClass]="{
-                      'badge': true,
-                      'badge-high': problem.priority_type === 'High',
-                      'badge-medium': problem.priority_type === 'Medium',
-                      'badge-low': problem.priority_type === 'Low'
-                    }">
-                      {{ problem.priority_type }}
-                    </span>
-                  </td>
-                  <td>
-                    {{ problem.description }} 
-                    <i class="bi bi-info-circle" 
-                      data-bs-toggle="tooltip" 
-                      data-bs-placement="top" 
-                      title="{{ problem.description }}"></i>
-                  </td>
-                  <td>{{ problem.date | date:'MMM dd HH:mm yyyy'}}</td>
-                  <td style="text-align: right;">
-                    <button class="btn btn-add-added btn-light btn-sm ms-1" (click)="addProblemToSelection(problem)">
-                      <span [innerHTML]="isProblemSelected(problem) ? 'Added <i class=&quot;bi bi-check-lg&quot;></i>' : 'Add'"></span>  
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>-->
-
-
-            <!-- SELECCIONADOS y AGRGADOS AL DQ MODEL -->
-            <table *ngIf="loadedSelectedPrioritizedProblems.length > 0" class="table">
+            <table *ngIf="fetchedSelectedProblems.length > 0" class="table">
               <thead>
                 <tr>
                   <th class="priority-column">Priority</th>
@@ -228,19 +522,19 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let problem of loadedSelectedPrioritizedProblems" [ngClass]="{
-                  'priority-high': problem.priority_type === 'High',
-                  'priority-medium': problem.priority_type === 'Medium',
-                  'priority-low': problem.priority_type === 'Low'
+                <tr *ngFor="let problem of fetchedSelectedProblems" [ngClass]="{
+                  'priority-high': problem.priority === 'High',
+                  'priority-medium': problem.priority === 'Medium',
+                  'priority-low': problem.priority === 'Low'
                 }">
                   <td>
                     <span [ngClass]="{
                       'badge': true,
-                      'badge-high': problem.priority_type === 'High',
-                      'badge-medium': problem.priority_type === 'Medium',
-                      'badge-low': problem.priority_type === 'Low'
+                      'badge-high': problem.priority === 'High',
+                      'badge-medium': problem.priority === 'Medium',
+                      'badge-low': problem.priority === 'Low'
                     }">
-                      {{ problem.priority_type }}
+                      {{ problem.priority }}
                     </span>
                   </td>
                   <td>
@@ -255,68 +549,19 @@
                     <button class="btn btn-add-added btn-outline-danger btn-sm ms-1" (click)="removeSelectedProblem(problem)">
                       <span>Remove</span>  
                     </button>
-    
                   </td>
                 </tr>
               </tbody>
             </table>
-
-            <!--
-            <div class="ms-4 me-4" *ngIf="selectedPrioritizedProblems.length > 0 || loadedSelectedPrioritizedProblems.length > 0">
-              <h3 class="mt-4 selection-subtitle">DQ problems selected</h3>
-              <div *ngFor="let problem of loadedSelectedPrioritizedProblems" class="selected-problem-container ms-2 me-2">
-                <div class="d-flex justify-content-between align-items-center" (click)="toggleSelectedProblemVisibility()" style="cursor: pointer;">
-                  <h4 class="problem-selected-name">{{ problem.description }}</h4>
-                  <i class="bi" [ngClass]="isSelectedProblemVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-                </div>
-                <div class="problem-selected-info" *ngIf="isSelectedProblemVisible">
-                  <p><strong>Priority:</strong> {{ problem.priority }}° ({{ problem.priority_type }})</p>
-                  <p><strong>Description:</strong> {{ problem.description }}</p>
-                  <p><strong>Date:</strong> {{ problem.date | date:'MMM dd HH:mm yyyy' }}</p>
-                </div>
-                <hr>
-              </div>
-
-
-              <div *ngFor="let problem of selectedPrioritizedProblems" class="selected-problem-container ms-2 me-2">
-                <div class="d-flex justify-content-between align-items-center">
-                  <h4 class="problem-selected-name">{{ problem.description }}</h4>
-                  <button class="btn btn-outline-danger btn-sm" (click)="removeSelectedProblem(problem)">
-                    Cancel
-                  </button>
-                </div>
-                <div class="problem-selected-info">
-                  <p><strong>Priority:</strong> {{ problem.priority }}° ({{ problem.priority_type }})</p>
-                  <p><strong>Description:</strong> {{ problem.description }}</p>
-                  <p><strong>Date:</strong> {{ problem.date | date:'MMM dd HH:mm yyyy' }}</p>
-
-                </div>
-                <hr>
-              </div>
-              <button class="btn btn-dark btn-sm mt-3" (click)="confirmSelectedProblems()">Save selection</button>
-
-              <div *ngIf="detailsVisible" class="col-md-4">
-                <div class="details-container">
-                  <h3>Detalles del Problema:</h3>
-                  <p><strong>Problema:</strong> {{ selectedProblem?.name }}</p>
-                  <p><strong>Descripción:</strong> {{ selectedProblem?.description }}</p>
-                  <p><strong>Prioridad:</strong> {{ selectedProblem?.priorityType }}</p>
-
-                  <button class="btn btn-outline-secondary btn-sm" (click)="hideDetails()">Ocultar detalles</button>
-                </div>
-              </div>
-            </div>-->
-            
-
+          </div>
         </div>
       </div>
-    </div> 
     </div>
+  </div>-->
+
+  <div class="next-step-btn-container">
+    <button (click)="confirmSelectedProblems()" class="btn btn-dark btn-sm">Next ></button>
   </div>
-
-<div class="next-step-btn-container">
-  <button (click)="confirmSelectedProblems()" class="btn btn-dark btn-sm">Next ></button>
 </div>
-
 
 

@@ -6,9 +6,6 @@
   /*font-family: 'Roboto', sans-serif;*/
 }
 
-.priority-column {
-  width: 78px; 
-}
 
 .table {
   /*font-size: 0.875rem; */
@@ -54,91 +51,17 @@
   border-radius: 8px;
 }
 
-.details-container h3 {
-  font-size: 1.2rem;
-}
 
-.details-container p, .details-container ul {
-  font-size: 0.9rem;
-}
 
-.details-container ul {
-  list-style-type: none;
-  padding-left: 0;
-}
-
-.details-container li {
-  margin-bottom: 0.5rem;
-}
-
-.go-back {
-	margin-bottom: 10px;
-}
-.go-back-btn {
-  background: none;
-  border: none;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-	color: #888;
-}
-
-.go-back-link {
-	font-size: 16px;
-	color: #888;
-  text-decoration: none;
-
-}
 
 .badge {
   min-width: 50px;
-  display: inline-block;
-  padding: 0.4rem 0.5rem;
-  border-radius: 20px;
-  font-weight: bold;
+  /*display: inline-block;
+  padding-left: 6px;
+  padding-right: 6px;*/
+
 }
 
-.badge-high {
-  /*color: #942e2e;
-  border: 1px solid #942e2e;*/
-  background-color: #942e2e; 
-}
-
-.badge-medium {
-  background-color: #d8c246;
-  /*color: #d8c246;
-  border: 1px solid #d8c246;*/
-}
-
-.badge-low {
-  /*color: #3d773d;
-  border: 1px solid #3d773d;*/
-  background-color: #3d773d;
-}
-
-
-.priority-high .bi-circle-fill {
-  color: #942e2e; 
-}
-
-.priority-medium .bi-circle-fill {
-  color: #d8c246; 
-}
-
-.priority-low .bi-circle-fill {
-  color: #3d773d;  
-}
-
-/*
-.flex-container {
-  display: flex;
-  gap: 1rem;
-*/
-  /*justify-content: space-between;*/ /* Ajusta el espacio entre los elementos */
-/*}*/
 
 .flex-container {
   display: flex;
@@ -157,35 +80,14 @@
   font-size: 0.875rem;  
 }
 
-/*
-.container-section {
-  width: 98%;
-  border: 1px solid #ddd; 
-  background-color: #fff; 
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;  
-}*/
 
-.container-section-2 {
-  /*
-  flex: 0 0 auto;*/
-
-  /*width: 26%;*/
-  border: 1px solid #ddd; 
-  background-color: #fff; 
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;  
-}
-
+/* BUTTONS */
 .btn {
 	font-size: 0.9rem;
   font-weight: 500;
   /*border-radius: 8px;*/
 }
+
 .btn-dark {
   background-color: #222; 
   color: #fff; 
@@ -202,11 +104,10 @@
 .btn-light {
   background-color: #fff; 
   color: #111; 
-  border: 1px solid  #111; 
+  border: 1px solid #bbb; 
 	padding-left: 14px;
 	padding-right: 14px;
 }
-
 .btn-light:hover {
   background-color: #222; 
   color: #fff; 
@@ -224,44 +125,91 @@
   justify-content: flex-end; 
 }
 
-.problem-selected-name{
-  font-size: 1.05rem;
-}
 
-.problem-selected-info{
-  color: #556;
-  padding-left: 1rem;
-  font-size: 0.875rem;
-  font-weight: 400;
-}
-
-
-
-.btn-context {
-  position: fixed; /* Fija el botón en la ventana */
-  right: 10px;
-  top: 400px; /* Distancia desde el borde superior */
-  z-index: 1000; /* Asegura que esté por encima de otros elementos */
-  padding: 10px 20px; /* Espaciado interno */
-  background-color: #007bff; /* Color de fondo (ajusta según tu tema) */
-  color: #fff; /* Color del texto */
-  border: none; /* Sin borde */
-  border-radius: 100px; /* Bordes redondeados */
-  cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra para efecto de profundidad */
-}
-
-.btn-context:hover {
-  background-color: #0056b3; /* Color al pasar el cursor (ajusta según tu tema) */
-}
-
-.selected-problems-container{
-  padding: 0 6rem 0 3rem;
-}
 
 .selected-problems-container-title{
   padding-top: 0.9rem;
   font-size: 15px;
   font-weight: 500;
   font-style: italic;
+}
+
+
+
+.dq-problems-accordion-container {
+  max-width: 640px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  /*background-color: #f9f9f9;*/
+  padding: 0.2rem;
+  min-height: 200px;
+  overflow-y: auto; /* Solo scroll vertical */
+  overflow-x: hidden; /* Evita el scroll horizontal */
+  height: 580px;
+  box-sizing: border-box; /* Incluye padding y borde en el ancho total */
+}
+
+
+.problems-main-container {
+  display: flex;
+  flex-wrap: wrap; /* Permite que las secciones se ajusten en pantallas pequeñas */
+  gap: 8px; /* Espacio entre las secciones */
+  margin: 1rem 0; /* Margen superior e inferior */
+  margin-left: 14px;
+  margin-right: 14px;
+}
+
+.dq-problems-selection-container {
+  flex: 1; /* Ambas secciones ocupan el mismo espacio */
+  min-width: 45%; /* Ancho mínimo para cada sección */
+  /*border: 1px solid #dee2e6; 
+  border-radius: 8px;  */
+  padding: 0 1rem; 
+  /*background-color: #f9f9f9;  */
+}
+
+
+
+@media (max-width: 1200px) {
+  .main-container {
+    flex-direction: column; /* Las secciones se apilan verticalmente */
+  }
+
+  .dq-problems-selection-container {
+    min-width: 100%; /* Ocupan el 100% del ancho en pantallas pequeñas */
+  }
+}
+
+
+.card-title{
+  font-size: 15px; 
+}
+
+.card-text{
+  font-size: 14px; 
+}
+
+.added-problems-message {
+  color: #666;
+  font-style: italic;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.empty-message {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 20px;
+  font-size: 14px;
+}
+
+.empty-message i {
+  margin-right: 8px;
+  color: #888;
+}
+
+.subsection-title {
+  font-size: 17px;
+  font-weight: 700;
 }
