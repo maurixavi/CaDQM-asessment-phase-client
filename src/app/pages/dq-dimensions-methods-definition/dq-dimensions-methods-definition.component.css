@@ -404,6 +404,15 @@ body{
 	width: 120px;
 	font-weight: 500;
   }
+	
+	.label-title-applied-methods {
+		width: 180px; 
+		font-weight: 500;
+		white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+		overflow: hidden; /* Oculta el texto que se desborda */
+		text-overflow: ellipsis; /* Añade puntos suspensivos si el texto es demasiado largo */
+	}
+
   
   .dimension-name {
 	font-weight: 700;

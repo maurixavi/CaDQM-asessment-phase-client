@@ -465,7 +465,7 @@ export class DQMetricDefinitionComponent implements OnInit {
         next: (data) => {
           console.log("Base Metric created:", data);
           this.loadDQModelDimensionsAndFactors(); 
-          alert("Base Metric successfully created.");
+          alert('The DQ Metric was successfully created. You can now select it to add it to the DQ Model.');
         },
         error: (err) => {
           console.error("Error creating the metric:", err);

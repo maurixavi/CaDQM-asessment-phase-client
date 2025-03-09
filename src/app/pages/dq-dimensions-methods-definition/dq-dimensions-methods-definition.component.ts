@@ -63,13 +63,15 @@ interface QualityMethod {
 })
 export class DqDimensionsMethodsDefinitionComponent implements OnInit {
 
+  currentStep: number = 4; // Step 3
+  pageStepTitle: string = 'Implementation of DQ Methods';
+  phaseTitle: string = 'Phase 2: DQ Assessment';
+  stageTitle: string = 'Stage 4: DQ Model Definition';
+
   
   dqMethodForm: FormGroup;
   appliedMethodForm: FormGroup;
-  currentStep: number = 4; // Step 3
-  pageStepTitle: string = 'Selection of DQ Methods';
-  phaseTitle: string = 'Phase 2: DQ Assessment';
-  stageTitle: string = 'Stage 4: DQ Model Definition';
+  
   project: any;
   dqModelId: number = 1;
   currentDQModel:any;
@@ -132,6 +134,110 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   ];
 
 
+  selectedMetric: any = null; 
+  onMetricSelected(): void {
+    console.log("Selected Metric:", this.selectedMetric);
+  }
+
+  selectedBaseDQMethod: any = null; 
+  onMethodSelected(): void {
+    console.log("Selected Method:", this.selectedBaseDQMethod);
+  }
+
+  selectedMethodDQModel: any = null; 
+  onMethodDQModelSelected2(): void {
+    console.log("Selected Method DQ Model:", JSON.stringify(this.selectedMethodDQModel, null, 2));
+    console.log("All methods:", this.allMethods);
+
+    const selectedMethodId = Number(this.selectedMethodDQModel);
+  
+    // Busca el método seleccionado en allMethods
+    const selectedMethod = this.allMethods.find((method) => method.id === selectedMethodId);
+  
+    if (selectedMethod) {
+      console.log("Método seleccionado encontrado:", selectedMethod);
+  
+      // Obtiene el method_base del método seleccionado
+      const methodBaseId = selectedMethod.method_base;
+  
+      if (methodBaseId) {
+        console.log("ID del método base:", methodBaseId);
+  
+        // Llama al servicio para obtener los detalles del método base
+        this.getDQMethodsBaseDetails(methodBaseId);
+      } else {
+        console.warn("El método seleccionado no tiene un method_base definido.");
+      }
+    } else {
+      console.warn("No se encontró el método seleccionado en allMethods.");
+    }
+  }
+
+  onMethodDQModelSelected(): void {
+    // Convierte el valor seleccionado a número
+    const selectedId = Number(this.selectedMethodDQModel);
+  
+    console.log("Selected Method DQ Model (converted to number):", selectedId);
+  
+    // Llama a la función para obtener los detalles del método
+    this.getDQMethodDetails(selectedId);
+  }
+
+  selectedMethodDetails: any;
+
+  // En tu componente
+  selectedDQMethodDetails: any = null; // Almacena los detalles del método base
+
+  // Función para obtener los detalles del método seleccionado y su método base
+  getDQMethodDetails(methodId: number): void {
+    // Busca el método seleccionado en allMethods
+    const selectedMethod = this.allMethods.find((method) => method.id === methodId);
+
+    if (selectedMethod) {
+      console.log("Método seleccionado encontrado:", selectedMethod);
+
+      // Obtiene el method_base del método seleccionado
+      const methodBaseId = selectedMethod.method_base;
+
+      if (methodBaseId) {
+        console.log("ID del método base:", methodBaseId);
+
+        // Llama al servicio para obtener los detalles del método base
+        this.getDQMethodsBaseDetails(methodBaseId);
+      } else {
+        console.warn("El método seleccionado no tiene un method_base definido.");
+      }
+    } else {
+      console.warn("No se encontró el método seleccionado en allMethods.");
+    }
+  }
+
+  // Función para obtener los detalles del método base
+  getDQMethodsBaseDetails(methodBaseId: number): void {
+    this.modelService.getDQMethodBaseById(methodBaseId).subscribe(
+      (methodBase) => {
+        console.log("Detalles del método base:", methodBase);
+        this.selectedMethodDetails = methodBase; // Almacena los detalles del método base
+      },
+      (error) => {
+        console.error("Error al obtener los detalles del método base:", error);
+      }
+    );
+  }
+
+  // Función para obtener los detalles del método base
+  /*getDQMethodsBaseDetails(methodBaseId: number): void {
+    this.modelService.getDQMetricBaseById(methodBaseId).subscribe(
+      (methodBase) => {
+        console.log("Detalles del método base:", methodBase);
+        this.selectedMethodDetails = methodBase; // Almacena los detalles del método base
+      },
+      (error) => {
+        console.error("Error al obtener los detalles del método base:", error);
+      }
+    );
+  }*/
+
   constructor(private router: Router, private problemsService: DqProblemsService, private modelService: DqModelService,
     private projectService: ProjectService, private fb:FormBuilder) { 
         // Inicialización del formulario en el constructor
@@ -153,6 +259,10 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
 
     this.loadCurrentProject();
   }
+
+  
+  
+
 
   loadCurrentProject(): void {
     this.projectService.loadCurrentProject().subscribe({
@@ -579,6 +689,36 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     }
   }
 
+  // Función para agregar el método al DQ Model
+  addMethodToDQModel(metric: any, method: any) {
+    if (!metric || !method) {
+      alert("Please select a metric and a method.");
+      return;
+    }
+  
+    // Preparar los datos para el servicio
+    const methodData = {
+      dq_model: metric.dq_model,
+      method_base: method.id, // ID del método base
+      dimension: metric.dimensionId, // ID de la dimensión (ajusta según tu estructura)
+      factorId: metric.factorId, // ID del factor (ajusta según tu estructura)
+      metric: metric.id // ID de la métrica
+    };
+  
+    // Llamada al servicio para agregar el método al DQ Model
+    this.modelService.addMethodsToDQModel(methodData).subscribe({
+      next: (response) => {
+        console.log("Method added to DQ Model:", response);
+        alert("Method successfully added to DQ Model.");
+        this.loadDQModelDimensionsAndFactors(); 
+      },
+      error: (err) => {
+        console.error("Error adding method to DQ Model:", err);
+        alert("An error occurred while adding the method to DQ Model.");
+      }
+    });
+  }
+
   addMethod(metric: QualityMetric){
     //this.openModal();
     if (this.newMethod.name) {
@@ -656,7 +796,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
           console.log('Nuevo DQ Method Base creado:', data);
           
           this.loadDQModelDimensionsAndFactors(); 
-          alert('DQ Method Base creado con éxito.');
+          alert('The DQ Method was successfully created. You can now select it to add it to the DQ Model.');
           this.dqMethodForm.reset();
           this.closeModalBase();
         },
@@ -730,7 +870,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   }
   
   saveMetrics(){
-    this.router.navigate(['/step7']);
+    this.router.navigate(['/step6']);
   }
 
 }
