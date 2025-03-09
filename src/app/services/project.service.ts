@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, BehaviorSubject  } from 'rxjs';
+import { Observable, of, BehaviorSubject, forkJoin  } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 
 
@@ -22,7 +22,114 @@ export class ProjectService {
     );
   }
 
+  /**
+   * Obtiene un problema de calidad específico por su ID.
+   * @param projectId ID del proyecto.
+   * @param problemId ID del problema de calidad.
+   * @returns Observable con los detalles del problema.
+   */
+  getDQProblemById(projectId: number, problemId: number): Observable<any> {
+    const url = `${this.API_URL_PROJECTS}${projectId}/dq-problems/${problemId}/`;
+    return this.http.get<any>(url).pipe(
+      /*tap((data) => console.log(`Fetched DQ Problem ID=${problemId} for Project ID=${projectId}:`, data) ),
+      */
+      catchError(this.handleError<any>(`getDQProblemById id=${problemId}`))
+    );
+  }
+
+  // Método para obtener los problemas de calidad de un proyecto específico
+  getDQProblemsByProjectId(projectId: number): Observable<any> {
+    const url = `${this.API_URL_PROJECTS}${projectId}/dq-problems/`;
+    return this.http.get<any>(url).pipe(
+      tap((data) => console.log(`Fetched DQ Problems for Project ID=${projectId}:`, data)),
+      catchError(this.handleError<any[]>(`getDQProblemsByProjectId id=${projectId}`, []))
+    );
+  }
+
+  // Método para obtener los problemas priorizados de un proyecto específico
+  getPrioritizedDQProblemsByProjectId(projectId: number): Observable<any> {
+    const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
+    return this.http.get<any>(url).pipe(
+      tap((data) => console.log(`Fetched Prioritized DQ Problems for Project ID=${projectId}:`, data)),
+      catchError(this.handleError<any[]>(`getPrioritizedDQProblemsByProjectId id=${projectId}`, []))
+    );
+  }
+
+  // Método para actualizar problemas priorizados usando PATCH
+  updatePrioritizedDQProblem(projectId: number, problems: any[]): Observable<any> {
+    const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
+    
+    // array de solicitudes PATCH
+    const patchRequests = problems.map(problem => {
+      const problemUrl = `${url}${problem.id}/`;
+      const patchBody = { priority: problem.priority };
+      return this.http.patch(problemUrl, patchBody).pipe(
+        tap((response) => console.log('Updated Prioritized DQ Problem:', response)),
+        catchError(this.handleError<any>('updatePrioritizedDQProblem'))
+      );
+    });
+
+    // Ejecutar todas las solicitudes PATCH en paralelo
+    return forkJoin(patchRequests);
+  }
+
+  updateIsSelectedFieldPrioritizedDQProblem(projectId: number, problems: any[]): Observable<any> {
+    const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
+    
+    // array de solicitudes PATCH
+    const patchRequests = problems.map(problem => {
+      const problemUrl = `${url}${problem.id}/`;
+      const patchBody = { is_selected: problem.is_selected };
+      return this.http.patch(problemUrl, patchBody).pipe(
+        tap((response) => console.log('Updated field is_selected in Prioritized DQ Problem:', response)),
+        catchError(this.handleError<any>('updatePrioritizedDQProblem'))
+      );
+    });
+
+    // Ejecutar todas las solicitudes PATCH en paralelo
+    return forkJoin(patchRequests);
+  }
+
+  removeSelectedPrioritizedDQProblem(projectId: number, problems: any[]): Observable<any> {
+    const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
+    
+    // array de solicitudes PATCH
+    const patchRequests = problems.map(problem => {
+      const problemUrl = `${url}${problem.id}/`;
   
+      const patchBody = { is_selected: false };
+      return this.http.patch(problemUrl, patchBody).pipe(
+        tap((response) => console.log('Updated field is_selected in Prioritized DQ Problem:', response)),
+        catchError(this.handleError<any>('updatePrioritizedDQProblem'))
+      );
+    });
+
+    // Ejecutar todas las solicitudes PATCH en paralelo
+    return forkJoin(patchRequests);
+  }
+
+
+ 
+
+  // Método para obtener los problemas priorizados de un proyecto específico
+  getSelectedPrioritizedDQProblemsByProjectId(projectId: number): Observable<any> {
+    const url = `${this.API_URL_PROJECTS}${projectId}/selected-prioritized-dq-problems/`;
+    return this.http.get<any>(url).pipe(
+      tap((data) => console.log(`Fetched Selected Prioritized DQ Problems for Project ID=${projectId}:`, data)),
+      catchError(this.handleError<any[]>(`getSelectedPrioritizedDQProblemsByProjectId id=${projectId}`, []))
+    );
+  }
+
+  // Método para obtener los detalles de un problema de calidad (sin priorización) por su ID
+  /*getDQProblemById(dqProblemId: number): Observable<any> {
+    const url = `${this.API_URL_DQ_PROBLEMS}${dqProblemId}/`;
+    return this.http.get<any>(url).pipe(
+      tap((data) => console.log(`Fetched DQ Problem with ID=${dqProblemId}:`, data)),
+      catchError(this.handleError<any>(`getDQProblemById id=${dqProblemId}`))
+    );
+  }*/
+
+
 
   // API endpoint para context versions
   readonly API_URL_CONTEXT_VERSIONS = `${this.baseUrl}/context-versions/`;
@@ -51,6 +158,18 @@ export class ProjectService {
       catchError(this.handleError<any>(`getContextComponents id=${contextVersionId}`))
     );
   }
+
+  // Obtener un componente de contexto por tipo e ID
+  getContextComponentById(contextVersionId: number, componentType: string, componentId: number): Observable<any> {
+    const url = `${this.API_URL_CONTEXT_VERSIONS}${contextVersionId}/context-components/${componentType}/${componentId}/`;
+    return this.http.get<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error al obtener el componente de contexto ${componentType} con ID ${componentId}:`, err);
+        throw err;
+      })
+    );
+  }
+
   
 
 

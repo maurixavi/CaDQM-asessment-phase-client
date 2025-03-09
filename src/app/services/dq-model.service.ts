@@ -584,6 +584,16 @@ export class DqModelService {
     return this.http.get<any>(`${this.API_URL_METHODS_BASE}${methodBaseId}/`);
   }
 
+  // Obtener detalles de un measurement
+  getMeasurementDetails(measurementId: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL_AG_METHODS_DQMODEL}${measurementId}/`);
+  }
+
+  // Obtener detalles de una aggregation
+  getAggregationDetails(aggregationId: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL_ME_METHODS_DQMODEL}${aggregationId}/`);
+  }
+
   //APPLIED DQ METHODS
   /*http://localhost:8000/api/measurement-methods/
   http://localhost:8000/api/aggregation-methods/*/
