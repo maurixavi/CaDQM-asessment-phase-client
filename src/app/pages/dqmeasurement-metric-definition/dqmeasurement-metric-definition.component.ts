@@ -99,7 +99,7 @@ export class DQMetricDefinitionComponent implements OnInit {
 
   selectedFactors = this.dqProblemsService.getSelectedFactors();
 
-  metricFactor:QualityFactor | undefined = undefined ;
+  //metricFactor:QualityFactor | undefined = undefined ;
 
  newBaseMetric = {
   name: '',
@@ -113,6 +113,23 @@ export class DQMetricDefinitionComponent implements OnInit {
   newMetric: QualityMetric = {
     name: '', purpose: '', granularity: '', domain: '',factor: undefined, expanded: false };
   definedMetrics: QualityMetric[] = [];
+
+
+  selectedFactor: any = null; 
+  onFactorSelected(): void {
+    console.log("Selected Factor:", this.selectedFactor);
+  }
+  selectedMetric: any = null; 
+  onMetricSelected(): void {
+    console.log("Selected Metric:", JSON.stringify(this.selectedMetric, null, 2));
+  }
+
+
+  selectedBaseMetric: any = null; // Métrica base seleccionada
+  // Método llamado cuando se selecciona una métrica base
+  onBaseMetricSelected(): void {
+    console.log("Selected Base Metric:", this.selectedBaseMetric);
+  }
 
   ngOnInit() {
     //this.problems = dataQualityProblemsJson as DataQualityProblem[];
@@ -334,6 +351,42 @@ export class DQMetricDefinitionComponent implements OnInit {
     }
   }
 
+  addMetricToModel(factor: any, metric: any): void {
+    if (!factor || !metric) {
+      alert("Please select a factor and a metric.");
+      return;
+    }
+  
+    const metricToAdd = {
+      dq_model: factor.dq_model,
+      metric_base: metric.id,
+      factor: factor.id
+    };
+  
+    this.modelService.addMetricToDQModel(metricToAdd).subscribe({
+      next: (data) => {
+        console.log("Metric added to DQ Model:", data);
+        alert("Metric successfully added to DQ Model.");
+        this.loadDQModelDimensionsAndFactors(); 
+  
+        // Actualizar la lista de métricas definidas en el factor
+        if (!factor.definedMetrics) {
+          factor.definedMetrics = [];
+        }
+        factor.definedMetrics.push(data); // Asumiendo que el backend devuelve la métrica agregada
+  
+        // Limpiar la selección
+        this.selectedBaseMetric = null;
+      },
+      error: (err) => {
+        console.error("Error adding the metric to DQ Model:", err);
+        alert("An error occurred while trying to add the metric to DQ Model.");
+      }
+    });
+  }
+
+
+
   addMetric(factor: QualityFactor): void {
     if (this.newMetric.name) {
       var newFactor = this.metricFactor!;
@@ -348,7 +401,7 @@ export class DQMetricDefinitionComponent implements OnInit {
       this.newMetric = { name: '', purpose: '', granularity: '', domain: '', expanded: false };
       this.modelService.addMetricToDQModel(metricToAdd).subscribe({
         next: (data) => {
-          console.log("Metric added:", data);
+          console.log("DQ Metric added:", data);
           this.loadDQModelDimensionsAndFactors(); 
           alert("Metric successfully added to DQ Model.");
         },
@@ -459,6 +512,8 @@ export class DQMetricDefinitionComponent implements OnInit {
   }
   
 
+  metricFactor: any = null;
+
   isModalOpen = false;
 
   openModal(factor:any) {
@@ -467,6 +522,7 @@ export class DQMetricDefinitionComponent implements OnInit {
   }
 
   openModalBase(factor:any) {
+    console.log("CLICKED")
     this.metricFactor = factor;
     this.isModalBaseOpen = true;
   }

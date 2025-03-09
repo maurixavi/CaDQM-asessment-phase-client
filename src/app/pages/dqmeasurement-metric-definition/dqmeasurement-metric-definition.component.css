@@ -726,3 +726,42 @@ body{
 	margin-top: 20px;
 	margin-bottom: 10px;
   }
+
+	.label {
+		display: flex; /* Permite que el título y el valor estén en línea */
+		align-items: center; /* Centra verticalmente el contenido */
+	}
+
+	
+	.label-container {
+		display: flex;
+		flex-direction: column; /* Coloca cada par de label y value en una nueva línea */
+		gap: 4px; /* Espacio entre cada fila */
+		font-size: 16px;  
+		font-weight: 500;
+	}
+
+	.label-value {
+		max-width: 80%;
+		font-weight: 700;
+		white-space: nowrap; 
+	}
+
+	.label-title {
+		width: 120px;
+		font-weight: 500;
+	}
+	
+
+	.select-style {
+		width: 440px;
+		font-size: 0.9rem; 
+		font-weight: 500;  
+		padding-left: 14px;  
+		padding-right: 14px;  
+		border: 1px solid #bbb;  
+		border-radius: 0.25rem;  
+		background-color: #fff; 
+		color: #111;  
+		cursor: pointer;  
+	}
