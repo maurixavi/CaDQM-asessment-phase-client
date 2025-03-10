@@ -66,15 +66,59 @@
 											<label class="label-title-selected">Semantic:</label>
 											<span class="label-value-selected">{{ dimension.attributesBase?.semantic }}</span>
 										</div>
+
 										<div class="label-selected">
 											<label class="label-title-selected">Ctx (Suggested by):</label>
-											<span class="label-value-selected">{{ formatContextComponents(dimension.context_components) }}</span>
-											<!--<span class="label-value-selected" [innerHTML]="formatContextComponents(dimension.context_components)"></span>-->
+											<span class="label-value-selected">
+												<ul>
+													<li *ngFor="let category of getContextComponentCategories(dimension.context_components)">
+														<strong>{{ formatCategoryName(category) }}:</strong>
+														<ul>
+															<li *ngFor="let componentId of dimension.context_components[category]">
+																<a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
+																	{{ getFirstAttribute(category, componentId) }}
+																</a>
+															</li>
+														</ul>
+													</li>
+												</ul>
+											</span>
 										</div>
+										
+										<!-- Modal para mostrar detalles del componente de contexto -->
+										<div class="modal fade" id="contextComponentModal" tabindex="-1" aria-labelledby="contextComponentModalLabel" aria-hidden="true">
+											<div class="modal-dialog">
+												<div class="modal-content">
+													<div class="modal-header">
+														<h5 class="modal-title" id="contextComponentModalLabel">Component Details</h5>
+														<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+													</div>
+													<div class="modal-body">
+														<ul>
+															<li *ngFor="let key of selectedComponentKeys">
+																<strong>{{ formatCategoryName(key) }}:</strong> {{ selectedComponentDetails[key] }}
+															</li>
+														</ul>
+													</div>
+													<div class="modal-footer">
+														<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+													</div>
+												</div>
+											</div>
+										</div>
+
+
 										<div class="label-selected">
 											<label class="label-title-selected">DQ Problems (Used):</label>
-											<span class="label-value-selected">{{ dimension.dq_problems.join(', ') }}</span>
+											<span class="label-value-selected">
+												<ul>
+													<li *ngFor="let problem of dimension.dq_problems_details">
+														{{ problem.description }}
+													</li>
+												</ul>
+											</span>
 										</div>
+
 										<div class="label-selected">
 											<label class="label-title-selected">DQ Factors:</label>
 										</div>
@@ -96,15 +140,37 @@
 															<label class="label-title-selected">Semantic:</label>
 															<span class="label-value-selected">{{ factor.attributesBase?.semantic }}</span>
 														</div>
+
 														<div class="label-selected">
 															<label class="label-title-selected">Ctx (Arises from):</label>
-															<!--<span class="label-value-selected" [innerHTML]="formatContextComponents(factor.context_components)"></span>-->
-															<span class="label-value-selected">{{ factor.context_components }}</span>
+															<span class="label-value-selected">
+																<ul>
+																	<li *ngFor="let category of getContextComponentCategories(factor.context_components)">
+																		<strong>{{ formatCategoryName(category) }}:</strong>
+																		<ul>
+																			<li *ngFor="let componentId of factor.context_components[category]">
+																				<a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
+																					{{ getFirstAttribute(category, componentId) }}
+																				</a>
+																			</li>
+																		</ul>
+																	</li>
+																</ul>
+															</span>
 														</div>
+
+
 														<div class="label-selected">
 															<label class="label-title-selected">DQ Problems (Used):</label>
-															<span class="label-value-selected">{{ factor.dq_problems.join(', ') }}</span>
+															<span class="label-value-selected">
+																<ul>
+																	<li *ngFor="let problem of factor.dq_problems_details">
+																		{{ problem.description }}
+																	</li>
+																</ul>
+															</span>
 														</div>
+
 														<div class="label-selected">
 															<label class="label-title-selected">DQ Metrics:</label>
 														</div>
@@ -285,7 +351,33 @@
 	</div>
 
 
-<div class="next-step-btn-container">
-	<button class="btn btn-dark btn-sm">Confirm DQ Model</button>
+
+<!-- Modal de Confirmacion del DQ Model -->
+<div class="modal fade custom-modal-position" id="confirmDQModelModal" tabindex="-1" aria-labelledby="confirmDQModelModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmDQModelModalLabel">Confirm DQ Model Finalization</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to finalize the definition of the DQ Model?
+        By confirming, the model will no longer be editable, and its status will be updated from "Draft" to "Finished".
+        This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-dark" (click)="finalizeDQModel()">Confirm</button>
+      </div>
+    </div>
+  </div>
 </div>
+
+
+
+<div class="next-step-btn-container">
+  <button class="btn btn-dark btn-sm" (click)="openConfirmDQModelModal()">Confirm DQ Model</button>
+</div>
+
+
 
