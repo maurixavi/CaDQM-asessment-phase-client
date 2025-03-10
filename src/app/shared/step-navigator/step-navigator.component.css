@@ -15,9 +15,6 @@
   font-weight: 400;
 }
 
-.step-list li {
-  /*margin-right: 6px; */
-}
 
 .step-list li a {
   text-decoration: none; 
@@ -48,3 +45,4 @@
   font-size: 0.8rem; 
   padding: 0 4px 0 4px;
 }
+

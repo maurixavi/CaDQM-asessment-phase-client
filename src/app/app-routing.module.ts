@@ -18,7 +18,7 @@ const routes: Routes = [
   { path: 'step3', component: DqDimensionsFactorsSelectionComponent },
   {path: 'step4', component: DQMetricDefinitionComponent},
   {path: 'step5', component: DqDimensionsMethodsDefinitionComponent},
-  { path: 'step7', component: DQModelConfirmationComponent }
+  { path: 'step6', component: DQModelConfirmationComponent }
 ];
 
 @NgModule({

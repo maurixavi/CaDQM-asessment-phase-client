@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray, transferArrayItem  } from '@angular/cdk/drag-drop';
 import dataQualityProblemsJson from '../../../assets/data-quality-problems.json';
 import contextComponentsJson from '../../../assets/context-components.json';
 
@@ -123,10 +123,6 @@ export class DQProblemsPriorizationComponent implements OnInit {
     this.loadCurrentProject();
 
 
-    /*this.getDQMetricsBase();
-    this.getDQMethodsBase();*/
-
-
     this.problems = dataQualityProblemsJson as DataQualityProblem[];
     this.problems.forEach(problem => {
       problem.priorityType = 'Media';
@@ -135,7 +131,6 @@ export class DQProblemsPriorizationComponent implements OnInit {
     this.contextComponents = contextComponentsJson as ContextComponent[];
 
 
-    //this.loadDQProblems();
   }
 
   loadCurrentProject(): void {
@@ -143,13 +138,19 @@ export class DQProblemsPriorizationComponent implements OnInit {
       next: (project) => {
         this.project = project;
         console.log('Proyecto cargado en el componente:', this.project);
+        this.projectId = project.id;
 
         //Load complete DQ Model (with Dimensions,Factors...) of current project
         //this.loadCurrentDQModel();
         //OBTENER ID DQMODEL
         this.dqModelId = this.project?.dqmodel_version ?? -1; 
         console.log("---DQ MODEL ID: ", this.dqModelId)
-        this.loadDQProblems();
+
+        
+
+
+
+        this.loadDQProblems_(this.project.id);
 
       },
       error: (err) => {
@@ -158,37 +159,113 @@ export class DQProblemsPriorizationComponent implements OnInit {
     });
   }
 
+  // Use string IDs for the drop lists
+  highPriorityId = 'high-priority';
+  mediumPriorityId = 'medium-priority';
+  lowPriorityId = 'low-priority';
 
+  drop(event: CdkDragDrop<any[]>) {
+    if (event.previousContainer === event.container) {
+      // Same container - reorder
+      moveItemInArray(
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+    } else {
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+      
+      // Update the problem's priority based on destination container
+      const containerData = event.container.data;
+      const movedItem = containerData[event.currentIndex];
+      
+      if (event.container.id === this.highPriorityId) {
+        movedItem.priority = 'High';
+      } else if (event.container.id === this.mediumPriorityId) {
+        movedItem.priority = 'Medium';
+      } else if (event.container.id === this.lowPriorityId) {
+        movedItem.priority = 'Low';
+      }
+    }
 
-  // METRICS BASE
-  getDQMethodsBase() {
-    this.modelService.getDQMethodsBase().subscribe({
-      next: (data) => {
-        this.modelService.metrics = data;
-        console.log('METHODS BASE obtenidos del servicio:', data); 
-      },
-      error: (err) => {
-        console.log(err);
-      },  
-    });
+    this.updateProblemLists();
   }
 
-  // METHODS BASE
-  getDQMetricsBase() {
-    this.modelService.getDQMetricsBase().subscribe({
-      next: (data) => {
-        this.modelService.metrics = data;
-        console.log('METHODS BASE obtenidos del servicio:', data); 
+
+  // Método para actualizar las listas de problemas
+  updateProblemLists(): void {
+    this.highPriorityProblems = this.highPriorityProblems.filter((problem) => problem.priority === 'High');
+    this.mediumPriorityProblems = this.mediumPriorityProblems.filter((problem) => problem.priority === 'Medium');
+    this.lowPriorityProblems = this.lowPriorityProblems.filter((problem) => problem.priority === 'Low');
+  }
+
+  // Método para obtener la prioridad según el ID del contenedor
+  getPriorityFromContainerId(containerId: string): string {
+    switch (containerId) {
+      case 'high-priority':
+        return 'High';
+      case 'medium-priority':
+        return 'Medium';
+      case 'low-priority':
+        return 'Low';
+      default:
+        return 'Medium'; // Valor por defecto
+    }
+  }
+
+  onPriorityChange(problem: any): void {
+    // Remover el problema de la lista actual
+    this.highPriorityProblems = this.highPriorityProblems.filter((p) => p.id !== problem.id);
+    this.mediumPriorityProblems = this.mediumPriorityProblems.filter((p) => p.id !== problem.id);
+    this.lowPriorityProblems = this.lowPriorityProblems.filter((p) => p.id !== problem.id);
+  
+    // Agregar el problema a la lista correspondiente según su nueva prioridad
+    switch (problem.priority) {
+      case 'High':
+        this.highPriorityProblems.push(problem);
+        break;
+      case 'Medium':
+        this.mediumPriorityProblems.push(problem);
+        break;
+      case 'Low':
+        this.lowPriorityProblems.push(problem);
+        break;
+      default:
+        this.mediumPriorityProblems.push(problem); // Valor por defecto
+    }
+  }
+  
+
+  // Método para guardar los cambios de prioridad
+  saveChanges(): void {
+    const updatedProblems = [
+      ...this.highPriorityProblems.map((problem) => ({ ...problem, priority: 'High' })),
+      ...this.mediumPriorityProblems.map((problem) => ({ ...problem, priority: 'Medium' })),
+      ...this.lowPriorityProblems.map((problem) => ({ ...problem, priority: 'Low' })),
+    ];
+
+    // Enviar los datos actualizados al backend
+    /*this.projectService.updatePrioritizedProblems(updatedProblems).subscribe({
+      next: (response) => {
+        console.log('Prioridades guardadas:', response);
       },
       error: (err) => {
-        console.log(err);
-      },  
-    });
+        console.error('Error al guardar las prioridades:', err);
+      },
+    });*/
   }
 
 
 
-  drop(event: CdkDragDrop<string[]>) {
+
+
+
+  dropProblem(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.problems, event.previousIndex, event.currentIndex);
     this.updatePriority();
   }
@@ -236,6 +313,44 @@ export class DQProblemsPriorizationComponent implements OnInit {
     this.dqProblemsService.updateProblems(this.problems);
     console.log(this.problems); 
   }*/
+
+  savePrioritization() {
+
+    console.log("HIGH PRIORITY selection:", this.highPriorityProblems);
+    console.log("MEDIUM PRIORITY selection:",this.mediumPriorityProblems);
+    console.log("LOW PRIORITY selection:",this.lowPriorityProblems);
+
+
+    // Combinar todas las listas en una sola
+    const allProblems = [
+      ...this.highPriorityProblems,
+      ...this.mediumPriorityProblems,
+      ...this.lowPriorityProblems
+    ];
+
+    console.log("All problems to update:", allProblems);
+
+    // Llamar al servicio para actualizar los problemas usando PATCH
+    if (this.projectId !== null) {
+      this.projectService.updatePrioritizedDQProblem(this.projectId, allProblems).subscribe({
+        next: (response) => {
+          console.log("Priorities updated successfully:", response);
+          alert("DQ Problems prioritization was saved successfully!");
+        },
+        error: (error) => {
+          console.error("Error updating priorities:", error);
+          alert("Error updating priorities. Please try again.");
+        }
+      });
+    }
+    
+
+
+
+
+  }
+
+
   saveOrder() {
     this.confirmPriorities();
     // Lógica para guardar el orden
@@ -257,86 +372,117 @@ export class DQProblemsPriorizationComponent implements OnInit {
     }*/
   }
 
-  getContextDescription(contextId: string): string {
-    const context = this.contextComponents.find(c => c.id === contextId);
-    return context && context.description ? context.description : 'No description';
-  }
   
-
-  addContextComponent(problem: DataQualityProblem, event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
-    const contextId = selectElement.value;
-    if (contextId) { // Verifica que contextId no sea nulo ni una cadena vacía
-      if (!problem.contextcomp_related_to.includes(contextId)) {
-        problem.contextcomp_related_to.push(contextId);
-      }
-    }
-  }
-
-  removeContextComponent(problem: DataQualityProblem, contextId: string) {
-    const index = problem.contextcomp_related_to.indexOf(contextId);
-    if (index !== -1) {
-      problem.contextcomp_related_to.splice(index, 1);
-    }
-  }
-
-
 
   // DQ PROBLEMS
+  // Obtener los problemas de calidad del proyecto
+  dqProblems_: any[] = [];  
+  prioritizedDQProblems: any[] = [];  
+  dqProblemDetails: any = null; 
 
-  dqProblems: any[] = []; // Almacenar las versiones del contexto
+  loadDQProblems_(projectId: number): void {
+    this.projectService.getDQProblemsByProjectId(projectId).subscribe({
+      next: (data) => {
+        this.dqProblems_ = data;
+        console.log('Problemas de calidad BASE:', data);
 
-
-  loadDQProblems(): void {
-    this.projectService.getDQProblems().subscribe({
-      next: (dqproblems) => {
-        this.dqProblems = dqproblems;
-        console.log('*** Project original DQ Problems:', this.dqProblems);
-
-        //this.createPrioritizedProblems();
-        this.checkIfPrioritizedProblemsExist(this.dqModelId);
-
+        //this.loadPrioritizedDQProblems_(projectId);
+        this.loadPrioritizedDQProblems(projectId);
       },
       error: (err) => {
-        console.error('*** Error al cargar los DQ Problems:', err);
-      }
+        console.error('Error al obtener los problemas de calidad:', err);
+      },
     });
   }
 
-  checkIfPrioritizedProblemsExist(dqModelId: number): void {
-    this.modelService.getPrioritizedDqProblems(dqModelId).subscribe({
-      next: (prioritizedProblems) => {
-        if (prioritizedProblems && prioritizedProblems.length > 0) {
-          this.problems = prioritizedProblems;
-          console.log('*** Prioritized problems already exist:', this.problems);
-          // Aquí puedes manejar la situación si los problemas ya existen (e.g., mostrar un mensaje al usuario)
-        } else {
-          console.log('*** No prioritized problems found. Creating new ones.');
-          this.createPrioritizedProblems(); // Crear nuevos problemas si no existen
-        }
+  highPriorityProblems: any[] = []; // Problemas de alta prioridad
+  mediumPriorityProblems: any[] = []; // Problemas de media prioridad
+  lowPriorityProblems: any[] = []; // Problemas de baja prioridad
+
+
+  // Método para cargar los problemas priorizados
+  loadPrioritizedDQProblems(projectId: number): void {
+    this.projectService.getPrioritizedDQProblemsByProjectId(projectId).subscribe({
+      next: (data) => {
+        // Inicializar las listas de prioridad
+        this.highPriorityProblems = data.filter((problem: { priority: string; }) => problem.priority === 'High');
+        this.mediumPriorityProblems = data.filter((problem: { priority: string; }) => problem.priority === 'Medium');
+        this.lowPriorityProblems = data.filter((problem: { priority: string; }) => problem.priority === 'Low');
+
+        // Obtener los detalles adicionales (description y date) para cada problema
+        this.highPriorityProblems.forEach((problem) => this.getDQProblemDetails(problem.dq_problem_id, problem));
+        this.mediumPriorityProblems.forEach((problem) => this.getDQProblemDetails(problem.dq_problem_id, problem));
+        this.lowPriorityProblems.forEach((problem) => this.getDQProblemDetails(problem.dq_problem_id, problem));
+
+        console.log('Problemas priorizados:', {
+          high: this.highPriorityProblems,
+          medium: this.mediumPriorityProblems,
+          low: this.lowPriorityProblems,
+        });
       },
       error: (err) => {
-        console.error('*** Error al verificar los problemas priorizados:', err);
-        // Aquí puedes manejar el error si ocurre
-      }
+        console.error('Error al obtener los problemas priorizados:', err);
+      },
     });
   }
-  
 
-  
-  createPrioritizedProblems(): void {
-    // Pasamos los problemas al servicio para crear los problemas priorizados
-    this.modelService.createPrioritizedProblems(this.dqProblems, this.dqModelId).subscribe(
-      response => {
-        this.problems = response;
-        console.log('Prioritized problems created:', this.problems);
-        
+  /*loadPrioritizedDQProblems_(projectId: number): void {
+    this.projectService.getPrioritizedDQProblemsByProjectId(projectId).subscribe({
+      next: (data) => {
+
+        this.prioritizedDQProblems = data;
+        this.prioritizedDQProblems.forEach((problem) => {
+          this.getDQProblemDetails(problem.dq_problem_id, problem);
+        });
+
+        console.log('Problemas priorizados:', this.prioritizedDQProblems);
+
       },
-      error => {
-        console.error('Error creating prioritized problems:', error);
-      }
-    );
+      error: (err) => {
+        console.error('Error al obtener los problemas de calidad priorizados:', err);
+      },
+    });
+  }*/
+
+  // Método para cargar los detalles de un problema de calidad (sin priorización)
+  /*loadDQProblemDetails(dqProblemId: number): void { 
+    this.projectService.getDQProblemById(dqProblemId).subscribe({
+      next: (data) => {
+        this.problemDetails = data;
+        console.log(`Detalles del problema de calidad: ${dqProblemId}`, this.problemDetails);
+      },
+      error: (err) => {
+        console.error('Error al obtener los detalles del problema de calidad:', err);
+      },
+    });
+  }*/
+  // Método para cargar los detalles de un problema de calidad
+  getDQProblemDetails(dqProblemId: number, problem: any): void {
+    const dqProblem = this.dqProblems_.find((p) => p.id === dqProblemId);
+    if (dqProblem) {
+      // Actualizar los detalles del problema
+      problem.description = dqProblem.description;
+      problem.date = dqProblem.date;
+    } else {
+      console.error('Problema no encontrado:', dqProblemId);
+      problem.description = 'Descripción no disponible'; // Valor por defecto
+      problem.date = new Date(); // Fecha actual como valor por defecto
+    }
   }
+
+  getDQProblemDetails_(dqProblemId: number): void {
+    const problem = this.dqProblems_.find((p) => p.id === dqProblemId);
+    if (problem) {
+      this.dqProblemDetails = problem;
+      console.log('Detalles del problema de calidad:', this.dqProblemDetails);
+    } else {
+      console.error('Problema no encontrado:', dqProblemId);
+      this.dqProblemDetails = null;
+    }
+  }
+
+
+
 
   
 }

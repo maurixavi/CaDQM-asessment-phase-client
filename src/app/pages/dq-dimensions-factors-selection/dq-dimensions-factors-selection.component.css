@@ -388,7 +388,10 @@ hr.my-4 {
 }
 
 .add-ctx-alert-tip {
-  max-width: 400px;
+  display: flex;
+  align-items: center;
+  max-width: 420px;
+  font-size: 13.5px;
 }
 
 .suggested-section-container {
@@ -474,7 +477,8 @@ hr.my-4 {
 
 .label-selected {
   display: flex;
-  align-items: center; 
+  /*align-items: center; */
+  align-items: flex-start;
   padding-bottom: 16px;
   font-size: 15px;
 }
@@ -828,3 +832,41 @@ hr.my-4 {
   margin-bottom: 6px;
 }
 
+.dq-problems-accordion-container {
+  max-width: 640px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  padding: 1rem;
+  /*margin-top: 1rem;*/
+}
+
+
+.ctx-and-problems-main-container {
+  display: flex;
+  flex-wrap: wrap; /* Permite que las secciones se ajusten en pantallas pequeñas */
+  gap: 20px; /* Espacio entre las secciones */
+  margin: 1rem 0; /* Margen superior e inferior */
+}
+
+.ctx-components-selection-container,
+.dq-problems-selection-container {
+  flex: 1; /* Ambas secciones ocupan el mismo espacio */
+  min-width: 45%; /* Ancho mínimo para cada sección */
+  /*border: 1px solid #dee2e6; 
+  border-radius: 8px;  */
+  padding: 1rem; /* Espaciado interno */
+  /*background-color: #f9f9f9;  */
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 1200px) {
+  .main-container {
+    flex-direction: column; /* Las secciones se apilan verticalmente */
+  }
+
+  .ctx-components-selection-container,
+  .dq-problems-selection-container {
+    min-width: 100%; /* Ocupan el 100% del ancho en pantallas pequeñas */
+  }
+}

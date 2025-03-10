@@ -140,3 +140,47 @@ select {
   justify-content: center;
 }
 
+
+.priority-list {
+  min-height: 200px;
+  border: 2px dashed #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  overflow-y: auto; 
+  height: 580px; 
+}
+
+.card {
+  cursor: grab;
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+.card-title{
+  font-size: 15px; 
+}
+
+.priority-group-title{
+  font-size: 17px; 
+  font-weight: 700;
+}
+
+.empty-message {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 20px;
+  font-size: 14px;
+}
+
+.empty-message i {
+  margin-right: 8px;
+  color: #888;
+}
+
+.form-select{
+  font-size: 15px;
+}
