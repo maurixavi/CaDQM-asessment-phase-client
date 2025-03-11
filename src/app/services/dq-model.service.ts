@@ -212,6 +212,20 @@ export class DqModelService {
     );
   }
 
+  // Método para finalizar un DQ Model
+  finishDQModel(dqmodelId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/`;
+    const updatedData = { status: 'finished' }; 
+
+    return this.http.patch<any>(url, updatedData).pipe(
+      catchError((err) => {
+        console.error(`Error al finalizar el DQ Model ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+
   getAllDQModels(): Observable<any[]> {
     return this.http.get<any[]>(this.API_URL_DQMODELS).pipe(
       tap(data => console.log('Fetched DQ Models:', data)),

@@ -272,7 +272,7 @@ export class DashboardComponent implements OnInit {
   }
 
   navigateToViewDQModel() {
-    this.router.navigate(['/step7']);
+    this.router.navigate(['/step6']);
   }
 
   // MODAL METHODS
@@ -319,6 +319,7 @@ export class DashboardComponent implements OnInit {
 
   confirmAction(): void {
     if (this.selectedAction === 'create') {
+      //createNewProject()
       this.router.navigate(['/step1']); 
     } 
     else if (this.selectedAction === 'edit') {

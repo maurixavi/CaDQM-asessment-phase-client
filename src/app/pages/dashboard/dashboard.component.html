@@ -2,6 +2,7 @@
 <div class="container my-4">
 
 	<h2 class="title">Phase 2: DQ Assessment</h2>
+  <p class="subtitle-description mt-4">Current Project</p>
   <p class="title-description"></p>
 
   <div class="flex-container">
@@ -27,11 +28,11 @@
           </div> 
           <div class="label-selected">
             <label class="label-title-selected">Context version: </label>
-            <span class="label-value-selected">{{ project.context_version }}</span>
+            <span class="label-value-selected">Ctx Id: {{ project.context_version }}</span>
           </div>  
           <div class="label-selected" *ngIf="project.dqmodel_version !== null">
             <label class="label-title-selected">DQ Model version: </label>
-            <span class="label-value-selected">{{ project.dqmodel_version }}</span>
+            <span class="label-value-selected">DQ Model Id: {{ project.dqmodel_version }}</span>
           </div>  
           <div class="label-selected">
             <label class="label-title-selected">Data at hand:</label>

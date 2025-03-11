@@ -339,7 +339,15 @@
 						</div>
 
 					</div>
+
+					<div >
+						<button class="btn btn-dark btn-sm mt-3" (click)="openConfirmDQModelModal()">Confirm DQ Model</button>
+					</div>
+
 				</div>
+			
+			
+
 			</div>
 		</div>
 	</div>
@@ -360,8 +368,8 @@
         This action cannot be undone.
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-dark" (click)="finalizeDQModel()">Confirm</button>
+        <button type="button" class="btn btn-secondary" (click)="cancelConfirmDQModelModal()">Cancel</button>
+        <button type="button" class="btn btn-dark" (click)="confirmationFinishedDQModel()">Confirm</button>
       </div>
     </div>
   </div>
@@ -370,7 +378,7 @@
 
 
 <div class="next-step-btn-container">
-  <button class="btn btn-dark btn-sm" (click)="openConfirmDQModelModal()">Confirm DQ Model</button>
+  <button class="btn btn-dark btn-sm">Next ></button>
 </div>
 
 

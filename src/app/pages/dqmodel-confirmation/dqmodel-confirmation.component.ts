@@ -54,6 +54,8 @@ export class DQModelConfirmationComponent implements OnInit {
   }
 
 
+  currentDQModel: any | null = null;
+
 
   loadCurrentProject(): void {
     this.projectService.loadCurrentProject().subscribe({
@@ -67,6 +69,9 @@ export class DQModelConfirmationComponent implements OnInit {
         /*if (this.projectId) {
           this.getPrioritizedProblemsMap()
         }*/
+        if (this.project && this.project.dqmodel_version) {
+          this.loadCurrentDQModel(this.project.dqmodel_version);
+        }
 
         this.contextVersionId = project.context_version;
         console.log("this.contextVersionId ", this.contextVersionId );
@@ -100,6 +105,22 @@ export class DQModelConfirmationComponent implements OnInit {
       }
     });
   }
+
+  // Cargar el DQ Model actual
+  loadCurrentDQModel(dqmodelId: number): void {
+    this.modelService.getCurrentDQModel(dqmodelId).subscribe({
+      next: (dqModel) => {
+        this.currentDQModel = dqModel;
+        console.log('DQ Model cargado:', this.currentDQModel);
+      },
+      error: (err) => {
+        console.error('Error al cargar el DQ Model:', err);
+      },
+    });
+  }
+
+
+
 
   getAllContextComponents(contextVersionId: number): void {
     this.projectService.getContextComponents(contextVersionId).subscribe({
@@ -662,25 +683,8 @@ export class DQModelConfirmationComponent implements OnInit {
 
 
 
-  // Confirmar el DQ Model
-  confirmDQModel(): void {
-    const confirmationMessage = `
-      Are you sure you want to finalize the definition of the DQ Model?
-      By confirming, the model will no longer be editable, and its status will be updated from "Draft" to "Finished".
-      This action cannot be undone.
-    `;
-
-    const userConfirmed = confirm(confirmationMessage);
-
-    if (userConfirmed) {
-      // agregar lgica para actualizar el estado del DQ Model a "Finished"
-
-    } else {
-      console.log("DQ Model confirmation canceled by the user.");
-    }
-  }
-
-    // Método para abrir el modal de confirmación
+  //DQ MODEL CONFIRMATION
+  // Método para abrir el modal de confirmación
   openConfirmDQModelModal(): void {
     const modalElement = document.getElementById('confirmDQModelModal');
     if (modalElement) {
@@ -689,18 +693,48 @@ export class DQModelConfirmationComponent implements OnInit {
     }
   }
 
-  // Método para finalizar el DQ Model
-  finalizeDQModel(): void {
-    // Cerrar el modal
+  // Método para confirmar la finalización del DQ Model
+  confirmationFinishedDQModel(): void {
+    this.finishCurrentDQModel(); // Llamar al método que hace la operación en el backend
+    this.closeConfirmDQModelModal(); // Cerrar el modal después de confirmar
+  }
+
+  // Método para cancelar y cerrar el modal
+  cancelConfirmDQModelModal(): void {
+    this.closeConfirmDQModelModal(); // Cerrar el modal sin hacer nada
+  }
+
+  // Método para cerrar el modal
+  closeConfirmDQModelModal(): void {
     const modalElement = document.getElementById('confirmDQModelModal');
     if (modalElement) {
       const modal = bootstrap.Modal.getInstance(modalElement);
       modal.hide();
     }
-
-    // Lógica para actualizar el estado del DQ Model a "Finished"
-    //this.updateDQModelStatus();
   }
+
+  // Método para finalizar el DQ Model (llamado desde confirmationFinishedDQModel)
+  finishCurrentDQModel(): void {
+    if (this.currentDQModel && this.currentDQModel.id) {
+      this.modelService.finishDQModel(this.currentDQModel.id).subscribe({
+        next: (response) => {
+          console.log('DQ Model finalizado:', response);
+          alert('El DQ Model ha sido finalizado con éxito.'); // Mensaje de éxito
+          this.loadCurrentDQModel(this.currentDQModel.id); // Recargar el DQ Model actualizado
+        },
+        error: (err) => {
+          console.error('Error al finalizar el DQ Model:', err);
+          alert('Ocurrió un error al finalizar el DQ Model.'); // Mensaje de error
+        },
+      });
+    } else {
+      console.error('No se ha cargado un DQ Model válido.');
+    }
+  }
+
+
+
+  
 
 
 }
