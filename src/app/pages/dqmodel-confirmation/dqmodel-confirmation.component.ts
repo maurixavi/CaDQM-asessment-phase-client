@@ -64,6 +64,10 @@ export class DQModelConfirmationComponent implements OnInit {
 
         this.projectId = project.id;
 
+        /*if (this.projectId) {
+          this.getPrioritizedProblemsMap()
+        }*/
+
         this.contextVersionId = project.context_version;
         console.log("this.contextVersionId ", this.contextVersionId );
 
@@ -108,7 +112,7 @@ export class DQModelConfirmationComponent implements OnInit {
   }
 
 
-  loadFullDQModel(dqModelId: number): void {
+  loadFullDQModel_BACKUP(dqModelId: number): void {
     this.modelService.getFullDQModel(dqModelId).subscribe({
       next: (data) => {
         this.completeDQModel = this.transformDQModelToIterable(data);
@@ -116,11 +120,11 @@ export class DQModelConfirmationComponent implements OnInit {
   
         // Obtener detalles de las dimensiones base
         this.completeDQModel.dimensions.forEach((dimension: any) => {
-          this.getDimensionBaseDetails(dimension);
+          this.getDimensionBaseDetails_BACKUP(dimension);
   
           // Obtener detalles de los factores base
           dimension.factors.forEach((factor: any) => {
-            this.getFactorBaseDetails(factor);
+            this.getFactorBaseDetails_backup(factor);
   
             // Obtener detalles de las métricas base
             factor.metrics.forEach((metric: any) => {
@@ -163,6 +167,133 @@ export class DQModelConfirmationComponent implements OnInit {
     });
   }
 
+  async loadFullDQModel(dqModelId: number): Promise<void> {
+    try {
+      const data = await this.modelService.getFullDQModel(dqModelId).toPromise();
+      this.completeDQModel = this.transformDQModelToIterable(data);
+      this.isLoading = false;
+  
+      // Obtener el mapa de problemas priorizados
+      const prioritizedProblemsMap = await this.getPrioritizedProblemsMap();
+  
+      // Obtener detalles de las dimensiones base
+      for (const dimension of this.completeDQModel.dimensions) {
+        await this.getDimensionBaseDetails(dimension, prioritizedProblemsMap);
+  
+        // Obtener detalles de los factores base
+        for (const factor of dimension.factors) {
+          await this.getFactorBaseDetails(factor, prioritizedProblemsMap);
+  
+          // Obtener detalles de las métricas base
+          for (const metric of factor.metrics) {
+            this.getMetricBaseDetails(metric);
+  
+            // Obtener detalles de los métodos base
+            for (const method of metric.methods) {
+              this.getMethodBaseDetails(method);
+  
+              // Obtener detalles de los métodos aplicados (measurements y aggregations)
+              if (method.applied_methods) {
+                // Obtener measurements
+                if (method.applied_methods.measurements && method.applied_methods.measurements.length > 0) {
+                  for (const measurement of method.applied_methods.measurements) {
+                    this.getMeasurementDetails(measurement);
+                  }
+                }
+  
+                // Obtener aggregations
+                if (method.applied_methods.aggregations && method.applied_methods.aggregations.length > 0) {
+                  for (const aggregation of method.applied_methods.aggregations) {
+                    this.getAggregationDetails(aggregation);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+  
+      console.log("COMPLETE DQModel con detalles base:", this.completeDQModel);
+    } catch (err) {
+      console.error('Error al cargar el DQModel.', err);
+      this.isLoading = false;
+    }
+  }
+
+
+  async getPrioritizedProblemsMap(): Promise<Map<number, number>> {
+    // Verificar que this.projectId no sea null
+    if (this.projectId === null) {
+      throw new Error("Project ID is null. Cannot load prioritized problems.");
+    }
+  
+    // Obtener los problemas priorizados
+    const prioritizedProblems = await this.projectService
+      .getPrioritizedDQProblemsByProjectId(this.projectId)
+      .toPromise();
+  
+    // Crear el mapa de id de problemas priorizados a dq_problem_id
+    const prioritizedProblemsMap = new Map<number, number>();
+  
+    prioritizedProblems.forEach((problem: { id: number; dq_problem_id: number }) => {
+      prioritizedProblemsMap.set(problem.id, problem.dq_problem_id);
+    });
+  
+    return prioritizedProblemsMap;
+  }
+
+  async getDimensionBaseDetails(dimension: any, prioritizedProblemsMap: Map<number, number>): Promise<void> {
+    this.modelService.getDimensionBaseDetails(dimension.dimension_base).subscribe({
+      next: (data) => {
+        dimension.attributesBase = data; // Agregar detalles base al objeto de dimensión
+  
+        // Mapear los detalles de los problemas asociados a la dimensión
+        dimension.dq_problems_details = this.mapDQProblemDetails(dimension.dq_problems, prioritizedProblemsMap);
+  
+        console.log("Detalles de la dimensión cargados:", dimension);
+        console.log("Problemas de la dimensión:", dimension.dq_problems_details); // Depuración
+      },
+      error: (err) => {
+        console.error('Error al obtener detalles de la dimensión base:', err);
+      },
+    });
+  }
+  
+  async getFactorBaseDetails(factor: any, prioritizedProblemsMap: Map<number, number>): Promise<void> {
+    this.modelService.getFactorBaseDetails(factor.factor_base).subscribe({
+      next: (data) => {
+        factor.attributesBase = data; // Agregar detalles base al objeto de factor
+  
+        // Mapear los detalles de los problemas asociados al factor
+        factor.dq_problems_details = this.mapDQProblemDetails(factor.dq_problems, prioritizedProblemsMap);
+  
+        console.log("Detalles del factor cargados:", factor);
+      },
+      error: (err) => {
+        console.error('Error al obtener detalles del factor base:', err);
+      },
+    });
+  }
+
+
+
+
+  mapDQProblemDetails(problemIds: number[], prioritizedProblemsMap: Map<number, number>): any[] {
+    if (!this.originalProblems || !problemIds) {
+      return []; // Retornar un array vacío si no hay problemas originales o IDs
+    }
+  
+    return problemIds.map((problemId) => {
+      // Obtener el dq_problem_id correspondiente al problemId
+      const dqProblemId = prioritizedProblemsMap.get(problemId);
+      if (dqProblemId) {
+        return this.originalProblems.find((problem) => problem.id === dqProblemId);
+      }
+      return null; // Si no se encuentra el dq_problem_id, devolver null
+    }).filter((problem) => problem !== null); // Filtrar problemas no encontrados
+  }
+
+
     // Función para obtener detalles de un measurement
   getMeasurementDetails(measurement: any): void {
     this.modelService.getMeasurementDetails(measurement.id).subscribe({
@@ -188,43 +319,7 @@ export class DQModelConfirmationComponent implements OnInit {
   }
 
 
-  loadFullDQModel_backup83(dqModelId: number): void {
-    this.modelService.getFullDQModel(dqModelId).subscribe({
-      next: (data) => {
-        this.completeDQModel = this.transformDQModelToIterable(data);
-        this.isLoading = false;
   
-        // Obtener detalles de las dimensiones base
-        this.completeDQModel.dimensions.forEach((dimension: any) => {
-          //console.log("dimension.dimension_base", dimension.dimension_base)
-          this.getDimensionBaseDetails(dimension);
-  
-          // Obtener detalles de los factores base
-          dimension.factors.forEach((factor: any) => {
-            //console.log("factor.factor_base", factor.factor_base)
-            this.getFactorBaseDetails(factor);
-  
-            // Obtener detalles de las métricas base
-            factor.metrics.forEach((metric: any) => {
-              this.getMetricBaseDetails(metric);
-  
-              // Obtener detalles de los métodos base
-              metric.methods.forEach((method: any) => {
-                this.getMethodBaseDetails(method);
-                
-              });
-            });
-          });
-        });
-  
-        console.log("COMPLETE DQModel con detalles base:", this.completeDQModel);
-      },
-      error: (err) => {
-        console.error('Error al cargar el DQModel.', err);
-        this.isLoading = false;
-      }
-    });
-  }
 
   // transformar el DQModel en una estructura iterable
   transformDQModelToIterable(dqModel: any): any {
@@ -276,7 +371,7 @@ export class DQModelConfirmationComponent implements OnInit {
 
 
 
-  getDimensionBaseDetails(dimension: any): void {
+  getDimensionBaseDetails_BACKUP(dimension: any): void {
     this.modelService.getDimensionBaseDetails(dimension.dimension_base).subscribe({
       next: (data) => {
         dimension.attributesBase = data; // Agregar detalles base al objeto de dimensión
@@ -305,7 +400,7 @@ export class DQModelConfirmationComponent implements OnInit {
   }
 
 
-  getFactorBaseDetails(factor: any): void {
+  getFactorBaseDetails_backup(factor: any): void {
 
     this.modelService.getFactorBaseDetails(factor.factor_base).subscribe({
       next: (data) => {

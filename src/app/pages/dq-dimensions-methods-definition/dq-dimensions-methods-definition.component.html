@@ -301,7 +301,12 @@
         <div *ngIf="allMetrics && allMetrics.length">
           <div class="label-container-selected py-2 px-4">
             
-            <h5 class="mt-3">{{ currentDQModel.version }}</h5>
+            <div class="dqmodel-title">
+              <span class="label-name-dqmodel">{{ currentDQModel.version }} (id: {{ project.dqmodel_version }})</span>
+              <span *ngIf="currentDQModel.status === 'finished'" class="badge rounded-pill bg-dark">Finished</span>
+              <span *ngIf="currentDQModel.status === 'draft'" class="badge rounded-pill bg-warning">Draft</span>
+            </div>
+            <!--<h5 class="mt-3">{{ currentDQModel.version }}</h5>-->
             <div class="label-selected">
               <label class="label-title-selected">Creation date:</label>
               <span class="label-value-selected">{{ currentDQModel.created_at | date:'MMM dd HH:mm yyyy' }}</span>

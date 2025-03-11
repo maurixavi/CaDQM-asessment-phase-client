@@ -8,11 +8,11 @@
 	</app-step-navigator>
 
 	<!--<div *ngIf="completeDQModel && !isLoading">-->
-	<div *ngIf="completeDQModel && !isLoading">
+	<div>
 		<p class="subtitle-description mt-4">Defined DQ Model preview. Confirm or edit it by returning to a previous step</p>
 		<div class="flex-container">
-			<div class="section-container">
-				<div class="label-container-selected py-2 px-4">
+			<div class="section-container" >
+				<div *ngIf="completeDQModel && !isLoading" class="label-container-selected py-2 px-4">
 					<div class="dqmodel-title">
 						<span class="label-name-dqmodel">{{ completeDQModel.model.version }} (id: {{ project.dqmodel_version }})</span>
 						<span *ngIf="completeDQModel.model.status === 'finished'" class="badge rounded-pill bg-dark">Finished</span>
@@ -277,10 +277,7 @@
 																												<label class="label-title-selected">Applied to:</label>
 																												<span class="label-value-selected">{{ measurement.appliedTo }}</span>
 																											</div>
-																											<div class="label-selected">
-																												<label class="label-title-selected">Associated to:</label>
-																												<span class="label-value-selected">{{ measurement.associatedTo }}</span>
-																											</div>
+																											
 																										</div>
 																									</div>
 																								</div>
@@ -317,10 +314,7 @@
 																												<label class="label-title-selected">Applied to:</label>
 																												<span class="label-value-selected">{{ aggregation.appliedTo }}</span>
 																											</div>
-																											<div class="label-selected">
-																												<label class="label-title-selected">Associated to:</label>
-																												<span class="label-value-selected">{{ aggregation.associatedTo }}</span>
-																											</div>
+																								
 																										</div>
 																									</div>
 																								</div>
