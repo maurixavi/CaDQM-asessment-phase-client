@@ -1163,6 +1163,114 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
         this.dqmodel_dimensions = dimensions;
         this.dimensionsWithFactorsInDQModel = [];
   
+        // Obtener la lista de problemas priorizados para el proyecto
+        const prioritizedProblems = this.selectedPrioritizedProblems;
+  
+        // Crear un mapa de id de problemas priorizados a dq_problem_id
+        const prioritizedProblemsMap = new Map<number, number>();
+        prioritizedProblems.forEach(problem => {
+          prioritizedProblemsMap.set(problem.id, problem.dq_problem_id);
+        });
+  
+        const dimensionsData = await Promise.all(dimensions.map(async (dimension) => {
+          try {
+            // Obtener factores de la dimensión
+            const factors = await this.modelService.getFactorsByDQModelAndDimension(this.dqModelId, dimension.id).toPromise();
+  
+            if (!factors) {
+              throw new Error(`Factors not found for dimension ${dimension.dimension_name}`);
+            }
+  
+            // Obtener detalles de la dimensión base
+            const baseAttributes = await this.modelService.getDQDimensionBaseById(dimension.dimension_base).toPromise();
+  
+            // Obtener componentes de contexto de la dimensión
+            const dimensionContextComponents = dimension.context_components || [];
+  
+            // Obtener detalles de los problemas de calidad asociados a la dimensión
+            const dimensionDqProblemsDetails = await Promise.all(dimension.dq_problems.map(async (problemId: number) => {
+              if (this.projectId) {
+                // Obtener el dq_problem_id correspondiente al problemId
+                const dqProblemId = prioritizedProblemsMap.get(problemId);
+                if (dqProblemId) {
+                  const problemDetails = await this.projectService.getDQProblemById(this.projectId, dqProblemId).toPromise();
+                  return problemDetails;
+                }
+              }
+              return null; // Si no hay projectId o no se encuentra el dq_problem_id, devolver null
+            }));
+  
+            // Obtener los detalles del factor base para cada factor
+            const factorsWithBaseAttributes = await Promise.all(factors.map(async (factor) => {
+              const factorBaseAttributes = await this.modelService.getFactorBaseById(factor.factor_base).toPromise();
+  
+              // Obtener componentes de contexto del factor
+              const factorContextComponents = factor.context_components || [];
+  
+              // Obtener detalles de los problemas de calidad asociados al factor
+              const dqProblemsDetails = await Promise.all(factor.dq_problems.map(async (problemId: number) => {
+                if (this.projectId) {
+                  // Obtener el dq_problem_id correspondiente al problemId
+                  const dqProblemId = prioritizedProblemsMap.get(problemId);
+                  if (dqProblemId) {
+                    const problemDetails = await this.projectService.getDQProblemById(this.projectId, dqProblemId).toPromise();
+                    return problemDetails;
+                  }
+                }
+                return null; // Si no hay projectId o no se encuentra el dq_problem_id, devolver null
+              }));
+  
+              return {
+                ...factor,
+                baseAttributes: factorBaseAttributes,
+                context_components: factorContextComponents,
+                dq_problems_details: dqProblemsDetails.filter(detail => detail !== null), // Filtrar detalles nulos
+              };
+            }));
+  
+            return {
+              dimension: {
+                ...dimension,
+                dq_problems_details: dimensionDqProblemsDetails.filter(detail => detail !== null), // Filtrar detalles nulos
+              },
+              baseAttributes,
+              factors: factorsWithBaseAttributes,
+              context_components: dimensionContextComponents,
+            };
+          } catch (error) {
+            console.error(`Error loading data for dimension ${dimension.dimension_name}:`, error);
+            this.errorMessage = `Failed to load data for dimension ${dimension.dimension_name}.`;
+            return null;
+          }
+        }));
+  
+        // Filtrar cualquier entrada nula debido a errores y luego asignar los datos completos
+        this.dimensionsWithFactorsInDQModel = dimensionsData.filter((dim) => dim !== null);
+        console.log("DQ MODEL: Dimensions with Factors:", this.dimensionsWithFactorsInDQModel);
+      },
+      (error) => {
+        if (error.status === 404) {
+          this.noDimensionsMessage = 'No dimensions found for this DQ Model.';
+        } else {
+          this.noDimensionsMessage = 'Failed to load the dimensions of the DQ Model.';
+        }
+      }
+    );
+  }
+
+  loadDQModelDimensionsAndFactorsBackup(): void {
+    this.modelService.getDimensionsByDQModel(this.dqModelId).subscribe(
+      async (dimensions) => {
+        if (dimensions.length === 0) {
+          this.noDimensionsMessage = 'No dimensions found for this DQ Model.';
+          this.dqmodel_dimensions = [];
+          this.dimensionsWithFactorsInDQModel = [];
+          return;
+        }
+  
+        this.dqmodel_dimensions = dimensions;
+        this.dimensionsWithFactorsInDQModel = [];
+  
         const dimensionsData = await Promise.all(dimensions.map(async (dimension) => {
           try {
             // Obtener factores de la dimensión

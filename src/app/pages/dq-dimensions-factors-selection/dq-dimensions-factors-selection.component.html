@@ -853,7 +853,8 @@
                         </div>
                       </div>
 
-                 
+                      <!-- DQ Problems IDs 
+                      <span class="label-value-selected">{{ dim.dimension.dq_problems.join(', ') }} </span> -->
 
                       <div class="label-selected">
                         <label class="label-title-selected">DQ Problems (Used):</label>
@@ -864,8 +865,7 @@
                             </li>
                           </ul>
                         </span>
-                        <!-- DQ Problems IDs -->
-                        <!--<span class="label-value-selected">{{ dim.dimension.dq_problems.join(', ') }} </span> -->
+                        
                       </div>
 
 
@@ -929,7 +929,7 @@
 
                               <div class="label-selected">
                                 <label class="label-title-selected">DQ Problems (Used):</label>
-                                <span class="label-value-selected"><!--{{ factor.dq_problems.join(', ') }} Mostrar los IDs separados por comas --></span>
+                                <!--<span class="label-value-selected">s{{ factor.dq_problems.join(', ') }}</span>-->
                                 <div *ngIf="factor.dq_problems_details.length > 0">
                                   <ul>
                                     <li *ngFor="let problem of factor.dq_problems_details">
