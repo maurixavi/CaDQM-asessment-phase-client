@@ -479,7 +479,7 @@ body{
   }*/
   
   .label-title-selected {
-	width: 140px;
+	width: 150px;
 	margin-right: 10px;
 	font-weight: 500;
 	/*margin-left: 10px;*/
@@ -765,3 +765,28 @@ body{
 		color: #111;  
 		cursor: pointer;  
 	}
+
+	.ctx-selection-accordion-container{
+		width: 500px;
+	}
+
+
+.accordion-body {
+  font-size: 15px; 
+}
+
+.accordion-body .form-check-label {
+  font-size: 15px; 
+}
+
+.accordion-button {
+  font-size: 15px; 
+}
+
+
+
+/* Eliminar el padding izquierdo solo de la lista principal 
+.label-value-selected > ul {
+  padding-left: 0; 
+  list-style-position: inside;  
+}*/
