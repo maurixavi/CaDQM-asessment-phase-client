@@ -735,3 +735,23 @@ body{
 	margin-top: 20px;
 	margin-bottom: 10px;
   }
+
+
+	.ctx-selection-accordion-container{
+		width: 500px;
+	}
+
+
+.accordion-body {
+  font-size: 15px; 
+}
+
+.accordion-body .form-check-label {
+  font-size: 15px; 
+}
+
+.accordion-button {
+  font-size: 15px; 
+}
+
+

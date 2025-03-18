@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { DqModelService } from '../../services/dq-model.service';
 import { ProjectService } from '../../services/project.service';
 import { FormBuilder, FormGroup, Validators  } from '@angular/forms';
+declare var bootstrap: any; 
 
 interface ContextComponent {
   id: string;
@@ -134,9 +135,62 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   ];
 
 
+  dqFactor_measures: string = '';
+
   selectedMetric: any = null; 
-  onMetricSelected(): void {
+  onMetricSelected_(): void {
     console.log("Selected Metric:", this.selectedMetric);
+  }
+
+  // Método para cargar los detalles de la dimensión
+  fetchDQFactorDetails(factorId: number): void {
+    if (this.dqModelId && factorId) {
+      this.modelService.getDQDimensionDetails(this.dqModelId, factorId).subscribe({
+        next: (data) => {
+          this.dqFactor_measures = data.factor_name; 
+        },
+        error: (err) => {
+          console.error('Error al cargar los detalles del factor:', err);
+        },
+      });
+    }
+  }
+
+  onMetricSelected(): void {
+    if (this.selectedMetric) {
+      console.log("Selected Factor:", this.selectedMetric);
+      // Limpiar la selección actual
+      this.selectionCheckboxCtxComponents = [];
+
+      //Obtener Dimension del factor
+      this.fetchDQFactorDetails(this.selectedMetric.factor);
+  
+      // Cargar los componentes de contexto asociados al factor seleccionado
+      const contextComponents = this.selectedMetric.context_components;
+      Object.keys(contextComponents).forEach((category) => {
+        contextComponents[category].forEach((componentId: number) => {
+          const component = this.allContextComponents[category].find(
+            (comp: any) => comp.id === componentId
+          );
+          if (component) {
+            this.selectionCheckboxCtxComponents.push({
+              id: componentId,
+              category: category,
+              value: this.getFirstNonIdAttribute(component),
+            });
+            console.log("selectionCheckboxCtxComponents:", this.selectionCheckboxCtxComponents)
+          }
+        });
+      });
+
+      
+    }
+  }
+
+  hasSelectedComponents(category: string): boolean {
+    return this.selectionCheckboxCtxComponents.some(
+      (component) => component.category === category
+    );
   }
 
   selectedBaseDQMethod: any = null; 
@@ -262,13 +316,22 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
 
   
   
-
+  projectId: number | null = null;
+  contextVersionId: number | null = null;
 
   loadCurrentProject(): void {
     this.projectService.loadCurrentProject().subscribe({
       next: (project) => {
         this.project = project;
         console.log('Proyecto cargado en el componente:', this.project);
+
+        this.projectId = project.id;
+
+        this.contextVersionId = project.context_version;
+
+        if (this.contextVersionId){
+          this.getAllContextComponents(this.contextVersionId);
+        }
 
         //Load complete DQ Model (with Dimensions,Factors...) of current project
         this.loadCompleteCurrentDQModel();
@@ -278,6 +341,192 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
       }
     });
   }
+
+  /* ------------- CONTEXTO  ---------- */
+  // CONTEXT
+
+  allContextComponents: any; // Variable para almacenar el contexto obtenido
+
+  getAllContextComponents(contextVersionId: number): void {
+    this.projectService.getContextComponents(contextVersionId).subscribe({
+      next: (data) => {
+        console.log('ALL CTX. COMPONENTS:', data);
+        this.allContextComponents = data;
+      },
+      error: (err) => console.error('Error fetching context components:', err)
+    });
+  }
+
+  // Método para obtener las categorías de los componentes de contexto
+  /*getContextComponentCategories(contextComponents: any): string[] {
+    return Object.keys(contextComponents).filter(category => contextComponents[category].length > 0);
+  }*/
+
+  getContextComponentCategories(contextComponents: any): string[] {
+    if (Array.isArray(contextComponents)) {
+      // Si es un array (selectionCheckboxCtxComponents)
+      const categories = new Set<string>();
+      contextComponents.forEach((component) => categories.add(component.category));
+      return Array.from(categories);
+    } else {
+      // Si es un objeto (contextComponents)
+      return Object.keys(contextComponents).filter(category => contextComponents[category].length > 0);
+    }
+  }
+
+  /*getContextComponentCategoriesFromArray(components: { id: number; category: string; value: string }[]): string[] {
+    const categories = new Set<string>();
+    components.forEach((component) => categories.add(component.category));
+    return Array.from(categories);
+  }*/
+  
+  getComponentsByCategory(components: any[], category: string): any[] {
+    return components.filter((component) => component.category === category);
+  }
+
+
+  // Método para formatear el nombre de la categoría
+  formatCategoryName(category: string): string {
+    // Reemplazar camelCase o snake_case con espacios
+    const formatted = category
+      .replace(/([A-Z])/g, ' $1') // Separar camelCase
+      .replace(/_/g, ' ') // Separar snake_case
+      .trim(); // Eliminar espacios al inicio y al final
+
+    // Capitalizar la primera letra de cada palabra
+    return formatted
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
+  // Método para obtener el primer atributo no 'id' de un componente
+  getFirstAttribute(category: string, componentId: number): string {
+    const component = this.allContextComponents[category].find((comp: any) => comp.id === componentId);
+    if (component) {
+      const keys = Object.keys(component).filter(key => key !== 'id'); // Excluir 'id'
+      if (keys.length > 0) {
+        return `${component[keys[0]]}`; // Devolver solo el valor del primer atributo
+      }
+    }
+    return 'No details available';
+  }
+
+
+  // Variables para el modal
+  selectedComponentKeys: string[] = []; // Claves del componente seleccionado
+  selectedComponentDetails: any = {}; // Detalles del componente seleccionado
+
+  // Método para abrir el modal con todos los atributos
+  openContextComponentModal(category: string, componentId: number): void {
+    const component = this.allContextComponents[category].find((comp: any) => comp.id === componentId);
+    if (component) {
+      this.selectedComponentKeys = Object.keys(component).filter(key => key !== 'id'); // Excluir 'id'
+      this.selectedComponentDetails = component;
+      // Abrir el modal
+      const modalElement = document.getElementById('contextComponentModal');
+      if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+      }
+    }
+  }
+
+  
+
+  //**** CTX ACCORDION ***** */
+  // En el componente TypeScript
+  getSelectedCategories(): string[] {
+    return Object.keys(this.selectedMetric.context_components).filter(
+      category => this.selectedMetric.context_components[category].length > 0
+    );
+  }
+
+  getComponentById(category: string, id: number): any {
+    const components = this.allContextComponents[category];
+    if (!components || components.length === 0) {
+      return null; // Si la categoría no tiene componentes, retorna null
+    }
+    return components.find((c: { id: number; }) => c.id === id);
+  }
+
+  getFirstNonIdAttribute(item: any): string {
+    const keys = Object.keys(item);
+    const firstNonIdKey = keys.find((key) => key !== 'id');
+    return firstNonIdKey ? item[firstNonIdKey] : '';
+  }
+
+  selectedCtxComponents: { id: number; category: string; value: string }[] = [];
+  
+  onCtxComponentsCheckboxChange(id: number, category: string, value: string, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const isChecked = input?.checked || false;
+  
+    if (isChecked) {
+      // Agregar el componente seleccionado
+      this.selectionCheckboxCtxComponents.push({ id, category, value });
+    } else {
+      // Eliminar el componente desmarcado
+      this.selectionCheckboxCtxComponents = this.selectionCheckboxCtxComponents.filter(
+        (component) => !(component.category === category && component.value === value)
+      );
+    }
+
+    console.log("selectionCheckboxCtxComponents:", this.selectionCheckboxCtxComponents)
+
+  }
+
+  
+  
+
+  //seleccion de componentes de contexto
+  selectionCheckboxCtxComponents: { id: number; category: string; value: string }[] = [];
+
+
+  // Validar si un componente está seleccionado
+  isComponentSelected(category: string, value: string): boolean {
+    return this.selectionCheckboxCtxComponents.some(
+      (component) => component.category === category && component.value === value
+    );
+  }
+
+  removeSelectedComponent(componentToRemove: any): void {
+    // Filtra la lista para excluir el componente a eliminar
+    this.selectionCheckboxCtxComponents = this.selectionCheckboxCtxComponents.filter(
+      (component) => component !== componentToRemove
+    );
+  }
+
+  categories: string[] = [
+    'applicationDomain',
+    'businessRule',
+    'dataFiltering',
+    'dqMetadata',
+    'dqRequirement',
+    'otherData',
+    'otherMetadata',
+    'systemRequirement',
+    'taskAtHand',
+    'userType',
+  ];
+
+  // Seleccion de Componentes de CONTEXTO
+  isCtxSelectionAccordionVisible = false;
+  isEditingCtxComponents: boolean = false;
+
+  toggleCtxSelectionAccordionVisibility(): void {
+    this.isEditingCtxComponents = !this.isEditingCtxComponents;
+  }
+
+
+
+
+
+
+
+
+
+  /* ---------- */
 
   getDQFactorsBase() {
     this.modelService.getAllDQFactorsBase().subscribe({
@@ -689,12 +938,52 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     }
   }
 
+  buildContextComponents(selectedComponents: { id: number; category: string; value: string }[]): any {
+    const contextComponents = {
+      applicationDomain: selectedComponents
+        .filter((comp) => comp.category === "applicationDomain")
+        .map((comp) => comp.id),
+      businessRule: selectedComponents
+        .filter((comp) => comp.category === "businessRule")
+        .map((comp) => comp.id),
+      dataFiltering: selectedComponents
+        .filter((comp) => comp.category === "dataFiltering")
+        .map((comp) => comp.id),
+      dqMetadata: selectedComponents
+        .filter((comp) => comp.category === "dqMetadata")
+        .map((comp) => comp.id),
+      dqRequirement: selectedComponents
+        .filter((comp) => comp.category === "dqRequirement")
+        .map((comp) => comp.id),
+      otherData: selectedComponents
+        .filter((comp) => comp.category === "otherData")
+        .map((comp) => comp.id),
+      otherMetadata: selectedComponents
+        .filter((comp) => comp.category === "otherMetadata")
+        .map((comp) => comp.id),
+      systemRequirement: selectedComponents
+        .filter((comp) => comp.category === "systemRequirement")
+        .map((comp) => comp.id),
+      taskAtHand: selectedComponents
+        .filter((comp) => comp.category === "taskAtHand")
+        .map((comp) => comp.id),
+      userType: selectedComponents
+        .filter((comp) => comp.category === "userType")
+        .map((comp) => comp.id),
+    };
+  
+    return contextComponents;
+  }
+  
   // Función para agregar el método al DQ Model
   addMethodToDQModel(metric: any, method: any) {
     if (!metric || !method) {
       alert("Please select a metric and a method.");
       return;
     }
+
+    const context_components = this.buildContextComponents(this.selectionCheckboxCtxComponents);
+    console.log(context_components)
   
     // Preparar los datos para el servicio
     const methodData = {
@@ -702,7 +991,8 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
       method_base: method.id, // ID del método base
       dimension: metric.dimensionId, // ID de la dimensión (ajusta según tu estructura)
       factorId: metric.factorId, // ID del factor (ajusta según tu estructura)
-      metric: metric.id // ID de la métrica
+      metric: metric.id, // ID de la métrica
+      context_components: context_components,
     };
   
     // Llamada al servicio para agregar el método al DQ Model

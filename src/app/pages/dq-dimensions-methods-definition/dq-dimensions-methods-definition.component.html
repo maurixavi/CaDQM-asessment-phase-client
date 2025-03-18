@@ -47,15 +47,53 @@
                   <span class="label-value-selected">{{ selectedMetric.baseAttr.granularity }}</span>
                 </div>
                 <div class="label-selected">
-                  <label class="label-title-selected">Domain:</label>
+                  <label class="label-title-selected">Result domain:</label>
                   <span class="label-value-selected">{{ selectedMetric.baseAttr.resultDomain }}</span>
                 </div>
+
                 <div class="label-selected">
-                  <label class="label-title-selected">Ctx (Suggested by):</label>
-                  <span class="label-value-selected">BR1, BR2</span>
+                  <label class="label-title-selected">Influenced by (Ctx. Components):</label>
+                  <span class="label-value-selected">
+                    <ul>
+                      <li *ngFor="let category of getContextComponentCategories(selectedMetric.context_components)">
+                        {{ formatCategoryName(category) }}:
+                        <ul>
+                          <li *ngFor="let componentId of selectedMetric.context_components[category]">
+                            <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
+                              {{ getFirstAttribute(category, componentId) }}
+                            </a>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </span>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Modal para mostrar los detalles del Ctx Component  -->
+            <div class="modal fade" id="contextComponentModal" tabindex="-1" aria-labelledby="contextComponentModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="contextComponentModalLabel">Context Component</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <ul>
+                      <li *ngFor="let key of selectedComponentKeys">
+                        <strong>{{ formatCategoryName(key) }}:</strong> {{ selectedComponentDetails[key] }}
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
                 </div>
               </div>
             </div>
+
 
             <!-- DQ Method (de Metrica elegida) -->
             <div class="label mt-2">
@@ -96,6 +134,77 @@
                 <label class="label-title-selected">Algorithm:</label>
                 <span class="code-block">
                   <pre><code>{{ selectedBaseDQMethod.algorithm }}</code></pre>
+                </span>
+              </div>
+
+              <div class="label-selected">
+                <label class="label-title-selected">Uses (Ctx. Components):</label>
+                <span class="label-value-selected">
+                  <!-- Vista de solo lectura (valores ya seleccionados) -->
+                  <div >
+                    <ul>
+                      <li *ngFor="let category of getContextComponentCategories(selectionCheckboxCtxComponents)">
+                        {{ formatCategoryName(category) }}:
+                        <ul>
+                          <li *ngFor="let component of getComponentsByCategory(selectionCheckboxCtxComponents, category)">
+                            <a href="javascript:void(0)" (click)="openContextComponentModal(category, component.id)">
+                              {{ component.value }}
+                            </a>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                    <button class="btn btn-light btn-sm mb-4" (click)="toggleCtxSelectionAccordionVisibility()">
+                      <i *ngIf="!isEditingCtxComponents"></i>
+                      <i *ngIf="isEditingCtxComponents" class="bi bi-eye-slash"></i>
+                      {{ isEditingCtxComponents ? 'Hide' : 'Edit' }}
+                    </button>
+                  </div>
+              
+                  <!-- Vista de edición (acordeón) -->
+                  <div *ngIf="isEditingCtxComponents" class="ctx-selection-accordion-container">
+                    <div class="accordion" id="accordionPanelsStayOpenExample">
+                      <div *ngFor="let category of getSelectedCategories(); let i = index" class="accordion-item">
+                        <h5 class="accordion-header" [id]="'panelsStayOpen-heading' + i">
+                          <button
+                            class="accordion-button"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            [attr.data-bs-target]="'#panelsStayOpen-collapse' + i"
+                            [attr.aria-controls]="'panelsStayOpen-collapse' + i"
+                            [attr.aria-expanded]="hasSelectedComponents(category) ? 'true' : 'false'"
+                            [class.collapsed]="!hasSelectedComponents(category)"
+                            style="padding: 0.1rem 0.9rem;"
+                          >
+                            {{ formatCategoryName(category) }}
+                          </button>
+                        </h5>
+                        <div
+                          [id]="'panelsStayOpen-collapse' + i"
+                          class="accordion-collapse collapse"
+                          [class.show]="hasSelectedComponents(category)"
+                          [attr.aria-labelledby]="'panelsStayOpen-heading' + i"
+                        >
+                          <div class="accordion-body">
+                            <div *ngFor="let componentId of selectedMetric.context_components[category]" class="form-check">
+                              <ng-container *ngIf="getComponentById(category, componentId) as component">
+                                <input
+                                  class="form-check-input"
+                                  type="checkbox"
+                                  [id]="'checkbox-' + category + '-' + component.id"
+                                  [checked]="isComponentSelected(category, getFirstNonIdAttribute(component))"
+                                  (change)="onCtxComponentsCheckboxChange(component.id, category, getFirstNonIdAttribute(component), $event)"
+                                />
+                                <label class="form-check-label" [for]="'checkbox-' + category + '-' + component.id">
+                                  {{ getFirstNonIdAttribute(component) }}
+                                </label>
+                              </ng-container>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </span>
               </div>
 
@@ -148,7 +257,7 @@
               </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-info" (click)="generateNewSuggestion()" style="width: auto;">
+                <button type="button" class="btn btn-sm btn-info" (click)="generateNewSuggestion()" style="width: auto;">
                   <i class="bi bi-lightning"></i> Generate New
                 </button>
               <button type="button" class="btn btn-sm btn-light" (click)="closeModalBase()">Cancel</button>
@@ -360,10 +469,25 @@
                         <label class="label-title-selected">Result domain:</label>
                         <span class="label-value-selected">{{ metric.baseAttr.resultDomain }}</span>
                       </div>
+
                       <div class="label-selected">
-                        <label class="label-title-selected">Ctx (Influenced by):</label>
-                        <span class="label-value-selected">BR1, BR2</span>
+                        <label class="label-title-selected">Influenced by (Ctx. Components):</label>
+                        <span class="label-value-selected">
+                            <ul>
+                                <li *ngFor="let category of getContextComponentCategories(metric.context_components)">
+                                    {{ formatCategoryName(category) }}:
+                                    <ul>
+                                        <li *ngFor="let componentId of metric.context_components[category]">
+                                            <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
+                                                {{ getFirstAttribute(category, componentId) }}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </span>
                       </div>
+
 
                       <div class="label-selected">
                         <label class="label-title-selected">DQ Methods:</label>
@@ -410,6 +534,25 @@
                                 <label class="label-title-selected">Algorithm:</label>
                                 <pre class="label-value-selected">{{ item.baseAttr.algorithm }}</pre>
                               </div>
+
+                              <div class="label-selected">
+                                <label class="label-title-selected">Influenced by (Ctx. Components):</label>
+                                <span class="label-value-selected">
+                                    <ul>
+                                        <li *ngFor="let category of getContextComponentCategories(item.context_components)">
+                                            {{ formatCategoryName(category) }}:
+                                            <ul>
+                                                <li *ngFor="let componentId of item.context_components[category]">
+                                                    <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
+                                                        {{ getFirstAttribute(category, componentId) }}
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </span>
+                              </div>
+                              
                               <div class="label-selected">
                                 <label class="label-title-selected">Applied Methods:</label>
                               </div>
