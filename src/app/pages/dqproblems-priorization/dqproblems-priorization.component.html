@@ -10,15 +10,14 @@
 
   <div class="flex-container"> 
     <div class="container-section ">
-      <div class="py-2 px-4 d-flex justify-content-center">
+      <div class="py-4 px-4 me-3 d-flex justify-content-center">
         <div class="w-100">
           <ng-container cdkDropListGroup>
           <div class="row">
             <!-- High priority -->
             <div class="col-md-4">
-              <p class="priority-group-title">
-                High Priority
-              </p>
+              <h6 class="mb-3">High Priority</h6>
+              <!--<p class="priority-group-title">High Priority</p>-->
               <!--<p class="priority-group-title">
                 High Priority <span class="badge bg-danger rounded-pill">High</span>
               </p>-->
@@ -53,9 +52,7 @@
       
             <!-- Medium priority -->
             <div class="col-md-4">
-              <p class="priority-group-title">
-                Medium Priority
-              </p>
+              <h6 class="mb-3">Medium Priority</h6>
               <!--<p class="priority-group-title">
                 Medium Priority <span class="badge bg-warning rounded-pill">Medium</span>
               </p>-->
@@ -91,9 +88,7 @@
       
             <!-- Low priority -->
             <div class="col-md-4">
-              <p class="priority-group-title">
-                Low Priority
-              </p>
+              <h6 class="mb-3">Low Priority</h6>
               <!--<p class="priority-group-title">
                 Low Priority <span class="badge bg-success rounded-pill">Low</span>
               </p>-->
@@ -180,3 +175,9 @@
   </div>
 
 </div>
+
+<app-stepper
+  [currentStep]="currentStep"
+  [totalSteps]="steps.length"
+  (stepChange)="onStepChange($event)">
+</app-stepper>

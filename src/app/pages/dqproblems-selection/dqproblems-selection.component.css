@@ -154,7 +154,7 @@
   display: flex;
   flex-wrap: wrap; /* Permite que las secciones se ajusten en pantallas pequeñas */
   gap: 8px; /* Espacio entre las secciones */
-  margin: 1rem 0; /* Margen superior e inferior */
+  margin: 24px 0; /* Margen superior e inferior */
   margin-left: 14px;
   margin-right: 14px;
 }

@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewEncapsulation, HostListener, AfterViewInit } from '@angular/core';
-import { DqProblemsService } from '../../shared/dq-problems.service';
 import { DqModelService } from '../../services/dq-model.service';
 import { Router } from '@angular/router';
 
 import { ProjectService } from '../../services/project.service';
+import { ProjectDataService } from '../../services/project-data.service';
 
 declare var bootstrap: any; 
 
@@ -43,6 +43,14 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   phaseTitle: string = 'Phase 2: DQ Assessment';
   stageTitle: string = 'Stage 4: DQ Model Definition';
 
+  steps = [
+    { displayName: 'A09.1', route: 'st4/a09-1' },
+    { displayName: 'A09.2', route: 'st4/a09-2' },
+    { displayName: 'A10', route: 'st4/a10' },
+    { displayName: 'A11', route: 'st4/a11' },
+    { displayName: 'A12', route: 'st4/a12' },
+    { displayName: 'DQ Model Confirmation', route: 'st4/confirmation-stage-4' }
+  ];
 
   /* CONTEXT variables */
   //contextComponents: any[] = []; 
@@ -50,7 +58,6 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   selectedComponents: ContextComponent[] = [];
   selectedComponent: ContextComponent | undefined;  // Cambiado a undefined
 
-  contextComponentsGrouped: { type: string; ids: number[] }[] = [];
 
 
   /* DIMENSIONS, FACTORS BASE variables */
@@ -90,21 +97,109 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   /* Other variables */
   errorMessage: string | null = null;
 
-  //PROJECT
-  project: any; 
+ 
 
+
+
+  // Variables de datos
+  project: any;
   projectId: number | null = null;
+  noProjectMessage: string = "";
+  dqModelId: number = -1;
+  dqModelVersionId: number | null = null;
+  dqModel: any = null;
 
+  // Componentes del contexto
+  contextComponents: any = null;
 
   constructor(
     private router: Router,
-    private problemsService: DqProblemsService,
     private modelService: DqModelService,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private projectDataService: ProjectDataService,
   ) { }
 
-  
+  ngOnInit() {
+    //Cargar opciones select Dimensiones y Factores base
+    this.getDQDimensionsBase();
+    this.getDQFactorsBase();
 
+    // Obtener el Project ID actual
+    this.projectId = this.projectDataService.getProjectId();
+    console.log("projectIdGet: ", this.projectId);
+
+    // Suscribirse a los observables del servicio
+    this.subscribeToData();
+
+    // Sincronizar el paso actual con la ruta
+    this.syncCurrentStepWithRoute();
+
+  }
+
+  syncCurrentStepWithRoute() {
+    const currentRoute = this.router.url; // Obtiene la ruta actual (por ejemplo, '/st4/a09-1')
+    const stepIndex = this.steps.findIndex(step => step.route === currentRoute);
+    if (stepIndex !== -1) {
+      this.currentStep = stepIndex;
+    }
+  }
+
+  
+  // Métodos de suscripción a datos
+  subscribeToData(): void {
+    // Suscribirse al proyecto
+    this.projectDataService.project$.subscribe((data) => {
+      this.project = data;
+      console.log('Project Data:', data);
+    });
+
+    // Suscribirse a los componentes del contexto
+    this.projectDataService.contextComponents$.subscribe((data) => {
+      this.context_Components = data;
+      console.log('Context Components:', data);
+    });
+
+    // Suscribirse a los problemas de calidad de datos (DQ Problems)
+    this.projectDataService.dqProblems$.subscribe((data) => {
+      this.dqProblems_ = data;
+      console.log('DQ Problems:', data);
+
+      // Una vez que los problemas están cargados, cargar los problemas priorizados
+      if (this.projectId !== null) {
+        this.loadSelectedPrioritizedDQProblems(this.projectId);
+        this.getCurrentDQModel(this.projectId);
+      }
+    });
+
+    // Suscribirse a la versión del modelo de calidad de datos (DQ Model Version)
+    this.projectDataService.dqModelVersion$.subscribe((dqModelVersionId) => {
+      this.dqModelVersionId = dqModelVersionId;
+      console.log('DQ Model Version ID:', this.dqModelVersionId);
+
+      if (this.dqModelVersionId !== null) {
+        //Load complete DQ Model (with Dimensions,Factors...) of current project
+        this.loadCompleteCurrentDQModel();
+        //this.loadDQModelDimensionsAndFactors();
+      }
+    });
+  }
+
+  loadCompleteCurrentDQModel(): void {
+    // Asigna el dqModelId desde el proyecto, o -1 si no existe DQ Model asociado a Project
+    this.dqModelId = this.project?.dqmodel_version ?? -1; 
+    console.log("CurrentProject dqModelId:", this.dqModelId);
+
+    if (this.dqModelId > 0) {
+      this.getCurrentDQModel(this.dqModelId);
+    } else {
+      console.warn("No se encontró un dqModelId válido en el proyecto actual.");
+    }
+
+    // Cargar Dimensiones y Factores del DQ Model
+    this.loadDQModelDimensionsAndFactors();
+  }
+ 
+  
 
   //inicializacion, pruebas
   context: any; // Variable para almacenar el contexto obtenido
@@ -115,7 +210,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
   //dqModelId: number | null = null;
 
-  dqModelId: number = -1; // Inicializar con un valor que indique que aún no ha sido asignado
+  //dqModelId: number = -1; // Inicializar con un valor que indique que aún no ha sido asignado
 
   noModelMessage: string = "";  
 
@@ -124,25 +219,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   dimensionsWithFactors: { dimension: any, factors: any[] }[] = [];
 
 
-  ngOnInit() {
-    //Cargar opciones select Dimensiones y Factores base
-    this.getDQDimensionsBase();
-    this.getDQFactorsBase();
-
-    //Cargar Proyecto actual y DQ Model asociado
-    this.loadCurrentProject();
-    //this.loadCompleteCurrentDQModel();
-
-
   
-
-    //Pruebas metodos, endpoints, etc
-    //this.getDQModels();
-
-
-    
-    
-  }
 
 
   // Dimensiones seleccionadas en "From DQ Problems"
@@ -195,59 +272,6 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
 
 
-
-/*  ngAfterViewInit() {
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-  }*/
-
-  
-
-  
-  // PROJECT
-  loadCurrentProject(): void {
-    this.projectService.loadCurrentProject().subscribe({
-      next: (project) => {
-        this.project = project;
-        console.log('Proyecto cargado en el componente:', this.project);
-
-        this.projectId = project.id;
-
-        this.contextVersionId = project.context_version;
-        console.log("this.contextVersionId ", this.contextVersionId );
-
-        if (this.contextVersionId !== -1){
-          this.getAllContextComponents(this.contextVersionId);
-          //this.getSelectedPrioritizedDqProblems(this.project.dqmodel_version);
-        }
-
-        if (this.projectId !== null){
-          this.loadDQProblems(this.projectId);
-          this.loadSelectedPrioritizedDQProblems(this.projectId);
-        }
-        
-        
-
-        //Load complete DQ Model (with Dimensions,Factors...) of current project
-        this.loadCompleteCurrentDQModel();
-      },
-      error: (err) => {
-        console.error('Error al cargar el proyecto en el componente:', err);
-      }
-    });
-  }
-
-  getAllContextComponents(contextVersionId: number): void {
-    this.projectService.getContextComponents(contextVersionId).subscribe({
-      next: (data) => {
-        console.log('---Context Components context_version:---', data);
-        this.context_Components = data;
-      },
-      error: (err) => console.error('Error fetching context components:', err)
-    });
-  }
 
   applicationDomain: any[] = [];
   businessRule: any[] = [];
@@ -377,23 +401,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
 
 
-  loadCompleteCurrentDQModel(): void {
-    // Asigna el dqModelId desde el proyecto, o -1 si no existe DQ Model asociado a Project
-    this.dqModelId = this.project?.dqmodel_version ?? -1; 
-    console.log("CurrentProject dqModelId:", this.dqModelId);
-
-    // Llama a getDQModelById si dqModelId es válido
-    if (this.dqModelId > 0) {
-      this.getCurrentDQModel(this.dqModelId);
-    } else {
-      console.warn("No se encontró un dqModelId válido en el proyecto actual.");
-    }
-
-    // Cargar Dimensiones y Factores del DQ Model
-    this.loadDQModelDimensionsAndFactors();
-
-
-  }
+  
 
   
   getSelectedProblemDetails(): any {
@@ -557,52 +565,10 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
 
 
-  // PROJECTS
-  
-
-
- 
-
-
-  addContextComponent() {
-    if (this.selectedComponent && 
-        !this.selectedComponents.some(c => 
-          c.id === this.selectedComponent?.id && 
-          c.type === this.selectedComponent?.type
-        )) {
-      this.selectedComponents.push(this.selectedComponent);
-      this.selectedComponent = undefined;
-    }
-  }
-
- 
 
 
 
 
-
-  //DQ MODELS
-
-
-  getDQModelById(dqmodelId: number): void {
-    this.modelService.getDQModelById(dqmodelId).subscribe({
-      next: (data) => {
-        this.currentDQModel = data; // almacena el DQ Model obtenido
-        this.noModelMessage = ""; // resetea el mensaje si se obtiene el modelo
-        console.log("DQ Model obtenido:", data); 
-      },
-      error: (err) => {
-        if (err.status === 404) {
-          this.currentDQModel = null; // Reinicia el modelo
-          this.noModelMessage = "No DQ Model found with this ID. Please check and try again.";  
-        } else {
-          console.error("Error loading DQ Model:", err);
-          this.currentDQModel = null; // Reinicia en caso de error
-          this.noModelMessage = "An error occurred while loading the DQ Model. Please try again later.";  
-        }
-      }
-    });
-  }
 
 
   //DIMENSIONS BASE
@@ -618,7 +584,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     });
   }
 
-  loadFactorsForAllDimensions(dimensions: any[]) {
+  loadFactorsForAllDimensions_(dimensions: any[]) {
     dimensions.forEach((dimension) => {
       this.modelService.getFactorsBaseByDimensionId(dimension.id).subscribe({
         next: (factors) => {
@@ -626,6 +592,23 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
           //console.log("this.dimensionsWithFactors: ", this.dimensionsWithFactors)
         },
         error: (err) => console.error(`Error loading factors for dimension ${dimension.id}:`, err),
+      });
+    });
+  }
+
+  loadFactorsForAllDimensions(dimensions: any[]) {
+    dimensions.forEach((dimension) => {
+      this.modelService.getFactorsBaseByDimensionId(dimension.id).subscribe({
+        next: (factors) => {
+          if (factors.length > 0) {
+            this.dimensionsWithFactors.push({ dimension, factors });
+          } else {
+            console.warn(`No se encontraron factores para la dimensión ${dimension.id}.`);
+          }
+        },
+        error: (err) => {
+          console.warn(`Advertencia: No se pudieron cargar los factores para la dimensión ${dimension.id}.`);
+        },
       });
     });
   }
@@ -1258,97 +1241,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     );
   }
 
-  loadDQModelDimensionsAndFactorsBackup(): void {
-    this.modelService.getDimensionsByDQModel(this.dqModelId).subscribe(
-      async (dimensions) => {
-        if (dimensions.length === 0) {
-          this.noDimensionsMessage = 'No dimensions found for this DQ Model.';
-          this.dqmodel_dimensions = [];
-          this.dimensionsWithFactorsInDQModel = [];
-          return;
-        }
-  
-        this.dqmodel_dimensions = dimensions;
-        this.dimensionsWithFactorsInDQModel = [];
-  
-        const dimensionsData = await Promise.all(dimensions.map(async (dimension) => {
-          try {
-            // Obtener factores de la dimensión
-            const factors = await this.modelService.getFactorsByDQModelAndDimension(this.dqModelId, dimension.id).toPromise();
-  
-            if (!factors) {
-              throw new Error(`Factors not found for dimension ${dimension.dimension_name}`);
-            }
-  
-            // Obtener detalles de la dimensión base
-            const baseAttributes = await this.modelService.getDQDimensionBaseById(dimension.dimension_base).toPromise();
-  
-            // Obtener componentes de contexto de la dimensión
-            const dimensionContextComponents = dimension.context_components || [];
-  
-            // Obtener detalles de los problemas de calidad asociados a la dimensión
-            const dimensionDqProblemsDetails = await Promise.all(dimension.dq_problems.map(async (problemId: number) => {
-              if (this.projectId) {
-                const problemDetails = await this.projectService.getDQProblemById(this.projectId, problemId).toPromise();
-                return problemDetails;
-              }
-              return null; // Si no hay projectId, devolver null
-            }));
-  
-            // Obtener los detalles del factor base para cada factor
-            const factorsWithBaseAttributes = await Promise.all(factors.map(async (factor) => {
-              const factorBaseAttributes = await this.modelService.getFactorBaseById(factor.factor_base).toPromise();
-  
-              // Obtener componentes de contexto del factor
-              const factorContextComponents = factor.context_components || [];
-  
-              // Obtener detalles de los problemas de calidad asociados al factor
-              const dqProblemsDetails = await Promise.all(factor.dq_problems.map(async (problemId: number) => {
-                if (this.projectId) {
-                  const problemDetails = await this.projectService.getDQProblemById(this.projectId, problemId).toPromise();
-                  return problemDetails;
-                }
-                return null; // Si no hay projectId, devolver null
-              }));
-  
-              return {
-                ...factor,
-                baseAttributes: factorBaseAttributes,
-                context_components: factorContextComponents,
-                dq_problems_details: dqProblemsDetails.filter(detail => detail !== null), // Filtrar detalles nulos
-              };
-            }));
-  
-            return {
-              dimension: {
-                ...dimension,
-                dq_problems_details: dimensionDqProblemsDetails.filter(detail => detail !== null), // Filtrar detalles nulos
-              },
-              baseAttributes,
-              factors: factorsWithBaseAttributes,
-              context_components: dimensionContextComponents,
-            };
-          } catch (error) {
-            console.error(`Error loading data for dimension ${dimension.dimension_name}:`, error);
-            this.errorMessage = `Failed to load data for dimension ${dimension.dimension_name}.`;
-            return null;
-          }
-        }));
-  
-        // Filtrar cualquier entrada nula debido a errores y luego asignar los datos completos
-        this.dimensionsWithFactorsInDQModel = dimensionsData.filter((dim) => dim !== null);
-        console.log("DQ MODEL: Dimensions with Factors:", this.dimensionsWithFactorsInDQModel);
-      },
-      (error) => {
-        if (error.status === 404) {
-          this.noDimensionsMessage = 'No dimensions found for this DQ Model.';
-        } else {
-          this.noDimensionsMessage = 'Failed to load the dimensions of the DQ Model.';
-        }
-      }
-    );
-  }
-
+ 
   
   loadDQModelDimensionsAndFactors_(): void {
     this.modelService.getDimensionsByDQModel(this.dqModelId).subscribe(
@@ -1616,7 +1509,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   }
   
   goToNextStep() {
-    this.router.navigate(['/step4']);
+    this.router.navigate(['/st4/a11']);
   }
 
 
@@ -1903,6 +1796,21 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
       }
     }
     return 'No details available';
+  }
+
+  // Navegación
+  nextStep(): void {
+    this.router.navigate(['/st4/a11']);
+  }
+
+  onStepChange(step: number) {
+    this.currentStep = step;
+    this.navigateToStep(step);
+  }
+  
+  navigateToStep(stepIndex: number) {
+    const route = this.steps[stepIndex].route;
+    this.router.navigate([route]);
   }
 
 }

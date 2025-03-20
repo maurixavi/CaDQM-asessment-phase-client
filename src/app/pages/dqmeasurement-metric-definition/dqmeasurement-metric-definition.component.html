@@ -49,7 +49,6 @@
                 <div class="label-selected">
                   <label class="label-title-selected">Arises from (Ctx. Components):</label>
                   <span class="label-value-selected">
-                    <p>Ctx. Components:</p>
                     <ul>
                       <li *ngFor="let category of getContextComponentCategories(selectedFactor.context_components)">
                         {{ formatCategoryName(category) }}:
@@ -457,3 +456,15 @@
     <button (click)="saveMetrics()" class="btn btn-dark">Next ></button>
   </div>
 </div>
+
+<app-stepper
+  [currentStep]="currentStep"
+  [totalSteps]="steps.length"
+  (stepChange)="onStepChange($event)">
+</app-stepper>
+
+<app-stepper
+  [currentStep]="currentStep"
+  [totalSteps]="steps.length"
+  (stepChange)="onStepChange($event)">
+</app-stepper>

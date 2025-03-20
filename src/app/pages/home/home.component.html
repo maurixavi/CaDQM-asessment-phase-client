@@ -1,0 +1,94 @@
+
+<div class="container my-4">
+
+	<h2 class="title">Projects</h2>
+  <!--<p class="subtitle-description mt-4">Current Project</p>-->
+
+  <div class="flex-container mt-4">
+    <div class="suggested-section-container">
+      <div class="dashboard-container">
+        <table class="table table-hover">
+          <thead class="thead-dark custom-thead">
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Description</th>
+              <th scope="col">Context version</th>
+              <th scope="col">DQ Model version</th>
+              <th scope="col">Stage</th>
+              <th scope="col">Status</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let project of paginatedProjects"
+              
+              [class.table-active]="project.id === selectedProject?.id"
+              class="clickable-row"
+            >
+              <td>{{ project.name }}</td>
+              <td>{{ project.description }}</td>
+              <td>{{ project.context_version }}</td>
+              <td>{{ project.dqmodel_version }}</td>
+              <td>
+                <!-- Condicional para mostrar el texto descriptivo según el stage -->
+                <span *ngIf="project.stage === 'ST1'">ST1: Elicitation</span>
+                <span *ngIf="project.stage === 'ST2'">ST2: Data Analysis</span>
+                <span *ngIf="project.stage === 'ST3'">ST3: User Requirements Analysis</span>
+                <span *ngIf="project.stage === 'ST4'">ST4: DQ Model Definition</span>
+                <span *ngIf="project.stage === 'ST5'">ST5: DQ Measurement</span>
+                <span *ngIf="project.stage === 'ST6'">ST6: DQ Assessment</span>
+              </td>
+              <td>
+                <!-- Badge condicional según el estado -->
+                <span *ngIf="project.status === 'to_do'" class="badge bg-secondary rounded-pill text-uppercase">
+                   To Do
+                </span>
+                <span *ngIf="project.status === 'in_progress'" class="badge bg-warning rounded-pill text-uppercase">
+                   In Progress
+                </span>
+                <span *ngIf="project.status === 'done'" class="badge bg-success rounded-pill text-uppercase">
+                   Done
+                </span>
+              </td>
+              <td>
+                <div class="action-items-container">
+                  <button class="btn btn-sm btn-light mx-2" (click)="selectProject(project)">Select</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+  
+        <!-- Paginación -->
+        <nav aria-label="Page navigation">
+          <ul class="pagination pagination-sm justify-content-end">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a class="page-link" (click)="changePage(currentPage - 1)" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <li
+              class="page-item"
+              *ngFor="let page of getPages()"
+              [class.active]="page === currentPage"
+            >
+              <a class="page-link" (click)="changePage(page)">{{ page }}</a>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <a class="page-link" (click)="changePage(currentPage + 1)" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+  
+      </div>
+    </div>
+  </div>
+
+
+
+
+  
+</div>

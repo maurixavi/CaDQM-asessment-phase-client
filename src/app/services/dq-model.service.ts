@@ -379,11 +379,19 @@ export class DqModelService {
     return this.http.get<any>(`${this.API_URL_FACTORS_BASE}${factorBaseId}/`);
   }
 
-  getFactorsBaseByDimensionId(dimensionId: number): Observable<any[]> {
+  /*getFactorsBaseByDimensionId(dimensionId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.API_URL_DIMENSIONS_BASE}${dimensionId}/factors-base/`).pipe(
       catchError(err => {
         console.error(`Error al obtener factores para dimensionId ${dimensionId}:`, err);
         throw err;
+      })
+    );
+  }*/
+  getFactorsBaseByDimensionId(dimensionId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.API_URL_DIMENSIONS_BASE}${dimensionId}/factors-base/`).pipe(
+      catchError(err => {
+        console.warn(`Advertencia: No se encontraron factores para dimensionId ${dimensionId}.`);
+        return of([]); // Devuelve un array vacío
       })
     );
   }

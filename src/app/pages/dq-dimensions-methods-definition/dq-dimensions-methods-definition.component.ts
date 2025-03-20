@@ -1,10 +1,12 @@
 import { Component, OnInit, ViewEncapsulation, HostListener } from '@angular/core';
-import { DqProblemsService } from '../../shared/dq-problems.service';
 import contextComponentsJson from '../../../assets/context-components.json';
 import { Router } from '@angular/router';
 import { DqModelService } from '../../services/dq-model.service';
 import { ProjectService } from '../../services/project.service';
 import { FormBuilder, FormGroup, Validators  } from '@angular/forms';
+
+import { ProjectDataService } from '../../services/project-data.service';
+
 declare var bootstrap: any; 
 
 interface ContextComponent {
@@ -68,6 +70,15 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   pageStepTitle: string = 'Implementation of DQ Methods';
   phaseTitle: string = 'Phase 2: DQ Assessment';
   stageTitle: string = 'Stage 4: DQ Model Definition';
+
+  steps = [
+    { displayName: 'A09.1', route: 'st4/a09-1' },
+    { displayName: 'A09.2', route: 'st4/a09-2' },
+    { displayName: 'A10', route: 'st4/a10' },
+    { displayName: 'A11', route: 'st4/a11' },
+    { displayName: 'A12', route: 'st4/a12' },
+    { displayName: 'DQ Model Confirmation', route: 'st4/confirmation-stage-4' }
+  ];
 
   
   dqMethodForm: FormGroup;
@@ -292,31 +303,109 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     );
   }*/
 
-  constructor(private router: Router, private problemsService: DqProblemsService, private modelService: DqModelService,
-    private projectService: ProjectService, private fb:FormBuilder) { 
-        // Inicialización del formulario en el constructor
-        this.dqMethodForm = this.fb.group({
-          name: [''],
-          inputDataType: [''],
-          outputDataType: [''],
-          algorithm: ['']
-        });
-        this.appliedMethodForm = this.fb.group({
-          name: ['', Validators.required],
-          appliedTo: ['', Validators.required],
-          type: ['Aggregated', Validators.required]
-        });
-    }
+  constructor(
+    private router: Router, 
+    private modelService: DqModelService,
+    private projectService: ProjectService,  
+    private projectDataService: ProjectDataService, 
+    private fb:FormBuilder
+  ) { 
+    // Inicialización del formulario en el constructor
+    this.dqMethodForm = this.fb.group({
+      name: [''],
+      inputDataType: [''],
+      outputDataType: [''],
+      algorithm: ['']
+    });
+    this.appliedMethodForm = this.fb.group({
+      name: ['', Validators.required],
+      appliedTo: ['', Validators.required],
+      type: ['Aggregated', Validators.required]
+    });
+  }
 
   ngOnInit() {
     this.getDQFactorsBase();
 
-    this.loadCurrentProject();
+    //this.loadCurrentProject();
+
+
+    // Obtener el Project ID actual
+    this.projectId = this.projectDataService.getProjectId();
+    console.log("projectIdGet: ", this.projectId);
+
+    // Suscribirse a los observables del servicio
+    this.subscribeToData();
+
+    // Sincronizar el paso actual con la ruta
+    this.syncCurrentStepWithRoute();
+
+    }
+
+    syncCurrentStepWithRoute() {
+      const currentRoute = this.router.url; // Obtiene la ruta actual (por ejemplo, '/st4/a09-1')
+      const stepIndex = this.steps.findIndex(step => step.route === currentRoute);
+      if (stepIndex !== -1) {
+        this.currentStep = stepIndex;
+      }
+    }
+
+  project_: any;
+  allDQProblems: any[] = [];
+  allContextComponents_: any;
+
+
+  // Variables de datos
+
+  projectId: number | null = null;
+  noProjectMessage: string = "";
+
+  dqModelVersionId: number | null = null;
+  dqModel: any = null;
+
+  // Métodos de suscripción a datos
+  subscribeToData(): void {
+    // Suscribirse al proyecto
+    this.projectDataService.project$.subscribe((data) => {
+      this.project = data;
+      console.log('Project Data:', data);
+    });
+
+    // Suscribirse a los componentes del contexto
+    this.projectDataService.contextComponents$.subscribe((data) => {
+      this.allContextComponents = data;
+      console.log('Context Components:', data);
+    });
+
+    // Suscribirse a los problemas de calidad de datos (DQ Problems)
+    this.projectDataService.dqProblems$.subscribe((data) => {
+      this.allDQProblems = data;
+      console.log('DQ Problems:', data);
+
+      // Una vez que los problemas están cargados, cargar los problemas priorizados
+      /*if (this.projectId !== null) {
+        this.loadSelectedPrioritizedDQProblems(this.projectId);
+        this.getCurrentDQModel(this.projectId);
+      }*/
+    });
+
+    // Suscribirse a la versión del modelo de calidad de datos (DQ Model Version)
+    this.projectDataService.dqModelVersion$.subscribe((dqModelVersionId) => {
+      this.dqModelVersionId = dqModelVersionId;
+      console.log('DQ Model Version ID:', this.dqModelVersionId);
+
+      if (this.dqModelVersionId !== null) {
+        //Load complete DQ Model (with Dimensions,Factors...) of current project
+        this.loadCompleteCurrentDQModel();
+        //this.loadDQModelDimensionsAndFactors();
+      }
+    });
   }
+
 
   
   
-  projectId: number | null = null;
+  // projectId: number | null = null;
   contextVersionId: number | null = null;
 
   loadCurrentProject(): void {
@@ -554,7 +643,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     this.loadDQModelDimensionsAndFactors();
 
     // CARGAR CONTEXTO 
-    this.getContext();
+    // this.getContext();
   }
 
   getCurrentDQModel(dqModelId: number): void {
@@ -760,11 +849,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   showDimensionsFactorsTitle = false;
   showDimensionsFactorsTable = false;
 
-  confirmFactorsSelection(problem: DataQualityProblem) {
-    this.problemsService.confirmFactorsSelection(problem.id, problem.selectedFactors || []);
-    this.showDimensionsFactorsTitle = true;
-    this.showDimensionsFactorsTable = true;
-  }
+
 
   // getSelectedDimensionsWithFactors(): { dimension: QualityDimension, factors: { factor: QualityFactor, problems: string[] }[] }[] {
   //   return this.qualityDimensions
@@ -974,7 +1059,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   
     return contextComponents;
   }
-  
+
   // Función para agregar el método al DQ Model
   addMethodToDQModel(metric: any, method: any) {
     if (!metric || !method) {
@@ -1160,7 +1245,18 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   }
   
   saveMetrics(){
-    this.router.navigate(['/step6']);
+    this.router.navigate(['/st4/confirmation-stage-4']);
+  }
+
+  // Navegación
+  onStepChange(step: number) {
+    this.currentStep = step;
+    this.navigateToStep(step);
+  }
+  
+  navigateToStep(stepIndex: number) {
+    const route = this.steps[stepIndex].route;
+    this.router.navigate([route]);
   }
 
 }

@@ -45,8 +45,15 @@ export class AppComponent implements OnInit {
   //projectId: number = 46;
   
   //projectId: number = 60;
-  projectId: number = 62;
+  //projectId: number = 62;
   
+  //  projectId: number = 76;
+  
+  //projectId: number = 78; //dq model 78
+  //projectId: number = 79; //dq model 79, version anterior: 78
+
+  //projectId: number = 80; //empty project
+
   //projectId: number = 57;
 
   project: any; //cargar current Project
@@ -66,9 +73,9 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     //Cargar Proyecto actual
-    this.projectService.setProjectId(this.projectId);
+    /*this.projectService.setProjectId(this.projectId);
     const projectIdSetted = this.projectService.getProjectId();
-    console.log("projectIdSetted: ", projectIdSetted);
+    console.log("projectIdSetted: ", projectIdSetted);*/
 
     //this.loadCurrentProject();
     //

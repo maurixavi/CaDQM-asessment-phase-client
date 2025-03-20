@@ -23,23 +23,20 @@
   font-size: 0.875rem;  
 }
 
-.subtitle-description {
-  font-size: 0.95rem;
-  font-style: italic;
-  /*margin-top: 20px;*/
-}
-
 
 
 .title {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.6rem;
+  font-weight: 500;
+  padding-top: 0.4rem;
+  margin-bottom: 1rem;
 }
 
-.title-description {
-  font-size: 0.9rem;
-  margin-top: -5px;
+.subtitle-description {
+  font-size: 16px;
+  font-style: italic;
 }
+
 
 .add-new-card {
   width: 40%;
@@ -175,3 +172,65 @@
 .custom-modal {
   margin-top: 100px; 
 }
+
+
+/* Estilos para la tabla */
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa; /* Color de fondo al hacer hover */
+  cursor: pointer; /* Cambia el cursor a una mano */
+}
+
+/* Estilo para la fila seleccionada */
+.table-active {
+  background-color: #e9ecef !important; /* Color de fondo para la fila seleccionada */
+}
+
+/* Añadir un efecto de sombra al hacer hover */
+.clickable-row:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sutil sombra */
+  transition: box-shadow 0.2s ease-in-out; /* Transición suave */
+}
+
+
+/* Estilos para los botones de acciones */
+.action-items-container {
+  display: flex; /* Usamos flexbox para alinear los íconos */
+  justify-content: space-between; /* Separa los íconos */
+  align-items: center; /* Centra los íconos verticalmente */
+  width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
+}
+
+.action-icon {
+  font-size: 16px; /* Ajusta el tamaño de los íconos */
+  color: #727272; /* Cambia el color a un azul, puedes usar el color que desees */
+  cursor: pointer; /* Cambia el cursor para indicar que son interactivos */
+}
+
+.action-icon:hover {
+  color: #3a3a3a; /* Cambia el color al pasar el mouse */
+}
+
+/* Estilos para la paginación */
+.pagination {
+  margin-top: 20px;
+}
+
+/* Cambiar el color de la página activa a gris */
+.page-item.active .page-link {
+  background-color: #6c757d; /* Gris de Bootstrap */
+  border-color: #6c757d; /* Gris de Bootstrap */
+  color: white; /* Texto en blanco para mejor contraste */
+}
+
+/* Estilo para los enlaces de paginación */
+.page-link {
+  color: #6c757d; /* Gris de Bootstrap */
+  cursor: pointer; /* Efecto de pointer */
+}
+
+/* Efecto hover para los enlaces de paginación */
+.page-link:hover {
+  color: #495057; /* Gris más oscuro al hacer hover */
+  background-color: #f8f9fa; /* Fondo claro al hacer hover */
+}
+

@@ -11,7 +11,7 @@
 .navbar-brand {
   margin-left: 15px;
   font-size: 1.2rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .navbar-nav {
@@ -29,7 +29,8 @@
 
 .nav-item .nav-link {
   font-size: 1rem;
-  color: #888;
+  color: rgb(94, 94, 94);
+  letter-spacing: -0.4px;
 }
 
 .nav-link.nav-btn {
@@ -65,10 +66,13 @@
   position: absolute;
   will-change: transform;
   z-index: 1000;
+  letter-spacing: -0.4px;
 }
 
 .dropdown-item:hover {
-  background-color: #f8f9fa; 
+  background-color: #f7f7f7; 
+  color: #000; 
+  letter-spacing: -0.4px;
 }
 
 .navbar-nav .nav-link.active {
@@ -94,3 +98,19 @@
   }
 }
 
+/* Estilo para el ítem principal activo */
+.nav-item.active > .nav-link {
+  font-weight: 500; /* Texto en negrita */
+}
+
+/* Estilo para los subítems activos */
+.dropdown-item.active {
+  font-weight: 600; /* Texto en negrita */
+}
+
+/* Estilo para los subítems activos */
+.dropdown-item.active {
+  background-color: transparent !important; /* Elimina el fondo azul */
+  color: #495057 !important; /* Mantiene el color del texto original */
+  font-weight: 600; /* Texto en negrita */
+}

@@ -10,15 +10,28 @@ import { DQMeasurementPreviewComponent } from './pages/dqmeasurement-preview-run
 import { DQModelConfirmationComponent } from './pages/dqmodel-confirmation/dqmodel-confirmation.component';
 import {DQMetricDefinitionComponent} from './pages/dqmeasurement-metric-definition/dqmeasurement-metric-definition.component';
 import { DqDimensionsMethodsDefinitionComponent } from './pages/dq-dimensions-methods-definition/dq-dimensions-methods-definition.component';
+import { HomeComponent } from './pages/home/home.component';
  
-const routes: Routes = [
+/*const routes: Routes = [
   { path: '', component: DashboardComponent },
-  { path: 'step1', component: DQProblemsPriorizationComponent },
-  { path: 'step2', component: DQProblemsSelectionComponent },
-  { path: 'step3', component: DqDimensionsFactorsSelectionComponent },
-  {path: 'step4', component: DQMetricDefinitionComponent},
-  {path: 'step5', component: DqDimensionsMethodsDefinitionComponent},
-  { path: 'step6', component: DQModelConfirmationComponent }
+  { path: 'st4/a09-1', component: DQProblemsPriorizationComponent },
+  { path: 'st4/a09-2', component: DQProblemsSelectionComponent },
+  { path: 'st4/a10', component: DqDimensionsFactorsSelectionComponent },
+  {path: 'st4/a11', component: DQMetricDefinitionComponent},
+  {path: 'st4/a12', component: DqDimensionsMethodsDefinitionComponent},
+  { path: 'st4/confirmation-stage-4', component: DQModelConfirmationComponent }
+];*/
+const routes: Routes = [
+  { path: '', component: HomeComponent },
+  { path: 'phase2/dashboard', component: DashboardComponent },
+  { path: 'st4', children: [
+    { path: 'a09-1', component: DQProblemsPriorizationComponent },
+    { path: 'a09-2', component: DQProblemsSelectionComponent },
+    { path: 'a10', component: DqDimensionsFactorsSelectionComponent },
+    { path: 'a11', component: DQMetricDefinitionComponent },
+    { path: 'a12', component: DqDimensionsMethodsDefinitionComponent },
+    { path: 'confirmation-stage-4', component: DQModelConfirmationComponent }
+  ]}
 ];
 
 @NgModule({

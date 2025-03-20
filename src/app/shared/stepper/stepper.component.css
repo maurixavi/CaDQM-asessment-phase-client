@@ -1,0 +1,59 @@
+/* Contenedor principal del stepper */
+.stepper-container {
+  position: fixed; /* Fija el stepper en la parte inferior */
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: white; /* Fondo blanco */
+  padding: 10px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); /* Sombra para dar efecto de elevación */
+  z-index: 1000; /* Asegura que esté por encima de otros elementos */
+}
+
+/* Contenedor del stepper */
+.stepper {
+  display: flex;
+  justify-content: space-between; /* Alinea los botones a los lados */
+  align-items: center;
+  max-width: 100%; /* Ancho máximo para centrar el contenido */
+  margin: 0 auto; /* Centra el stepper horizontalmente */
+}
+
+/* Botones del stepper */
+.stepper-button {
+  background: none; /* Sin fondo */
+  border: none; /* Sin borde */
+  color: #007bff; /* Color del texto (azul) */
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: color 0.3s;
+}
+
+.stepper-button:hover {
+  color: #0056b3; /* Color del texto al pasar el mouse (azul más oscuro) */
+}
+
+.stepper-button:disabled {
+  color: #ccc; /* Color del texto cuando está deshabilitado */
+  cursor: not-allowed;
+}
+
+/* Puntos indicadores de los pasos */
+.stepper-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.stepper-dots span {
+  width: 8px;
+  height: 8px;
+  background-color: #ccc; /* Color de los puntos inactivos */
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+
+.stepper-dots span.active {
+  background-color: #007bff; /* Color del punto activo (azul) */
+}

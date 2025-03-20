@@ -1,85 +1,83 @@
-
 <div class="container my-4">
-
-	<h2 class="title">Phase 2: DQ Assessment</h2>
-  <p class="subtitle-description mt-4">Current Project</p>
-  <p class="title-description"></p>
+  <h2 class="title">Phase 2: DQ Assessment</h2>
+  <p class="subtitle-description">
+    In this phase, the DQ model is defined and, based on it, the quality of the data at hand is measured and assessed.
+  </p>
 
   <div class="flex-container">
     <div class="suggested-section-container">
-
-      <!-- CURRENT PROJECT DETAILS -->  
+      <!-- CURRENT PROJECT DETAILS -->
       <ng-container *ngIf="project; else noProject">
         <div class="label-container-selected py-2 px-4">
           <div class="project-title">
             <span class="label-name-project">{{ project.name }}</span>
-            <span *ngIf="project.status === 'to_do'" class="badge bg-secondary" >{{ project.stage }}: To Do </span>
-            <span *ngIf="project.status === 'in_progress'" class="badge bg-secondary" >{{ project.stage }}: In Progress </span>
-            <span *ngIf="project.status === 'done'" class="badge bg-secondary" >{{ project.stage }}: Done </span>
-
+            <span *ngIf="project.status === 'to_do'" class="badge bg-secondary">{{ project.stage }}: To Do</span>
+            <span *ngIf="project.status === 'in_progress'" class="badge bg-secondary">{{ project.stage }}: In Progress</span>
+            <span *ngIf="project.status === 'done'" class="badge bg-secondary">{{ project.stage }}: Done</span>
           </div>
           <div class="label-selected">
             <label class="label-title-selected">Description: </label>
             <span class="label-value-selected">{{ project.description }}</span>
-          </div> 
+          </div>
           <div class="label-selected">
             <label class="label-title-selected">Creation date: </label>
             <span class="label-value-selected">{{ project.created_at | date:'medium' }}</span>
-          </div> 
+          </div>
           <div class="label-selected">
             <label class="label-title-selected">Context version: </label>
             <span class="label-value-selected">Ctx Id: {{ project.context_version }}</span>
-          </div>  
+          </div>
           <div class="label-selected" *ngIf="project.dqmodel_version !== null">
             <label class="label-title-selected">DQ Model version: </label>
             <span class="label-value-selected">DQ Model Id: {{ project.dqmodel_version }}</span>
-          </div>  
+          </div>
           <div class="label-selected">
             <label class="label-title-selected">Data at hand:</label>
             <span class="label-value-selected">Dataset A</span>
-          </div> 
+          </div>
           <div class="label-selected">
             <label class="label-title-selected">Stage:</label>
-            <span class="label-value-selected">{{ project.stage }} - DQ Model Definition ({{ project.status }})</span>
-          </div> 
+            <span class="label-value-selected">{{ project.stage }}: DQ Model Definition ({{ project.status }})</span>
+          </div>
+          <div class="label-selected">
+            <label class="label-title-selected">Status:</label>
+            <span class="label-value-selected">{{ project.status }}</span>
+          </div>
+
+          <!-- Botón "Close Project" reutilizable -->
+          <ng-template #closeProjectButton>
+            <button class="btn btn-light btn-sm mt-2 mx-2" (click)="closeProject()">
+              Close Project
+            </button>
+          </ng-template>
 
           <!-- Buttons according to Project and DQ Model Status -->
           <div *ngIf="project.dqmodel_version === null">
-            <button
-              class="btn btn-light btn-sm mt-2"
-              (click)="createDQModel()"
-            >
+            <button class="btn btn-light btn-sm mt-2" (click)="createDQModel()">
               Create DQ Model
             </button>
+            <ng-container *ngTemplateOutlet="closeProjectButton"></ng-container>
           </div>
 
           <div *ngIf="project.dqmodel_version !== null && project.status !== 'done'">
-            <button
-              class="btn btn-dark btn-sm mt-2"
-              (click)="navigateToResumeDQModel()"
-            >
+            <button class="btn btn-dark btn-sm mt-2" (click)="navigateToResumeDQModel()">
               Resume DQ Model
             </button>
+            <ng-container *ngTemplateOutlet="closeProjectButton"></ng-container>
           </div>
 
           <div *ngIf="project.dqmodel_version !== null && project.status === 'done'">
-            <button
-              class="btn btn-dark btn-sm mt-2"
-              (click)="navigateToViewDQModel()"
-            >
+            <button class="btn btn-dark btn-sm mt-2" (click)="navigateToViewDQModel()">
               View DQ Model
             </button>
-            <button
-              class="btn btn-light btn-sm mt-2 mx-3 "
-              (click)="openConfirmationModal('newProject')" 
-            >
+            <button class="btn btn-light btn-sm mt-2 mx-3" (click)="openConfirmationModal('newProject')">
               New DQ Model
             </button>
+            <ng-container *ngTemplateOutlet="closeProjectButton"></ng-container>
           </div>
         </div>
-
       </ng-container>
-      
+
       <!-- Mensaje si no se encuentra el proyecto -->
       <ng-template #noProject>
         <p class="card-text">{{ noProjectMessage }}</p>
@@ -111,241 +109,6 @@
           </div>
         </div>
       </div>
-
-    </div>
-  </div>
-
-
-    <!--
-    <div class="col-sm-6">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">New Project</h5>
-          <p class="card-text"><strong>!!!!!!</strong></p>
-          <p class="card-text"><strong>(MOSTRAR ESTA CARD solo si se tiene DQ MODEL CONFIRMED)</strong></p>
-          <p class="card-text">Define a new DQ Model to this Context version.</p>  
-          <a href="#" class="btn btn-primary">Create new DQ Model from scratch</a>
-          <a href="#" class="btn btn-primary">Edit existing DQ Model and define a new version</a>
-        </div>
-      </div>
-    </div>
-    -->
-  
-  
-
-
-  
-  <!--
-  <div class="card text-center add-new-card" (click)="openModal()">
-    <div class="card-body">
-      <h5 class="card-title"><i class="bi bi-plus"></i>Nuevo Proyecto</h5>
-      <p class="card-text title-description">Define un nuevo Modelo de Calidad de Datos para este Contexto.</p>
-    </div>
-  </div>
-  </div>
-  -->
-
-  <!--<div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" style="display: {{ isModalOpen ? 'block' : 'none' }};">-->
-  <!--
-
-    
-  <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Start New Project</h5>
-          <button type="button" class="close" aria-label="Close" (click)="closeModal()">
-            <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <form>
-            <div class="form-group">
-              <label for="projectTitle">Title</label>
-              <input type="text" class="form-control" id="projectName" placeholder="Enter project title">
-            </div>
-            <div class="form-group">
-              <label for="projectDescription">Description</label>
-              <input type="text" class="form-control" id="projectDescription" placeholder="Enter project description">
-            </div>
-            <div class="form-group">
-              <label for="database">Upload Database</label>
-              <input type="file" class="form-control" id="database">
-            </div>
-            <div class="form-group">
-              <label for="role">Role</label>
-              <input type="text" class="form-control" id="role" placeholder="Enter role">
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-sm btn-secondary" (click)="closeModal()">Cancelar</button>
-          <button type="button" class="btn btn-sm btn-primary" routerLink="/step1">Confirmar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  -->
-
-
-<!-- Modal de formulario de sugerencia -->
-<div id="suggestionModal" class="modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Create DQ Method</h5>
-        <button type="button" class="close" (click)="closeSuggestionModal()" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form [formGroup]="dqMethodForm" (ngSubmit)="createDQMethod()" class="dq-method-form">
-          <div class="form-group">
-            <label for="name">Name:</label>
-            <input 
-              id="name" 
-              type="text" 
-              formControlName="name" 
-              class="form-control"
-              [value]="suggestion?.name || ''">
-          </div>
-
-          <div class="form-group">
-            <label for="inputDataType">Input Data Type:</label>
-            <input 
-              id="inputDataType" 
-              type="text" 
-              formControlName="inputDataType" 
-              class="form-control"
-              [value]="suggestion?.inputDataType || ''">
-          </div>
-
-          <div class="form-group">
-            <label for="outputDataType">Output Data Type:</label>
-            <input 
-              id="outputDataType" 
-              type="text" 
-              formControlName="outputDataType" 
-              class="form-control"
-              [value]="suggestion?.outputDataType || ''">
-          </div>
-
-          <div class="form-group">
-            <label for="algorithm">Algorithm:</label>
-            <textarea 
-              id="algorithm" 
-              formControlName="algorithm" 
-              class="form-control" 
-              rows="3"
-              [value]="suggestion?.algorithm || ''"></textarea>
-          </div>
-
-          <div class="form-group" [ngStyle]="{ 'display': 'none' }">
-            <label for="implements">Implements (DQ Metric):</label>
-            <input 
-              id="implements" 
-              type="text" 
-              formControlName="implements" 
-              class="form-control"
-              [value]="suggestion?.implements || ''">
-          </div>
-
-          <!-- Button and Config button in the same line -->
-          <div class="form-actions d-flex mt-3">
-            <button type="button" class="btn btn-info" (click)="generateNewSuggestion()" style="width: auto;">
-              <i class="bi bi-lightning"></i> Generate New
-            </button>
-
-            <!-- Config button 
-            <button type="button" class="btn btn-secondary ml-3" (click)="openModelConfig()">
-              <i class="bi bi-gear"></i>
-            </button>-->
-          </div>
-
-           <!--Configuración del Modelo
-            <div class="form-actions mt-3">
-            <div class="form-group">
-              <label for="modelSelect">Select Model:</label>
-              <div class="input-group">
-                <select id="modelSelect" class="form-control">
-                  <option value="llama3-8b-8192">llama3-8b-8192</option>
-                  <option value="llama3-70b-8192">llama3-70b-8192</option>
-                  <option value="mixtral-8x7b-32768">mixtral-8x7b-32768</option>
-                </select>
-                <button type="button" class="btn btn-secondary" (click)="openModelConfig()">
-                  <i class="bi bi-gear"></i> Select Model
-                </button>
-              </div>
-            </div>
-          </div> -->
-          
-          
-        </form>
-      </div>
-      <div class="modal-footer">
-        <!-- Cancel button on the left and Confirm button on the right -->
-        <button type="button" class="btn btn-secondary" (click)="closeSuggestionModal()">Cancel</button>
-        <button type="submit" class="btn btn-primary" (click)="createDQMethod()">Confirm</button>
-      </div>
     </div>
   </div>
 </div>
-
-
-
-
-
-  
-<!-- GENERACION DQ METRICS 
-  <div class="container my-4">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">DQ Metric</h5>
-
-        <div class="form-group">
-          <label for="metricName">Name:</label>
-          <input 
-            id="metricName" 
-            type="text" 
-            class="form-control"
-            [value]="dqMetricData.name || ''" 
-            readonly>
-        </div> <br>
-  
-        <div class="form-group">
-          <label for="metricPurpose">Purpose:</label>
-          <input 
-            id="metricPurpose" 
-            type="text" 
-            class="form-control"
-            [value]="dqMetricData.purpose || ''" 
-            readonly>
-        </div> <br>
-  
-        <div class="form-group">
-          <label for="metricGranularity">Granularity:</label>
-          <input 
-            id="metricGranularity" 
-            type="text" 
-            class="form-control"
-            [value]="dqMetricData.granularity || ''" 
-            readonly>
-        </div> <br>
-  
-        <div class="form-group">
-          <label for="metricResultDomain">Result Domain:</label>
-          <input 
-            id="metricResultDomain" 
-            type="text" 
-            class="form-control"
-            [value]="dqMetricData.resultDomain || ''" 
-            readonly>
-        </div> <br>
-        
-        <button type="button" class="btn btn-info" (click)="generateSuggestionModal()">
-          <i class="bi bi-lightning"></i> Generate DQ Method
-        </button>
-      </div>
-    </div>
-  </div>
-  -->

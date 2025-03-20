@@ -814,7 +814,7 @@
                       </div>
 
                       <div class="label-selected">
-                        <label class="label-title-selected">Ctx (Suggested by):</label>
+                        <label class="label-title-selected">Suggested by:</label>
                         <span class="label-value-selected">
                           <ul>
                             <li *ngFor="let category of getContextComponentCategories(dim.dimension.context_components)">
@@ -857,7 +857,7 @@
                       <span class="label-value-selected">{{ dim.dimension.dq_problems.join(', ') }} </span> -->
 
                       <div class="label-selected">
-                        <label class="label-title-selected">DQ Problems (Used):</label>
+                        <label class="label-title-selected">Based on (DQ Problems):</label>
                         <span class="label-value-selected">
                           <ul>
                             <li *ngFor="let problem of dim.dimension.dq_problems_details">
@@ -1010,11 +1010,17 @@
   </div>
 
 
-  <div class="next-step-btn-container">
+  <!--<div class="next-step-btn-container">
     <button (click)="goToNextStep()" class="btn btn-dark">Next ></button>
-  </div>
+  </div>-->
 
 </div>
 
-<app-context-components></app-context-components>
 
+<app-stepper
+  [currentStep]="currentStep"
+  [totalSteps]="steps.length"
+  (stepChange)="onStepChange($event)">
+</app-stepper>
+
+<app-context-components></app-context-components>

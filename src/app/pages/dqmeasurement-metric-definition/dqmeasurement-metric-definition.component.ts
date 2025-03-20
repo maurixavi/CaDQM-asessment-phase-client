@@ -3,7 +3,8 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import { DqModelService } from '../../services/dq-model.service';
 import { ProjectService } from '../../services/project.service';
-import { DqProblemsService } from '../../shared/dq-problems.service';
+import { ProjectDataService } from '../../services/project-data.service';
+
 import { Router } from '@angular/router';
 
 declare var bootstrap: any; 
@@ -59,6 +60,15 @@ export class DQMetricDefinitionComponent implements OnInit {
   phaseTitle: string = 'Phase 2: DQ Assessment';
   stageTitle: string = 'Stage 4: DQ Model Definition';
 
+  steps = [
+    { displayName: 'A09.1', route: 'st4/a09-1' },
+    { displayName: 'A09.2', route: 'st4/a09-2' },
+    { displayName: 'A10', route: 'st4/a10' },
+    { displayName: 'A11', route: 'st4/a11' },
+    { displayName: 'A12', route: 'st4/a12' },
+    { displayName: 'DQ Model Confirmation', route: 'st4/confirmation-stage-4' }
+  ];
+
   problems: DataQualityProblem[] = [];
   //contextComponents: ContextComponent[] = [];
   selectedProblem: DataQualityProblem | null = null;
@@ -70,22 +80,18 @@ export class DQMetricDefinitionComponent implements OnInit {
   isModalBaseOpen: boolean = false;
 
 
-  constructor(private router: Router, private dqProblemsService: DqProblemsService,
+  constructor(private router: Router, 
     private modelService: DqModelService,
-    private projectService: ProjectService) { }
+    private projectService: ProjectService,
+    private projectDataService: ProjectDataService
+  ) { }
 
   /*constructor(private router: Router) { }
   constructor(private dqProblemsService: DqProblemsService) { }*/
 
-  qualityDimensions: QualityDimension[] = [
-    { id: 1, name: 'Exactitud (accuracy)' },
-    { id: 2, name: 'Completitud (completeness)' },
-    { id: 3, name: 'Frescura (freshness)' },
-    { id: 4, name: 'Consistencia (consistency)' },
-    { id: 5, name: 'Unicidad (uniqueness)' }
-  ];
-  project: any;
-  dqModelId: number = 1;
+ 
+
+  //dqModelId: number = 1;
   currentDQModel:any;
   noModelMessage: string = "";  
   noDimensionsMessage: string = "";
@@ -97,7 +103,7 @@ export class DQMetricDefinitionComponent implements OnInit {
   dqFactorsBase: any[] = [];
 
 
-  selectedFactors = this.dqProblemsService.getSelectedFactors();
+
 
   //metricFactor:QualityFactor | undefined = undefined ;
 
@@ -224,18 +230,84 @@ export class DQMetricDefinitionComponent implements OnInit {
     console.log("Selected Base Metric:", this.selectedBaseMetric);
   }
 
+  project_: any;
+  allDQProblems_: any[] = [];
+  allContextComponents_: any;
+
+
+  // Variables de datos
+  project: any;
+  projectId: number | null = null;
+  noProjectMessage: string = "";
+  dqModelId: number = -1;
+  dqModelVersionId: number | null = null;
+  dqModel: any = null;
+
   ngOnInit() {
-    //this.problems = dataQualityProblemsJson as DataQualityProblem[];
     this.getDQFactorsBase();
 
-    this.loadCurrentProject();
+    //this.loadCurrentProject();
 
-    //this.getBaseMetricsByFactor();
-    
+    // Obtener el Project ID actual
+    this.projectId = this.projectDataService.getProjectId();
+    console.log("projectIdGet: ", this.projectId);
+
+    // Suscribirse a los observables del servicio
+    this.subscribeToData();
+
+    // Sincronizar el paso actual con la ruta
+    this.syncCurrentStepWithRoute();
 
   }
 
-  projectId: number | null = null;
+  syncCurrentStepWithRoute() {
+    const currentRoute = this.router.url; // Obtiene la ruta actual (por ejemplo, '/st4/a09-1')
+    const stepIndex = this.steps.findIndex(step => step.route === currentRoute);
+    if (stepIndex !== -1) {
+      this.currentStep = stepIndex;
+    }
+  }
+
+  // Métodos de suscripción a datos
+  subscribeToData(): void {
+    // Suscribirse al proyecto
+    this.projectDataService.project$.subscribe((data) => {
+      this.project = data;
+      console.log('Project Data:', data);
+    });
+
+    // Suscribirse a los componentes del contexto
+    this.projectDataService.contextComponents$.subscribe((data) => {
+      this.allContextComponents = data;
+      console.log('Context Components:', data);
+    });
+
+    // Suscribirse a los problemas de calidad de datos (DQ Problems)
+    this.projectDataService.dqProblems$.subscribe((data) => {
+      this.allDQProblems = data;
+      console.log('DQ Problems:', data);
+
+      // Una vez que los problemas están cargados, cargar los problemas priorizados
+      if (this.projectId !== null) {
+        this.loadSelectedPrioritizedDQProblems(this.projectId);
+        this.getCurrentDQModel(this.projectId);
+      }
+    });
+
+    // Suscribirse a la versión del modelo de calidad de datos (DQ Model Version)
+    this.projectDataService.dqModelVersion$.subscribe((dqModelVersionId) => {
+      this.dqModelVersionId = dqModelVersionId;
+      console.log('DQ Model Version ID:', this.dqModelVersionId);
+
+      if (this.dqModelVersionId !== null) {
+        //Load complete DQ Model (with Dimensions,Factors...) of current project
+        this.loadCompleteCurrentDQModel();
+        //this.loadDQModelDimensionsAndFactors();
+      }
+    });
+  }
+
+  //projectId: number | null = null;
   contextVersionId: number | null = null;
 
   loadCurrentProject(): void {
@@ -653,22 +725,6 @@ export class DQMetricDefinitionComponent implements OnInit {
     });
   }
 
-  /*saveOrder() {
-    this.isOrderConfirmed = true;
-    this.dqProblemsService.updateProblems(this.problems);
-    console.log(this.problems); 
-  }*/
-  saveOrder() {
-    // Lógica para guardar el orden
-    this.isOrderConfirmed = true;
-    this.dqProblemsService.updateProblems(this.problems); // Suponiendo que `this.problems` contiene los problemas a actualizar
-    console.log(this.problems);
-
-    // Redirigir solo si la orden se confirma
-    if (this.isOrderConfirmed) {
-      this.router.navigate(['/step2']);
-    }
-  }
 
   addMetricToModel(factor: any, metric: any): void {
     if (!factor || !metric) {
@@ -809,7 +865,7 @@ export class DQMetricDefinitionComponent implements OnInit {
     // this.qualityFactors.forEach(elem => {
     //   result = result.concat(elem.definedMetrics);
     // });
-    this.router.navigate(['/step5']);
+    this.router.navigate(['/st4/a12']);
     
   }
   
@@ -836,4 +892,17 @@ export class DQMetricDefinitionComponent implements OnInit {
   closeModalBase() {
     this.isModalBaseOpen = false;
   }
+
+  // Navegación
+  onStepChange(step: number) {
+    this.currentStep = step;
+    this.navigateToStep(step);
+  }
+  
+  navigateToStep(stepIndex: number) {
+    const route = this.steps[stepIndex].route;
+    this.router.navigate([route]);
+  }
+
+  
 }

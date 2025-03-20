@@ -12,7 +12,7 @@
   font-weight: 500;
 }
 
-
+/*
 .btn-context {
   font-size: 1rem;
   position: fixed;  
@@ -31,4 +31,95 @@
 .btn-context:hover {
   background-color: #666; 
   color: #fff;
+}*/
+.btn-context {
+  font-size: 1rem;
+  position: fixed;
+  right: 30px;
+  bottom: 80px;
+  z-index: 1000;
+  padding: 0; /* Elimina el padding para que no afecte la forma circular */
+  background-color: #888;
+  color: #fff;
+  border: none;
+  border-radius: 50%; /* Hace que el botón sea completamente redondo */
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  width: 50px; /* Ancho fijo */
+  height: 50px; /* Alto fijo (igual que el ancho) */
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Centra el ícono vertical y horizontalmente */
+}
+
+.btn-context:hover {
+  background-color: #666;
+  color: #fff;
+}
+
+
+/* Card flotante */
+.dq-card {
+  font-size: 13px;
+  position: fixed;
+  top: 200px;
+  right: 20px;
+  width: 320px;
+  max-height: 400px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* encima de otros elementos */
+  display: block;
+  padding: 0.5rem;
+  transition: transform 0.3s ease; 
+  cursor: pointer; 
+}
+
+.dq-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #e9ecef;
+  padding-left: 10px;
+  border-radius: 5px 5px 0 0;
+  margin-bottom: 6px;
+}
+
+.dq-card-body {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.dq-problems-list {
+  list-style-type: decimal;
+  padding-left: 20px;
+}
+
+.dq-problems-list li {
+  margin-bottom: 0.5rem;
+}
+
+/* Botón de minimizar */
+#minimizeBtn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.dq-card.minimized {
+  height: 54px; 
+  width: 260px;
+  overflow: hidden;
+  position: fixed;
+  right: 40px;
+  bottom: 40px;
+  border-radius: 10px; 
+  transform: scale(0.9);
+  opacity: 0.9;
+  z-index: 999;
+  background-color: #f8f9fa; 
+  cursor: pointer;
 }

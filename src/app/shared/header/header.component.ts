@@ -1,22 +1,17 @@
-import { Component, AfterViewInit, ViewEncapsulation } from '@angular/core';
-
-declare var bootstrap: any;
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
-  isModalOpen = false;
+  constructor(private router: Router) {}
 
-  openModal() {
-    this.isModalOpen = true;
+  // Método para determinar si Phase 2 debe estar activo
+  isPhase2Active(): boolean {
+    const currentRoute = this.router.url;
+    return currentRoute !== '/'; // Activo en todas las rutas excepto en la raíz
   }
-
-  closeModal() {
-    this.isModalOpen = false;
-  }
-
 }

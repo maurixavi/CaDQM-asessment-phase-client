@@ -7,7 +7,7 @@
   </app-step-navigator>
 
   <div>
-    <p class="subtitle-description">Select the prioritized quality problems to define the DQ Model</p>
+    <p class="subtitle-description">Select the prioritized data quality problems to define the DQ Model</p>
     <div class="flex-container">
       
       
@@ -18,7 +18,7 @@
 
         <!-- SELECCION DE PROBLEMAS -->
         <div class="dq-problems-selection-container">
-          <div class="subsection-title"><p>Prioritized DQ Problems</p></div>
+          <!--<div class="subsection-title"><p>Prioritized DQ Problems</p></div>-->
           
           <div class="d-flex justify-content-between">
             <div class="from-ctx-components  flex-fill ">
@@ -60,37 +60,14 @@
                                   <button 
                                     class="btn btn-add-added btn-light btn-sm" 
                                     (click)="addProblemToSelection(problem)"
-                                  >
-                                    <span 
-                                      [innerHTML]="isProblemSelected(problem) ? 'Added <i class=&quot;bi bi-check-lg&quot;></i>' : 'Add'">
-                                    </span>  
+                                  > 
+                                    Add 
                                   </button>
                                 </td>
                               </tr>
-                            
-                              <!-- Mostrar problemas de fetchedSelectedHighPriorityProblems -->
-                              <tr *ngFor="let problem of fetchedSelectedHighPriorityProblems">
-                                <td>
-                                  <div class="card-body">
-                                    <h5 class="card-title">{{ problem.description }} (*)</h5>
-                                    <p class="card-text mt-2">
-                                      {{ problem.date | date:'MMM dd HH:mm yyyy' }} 
-                                      <span class="badge bg-danger rounded-pill mx-1">High</span>
-                                    </p>
-                                  </div>
-                                </td>
-                                <td style="text-align: right;">
-                                  <button 
-                                    class="btn btn-add-added btn-sm btn-light" 
-                                    [disabled]="isProblemSelected(problem)"
-                                  >
-                                    <span>Added <i class="bi bi-check-lg"></i></span>  
-                                  </button>
-                                </td>
-                              </tr>
-                            
+
                               <!-- Mostrar mensaje de "No data" solo si ambos arreglos están vacíos -->
-                              <tr *ngIf="highPriorityProblems.length === 0 && fetchedSelectedHighPriorityProblems.length === 0">
+                              <tr *ngIf="highPriorityProblems.length === 0">
                                 <td colspan="2" class="text-center">
                                   <div class="empty-message">
                                     <i class="bi bi-info-circle"></i> No high priority data quality problems available.
@@ -98,9 +75,7 @@
                                 </td>
                               </tr>
 
-                              <div class="added-problems-message">
-                              (*) Data quality problems previously added.
-                              </div>
+
 
                             </tbody>
     
@@ -132,31 +107,15 @@
                                 </td>
                                 <td style="text-align: right;">
                                   <button class="btn btn-add-added btn-light btn-sm" (click)="addProblemToSelection(problem)">
-                                    <span [innerHTML]="isProblemSelected(problem) ? 'Added <i class=&quot;bi bi-check-lg&quot;></i>' : 'Add'"></span>  
+                                    Add
                                   </button>
                                 </td>
                               </tr>
                             
-                              <!-- Mostrar problemas de fetchedSelectedMediumPriorityProblems -->
-                              <tr *ngFor="let problem of fetchedSelectedMediumPriorityProblems">
-                                <td>
-                                  <div class="card-body">
-                                    <h5 class="card-title">{{ problem.description }} (*)</h5>
-                                    <p class="card-text mt-2">
-                                      {{ problem.date | date:'MMM dd HH:mm yyyy' }} 
-                                      <span class="badge bg-warning rounded-pill mx-1">Medium</span>
-                                    </p>
-                                  </div>
-                                </td>
-                                <td style="text-align: right;">
-                                  <button class="btn btn-add-added btn-sm btn-light" (click)="addProblemToSelection(problem)">
-                                    <span [innerHTML]="isProblemSelected(problem) ? 'Remove <i class=&quot;bi bi-check-lg&quot;></i>' : 'Added'"></span>  
-                                  </button>
-                                </td>
-                              </tr>
+ 
                             
                               <!-- Mostrar mensaje de "No data" solo si ambos arreglos están vacíos -->
-                              <tr *ngIf="mediumPriorityProblems.length === 0 && fetchedSelectedMediumPriorityProblems.length === 0">
+                              <tr *ngIf="mediumPriorityProblems.length === 0">
                                 <td colspan="2" class="text-center">
                                   <div class="empty-message">
                                     <i class="bi bi-info-circle"></i> No high priority data quality problems available.
@@ -164,9 +123,6 @@
                                 </td>
                               </tr>
 
-                              <div class="added-problems-message">
-                                (*) Data quality problems previously added.
-                              </div>
                             </tbody>
 
                             
@@ -199,31 +155,13 @@
                                 </td>
                                 <td style="text-align: right;">
                                   <button class="btn btn-add-added btn-light btn-sm" (click)="addProblemToSelection(problem)">
-                                    <span [innerHTML]="isProblemSelected(problem) ? 'Added <i class=&quot;bi bi-check-lg&quot;></i>' : 'Add'"></span>  
+                                    Add
                                   </button>
                                 </td>
                               </tr>
-                            
-                              <!-- Mostrar problemas de fetchedSelectedLowPriorityProblems -->
-                              <tr *ngFor="let problem of fetchedSelectedLowPriorityProblems">
-                                <td>
-                                  <div class="card-body">
-                                    <h5 class="card-title">{{ problem.description }} (*)</h5>
-                                    <p class="card-text mt-2">
-                                      {{ problem.date | date:'MMM dd HH:mm yyyy' }} 
-                                      <span class="badge bg-success rounded-pill mx-1">Low</span>
-                                    </p>
-                                  </div>
-                                </td>
-                                <td style="text-align: right;">
-                                  <button class="btn btn-add-added btn-sm btn-light" (click)="addProblemToSelection(problem)">
-                                    <span [innerHTML]="isProblemSelected(problem) ? 'Remove <i class=&quot;bi bi-check-lg&quot;></i>' : 'Added'"></span>  
-                                  </button>
-                                </td>
-                              </tr>
-                            
+   
                               <!-- Mostrar mensaje de "No data" solo si ambos arreglos están vacíos -->
-                              <tr *ngIf="lowPriorityProblems.length === 0 && fetchedSelectedLowPriorityProblems.length === 0">
+                              <tr *ngIf="lowPriorityProblems.length === 0">
                                 <td colspan="2" class="text-center">
                                   <div class="empty-message">
                                     <i class="bi bi-info-circle"></i> No high priority data quality problems available.
@@ -231,9 +169,7 @@
                                 </td>
                               </tr>
 
-                              <div class="added-problems-message">
-                                (*) Data quality problems previously added.
-                              </div>
+        
                             </tbody>
                             
                           </table>
@@ -253,7 +189,7 @@
         </div>
 
         <div class="dq-problems-selection-container">
-          <div class="subsection-title"><p>DQ Problems Selection</p></div>
+          <!--<div class="subsection-title"><p>DQ Problems Selection</p></div>-->
           <div class="d-flex justify-content-between">
             <div class="from-ctx-components  flex-fill ">
               <!-- DQ Problems SELECTED -->
@@ -272,9 +208,9 @@
                                   </h6> 
                                 </th>
                                 <th class="w-10" style="text-align: right;">
-                                  <button class="btn btn-add-added btn-light btn-sm" (click)="removeAllProblems(highPriorityProblems, 'High')">
+                                  <!--<button class="btn btn-add-added btn-light btn-sm" (click)="removeAllProblems(highPriorityProblems, 'High')">
                                     Clear
-                                  </button>
+                                  </button>-->
                                 </th>
                               </tr>
                             </thead>
@@ -292,7 +228,7 @@
                                 </td>
                                 <td style="text-align: right;">
                                   <button class="btn btn-add-added btn-light btn-sm"  (click)="removeSelectedProblem(problem)">
-                                    Cancel  
+                                    Remove  
                                   </button>
                                 </td>
                               </tr>
@@ -309,7 +245,7 @@
                                   </div>
                                 </td>
                                 <td style="text-align: right;">
-                                  <button class="btn btn-add-added btn-sm btn-outline-danger" (click)="deleteDQProblemFromSelection(problem)">
+                                  <button class="btn btn-add-added btn-light btn-sm" (click)="deleteDQProblemFromSelection(problem)">
                                     <span [innerHTML]="isProblemSelected(problem) ? 'Remove <i class=&quot;bi bi-check-lg&quot;></i>' : 'Remove'"></span>  
                                   </button>
                                 </td>
@@ -337,9 +273,9 @@
                                   </h6> 
                                 </th>
                                 <th class="w-10" style="text-align: right;">
-                                  <button class="btn btn-add-added btn-light btn-sm" (click)="removeAllProblems(mediumPriorityProblems, 'Medium')">
+                                  <!--<button class="btn btn-add-added btn-light btn-sm" (click)="removeAllProblems(mediumPriorityProblems, 'Medium')">
                                     Clear
-                                  </button>
+                                  </button>-->
                                 </th>
                               </tr>
                             </thead>
@@ -357,7 +293,7 @@
                                 </td>
                                 <td style="text-align: right;">
                                   <button class="btn btn-add-added btn-light btn-sm" (click)="removeSelectedProblem(problem)">
-                                    Cancel 
+                                    Remove 
                                   </button>
                                 </td>
                               </tr>
@@ -374,7 +310,7 @@
                                   </div>
                                 </td>
                                 <td style="text-align: right;">
-                                  <button class="btn btn-add-added btn-sm btn-outline-danger" (click)="deleteDQProblemFromSelection(problem)">
+                                  <button class="btn btn-add-added btn-sm btn-light" (click)="deleteDQProblemFromSelection(problem)">
                                     <span [innerHTML]="isProblemSelected(problem) ? 'Remove <i class=&quot;bi bi-check-lg&quot;></i>' : 'Remove'"></span>  
                                   </button>
                                 </td>
@@ -402,9 +338,9 @@
                                   </h6> 
                                 </th>
                                 <th class="w-10" style="text-align: right;">
-                                  <button class="btn btn-add-added btn-light btn-sm" (click)="removeAllProblems(lowPriorityProblems, 'Low')">
+                                  <!--<button class="btn btn-add-added btn-light btn-sm" (click)="removeAllProblems(lowPriorityProblems, 'Low')">
                                     Clear
-                                  </button>
+                                  </button>-->
                                 </th>
                               </tr>
                             </thead>
@@ -422,7 +358,7 @@
                                 </td>
                                 <td style="text-align: right;">
                                   <button class="btn btn-add-added btn-light btn-sm" (click)="removeSelectedProblem(problem)">
-                                    Cancel  
+                                    Remove  
                                   </button>
                                 </td>
                               </tr>
@@ -439,7 +375,7 @@
                                   </div>
                                 </td>
                                 <td style="text-align: right;">
-                                  <button class="btn btn-add-added btn-sm btn-outline-danger" (click)="deleteDQProblemFromSelection(problem)">
+                                  <button class="btn btn-add-added btn-sm btn-light" (click)="deleteDQProblemFromSelection(problem)">
                                     <span [innerHTML]="isProblemSelected(problem) ? 'Remove <i class=&quot;bi bi-check-lg&quot;></i>' : 'Remove'"></span>  
                                   </button>
                                 </td>
@@ -459,7 +395,9 @@
                           </table>
 
               
-                      
+                          <div class="added-problems-message">
+                            (*) Data quality problems previously added.
+                          </div>
   
                         </div>
                       </div>
@@ -506,62 +444,17 @@
 
 
 
-  <!--<div>
-    <p class="subtitle-description mt-4">Selected Prioritized DQ Problems </p>
-    <div class="flex-container">
-      <div class="container-section">
-        <div class="py-2 px-4 row">
-          <div class="col-md-12">
-            <table *ngIf="fetchedSelectedProblems.length > 0" class="table">
-              <thead>
-                <tr>
-                  <th class="priority-column">Priority</th>
-                  <th class="w-70">Data Quality Problem</th>
-                  <th class="w-10">Creation Date</th>
-                  <th class="w-10"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let problem of fetchedSelectedProblems" [ngClass]="{
-                  'priority-high': problem.priority === 'High',
-                  'priority-medium': problem.priority === 'Medium',
-                  'priority-low': problem.priority === 'Low'
-                }">
-                  <td>
-                    <span [ngClass]="{
-                      'badge': true,
-                      'badge-high': problem.priority === 'High',
-                      'badge-medium': problem.priority === 'Medium',
-                      'badge-low': problem.priority === 'Low'
-                    }">
-                      {{ problem.priority }}
-                    </span>
-                  </td>
-                  <td>
-                    {{ problem.description }} 
-                    <i class="bi bi-info-circle" 
-                      data-bs-toggle="tooltip" 
-                      data-bs-placement="top" 
-                      title="{{ problem.description }}"></i>
-                  </td>
-                  <td>{{ problem.date | date:'MMM dd HH:mm yyyy' }}</td>
-                  <td style="text-align: right;">
-                    <button class="btn btn-add-added btn-outline-danger btn-sm ms-1" (click)="removeSelectedProblem(problem)">
-                      <span>Remove</span>  
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>-->
-
   <div class="next-step-btn-container">
     <button (click)="confirmSelectedProblems()" class="btn btn-dark btn-sm">Next ></button>
   </div>
+  
 </div>
+
+
+<app-stepper
+  [currentStep]="currentStep"
+  [totalSteps]="steps.length"
+  (stepChange)="onStepChange($event)">
+</app-stepper>
 
 

@@ -3,7 +3,6 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import dataQualityProblemsJson from '../../../assets/data-quality-problems.json';
 import contextComponentsJson from '../../../assets/context-components.json';
 
-import { DqProblemsService } from '../../shared/dq-problems.service';
 import { Router } from '@angular/router';
 
 export interface DataQualityProblem {
@@ -55,7 +54,7 @@ export class DQMeasurementPreviewComponent implements OnInit {
   detailsVisible: boolean = false;
   isOrderConfirmed: boolean = false;
 
-  constructor(private router: Router, private dqProblemsService: DqProblemsService) { }
+  constructor(private router: Router) { }
 
   /*constructor(private router: Router) { }
   constructor(private dqProblemsService: DqProblemsService) { }*/
@@ -68,36 +67,8 @@ export class DQMeasurementPreviewComponent implements OnInit {
     { id: 5, name: 'Unicidad (uniqueness)' }
   ];
 
-  selectedFactors = this.dqProblemsService.getSelectedFactors();
 
-  qualityFactors: QualityFactor[] = [
-    { id: 1, dimensionId: 1, name: 'Exactitud semántica', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 2, dimensionId: 1, name: 'Exactitud sintáctica', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 3, dimensionId: 1, name: 'Precision', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 4, dimensionId: 2, name: 'Coverage', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 5, dimensionId: 2, name: 'Density', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 6, dimensionId: 3, name: 'Actualidad (currency)', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 7, dimensionId: 3, name: 'Oportunidad (timeliness)', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 8, dimensionId: 3, name: 'Volatilidad (volatility)', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 9, dimensionId: 4, name: 'Integridad de dominio', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 10, dimensionId: 4, name: 'Integridad intra-relación', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 11, dimensionId: 4, name: 'Integridad inter-relación', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 12, dimensionId: 5, name: 'No-duplicación (duplication-free) ', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] },
-    { id: 13, dimensionId: 5, name: 'No-contradicción (contradiction-free)', newMetric:{
-      name: '', purpose: '', granularity: '', domain: '',factor: undefined }, definedMetrics:[] }
-  ].filter(elem => this.selectedFactors.includes(elem.id));
+
 
   granularities: string[] = ['Celda', 'Tupla', 'Tabla'];
   domains: string[] = ['Entero', 'Real', 'Booleano'];
@@ -128,17 +99,7 @@ export class DQMeasurementPreviewComponent implements OnInit {
     this.dqProblemsService.updateProblems(this.problems);
     console.log(this.problems); 
   }*/
-  saveOrder() {
-    // Lógica para guardar el orden
-    this.isOrderConfirmed = true;
-    this.dqProblemsService.updateProblems(this.problems); // Suponiendo que `this.problems` contiene los problemas a actualizar
-    console.log(this.problems);
 
-    // Redirigir solo si la orden se confirma
-    if (this.isOrderConfirmed) {
-      this.router.navigate(['/step2']);
-    }
-  }
 
   addMetric(factor: QualityFactor): void {
     if (factor.newMetric.name && factor.newMetric.purpose && factor.newMetric.granularity && factor.newMetric.domain) {
@@ -177,11 +138,5 @@ export class DQMeasurementPreviewComponent implements OnInit {
     }
   }
 
-  saveMetrics(){
-    var result: QualityMetric[] = [];
-    this.qualityFactors.forEach(elem => {
-      result = result.concat(elem.definedMetrics);
-    });
-    
-  }
+
 }

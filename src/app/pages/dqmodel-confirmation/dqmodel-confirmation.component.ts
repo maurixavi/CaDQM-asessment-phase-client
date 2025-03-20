@@ -2,6 +2,10 @@ import { Component, OnInit, ViewEncapsulation  } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { DqModelService } from '../../services/dq-model.service';
+import { ProjectDataService } from '../../services/project-data.service';
+import { Router } from '@angular/router';
+
+import { jsPDF } from 'jspdf';
 
 declare var bootstrap: any; 
 
@@ -30,6 +34,15 @@ export class DQModelConfirmationComponent implements OnInit {
   phaseTitle: string = 'Phase 2: DQ Assessment';
   stageTitle: string = 'Stage 4: DQ Model Definition';
 
+  steps = [
+    { displayName: 'A09.1', route: 'st4/a09-1' },
+    { displayName: 'A09.2', route: 'st4/a09-2' },
+    { displayName: 'A10', route: 'st4/a10' },
+    { displayName: 'A11', route: 'st4/a11' },
+    { displayName: 'A12', route: 'st4/a12' },
+    { displayName: 'DQ Model Confirmation', route: 'st4/confirmation-stage-4' }
+  ];
+
   project: any; 
   projectId: number | null = null;
 
@@ -41,16 +54,80 @@ export class DQModelConfirmationComponent implements OnInit {
   
   isLoading: boolean = true; // Activar el estado de carga
   
+  dqModelVersionId: number | null = null;
 
   constructor(
+    private router: Router, 
     private modelService: DqModelService,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private projectDataService: ProjectDataService, 
   ) {}
 
   ngOnInit(): void {
+    console.log('StepperComponent initialized');
+    console.log('Current Step:', this.currentStep);
+    //console.log('Total Steps:', this.totalSteps);
 
-    this.loadCurrentProject();
-    
+    //this.loadCurrentProject();
+    // Obtener el Project ID actual
+    this.projectId = this.projectDataService.getProjectId();
+    console.log("projectIdGet: ", this.projectId);
+
+    // Suscribirse a los observables del servicio
+    this.subscribeToData();
+
+    // Sincronizar el paso actual con la ruta
+    this.syncCurrentStepWithRoute();
+
+  }
+
+  syncCurrentStepWithRoute() {
+    const currentRoute = this.router.url; // Obtiene la ruta actual (por ejemplo, '/st4/confirmation-stage-4')
+    const stepIndex = this.steps.findIndex(step => step.route === currentRoute);
+    if (stepIndex !== -1) {
+      this.currentStep = stepIndex;
+    }
+  }
+
+
+  // Métodos de suscripción a datos
+  subscribeToData(): void {
+    // Suscribirse al proyecto
+    this.projectDataService.project$.subscribe((data) => {
+      this.project = data;
+      console.log('Project Data:', data);
+    });
+
+    // Suscribirse a los componentes del contexto
+    this.projectDataService.contextComponents$.subscribe((data) => {
+      this.ctxComponents = data;
+      console.log('Context Components:', data);
+    });
+
+    // Suscribirse a los problemas de calidad de datos (DQ Problems)
+    this.projectDataService.dqProblems$.subscribe((data) => {
+      this.originalProblems = data;
+      console.log('DQ Problems:', data);
+
+      // Una vez que los problemas están cargados, cargar los problemas priorizados
+      /*if (this.projectId !== null) {
+        this.loadSelectedPrioritizedDQProblems(this.projectId);
+        this.getCurrentDQModel(this.projectId);
+      }*/
+    });
+
+    // Suscribirse a la versión del modelo de calidad de datos (DQ Model Version)
+    this.projectDataService.dqModelVersion$.subscribe((dqModelVersionId) => {
+      this.dqModelVersionId = dqModelVersionId;
+      console.log('DQ Model Version ID:', this.dqModelVersionId);
+
+      if (this.dqModelVersionId !== null) {
+        //Load complete DQ Model (with Dimensions,Factors...) of current project
+        this.loadCurrentDQModel(this.dqModelVersionId);
+        this.loadFullDQModel(this.dqModelVersionId);
+  
+      }
+    });
   }
 
 
@@ -697,6 +774,7 @@ export class DQModelConfirmationComponent implements OnInit {
   confirmationFinishedDQModel(): void {
     this.finishCurrentDQModel(); // Llamar al método que hace la operación en el backend
     this.closeConfirmDQModelModal(); // Cerrar el modal después de confirmar
+    this.router.navigate(['/']); // Redirigir a la raíz del proyecto
   }
 
   // Método para cancelar y cerrar el modal
@@ -733,8 +811,571 @@ export class DQModelConfirmationComponent implements OnInit {
   }
 
 
-
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
   
+    // Obtener los componentes de la fecha
+    const month = date.toLocaleString('default', { month: 'short' }); // MMM (ej. "Mar")
+    const day = date.getDate(); // dd
+    const hours = date.getHours(); // HH
+    const minutes = date.getMinutes(); // mm
+    const year = date.getFullYear(); // yyyy
+  
+    // Formatear la fecha como "MMM dd HH:mm yyyy"
+    return `${month} ${day.toString().padStart(2, '0')} ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${year}`;
+  }
+
+  generatePdf(): void {
+    if (!this.completeDQModel) {
+      alert('Los datos del DQ Model no están cargados.');
+      return;
+    }
+  
+    const doc = new jsPDF();
+    const margin = 10; // Margen izquierdo
+    let yOffset = 20;  // Posición vertical inicial
+    const pageHeight = doc.internal.pageSize.getHeight(); // Altura de la página
+  
+    // Función para agregar texto con etiqueta en negrita y valor normal
+    const addLabelValue = (label: string, value: string, indent: number = 0) => {
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${label}:`, margin + indent, yOffset);
+      const labelWidth = doc.getTextWidth(`${label}:`);
+      doc.setFont('helvetica', 'normal');
+      doc.text(value, margin + indent + labelWidth + 2, yOffset);
+      yOffset += 7; // Espaciado entre líneas
+  
+      // Verificar si se necesita una nueva página
+      if (yOffset > pageHeight - 20) {
+        doc.addPage();
+        yOffset = 20; // Reiniciar la posición Y en la nueva página
+      }
+    };
+  
+    // Título del PDF (en negrita y tamaño 18)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text("DQ Model Report", margin, yOffset);
+    yOffset += 10;
+  
+    // Información del modelo (tamaño 10)
+    doc.setFontSize(10);
+  
+    // Información del modelo
+    addLabelValue('Model ID', this.completeDQModel.model.id.toString());
+    addLabelValue('Version', this.completeDQModel.model.version);
+    addLabelValue('Created At', this.formatDate(this.completeDQModel.model.created_at));
+    addLabelValue('Status', this.completeDQModel.model.status);
+  
+    // Context version (asumiendo que está en this.project)
+    addLabelValue('Context version', `CtxA v1.0 (id: ${this.project.context_version})`);
+  
+    // Data at hand (asumiendo que está en this.project)
+    addLabelValue('Data at hand', 'Dataset A');
+  
+    // DQ Dimensions
+    doc.setFont('helvetica', 'bold');
+    doc.text('DQ Dimensions:', margin, yOffset);
+    yOffset += 10;
+  
+    // Iterar sobre todas las dimensiones
+    this.completeDQModel.dimensions.forEach((dimension: any, index: number) => {
+      // Nombre de la dimensión en negrita
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text(`DQ Dimension: ${dimension.dimension_name}`, margin, yOffset);
+      yOffset += 7;
+      doc.setFontSize(10);
+  
+      // Atributos de la dimensión
+      addLabelValue('  Semantic', dimension.attributesBase?.semantic || 'N/A');
+  
+      // Context components (Ctx)
+      doc.setFont('helvetica', 'bold');
+      doc.text('  Suggested by (Ctx. Components):', margin, yOffset);
+      yOffset += 7;
+  
+      Object.keys(dimension.context_components).forEach((category) => {
+        const components = dimension.context_components[category];
+        if (components.length > 0) {
+          doc.setFont('helvetica', 'bold');
+          doc.text(`    ${this.formatCategoryName(category)}:`, margin, yOffset);
+          yOffset += 7;
+  
+          components.forEach((componentId: number) => {
+            const componentDetails = this.getFirstAttribute(category, componentId);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`      - ${componentDetails}`, margin + 5, yOffset);
+            yOffset += 7;
+  
+            // Verificar si se necesita una nueva página
+            if (yOffset > pageHeight - 20) {
+              doc.addPage();
+              yOffset = 20; // Reiniciar la posición Y en la nueva página
+            }
+          });
+        }
+      });
+  
+      // DQ Problems (Used)
+      doc.setFont('helvetica', 'bold');
+      doc.text('  DQ Problems (Used):', margin, yOffset);
+      yOffset += 7;
+  
+      dimension.dq_problems_details.forEach((problem: any) => {
+        doc.setFont('helvetica', 'normal');
+        doc.text(`    - ${problem.description}`, margin + 5, yOffset);
+        yOffset += 7;
+  
+        // Verificar si se necesita una nueva página
+        if (yOffset > pageHeight - 20) {
+          doc.addPage();
+          yOffset = 20; // Reiniciar la posición Y en la nueva página
+        }
+      });
+  
+      // DQ Factors
+      doc.setFont('helvetica', 'bold');
+      doc.text('  DQ Factors:', margin, yOffset);
+      yOffset += 7;
+  
+      // Iterar sobre todos los factores
+      dimension.factors.forEach((factor: any) => {
+        addLabelValue('    DQ Factor', factor.factor_name);
+  
+        // Atributos del factor
+        addLabelValue('      Semantic', factor.attributesBase?.semantic || 'N/A');
+  
+        // Context components (Ctx)
+        doc.setFont('helvetica', 'bold');
+        doc.text('      Arises from (Ctx. Components):', margin, yOffset);
+        yOffset += 7;
+  
+        Object.keys(factor.context_components).forEach((category) => {
+          const components = factor.context_components[category];
+          if (components.length > 0) {
+            doc.setFont('helvetica', 'bold');
+            doc.text(`        ${this.formatCategoryName(category)}:`, margin, yOffset);
+            yOffset += 7;
+  
+            components.forEach((componentId: number) => {
+              const componentDetails = this.getFirstAttribute(category, componentId);
+              doc.setFont('helvetica', 'normal');
+              doc.text(`          - ${componentDetails}`, margin + 5, yOffset);
+              yOffset += 7;
+  
+              // Verificar si se necesita una nueva página
+              if (yOffset > pageHeight - 20) {
+                doc.addPage();
+                yOffset = 20; // Reiniciar la posición Y en la nueva página
+              }
+            });
+          }
+        });
+  
+        // DQ Problems (Used)
+        doc.setFont('helvetica', 'bold');
+        doc.text('      DQ Problems (Used):', margin, yOffset);
+        yOffset += 7;
+  
+        factor.dq_problems_details.forEach((problem: any) => {
+          doc.setFont('helvetica', 'normal');
+          doc.text(`        - ${problem.description}`, margin + 5, yOffset);
+          yOffset += 7;
+  
+          // Verificar si se necesita una nueva página
+          if (yOffset > pageHeight - 20) {
+            doc.addPage();
+            yOffset = 20; // Reiniciar la posición Y en la nueva página
+          }
+        });
+  
+        // DQ Metrics
+        doc.setFont('helvetica', 'bold');
+        doc.text('      DQ Metrics:', margin, yOffset);
+        yOffset += 7;
+  
+        // Iterar sobre todas las métricas
+        factor.metrics.forEach((metric: any) => {
+          addLabelValue('        DQ Metric', metric.metric_name);
+  
+          // Atributos de la métrica
+          addLabelValue('          Purpose', metric.attributesBase?.purpose || 'N/A');
+          addLabelValue('          Granularity', metric.attributesBase?.granularity || 'N/A');
+          addLabelValue('          Result domain', metric.attributesBase?.resultDomain || 'N/A');
+  
+          // DQ Methods
+          doc.setFont('helvetica', 'bold');
+          doc.text('          DQ Methods:', margin, yOffset);
+          yOffset += 7;
+  
+          // Iterar sobre todos los métodos
+          metric.methods.forEach((method: any) => {
+            addLabelValue('            DQ Method', method.method_name);
+  
+            // Atributos del método
+            addLabelValue('              Input data type', method.attributesBase?.inputDataType || 'N/A');
+            addLabelValue('              Output data type', method.attributesBase?.outputDataType || 'N/A');
+            addLabelValue('              Algorithm', method.attributesBase?.algorithm || 'N/A');
+  
+            // Applied Methods: Measurements
+            if (method.applied_methods?.measurements?.length > 0) {
+              doc.setFont('helvetica', 'bold');
+              doc.text('              Applied Measurements:', margin, yOffset);
+              yOffset += 7;
+  
+              method.applied_methods.measurements.forEach((measurement: any) => {
+                addLabelValue('                Measurement', measurement.name);
+                addLabelValue('                  Applied to', measurement.appliedTo);
+              });
+            }
+  
+            // Applied Methods: Aggregations
+            if (method.applied_methods?.aggregations?.length > 0) {
+              doc.setFont('helvetica', 'bold');
+              doc.text('              Applied Aggregations:', margin, yOffset);
+              yOffset += 7;
+  
+              method.applied_methods.aggregations.forEach((aggregation: any) => {
+                addLabelValue('                Aggregation', aggregation.name);
+                addLabelValue('                  Applied to', aggregation.appliedTo);
+              });
+            }
+          });
+        });
+      });
+  
+      // Agregar una línea horizontal al final de cada dimensión (excepto la primera)
+      if (index < this.completeDQModel.dimensions.length - 1) {
+        doc.setDrawColor(0); // Color de la línea (negro)
+        doc.line(margin, yOffset, doc.internal.pageSize.getWidth() - margin, yOffset); // Dibujar línea
+        yOffset += 10; // Espaciado después de la línea
+  
+        // Verificar si se necesita una nueva página
+        if (yOffset > pageHeight - 20) {
+          doc.addPage();
+          yOffset = 20; // Reiniciar la posición Y en la nueva página
+        }
+      }
+    });
+  
+    // Guardar el PDF
+    doc.save(`dqmodel_${this.completeDQModel.model.id}.pdf`);
+  }
+
+
+  generatePdf_backup(): void {
+    if (!this.completeDQModel) {
+      alert('Los datos del DQ Model no están cargados.');
+      return;
+    }
+  
+    const doc = new jsPDF();
+    const margin = 10; // Margen izquierdo
+    let yOffset = 20;  // Posición vertical inicial
+    const pageHeight = doc.internal.pageSize.getHeight(); // Altura de la página
+  
+    // Función para agregar texto con etiqueta en negrita y valor normal
+    const addLabelValue = (label: string, value: string, indent: number = 0) => {
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${label}:`, margin + indent, yOffset);
+      const labelWidth = doc.getTextWidth(`${label}:`);
+      doc.setFont('helvetica', 'normal');
+      doc.text(value, margin + indent + labelWidth + 2, yOffset);
+      yOffset += 7; // Espaciado entre líneas
+  
+      // Verificar si se necesita una nueva página
+      if (yOffset > pageHeight - 20) {
+        doc.addPage();
+        yOffset = 20; // Reiniciar la posición Y en la nueva página
+      }
+    };
+  
+    // Título del PDF (en negrita y tamaño 18)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text("DQ Model Report", margin, yOffset);
+    yOffset += 10;
+  
+    // Información del modelo (tamaño 10)
+    doc.setFontSize(10);
+  
+    // Información del modelo
+    addLabelValue('Model ID', this.completeDQModel.model.id.toString());
+    addLabelValue('Version', this.completeDQModel.model.version);
+    addLabelValue('Created At', this.formatDate(this.completeDQModel.model.created_at));
+    addLabelValue('Status', this.completeDQModel.model.status);
+  
+    // Context version (asumiendo que está en this.project)
+    addLabelValue('Context version', `CtxA v1.0 (id: ${this.project.context_version})`);
+  
+    // Data at hand (asumiendo que está en this.project)
+    addLabelValue('Data at hand', 'Dataset A');
+  
+    // DQ Dimensions
+    doc.setFont('helvetica', 'bold');
+    doc.text('DQ Dimensions:', margin, yOffset);
+    yOffset += 10;
+  
+    // Iterar sobre todas las dimensiones
+    this.completeDQModel.dimensions.forEach((dimension: any, index: number) => {
+      // Nombre de la dimensión en negrita
+      doc.setFont('helvetica', 'bold');
+      doc.text(`DQ Dimension: ${dimension.dimension_name}`, margin, yOffset);
+      yOffset += 7;
+  
+      // Atributos de la dimensión
+      addLabelValue('  Semantic', dimension.attributesBase?.semantic || 'N/A');
+  
+      // Context components (Ctx)
+      doc.setFont('helvetica', 'bold');
+      doc.text('  Ctx (Suggested by):', margin, yOffset);
+      yOffset += 7;
+  
+      Object.keys(dimension.context_components).forEach((category) => {
+        const components = dimension.context_components[category];
+        if (components.length > 0) {
+          doc.setFont('helvetica', 'bold');
+          doc.text(`    ${this.formatCategoryName(category)}:`, margin, yOffset);
+          yOffset += 7;
+  
+          components.forEach((componentId: number) => {
+            const componentDetails = this.getFirstAttribute(category, componentId);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`      - ${componentDetails}`, margin + 5, yOffset);
+            yOffset += 7;
+  
+            // Verificar si se necesita una nueva página
+            if (yOffset > pageHeight - 20) {
+              doc.addPage();
+              yOffset = 20; // Reiniciar la posición Y en la nueva página
+            }
+          });
+        }
+      });
+  
+      // DQ Problems (Used)
+      doc.setFont('helvetica', 'bold');
+      doc.text('  DQ Problems (Used):', margin, yOffset);
+      yOffset += 7;
+  
+      dimension.dq_problems_details.forEach((problem: any) => {
+        doc.setFont('helvetica', 'normal');
+        doc.text(`    - ${problem.description}`, margin + 5, yOffset);
+        yOffset += 7;
+  
+        // Verificar si se necesita una nueva página
+        if (yOffset > pageHeight - 20) {
+          doc.addPage();
+          yOffset = 20; // Reiniciar la posición Y en la nueva página
+        }
+      });
+  
+      // DQ Factors
+      doc.setFont('helvetica', 'bold');
+      doc.text('  DQ Factors:', margin, yOffset);
+      yOffset += 7;
+  
+      // Iterar sobre todos los factores
+      dimension.factors.forEach((factor: any) => {
+        addLabelValue('    DQ Factor', factor.factor_name);
+  
+        // Atributos del factor
+        addLabelValue('      Semantic', factor.attributesBase?.semantic || 'N/A');
+  
+        // Context components (Ctx)
+        doc.setFont('helvetica', 'bold');
+        doc.text('      Ctx (Arises from):', margin, yOffset);
+        yOffset += 7;
+  
+        Object.keys(factor.context_components).forEach((category) => {
+          const components = factor.context_components[category];
+          if (components.length > 0) {
+            doc.setFont('helvetica', 'bold');
+            doc.text(`        ${this.formatCategoryName(category)}:`, margin, yOffset);
+            yOffset += 7;
+  
+            components.forEach((componentId: number) => {
+              const componentDetails = this.getFirstAttribute(category, componentId);
+              doc.setFont('helvetica', 'normal');
+              doc.text(`          - ${componentDetails}`, margin + 5, yOffset);
+              yOffset += 7;
+  
+              // Verificar si se necesita una nueva página
+              if (yOffset > pageHeight - 20) {
+                doc.addPage();
+                yOffset = 20; // Reiniciar la posición Y en la nueva página
+              }
+            });
+          }
+        });
+  
+        // DQ Problems (Used)
+        doc.setFont('helvetica', 'bold');
+        doc.text('      DQ Problems (Used):', margin, yOffset);
+        yOffset += 7;
+  
+        factor.dq_problems_details.forEach((problem: any) => {
+          doc.setFont('helvetica', 'normal');
+          doc.text(`        - ${problem.description}`, margin + 5, yOffset);
+          yOffset += 7;
+  
+          // Verificar si se necesita una nueva página
+          if (yOffset > pageHeight - 20) {
+            doc.addPage();
+            yOffset = 20; // Reiniciar la posición Y en la nueva página
+          }
+        });
+  
+        // DQ Metrics
+        doc.setFont('helvetica', 'bold');
+        doc.text('      DQ Metrics:', margin, yOffset);
+        yOffset += 7;
+  
+        // Iterar sobre todas las métricas
+        factor.metrics.forEach((metric: any) => {
+          addLabelValue('        DQ Metric', metric.metric_name);
+  
+          // Atributos de la métrica
+          addLabelValue('          Purpose', metric.attributesBase?.purpose || 'N/A');
+          addLabelValue('          Granularity', metric.attributesBase?.granularity || 'N/A');
+          addLabelValue('          Result domain', metric.attributesBase?.resultDomain || 'N/A');
+  
+          // DQ Methods
+          doc.setFont('helvetica', 'bold');
+          doc.text('          DQ Methods:', margin, yOffset);
+          yOffset += 7;
+  
+          // Iterar sobre todos los métodos
+          metric.methods.forEach((method: any) => {
+            addLabelValue('            DQ Method', method.method_name);
+  
+            // Atributos del método
+            addLabelValue('              Input data type', method.attributesBase?.inputDataType || 'N/A');
+            addLabelValue('              Output data type', method.attributesBase?.outputDataType || 'N/A');
+            addLabelValue('              Algorithm', method.attributesBase?.algorithm || 'N/A');
+  
+            // Applied Methods: Measurements
+            if (method.applied_methods?.measurements?.length > 0) {
+              doc.setFont('helvetica', 'bold');
+              doc.text('              Applied Measurements:', margin, yOffset);
+              yOffset += 7;
+  
+              method.applied_methods.measurements.forEach((measurement: any) => {
+                addLabelValue('                Measurement', measurement.name);
+                addLabelValue('                  Applied to', measurement.appliedTo);
+              });
+            }
+  
+            // Applied Methods: Aggregations
+            if (method.applied_methods?.aggregations?.length > 0) {
+              doc.setFont('helvetica', 'bold');
+              doc.text('              Applied Aggregations:', margin, yOffset);
+              yOffset += 7;
+  
+              method.applied_methods.aggregations.forEach((aggregation: any) => {
+                addLabelValue('                Aggregation', aggregation.name);
+                addLabelValue('                  Applied to', aggregation.appliedTo);
+              });
+            }
+          });
+        });
+      });
+  
+      // Agregar una línea horizontal al final de cada dimensión (excepto la primera)
+      if (index < this.completeDQModel.dimensions.length - 1) {
+        doc.setDrawColor(0); // Color de la línea (negro)
+        doc.line(margin, yOffset, doc.internal.pageSize.getWidth() - margin, yOffset); // Dibujar línea
+        yOffset += 10; // Espaciado después de la línea
+  
+        // Verificar si se necesita una nueva página
+        if (yOffset > pageHeight - 20) {
+          doc.addPage();
+          yOffset = 20; // Reiniciar la posición Y en la nueva página
+        }
+      }
+    });
+  
+    // Guardar el PDF
+    doc.save(`dqmodel_${this.completeDQModel.model.id}.pdf`);
+  }
+
+
+  // Método para generar el PDF
+  generatePdfSimple(): void {
+    const doc = new jsPDF();
+
+    // Título del PDF
+    doc.setFontSize(18);
+    doc.text("DQ Model Report", 10, 10);
+
+    // Información del modelo
+    doc.setFontSize(12);
+    doc.text(`Model ID: ${this.completeDQModel.model.id}`, 10, 20);
+    doc.text(`Version: ${this.completeDQModel.model.version}`, 10, 30);
+    const formattedDate = this.formatDate(this.completeDQModel.model.created_at);
+    doc.text(`Created At: ${formattedDate}`, 10, 40);
+    doc.text(`Status: ${this.completeDQModel.model.status}`, 10, 50);
+
+    // Dimensiones y factores
+    let yOffset = 60; // Posición vertical inicial
+    this.completeDQModel.dimensions.forEach((dimension: any) => {
+      doc.setFontSize(14);
+      doc.text(`DQ Dimension: ${dimension.dimension_name}`, 10, yOffset);
+      yOffset += 10;
+
+      dimension.factors.forEach((factor: any) => {
+        doc.setFontSize(14);
+        doc.text(`- DQ Factor: ${factor.factor_name}`, 15, yOffset);
+        yOffset += 10;
+
+        factor.metrics.forEach((metric: any) => {
+          doc.setFontSize(12);
+          doc.text(`  - DQ Metric: ${metric.metric_name}`, 20, yOffset);
+          yOffset += 10;
+
+          // Métodos asociados a la métrica
+          metric.methods.forEach((method: any) => {
+            doc.text(`    - DQ Method: ${method.method_name}`, 25, yOffset);
+            yOffset += 10;
+
+            // Métodos aplicados (measurements y aggregations)
+            if (method.applied_methods) {
+              if (method.applied_methods.measurements && method.applied_methods.measurements.length > 0) {
+                method.applied_methods.measurements.forEach((measurement: any) => {
+                  doc.text(`      - Measurement Applied DQ Method: ${measurement.name}`, 30, yOffset);
+                  yOffset += 10;
+                });
+              }
+
+              if (method.applied_methods.aggregations && method.applied_methods.aggregations.length > 0) {
+                method.applied_methods.aggregations.forEach((aggregation: any) => {
+                  doc.text(`      - Aggregation Applied DQ Method:: ${aggregation.name}`, 30, yOffset);
+                  yOffset += 10;
+                });
+              }
+            }
+          });
+        });
+      });
+    });
+
+    // Guardar el PDF
+    doc.save(`dqmodel_${this.completeDQModel.model.id}.pdf`);
+  }
+
+
+
+  // Navegación
+  onStepChange(step: number) {
+    this.currentStep = step;
+    this.navigateToStep(step);
+  }
+  
+  navigateToStep(stepIndex: number) {
+    const route = this.steps[stepIndex].route;
+    this.router.navigate([route]);
+  }
 
 
 }

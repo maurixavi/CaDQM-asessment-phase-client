@@ -20,6 +20,7 @@ body{
   color: #222; 
   /*font-family: 'Open Sans', sans-serif;*/
   /*font-family: 'Roboto', sans-serif;*/
+  
 }
 
 .container-section {
@@ -251,6 +252,7 @@ hr.my-4 {
 .flex-container {
   display: flex;
   justify-content: center;
+  margin-bottom: 80px;
 }
 
 

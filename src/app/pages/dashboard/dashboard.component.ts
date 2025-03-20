@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { DqModelService } from '../../services/dq-model.service';
 import { ProjectService } from '../../services/project.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { ProjectDataService } from '../../services/project-data.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -10,7 +11,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
-  dqMethodForm: FormGroup;
+
 
   // Datos iniciales para crear un DQ Model
   newDQModel = {
@@ -26,20 +27,16 @@ export class DashboardComponent implements OnInit {
   };
 
   //PROJECT
-  project: any; //cargar current Project
-  projectId: number | null = null;
+  //project: any; //cargar current Project
+  //projectId: number | null = null;
   noProjectMessage: string = "";  
 
-  //DQ MODEL 
-  currentDQModel: any; // almacenar Current DQModel
+ 
 
   //NEW DQMODEL
   newDQModelVersionId: number | null = null;
 
-  //CONTEXT
-  currentCtxVersion: number | null = null; // almacenar Current Context Version id
-  contextVersions: any[] = []; // Almacenar las versiones del contexto
-  context: any; //cargar current context
+
 
   // Modal properties
   isModalOpen = false;
@@ -47,106 +44,92 @@ export class DashboardComponent implements OnInit {
   modalTitle: string = '';
   modalMessage: string = '';
 
-  // DQ Metric data
-  dqMetricData = {
-    id: 5,
-    name: 'Syntax Error Rate',
-    purpose: 'Proportion of syntactic errors detected in the data.',
-    granularity: 'Attribute or record',
-    resultDomain: '[0, 1]'
-  };
+ 
 
-  suggestion: any = null;
   error: string = '';
 
   constructor(
     private router: Router,
     private modelService: DqModelService,
     private projectService: ProjectService,
-    private fb: FormBuilder
-  ) {
-    // Inicialización del formulario en el constructor
-    this.dqMethodForm = this.fb.group({
-      name: [''],
-      inputDataType: [''],
-      outputDataType: [''],
-      algorithm: [''],
-      implements: ['']
-    });
-  }
+    private projectDataService: ProjectDataService,
+  ) { }
+
+  project: any = null;
+  projectId: number | null = null;
+  contextComponents: any = null;
+  dqProblems: any[] = [];
+  dqModelVersionId: number | null = null;
+  dqModel: any = null;
+
 
   ngOnInit() {
-    this.loadCurrentProject();
-    this.loadContextVersions();
-    //this.generateSuggestion();
+    // Obtener el Project ID actual
+    this.projectId = this.projectDataService.getProjectId();
+    console.log("projectIdGet: ", this.projectId);
+
+    // Suscribirse a los observables del servicio ANTES de cargar los datos
+    this.subscribeToData();
   }
 
-  // CONTEXT METHODS
-  loadContextVersions(): void {
-    this.projectService.getContextVersions().subscribe({
-      next: (versions) => {
-        this.contextVersions = versions;
-        console.log('*** Versiones de Contexto:', this.contextVersions);
-      },
-      error: (err) => {
-        console.error('*** Error al cargar las versiones de contexto:', err);
-      }
+  subscribeToData(): void {
+    // Suscribirse al proyecto
+    this.projectDataService.project$.subscribe((data) => {
+      this.project = data;
+      console.log('Project Data:', data);
     });
-  }
 
-  getContextByVersionFiltering(versionId: number): void {
-    if (isNaN(versionId) || versionId <= 0) {
-      console.error('ID de versión de contexto no válido');
-      return;
-    }
-
-    this.context = this.contextVersions.find(context => context.context_id === versionId);
-
-    if (this.context) {
-      console.log('Contexto encontrado:', this.context);
-    } else {
-      console.error('No se encontró un contexto con el ID:', versionId);
-    }
-  }
-
-  getContextByVersion(contextVersionId: number): void {
-    this.projectService.getContextByVersion(contextVersionId).subscribe({
-      next: (data) => {
-        this.context = data;
-        console.log('Datos del contexto:', this.context);
-      },
-      error: (err) => {
-        console.error('Error al obtener el contexto por versión:', err);
-      }
+    // Suscribirse a los componentes del contexto
+    this.projectDataService.contextComponents$.subscribe((data) => {
+      this.contextComponents = data;
+      console.log('Context Components:', data);
     });
+
+    // Suscribirse a los problemas de calidad de datos (DQ Problems)
+    this.projectDataService.dqProblems$.subscribe((data) => {
+      this.dqProblems = data;
+      console.log('DQ Problems:', data);
+    });
+
+    // Suscribirse a la versión del modelo de calidad de datos (DQ Model Version)
+    this.projectDataService.dqModelVersion$.subscribe((dqModelVersionId) => {
+      this.dqModelVersionId = dqModelVersionId;
+      console.log('DQ Model Version ID:', this.dqModelVersionId);
+    });
+  
+  
   }
 
-  // PROJECT METHODS
-  loadCurrentProject(): void {
+
+
+  // Cargar Project con sus Ctx Components, DQ Problems y DQ Model si existe
+  loadProjectData(): void {
     this.projectService.loadCurrentProject().subscribe({
       next: (project) => {
         this.project = project;
-        console.log('Proyecto cargado en el componente:', this.project);
+        this.projectId = project.id;
 
-        this.projectId = this.project.id;
-        console.log("this.projectId", this.projectId)
- 
-        if (this.project && this.project.dqmodel_version) {
-          this.loadCurrentDQModel(this.project.dqmodel_version);
-        } else {
-          console.warn('El proyecto cargado no tiene un dqModelId');
-        }
-
-        if (this.project && this.project.context_version) {
-          this.currentCtxVersion = this.project.context_version;
-          console.log("Version contexto actual :", this.currentCtxVersion);
-
-          if (this.currentCtxVersion !== null) {
-            this.getContextByVersion(this.currentCtxVersion);
+        if (this.projectId) {
+          //Cargar Ctx Components
+          const contextVersionId = this.project.context_version
+          if (contextVersionId){
+            this.getAllContextComponents(contextVersionId);
+          } else {
+            console.warn('El proyecto cargado no tiene contextVersionId');
           }
-        } else {
-          console.warn('El proyecto cargado no tiene un contextId');
+
+          //Cargar DQ Problems
+          this.getAllDQProblems(this.projectId);
+
+          //Cargar DQ Model si existe
+          const dqModelVersionId = this.project.dqmodel_version
+          if (dqModelVersionId) {
+            this.getDQModel(dqModelVersionId);
+          } else {
+            console.warn('El proyecto cargado no tiene un dqModelId');
+          }
         }
+        
       },
       error: (err) => {
         console.error('Error al cargar el proyecto en el componente:', err);
@@ -154,18 +137,42 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // DQ MODEL METHODS
-  loadCurrentDQModel(dqModelId: number): void {
+  allContextComponents: any = null;
+  allDQProblems: any[] = [];
+
+  getAllContextComponents(contextVersionId: number): void {
+    this.projectService.getContextComponents(contextVersionId).subscribe({
+      next: (data) => {
+        console.log('ALL CTX. COMPONENTS:', data);
+        this.allContextComponents = data;
+      },
+      error: (err) => console.error('Error fetching context components:', err)
+    });
+  }
+
+  getAllDQProblems(projectId: number): void {
+    this.projectService.getDQProblemsByProjectId(projectId).subscribe({
+      next: (data) => {
+        this.allDQProblems = data;
+      },
+      error: (err) => {
+        console.error('Error al obtener los problemas de calidad:', err);
+      },
+    });
+  }
+
+  // Cargar el DQ Model por su ID
+  getDQModel(dqModelId: number): void {
     this.modelService.getCurrentDQModel(dqModelId).subscribe({
       next: (dqModel) => {
-        this.currentDQModel = dqModel;
-        console.log('DQ Model cargado en el componente:', this.currentDQModel);
+        this.dqModel = dqModel;
       },
       error: (err) => {
         console.error('Error al cargar el DQ Model en el componente:', err);
-      }
+      },
     });
   }
+
 
   createDQModel() {
     this.modelService.createDQModel(this.newDQModel).subscribe({
@@ -187,7 +194,8 @@ export class DashboardComponent implements OnInit {
         
         
         this.navigateCreateDQModelNext();
-        this.loadCurrentProject();
+
+        //this.loadCurrentProject();
       },
       error: err => {
         console.error('Error al crear el modelo DQ:', err);
@@ -253,7 +261,10 @@ export class DashboardComponent implements OnInit {
         console.log('Proyecto creado:', project);
         this.projectService.setProjectId(project.id);
         console.log('ID del proyecto actual establecido:', project.id);
-        this.loadCurrentProject();
+        //this.loadCurrentProject();
+      
+        this.loadProjectData();
+
         alert('Proyecto creado correctamente.');
       },
       error: (err) => {
@@ -264,25 +275,18 @@ export class DashboardComponent implements OnInit {
 
   // NAVIGATION METHODS
   navigateCreateDQModelNext() {
-    this.router.navigate(['/step1']);
+    this.router.navigate(['/st4/a09-1']);
   }
 
   navigateToResumeDQModel() { 
-    this.router.navigate(['/step1']);
+    this.router.navigate(['/st4/a09-1']);
   }
 
   navigateToViewDQModel() {
-    this.router.navigate(['/step6']);
+    this.router.navigate(['/st4/confirmation-stage-4']);
   }
 
-  // MODAL METHODS
-  openModal() {
-    this.isModalOpen = true;
-  }
 
-  closeModal() {
-    this.isModalOpen = false;
-  }
 
 
   showNewProjectButtons = false;
@@ -326,131 +330,15 @@ export class DashboardComponent implements OnInit {
       if (this.project.dqmodel_version !== null) {
         this.createNewVersionDQModel(this.project.dqmodel_version);
       }
-      this.router.navigate(['/step3']);
+      //this.router.navigate(['/step3']);
     }
     this.closeConfirmationModal();
   }
 
-  // DQ METHOD SUGGESTION METHODS
-  generateSuggestion() {
-    console.log('Generando sugerencia...');
-    this.modelService.generateDQMethodSuggestion(this.dqMetricData).subscribe({
-      next: (response) => {
-        console.log('Sugerencia recibida:', response);
-        this.suggestion = response;
-        this.error = '';
-
-        // Asegurarse de que el formulario esté inicializado
-        if (this.dqMethodForm) {
-          // Actualizar el formulario con los valores de la sugerencia
-          this.dqMethodForm.patchValue({
-            name: response.name || '',
-            inputDataType: response.inputDataType || '',
-            outputDataType: response.outputDataType || '',
-            algorithm: response.algorithm || '',
-            implements: response.implements || ''
-          });
-
-          console.log('Formulario actualizado:', this.dqMethodForm.value);
-        } else {
-          console.error('El formulario no está inicializado');
-        }
-
-        // Mostrar los valores en un confirm para verificar
-        const confirmMessage = `
-          Sugerencia generada:
-          Nombre: ${response.name}
-          Tipo de entrada: ${response.inputDataType}
-          Tipo de salida: ${response.outputDataType}
-          Algoritmo: ${response.algorithm}
-          Implementación: ${response.implements}
-        `;
-        console.log(confirmMessage);
-      },
-      error: (err) => {
-        console.error('Error al generar la sugerencia:', err);
-        this.error = 'Error al generar la sugerencia. Por favor intente nuevamente.';
-        this.suggestion = null;
-      }
-    });
-  }
-
-  // Método para verificar el contenido actual del formulario
-  logFormContent() {
-    console.log('Contenido actual del formulario:', this.dqMethodForm.value);
+  closeProject(): void {
+    this.router.navigate(['/']); 
   }
 
 
-  private showConfirmationDialog(suggestion: any) {
-    const confirmMessage = `
-      ¿Deseas usar esta sugerencia como base para el nuevo DQ Method?
-      Puedes editar los valores en el formulario antes de confirmar.
-      
-      Valores sugeridos:
-      - Nombre: ${suggestion.name}
-      - Algoritmo: ${suggestion.algorithm}
-      - Tipo de entrada: ${suggestion.inputDataType}
-      - Tipo de salida: ${suggestion.outputDataType}
-    `;
 
-    if (confirm(confirmMessage)) {
-      // El usuario puede seguir editando el formulario
-      // La creación final se hará con otro botón
-    } else {
-      this.dqMethodForm.reset();
-    }
-  }
-
-  createDQMethod() {
-    if (this.dqMethodForm.valid) {
-      const methodData = this.dqMethodForm.value;
-      
-      this.modelService.createDQMethodBase(methodData).subscribe({
-        next: (data) => {
-          console.log('Nuevo DQ Method Base creado:', data);
-          alert('DQ Method Base creado con éxito.');
-        },
-        error: (error) => {
-          console.error('Error al crear el DQ Method Base:', error);
-          alert('Error al crear el DQ Method Base. Intenta nuevamente.');
-        }
-      });
-    } else {
-      alert('Por favor, completa todos los campos requeridos.');
-    }
-  }
-
-
-  generateNewSuggestion() {
-
-    this.generateSuggestion();
-
-  }
-
-  // Método para generar sugerencia y abrir el modal
-  generateSuggestionModal() {
-
-    this.generateSuggestion();
-
-    const modal = document.getElementById('suggestionModal');
-    if (modal) {
-      modal.style.display = 'block';
-    }
-  }
-
-  // Método para cerrar el modal
-  closeSuggestionModal() {
-    const modal = document.getElementById('suggestionModal');
-    if (modal) {
-      modal.style.display = 'none';
-    }
-  }
-
-  selectedModel: string = 'llama3-8b-8192';  // Valor por defecto
-
-  // Método para manejar la configuración del modelo
-  openModelConfig() {
-    // Aquí puedes agregar cualquier lógica que desees al hacer clic en el ícono de configuración.
-    console.log('Current selected model: ', this.selectedModel);
-  }
 }

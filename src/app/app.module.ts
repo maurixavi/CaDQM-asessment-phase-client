@@ -30,6 +30,9 @@ import { StepNavigatorComponent } from './shared/step-navigator/step-navigator.c
 
 // Importar el servicio DqModelService
 import { DqModelService } from './services/dq-model.service';
+import { StepperComponent } from './shared/stepper/stepper.component';
+import { HomeComponent } from './pages/home/home.component';
+
 
 @NgModule({
   declarations: [
@@ -45,7 +48,9 @@ import { DqModelService } from './services/dq-model.service';
     DQMeasurementPreviewComponent,
     ContextComponentsComponent,
     DQModelConfirmationComponent,
-    StepNavigatorComponent
+    StepNavigatorComponent,
+    StepperComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,
