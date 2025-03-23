@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, BehaviorSubject, forkJoin } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -120,7 +120,6 @@ export class ProjectDataService {
     forkJoin({
       contextComponents: this.getContextComponentsByContextVersion(this.contextVersionId),
       dqProblems: this.getDQProblemsByProjectId(this.projectId),
-      //dqModel: this.getDQModelByProjectId(this.projectId),
     }).subscribe(({ contextComponents, dqProblems }) => {
       this.contextComponents = contextComponents;
       this.dqProblems = dqProblems;
@@ -134,6 +133,33 @@ export class ProjectDataService {
       console.log('DQ Problems:', dqProblems); */
       //console.log('DQ Model:', dqModel);
     });
+  }
+
+  // Función para obtener los detalles de un data_at_hand por su ID
+  public getDataAtHandByIdAllDetails(dataAtHandId: number): Observable<any> {
+    const url = `${this.baseUrl}/data-at-hand/${dataAtHandId}/`;
+    return this.http.get<any>(url).pipe(
+      //tap((data) => console.log('Fetched Data at Hand Details:', data)),
+      catchError(this.handleError<any>('getDataAtHandDetails'))
+    );
+  }
+
+  // No enviar datos desde el backend?
+  /* class DataAtHandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DataAtHand
+        fields = ['id', 'dbname', 'description', 'type']  # Excluye user, password, host, port */
+  public getDataAtHandById(dataAtHandId: number): Observable<any> {
+    const url = `${this.baseUrl}/data-at-hand/${dataAtHandId}/`;
+    return this.http.get<any>(url).pipe(
+      map((data) => {
+        // Eliminar campos confidenciales
+        const { user, password, host, port, ...safeData } = data;
+        return safeData;
+      }),
+      tap((safeData) => console.log('Fetched Data at Hand Details:', safeData)),
+      catchError(this.handleError<any>('getDataAtHandDetails'))
+    );
   }
 
   private getDataSchemaByDataAtHandId(dataAtHandId: number): Observable<any> {
@@ -171,13 +197,6 @@ export class ProjectDataService {
     );
   }
 
-  private getDQModelByProjectId(projectId: number): Observable<any> {
-    const url = `${this.API_URL_PROJECTS}${projectId}/dq-model/`;
-    return this.http.get<any>(url).pipe(
-      tap((data) => console.log(`Fetched DQ Model for Project ID=${projectId}:`, data)),
-      catchError(this.handleError<any>(`getDQModelByProjectId id=${projectId}`))
-    );
-  }
 
   public getCurrentProject(): any {
     return this.projectSubject.value;

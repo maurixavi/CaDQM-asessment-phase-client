@@ -19,16 +19,7 @@ declare var bootstrap: any;
 
 
 export class DQModelConfirmationComponent implements OnInit {
-  /*steps: string[] = [
-    'Step 1',
-    'Step 2',
-    'Step 3',
-    'Step 4',
-    'Step 5',
-    'Step 6',
-    'Confirmation'
-  ];*/
-  
+
   currentStep: number = 5; // Confirmación es el paso 6
   pageStepTitle: string = 'DQ Model confirmation';
   phaseTitle: string = 'Phase 2: DQ Assessment';
@@ -60,6 +51,7 @@ export class DQModelConfirmationComponent implements OnInit {
   dqModelVersionId: number | null = null;
 
   dataSchema: any = null;
+  dataAtHandDetails: any = null;
 
   constructor(
     private router: Router, 
@@ -98,6 +90,11 @@ export class DQModelConfirmationComponent implements OnInit {
     this.projectDataService.project$.subscribe((data) => {
       this.project = data;
       console.log('Project Data:', data);
+
+      if (this.project.data_at_hand) {
+        this.loadDataAtHandDetails(this.project.data_at_hand);
+      }
+
     });
 
     // Suscribirse a los componentes del contexto
@@ -128,8 +125,29 @@ export class DQModelConfirmationComponent implements OnInit {
 
     this.projectDataService.dataSchema$.subscribe((data) => {
       this.dataSchema = data;
-      console.log('Data Schema:', data); // Ver el esquema de datos en la consola
+      console.log('Data Schema:', data); 
     });
+  }
+
+  // Función para cargar los detalles del data_at_hand
+  loadDataAtHandDetails(dataAtHandId: number): void {
+    this.projectDataService.getDataAtHandById(dataAtHandId).subscribe(
+      (data) => {
+        this.dataAtHandDetails = data; // Asignar los detalles a la variable del componente
+      },
+      (error) => {
+        console.error('Error loading data at hand details:', error);
+      }
+    );
+  }
+
+  // Función para abrir el modal del esquema de datos
+  openDataSchemaModal(): void {
+    const modalElement = document.getElementById('dataSchemaModal');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement); // Usar Bootstrap vanilla
+      modal.show();
+    }
   }
 
 

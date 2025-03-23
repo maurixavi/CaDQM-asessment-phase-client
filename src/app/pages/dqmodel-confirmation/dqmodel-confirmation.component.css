@@ -1122,3 +1122,15 @@ hr.my-4 {
 .custom-modal-position .modal-dialog {
   transform: translateY(-20%); /* Ajusta el valor según lo que necesites */
 }
+
+
+/* Estilos para la tabla */
+/*.table-bordered {
+  border: 1px solid #dee2e6;
+}
+
+.table-bordered th,
+.table-bordered td {
+  border: 1px solid #dee2e6;
+  padding: 8px;
+}*/

@@ -258,9 +258,14 @@
               </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-info" (click)="generateNewSuggestion()" style="width: auto;">
-                  <i class="bi bi-lightning"></i> Generate New
-                </button>
+              <button type="button" class="btn btn-sm btn-info" (click)="generateNewSuggestion()" style="width: auto;" [disabled]="isLoading">
+                <i class="bi bi-lightning"></i>
+                <span *ngIf="!isLoading">Generate New</span>
+                <span *ngIf="isLoading">
+                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  Generating...
+                </span>
+              </button>
               <button type="button" class="btn btn-sm btn-light" (click)="closeModalBase()">Cancel</button>
               <button type="button" class="btn btn-sm btn-dark" (click)="addBaseMethod(selectedMetric)">Confirm</button>
             </div>

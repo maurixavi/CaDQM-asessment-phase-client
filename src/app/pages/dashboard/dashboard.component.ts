@@ -61,9 +61,12 @@ export class DashboardComponent implements OnInit {
   contextComponents: any = null;
   dqProblems: any[] = [];
   dqModelVersionId: number | null = null;
+  dqModelVersionName: string | null = null;
+
   dqModel: any = null;
 
   dataSchema: any = null;
+  dataAtHandDetails: any = null;
 
 
   ngOnInit() {
@@ -80,6 +83,11 @@ export class DashboardComponent implements OnInit {
     this.projectDataService.project$.subscribe((data) => {
       this.project = data;
       console.log('Project Data:', data);
+
+      if (this.project.data_at_hand) {
+        this.loadDataAtHandDetails(this.project.data_at_hand);
+      }
+
     });
 
     // Suscribirse a los componentes del contexto
@@ -98,6 +106,10 @@ export class DashboardComponent implements OnInit {
     this.projectDataService.dqModelVersion$.subscribe((dqModelVersionId) => {
       this.dqModelVersionId = dqModelVersionId;
       console.log('DQ Model Version ID:', this.dqModelVersionId);
+      if (this.dqModelVersionId) {
+        this.loadDQModelName(this.dqModelVersionId);
+      }
+
     });
 
     // Suscribirse al esquema de datos
@@ -107,6 +119,35 @@ export class DashboardComponent implements OnInit {
     });
   
   
+  }
+
+  loadDQModelName(dqmodelId: number): void {
+    this.modelService.getDQModel(dqmodelId).subscribe(
+      (dqModel) => {
+        console.log('DQ Model Response:', dqModel);
+        if (dqModel && dqModel.version) {
+          this.dqModelVersionName = dqModel.version; 
+          console.log('DQ Model Name:', this.dqModelVersionName);
+        } else {
+          console.error('La propiedad version no está disponible en la respuesta');
+        }
+      },
+      (error) => {
+        console.error('Error al obtener DQ Model:', error);
+      }
+    );
+  }
+  
+
+  loadDataAtHandDetails(dataAtHandId: number): void {
+    this.projectDataService.getDataAtHandById(dataAtHandId).subscribe(
+      (data) => {
+        this.dataAtHandDetails = data; // Asignar los detalles a la variable del componente
+      },
+      (error) => {
+        console.error('Error loading data at hand details:', error);
+      }
+    );
   }
 
 

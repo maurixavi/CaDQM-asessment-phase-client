@@ -82,6 +82,8 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     { displayName: 'DQ Model Confirmation', route: 'st4/confirmation-stage-4', description: 'DQ Model Confirmation' }
   ];
 
+  isLoading: boolean = false;
+
   dataSchema: any = null;
   
   dqMethodForm: FormGroup;
@@ -409,7 +411,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
       this.dataSchema = data;
       console.log('Data Schema:', data); // Ver el esquema de datos en la consola
     });
-    
+
   }
 
 
@@ -1197,6 +1199,8 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
 
   generateNewSuggestion() {
 
+    // Activar el spinner
+    this.isLoading = true;  
     this.generateSuggestion();
 
   }
@@ -1231,6 +1235,8 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
           console.error('El formulario no está inicializado');
         }
 
+        // Desactivar el spinner cuando la solicitud finalice (éxito o error)
+        this.isLoading = false;
         // Mostrar los valores en un confirm para verificar
         const confirmMessage = `
           Sugerencia generada:
@@ -1243,9 +1249,12 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
         console.log(confirmMessage);
       },
       error: (err) => {
+        // Desactivar el spinner cuando la solicitud finalice (éxito o error)
+        this.isLoading = false;
         console.error('Error al generar la sugerencia:', err);
         this.error = 'Error al generar la sugerencia. Por favor intente nuevamente.';
         this.suggestion = null;
+        
       }
     });
   }

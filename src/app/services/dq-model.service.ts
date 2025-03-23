@@ -253,6 +253,14 @@ export class DqModelService {
     );
   } 
 
+  getDQModel(dqmodelId: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL_DQMODELS}${dqmodelId}/`).pipe( // Cambia el tipo de retorno a 'any' en lugar de 'any[]'
+      catchError(err => {
+        console.error(`Error al obtener DQ Model ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
 
   //DIMENSIONS DQ MODEL
   getDimensionsByDQModel(dqmodelId: number): Observable<any[]> {

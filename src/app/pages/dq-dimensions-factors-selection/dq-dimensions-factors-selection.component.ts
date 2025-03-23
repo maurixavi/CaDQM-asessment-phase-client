@@ -811,45 +811,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   }
 
 
-  /*------- DQ MODEL: DIMENSIONS AND FACTORS -------*/
-  // Agregar COMPONENTES DE CONTEXTO ENDPOINT
-  buildContextComponents_backup(selectedComponents: { id: number; category: string; value: string }[]): any {
-    const contextComponents = {
-      applicationDomain: selectedComponents
-        .filter((comp) => comp.category === "applicationDomain")
-        .map((comp) => comp.id),
-      businessRule: selectedComponents
-        .filter((comp) => comp.category === "businessRule")
-        .map((comp) => comp.id),
-      dataFiltering: selectedComponents
-        .filter((comp) => comp.category === "dataFiltering")
-        .map((comp) => comp.id),
-      dqMetadata: selectedComponents
-        .filter((comp) => comp.category === "dqMetadata")
-        .map((comp) => comp.id),
-      dqRequirement: selectedComponents
-        .filter((comp) => comp.category === "dqRequirement")
-        .map((comp) => comp.id),
-      otherData: selectedComponents
-        .filter((comp) => comp.category === "otherData")
-        .map((comp) => comp.id),
-      otherMetadata: selectedComponents
-        .filter((comp) => comp.category === "otherMetadata")
-        .map((comp) => comp.id),
-      systemRequirement: selectedComponents
-        .filter((comp) => comp.category === "systemRequirement")
-        .map((comp) => comp.id),
-      taskAtHand: selectedComponents
-        .filter((comp) => comp.category === "taskAtHand")
-        .map((comp) => comp.id),
-      userType: selectedComponents
-        .filter((comp) => comp.category === "userType")
-        .map((comp) => comp.id),
-    };
-  
-    return contextComponents;
-  }
-  
+ 
 
 
   // ADD DIMENSIONS-FACTORS to DQ MODEL

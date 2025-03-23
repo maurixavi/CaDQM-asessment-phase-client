@@ -29,7 +29,14 @@
 					</div>
 					<div class="label-selected">
 						<label class="label-title-selected">Data at hand:</label>
-						<span class="label-value-selected">Data at Hand Id: {{ project.data_at_hand }}</span>
+						<span class="label-value-selected"> {{ dataAtHandDetails.description }} ({{ dataAtHandDetails.dbname }}) <a href="javascript:void(0)" (click)="dataAtHandModal.openModal()" style="text-decoration: none;">
+								<i class="bi bi-zoom-in"></i>
+							</a>
+						</span>
+						<!--<span class="label-value-selected" (click)="openDataSchemaModal()" style="cursor: pointer;">
+							Data at Hand Id: {{ project?.data_at_hand }} <i class="bi bi-zoom-in"></i>
+						</span>-->
+						<!--<span class="label-value-selected">Data at Hand Id: {{ project.data_at_hand }}</span>-->
 					</div>
 					<div class="label-selected">
 						<label class="label-title-selected">DQ Dimensions:</label>
@@ -75,36 +82,15 @@
 														{{ formatCategoryName(category) }}:
 														<ul>
 															<li *ngFor="let componentId of dimension.context_components[category]">
-																<a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
-																	{{ getFirstAttribute(category, componentId) }}
+																{{ getFirstAttribute(category, componentId) }}
+																<a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)" style="text-decoration: none;">
+																	<i class="bi bi-zoom-in"></i> 
 																</a>
 															</li>
 														</ul>
 													</li>
 												</ul>
 											</span>
-										</div>
-										
-										<!-- Modal para mostrar detalles del componente de contexto -->
-										<div class="modal fade" id="contextComponentModal" tabindex="-1" aria-labelledby="contextComponentModalLabel" aria-hidden="true">
-											<div class="modal-dialog">
-												<div class="modal-content">
-													<div class="modal-header">
-														<h5 class="modal-title" id="contextComponentModalLabel">Component Details</h5>
-														<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-													</div>
-													<div class="modal-body">
-														<ul>
-															<li *ngFor="let key of selectedComponentKeys">
-																<strong>{{ formatCategoryName(key) }}:</strong> {{ selectedComponentDetails[key] }}
-															</li>
-														</ul>
-													</div>
-													<div class="modal-footer">
-														<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-													</div>
-												</div>
-											</div>
 										</div>
 
 
@@ -149,8 +135,9 @@
 																		{{ formatCategoryName(category) }}:
 																		<ul>
 																			<li *ngFor="let componentId of factor.context_components[category]">
-																				<a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
-																					{{ getFirstAttribute(category, componentId) }}
+																				{{ getFirstAttribute(category, componentId) }}
+																				<a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)" style="text-decoration: none;">
+																					<i class="bi bi-zoom-in"></i> 
 																				</a>
 																			</li>
 																		</ul>
@@ -340,7 +327,7 @@
 
 					</div>
 
-					<div class="d-flex gap-3 mt-2">
+					<div class="d-flex gap-2 mt-2">
 						<button class="btn btn-dark btn-sm mt-3" (click)="openConfirmDQModelModal()">Confirm DQ Model</button>
 						<button class="btn btn-info btn-sm mt-3" (click)="generatePdf()">DQ Model Report PDF</button>
 					</div>
@@ -354,13 +341,24 @@
 	</div>
 
 
+<app-data-at-hand-view-modal
+  #dataAtHandModal
+  [dataAtHandDetails]="dataAtHandDetails"
+  [dataSchema]="dataSchema">
+</app-data-at-hand-view-modal>
+
+<app-context-component-view-modal
+  #contextComponentModal
+  [selectedComponentKeys]="selectedComponentKeys"
+  [selectedComponentDetails]="selectedComponentDetails">
+</app-context-component-view-modal>
 	
-	<app-modal
+<app-modal
   [isOpen]="isConfirmDQModelModalOpen"
   [title]="'Confirm DQ Model Finalization'"
   [message]="confirmDQModelMessage"
-  (close)="onConfirmDQModelModalClose()"
-></app-modal>
+  (close)="onConfirmDQModelModalClose()">
+</app-modal>
 
 <!-- Botones personalizados para el modal de confirmación -->
 <div class="d-flex gap-2 mt-2">

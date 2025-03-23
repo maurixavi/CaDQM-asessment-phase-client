@@ -1,0 +1,52 @@
+<!-- Modal para mostrar el esquema de datos y los detalles del data_at_hand -->
+<div class="modal fade" id="dataAtHandModal" tabindex="-1" aria-labelledby="dataAtHandModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="dataAtHandModalLabel">Data at Hand</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Detalles del data_at_hand -->
+        <div *ngIf="dataAtHandDetails" class="mb-4">
+          <!--<h6 class="fw-bold">Data at Hand Details</h6>-->
+          <ul>
+            <li><strong>Database Name:</strong> {{ dataAtHandDetails.dbname }}</li>
+            <li><strong>Description:</strong> {{ dataAtHandDetails.description }}</li>
+            <li><strong>Type:</strong> {{ dataAtHandDetails.type }}</li>
+          </ul>
+        </div>
+
+        <!-- Esquema de datos -->
+        <div *ngIf="dataSchema">
+          <h6 class="fw-bold">Data Schema</h6>
+          <div *ngFor="let table of dataSchema" class="mb-4">
+            <h6>{{ table.table_name }} (Table ID: {{ table.table_id }})</h6>
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Column Name</th>
+                  <th>Data Type</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let column of table.columns">
+                  <td>{{ column.column_name }}</td>
+                  <td>{{ column.data_type }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Mensaje si no hay datos -->
+        <div *ngIf="!dataSchema && !dataAtHandDetails" class="text-center">
+          <p>No data available.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
