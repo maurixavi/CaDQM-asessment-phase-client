@@ -7,6 +7,8 @@ import { ProjectDataService } from '../../services/project-data.service';
 
 import { Router } from '@angular/router';
 
+import { buildContextComponents, formatCtxCompCategoryName, getFirstNonIdAttribute } from '../../shared/utils/utils';
+
 declare var bootstrap: any; 
 
 export interface DataQualityProblem {
@@ -52,7 +54,7 @@ interface QualityMetric {
 @Component({
   selector: 'app-dqproblems-priorization',
   templateUrl: './dqmeasurement-metric-definition.component.html',
-  styleUrl: './dqmeasurement-metric-definition.component.scss'
+  styleUrl: './dqmeasurement-metric-definition.component.css'
 })
 export class DQMetricDefinitionComponent implements OnInit {
   currentStep: number = 3; //Step 4
@@ -60,14 +62,17 @@ export class DQMetricDefinitionComponent implements OnInit {
   phaseTitle: string = 'Phase 2: DQ Assessment';
   stageTitle: string = 'Stage 4: DQ Model Definition';
 
-  steps = [
-    { displayName: 'A09.1', route: 'st4/a09-1' },
-    { displayName: 'A09.2', route: 'st4/a09-2' },
-    { displayName: 'A10', route: 'st4/a10' },
-    { displayName: 'A11', route: 'st4/a11' },
-    { displayName: 'A12', route: 'st4/a12' },
-    { displayName: 'DQ Model Confirmation', route: 'st4/confirmation-stage-4' }
+  isNextStepEnabled: boolean = true;
+
+  steps: { displayName: string, route: string, description: string }[] = [
+    { displayName: 'A09.1', route: 'st4/a09-1', description: 'Prioritization of DQ Problems' },
+    { displayName: 'A09.2', route: 'st4/a09-2', description: 'Selection of DQ Problems' },
+    { displayName: 'A10', route: 'st4/a10', description: 'Selection of DQ Dimensions and Factors' },
+    { displayName: 'A11', route: 'st4/a11', description: 'Definition of DQ Metrics' },
+    { displayName: 'A12', route: 'st4/a12', description: 'Implementation of DQ Methods' },
+    { displayName: 'DQ Model Confirmation', route: 'st4/confirmation-stage-4', description: 'DQ Model Confirmation' }
   ];
+
 
   problems: DataQualityProblem[] = [];
   //contextComponents: ContextComponent[] = [];
@@ -79,6 +84,9 @@ export class DQMetricDefinitionComponent implements OnInit {
 
   isModalBaseOpen: boolean = false;
 
+  //Utils.py
+  public formatCtxCompCategoryName = formatCtxCompCategoryName;
+  public getFirstNonIdAttribute = getFirstNonIdAttribute
 
   constructor(private router: Router, 
     private modelService: DqModelService,
@@ -143,92 +151,6 @@ export class DQMetricDefinitionComponent implements OnInit {
     }
   }
 
-  buildContextComponents(selectedComponents: { id: number; category: string; value: string }[]): any {
-    const contextComponents = {
-      applicationDomain: selectedComponents
-        .filter((comp) => comp.category === "applicationDomain")
-        .map((comp) => comp.id),
-      businessRule: selectedComponents
-        .filter((comp) => comp.category === "businessRule")
-        .map((comp) => comp.id),
-      dataFiltering: selectedComponents
-        .filter((comp) => comp.category === "dataFiltering")
-        .map((comp) => comp.id),
-      dqMetadata: selectedComponents
-        .filter((comp) => comp.category === "dqMetadata")
-        .map((comp) => comp.id),
-      dqRequirement: selectedComponents
-        .filter((comp) => comp.category === "dqRequirement")
-        .map((comp) => comp.id),
-      otherData: selectedComponents
-        .filter((comp) => comp.category === "otherData")
-        .map((comp) => comp.id),
-      otherMetadata: selectedComponents
-        .filter((comp) => comp.category === "otherMetadata")
-        .map((comp) => comp.id),
-      systemRequirement: selectedComponents
-        .filter((comp) => comp.category === "systemRequirement")
-        .map((comp) => comp.id),
-      taskAtHand: selectedComponents
-        .filter((comp) => comp.category === "taskAtHand")
-        .map((comp) => comp.id),
-      userType: selectedComponents
-        .filter((comp) => comp.category === "userType")
-        .map((comp) => comp.id),
-    };
-  
-    return contextComponents;
-  }
-
-  onFactorSelected(): void {
-    if (this.selectedFactor) {
-      console.log("Selected Factor:", this.selectedFactor);
-      // Limpiar la selección actual
-      this.selectionCheckboxCtxComponents = [];
-
-      //Obtener Dimension del factor
-      this.fetchDQDimensionDetails(this.selectedFactor.dimension);
-  
-      // Cargar los componentes de contexto asociados al factor seleccionado
-      const contextComponents = this.selectedFactor.context_components;
-      Object.keys(contextComponents).forEach((category) => {
-        contextComponents[category].forEach((componentId: number) => {
-          const component = this.allContextComponents[category].find(
-            (comp: any) => comp.id === componentId
-          );
-          if (component) {
-            this.selectionCheckboxCtxComponents.push({
-              id: componentId,
-              category: category,
-              value: this.getFirstNonIdAttribute(component),
-            });
-            console.log("selectionCheckboxCtxComponents:", this.selectionCheckboxCtxComponents)
-          }
-        });
-      });
-
-      
-    }
-  }
-
-  hasSelectedComponents(category: string): boolean {
-    return this.selectionCheckboxCtxComponents.some(
-      (component) => component.category === category
-    );
-  }
-
-
-  selectedMetric: any = null; 
-  onMetricSelected(): void {
-    console.log("Selected Metric:", JSON.stringify(this.selectedMetric, null, 2));
-  }
-
-
-  selectedBaseMetric: any = null; // Métrica base seleccionada
-  // Método llamado cuando se selecciona una métrica base
-  onBaseMetricSelected(): void {
-    console.log("Selected Base Metric:", this.selectedBaseMetric);
-  }
 
   project_: any;
   allDQProblems_: any[] = [];
@@ -242,6 +164,8 @@ export class DQMetricDefinitionComponent implements OnInit {
   dqModelId: number = -1;
   dqModelVersionId: number | null = null;
   dqModel: any = null;
+
+  dataSchema: any = null;
 
   ngOnInit() {
     this.getDQFactorsBase();
@@ -305,6 +229,12 @@ export class DQMetricDefinitionComponent implements OnInit {
         //this.loadDQModelDimensionsAndFactors();
       }
     });
+
+    // Suscribirse al esquema de datos
+    this.projectDataService.dataSchema$.subscribe((data) => {
+      this.dataSchema = data;
+      console.log('Data Schema:', data); // Ver el esquema de datos en la consola
+    });
   }
 
   //projectId: number | null = null;
@@ -337,6 +267,56 @@ export class DQMetricDefinitionComponent implements OnInit {
         console.error('Error al cargar el proyecto en el componente:', err);
       }
     });
+  }
+
+  onFactorSelected(): void {
+    if (this.selectedFactor) {
+      console.log("Selected Factor:", this.selectedFactor);
+      // Limpiar la selección actual
+      this.selectionCheckboxCtxComponents = [];
+
+      //Obtener Dimension del factor
+      this.fetchDQDimensionDetails(this.selectedFactor.dimension);
+  
+      // Cargar los componentes de contexto asociados al factor seleccionado
+      const contextComponents = this.selectedFactor.context_components;
+      Object.keys(contextComponents).forEach((category) => {
+        contextComponents[category].forEach((componentId: number) => {
+          const component = this.allContextComponents[category].find(
+            (comp: any) => comp.id === componentId
+          );
+          if (component) {
+            this.selectionCheckboxCtxComponents.push({
+              id: componentId,
+              category: category,
+              value: this.getFirstNonIdAttribute(component),
+            });
+            console.log("selectionCheckboxCtxComponents:", this.selectionCheckboxCtxComponents)
+          }
+        });
+      });
+
+      
+    }
+  }
+
+  hasSelectedComponents(category: string): boolean {
+    return this.selectionCheckboxCtxComponents.some(
+      (component) => component.category === category
+    );
+  }
+
+
+  selectedMetric: any = null; 
+  onMetricSelected(): void {
+    console.log("Selected Metric:", JSON.stringify(this.selectedMetric, null, 2));
+  }
+
+
+  selectedBaseMetric: any = null; // Métrica base seleccionada
+  // Método llamado cuando se selecciona una métrica base
+  onBaseMetricSelected(): void {
+    console.log("Selected Base Metric:", this.selectedBaseMetric);
   }
 
   // DQ PROBLEMS
@@ -394,7 +374,7 @@ export class DQMetricDefinitionComponent implements OnInit {
   }
 
   getDQProblemsDetails(dqProblemIds: number[]): any[] {
-    return this.selectedPrioritizedProblems.filter(problem => dqProblemIds.includes(problem.id));
+    return this.allDQProblems.filter(problem => dqProblemIds.includes(problem.id));
   }
 
   // Función para obtener los detalles de los problemas asociados al factor seleccionado
@@ -517,11 +497,11 @@ export class DQMetricDefinitionComponent implements OnInit {
   
 
   //**** CTX ACCORDION ***** */
-  getFirstNonIdAttribute(item: any): string {
+  /*getFirstNonIdAttribute(item: any): string {
     const keys = Object.keys(item);
     const firstNonIdKey = keys.find((key) => key !== 'id');
     return firstNonIdKey ? item[firstNonIdKey] : '';
-  }
+  }*/
 
   selectedCtxComponents: { id: number; category: string; value: string }[] = [];
   
@@ -732,7 +712,7 @@ export class DQMetricDefinitionComponent implements OnInit {
       return;
     }
 
-    const context_components = this.buildContextComponents(this.selectionCheckboxCtxComponents);
+    const context_components = buildContextComponents(this.selectionCheckboxCtxComponents);
     console.log(context_components)
   
     const metricToAdd = {
@@ -755,6 +735,7 @@ export class DQMetricDefinitionComponent implements OnInit {
         factor.definedMetrics.push(data); // Asumiendo que el backend devuelve la métrica agregada
   
         // Limpiar la selección
+        this.selectedFactor = null;
         this.selectedBaseMetric = null;
       },
       error: (err) => {

@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 
 import { DQProblemsPriorizationComponent } from './pages/dqproblems-priorization/dqproblems-priorization.component';
 import { DQProblemsSelectionComponent } from './pages/dqproblems-selection/dqproblems-selection.component';
+
 import {DQMetricDefinitionComponent} from './pages/dqmeasurement-metric-definition/dqmeasurement-metric-definition.component';
 import {DqDimensionsMethodsDefinitionComponent} from './pages/dq-dimensions-methods-definition/dq-dimensions-methods-definition.component';
 
@@ -22,7 +23,6 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { DQMeasurementPreviewComponent } from './pages/dqmeasurement-preview-run/dqmeasurement-preview-run.component';
 
 import { HeaderComponent } from './shared/header/header.component';
-
 import { ContextComponentsComponent } from './shared/context-components/context-components.component';
 import { ContextComponentsService } from './shared/context-components/context-components.service';
 import { DQModelConfirmationComponent } from './pages/dqmodel-confirmation/dqmodel-confirmation.component';
@@ -32,6 +32,9 @@ import { StepNavigatorComponent } from './shared/step-navigator/step-navigator.c
 import { DqModelService } from './services/dq-model.service';
 import { StepperComponent } from './shared/stepper/stepper.component';
 import { HomeComponent } from './pages/home/home.component';
+import { ModalComponent } from './components/modal/modal.component';
+import { ConfirmationModalComponent } from './components/confirmation-modal/confirmation-modal.component';
+import { DqMeasurementExecutionComponent } from './pages/dq-measurement-execution/dq-measurement-execution.component';
 
 
 @NgModule({
@@ -50,7 +53,10 @@ import { HomeComponent } from './pages/home/home.component';
     DQModelConfirmationComponent,
     StepNavigatorComponent,
     StepperComponent,
-    HomeComponent
+    HomeComponent,
+    ModalComponent,
+    ConfirmationModalComponent,
+    DqMeasurementExecutionComponent
   ],
   imports: [
     BrowserModule,

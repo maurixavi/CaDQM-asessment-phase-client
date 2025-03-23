@@ -3,6 +3,7 @@
     [pageStepTitle]="pageStepTitle" 
     [phaseTitle]="phaseTitle" 
     [stageTitle]="stageTitle" 
+    [steps]="steps"
     [currentStep]="currentStep">
   </app-step-navigator>
 
@@ -426,7 +427,7 @@
             </div>  
             <div class="label-selected">
               <label class="label-title-selected">Data at hand:</label>
-              <span class="label-value-selected">Dataset A</span>
+              <span class="label-value-selected">Data at Hand Id: {{ project.data_at_hand }}</span>
             </div>
             <div class="label-selected">
               <label class="label-title-selected">DQ Metrics:</label>
@@ -676,5 +677,6 @@
 <app-stepper
   [currentStep]="currentStep"
   [totalSteps]="steps.length"
+  [isNextStepEnabled]="isNextStepEnabled"
   (stepChange)="onStepChange($event)">
 </app-stepper>

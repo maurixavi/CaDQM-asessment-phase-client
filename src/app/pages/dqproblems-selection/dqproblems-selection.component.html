@@ -3,6 +3,7 @@
     [pageStepTitle]="pageStepTitle" 
     [phaseTitle]="phaseTitle" 
     [stageTitle]="stageTitle" 
+    [steps]="steps"
     [currentStep]="currentStep">
   </app-step-navigator>
 
@@ -454,6 +455,7 @@
 <app-stepper
   [currentStep]="currentStep"
   [totalSteps]="steps.length"
+  [isNextStepEnabled]="isNextStepEnabled"
   (stepChange)="onStepChange($event)">
 </app-stepper>
 

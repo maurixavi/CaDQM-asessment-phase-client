@@ -184,6 +184,11 @@ hr.my-4 {
   max-width: 640px;
 }
 
+.ctx-selection-accordion-container-edit{
+  width: 640px;
+  margin-bottom: 1rem;
+}
+
 .dimensions-factors-selected-accordion-container{
   max-width: 100%;
 }
@@ -533,7 +538,6 @@ hr.my-4 {
   width: auto;
   margin-top: 10px;
   font-weight: 500;
-  font-style: italic;
 }
 
 
@@ -653,14 +657,11 @@ hr.my-4 {
 }
 
 .form-check-label {
-  font-size: 16px;
+  font-size: 15px;
   margin-left: 0.5rem; /* Espacio entre el checkbox y el label */
 }
 
-/* Cambia el color del icono info al pasar por el checkbox */
-.form-check-input:checked + .form-check-label i {
 
-}
 
 .dimension-selected .label-value {
   font-weight: 100; /* Aumenta el grosor de la fuente */
@@ -675,10 +676,7 @@ hr.my-4 {
   border-top: 1px solid #eee;
 }
 
-.custom-items-section {
-  /*border-top: 1px solid #eee;
-  padding-top: 15px;*/
-}
+
 
 .form-control-sm {
   font-size: 0.875rem;
@@ -833,7 +831,17 @@ hr.my-4 {
 }
 
 .dq-problems-accordion-container {
-  max-width: 640px;
+  /*max-width: 640px;*/
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  padding: 1rem;
+  /*margin-top: 1rem;*/
+}
+
+.dq-problems-accordion-container-edit { 
+  /*width: 100%;*/
+  width: 640px;
   border: 1px solid #dee2e6;
   border-radius: 8px;
   background-color: #f9f9f9;
@@ -846,7 +854,7 @@ hr.my-4 {
   display: flex;
   flex-wrap: wrap; /* Permite que las secciones se ajusten en pantallas pequeñas */
   gap: 20px; /* Espacio entre las secciones */
-  margin: 1rem 0; /* Margen superior e inferior */
+  /*margin: 1rem 0;*/ /* Margen superior e inferior */
 }
 
 .ctx-components-selection-container,

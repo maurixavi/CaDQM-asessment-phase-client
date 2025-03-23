@@ -3,6 +3,7 @@
     [pageStepTitle]="pageStepTitle" 
     [phaseTitle]="phaseTitle" 
     [stageTitle]="stageTitle" 
+    [steps]="steps"
     [currentStep]="currentStep">
   </app-step-navigator>
 
@@ -51,7 +52,7 @@
                   <span class="label-value-selected">
                     <ul>
                       <li *ngFor="let category of getContextComponentCategories(selectedFactor.context_components)">
-                        {{ formatCategoryName(category) }}:
+                        {{ formatCtxCompCategoryName(category) }}:
                         <ul>
                           <li *ngFor="let componentId of selectedFactor.context_components[category]">
                             <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
@@ -89,7 +90,7 @@
                   <div class="modal-body">
                     <ul>
                       <li *ngFor="let key of selectedComponentKeys">
-                        <strong>{{ formatCategoryName(key) }}:</strong> {{ selectedComponentDetails[key] }}
+                        <strong>{{ formatCtxCompCategoryName(key) }}:</strong> {{ selectedComponentDetails[key] }}
                       </li>
                     </ul>
                   </div>
@@ -148,7 +149,7 @@
                   <div >
                     <ul>
                       <li *ngFor="let category of getContextComponentCategories(selectionCheckboxCtxComponents)">
-                        {{ formatCategoryName(category) }}:
+                        {{ formatCtxCompCategoryName(category) }}:
                         <ul>
                           <li *ngFor="let component of getComponentsByCategory(selectionCheckboxCtxComponents, category)">
                             <a href="javascript:void(0)" (click)="openContextComponentModal(category, component.id)">
@@ -180,7 +181,7 @@
                             [class.collapsed]="!hasSelectedComponents(category)"
                             style="padding: 0.1rem 0.9rem;"
                           >
-                            {{ formatCategoryName(category) }}
+                            {{ formatCtxCompCategoryName(category) }}
                           </button>
                         </h5>
                         <div
@@ -296,7 +297,7 @@
             </div>  
             <div class="label-selected">
               <label class="label-title-selected">Data at hand:</label>
-              <span class="label-value-selected">Dataset A</span>
+              <span class="label-value-selected">Data at Hand Id: {{ project.data_at_hand }}</span>
             </div>
             <div class="label-selected">
               <label class="label-title-selected">DQ Factors:</label>
@@ -338,7 +339,7 @@
                         <span class="label-value-selected">
                             <ul>
                                 <li *ngFor="let category of getContextComponentCategories(factor.context_components)">
-                                    {{ formatCategoryName(category) }}:
+                                    {{ formatCtxCompCategoryName(category) }}:
                                     <ul>
                                         <li *ngFor="let componentId of factor.context_components[category]">
                                             <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
@@ -402,7 +403,7 @@
                                     <span class="label-value-selected">
                                         <ul>
                                             <li *ngFor="let category of getContextComponentCategories(metric.context_components)">
-                                                {{ formatCategoryName(category) }}:
+                                                {{ formatCtxCompCategoryName(category) }}:
                                                 <ul>
                                                     <li *ngFor="let componentId of metric.context_components[category]">
                                                         <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
@@ -466,5 +467,6 @@
 <app-stepper
   [currentStep]="currentStep"
   [totalSteps]="steps.length"
+  [isNextStepEnabled]="isNextStepEnabled"
   (stepChange)="onStepChange($event)">
 </app-stepper>

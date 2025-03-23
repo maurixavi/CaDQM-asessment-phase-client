@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation  } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewEncapsulation  } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { DqModelService } from '../../services/dq-model.service';
@@ -14,7 +14,7 @@ declare var bootstrap: any;
   templateUrl: './dqmodel-confirmation.component.html',
   //styleUrl: './dqmodel-confirmation.component.css',
   styleUrls: ['./dqmodel-confirmation.component.css'],    
-  encapsulation: ViewEncapsulation.None
+  //encapsulation: ViewEncapsulation.None
 })
 
 
@@ -34,14 +34,17 @@ export class DQModelConfirmationComponent implements OnInit {
   phaseTitle: string = 'Phase 2: DQ Assessment';
   stageTitle: string = 'Stage 4: DQ Model Definition';
 
-  steps = [
-    { displayName: 'A09.1', route: 'st4/a09-1' },
-    { displayName: 'A09.2', route: 'st4/a09-2' },
-    { displayName: 'A10', route: 'st4/a10' },
-    { displayName: 'A11', route: 'st4/a11' },
-    { displayName: 'A12', route: 'st4/a12' },
-    { displayName: 'DQ Model Confirmation', route: 'st4/confirmation-stage-4' }
+  steps: { displayName: string, route: string, description: string }[] = [
+    { displayName: 'A09.1', route: 'st4/a09-1', description: 'Prioritization of DQ Problems' },
+    { displayName: 'A09.2', route: 'st4/a09-2', description: 'Selection of DQ Problems' },
+    { displayName: 'A10', route: 'st4/a10', description: 'Selection of DQ Dimensions and Factors' },
+    { displayName: 'A11', route: 'st4/a11', description: 'Definition of DQ Metrics' },
+    { displayName: 'A12', route: 'st4/a12', description: 'Implementation of DQ Methods' },
+    { displayName: 'DQ Model Confirmation', route: 'st4/confirmation-stage-4', description: 'DQ Model Confirmation' }
   ];
+
+
+  isNextStepEnabled: boolean = true;
 
   project: any; 
   projectId: number | null = null;
@@ -56,19 +59,18 @@ export class DQModelConfirmationComponent implements OnInit {
   
   dqModelVersionId: number | null = null;
 
+  dataSchema: any = null;
+
   constructor(
     private router: Router, 
+    private cdr: ChangeDetectorRef, // Inyectar ChangeDetectorRef
     private modelService: DqModelService,
     private projectService: ProjectService,
     private projectDataService: ProjectDataService, 
   ) {}
 
   ngOnInit(): void {
-    console.log('StepperComponent initialized');
-    console.log('Current Step:', this.currentStep);
-    //console.log('Total Steps:', this.totalSteps);
 
-    //this.loadCurrentProject();
     // Obtener el Project ID actual
     this.projectId = this.projectDataService.getProjectId();
     console.log("projectIdGet: ", this.projectId);
@@ -109,11 +111,6 @@ export class DQModelConfirmationComponent implements OnInit {
       this.originalProblems = data;
       console.log('DQ Problems:', data);
 
-      // Una vez que los problemas están cargados, cargar los problemas priorizados
-      /*if (this.projectId !== null) {
-        this.loadSelectedPrioritizedDQProblems(this.projectId);
-        this.getCurrentDQModel(this.projectId);
-      }*/
     });
 
     // Suscribirse a la versión del modelo de calidad de datos (DQ Model Version)
@@ -127,6 +124,11 @@ export class DQModelConfirmationComponent implements OnInit {
         this.loadFullDQModel(this.dqModelVersionId);
   
       }
+    });
+
+    this.projectDataService.dataSchema$.subscribe((data) => {
+      this.dataSchema = data;
+      console.log('Data Schema:', data); // Ver el esquema de datos en la consola
     });
   }
 
@@ -189,6 +191,11 @@ export class DQModelConfirmationComponent implements OnInit {
       next: (dqModel) => {
         this.currentDQModel = dqModel;
         console.log('DQ Model cargado:', this.currentDQModel);
+        if (this.currentDQModel.status === "finished") {
+          this.isNextStepEnabled = true;
+          console.log(this.isNextStepEnabled);
+        }
+        this.cdr.detectChanges(); // Forzar la detección de cambios
       },
       error: (err) => {
         console.error('Error al cargar el DQ Model:', err);
@@ -197,6 +204,9 @@ export class DQModelConfirmationComponent implements OnInit {
   }
 
 
+  getDQProblemsDetails(dqProblemIds: number[]): any[] {
+    return this.originalProblems.filter(problem => dqProblemIds.includes(problem.id));
+  }
 
 
   getAllContextComponents(contextVersionId: number): void {
@@ -210,85 +220,27 @@ export class DQModelConfirmationComponent implements OnInit {
   }
 
 
-  loadFullDQModel_BACKUP(dqModelId: number): void {
-    this.modelService.getFullDQModel(dqModelId).subscribe({
-      next: (data) => {
-        this.completeDQModel = this.transformDQModelToIterable(data);
-        this.isLoading = false;
-  
-        // Obtener detalles de las dimensiones base
-        this.completeDQModel.dimensions.forEach((dimension: any) => {
-          this.getDimensionBaseDetails_BACKUP(dimension);
-  
-          // Obtener detalles de los factores base
-          dimension.factors.forEach((factor: any) => {
-            this.getFactorBaseDetails_backup(factor);
-  
-            // Obtener detalles de las métricas base
-            factor.metrics.forEach((metric: any) => {
-              this.getMetricBaseDetails(metric);
-  
-              // Obtener detalles de los métodos base
-              metric.methods.forEach((method: any) => {
-                this.getMethodBaseDetails(method);
-
-                //console.log("Método:", method.method_name);
-                //console.log("Applied Methods:", method.applied_methods);
-  
-                // Obtener detalles de los métodos aplicados (measurements y aggregations)
-                if (method.applied_methods) {
-                  // Obtener measurements
-                  if (method.applied_methods.measurements && method.applied_methods.measurements.length > 0) {
-                    method.applied_methods.measurements.forEach((measurement: any) => {
-                      this.getMeasurementDetails(measurement);
-                    });
-                  }
-  
-                  // Obtener aggregations
-                  if (method.applied_methods.aggregations && method.applied_methods.aggregations.length > 0) {
-                    method.applied_methods.aggregations.forEach((aggregation: any) => {
-                      this.getAggregationDetails(aggregation);
-                    });
-                  }
-                }
-              });
-            });
-          });
-        });
-  
-        console.log("COMPLETE DQModel con detalles base:", this.completeDQModel);
-      },
-      error: (err) => {
-        console.error('Error al cargar el DQModel.', err);
-        this.isLoading = false;
-      }
-    });
-  }
-
   async loadFullDQModel(dqModelId: number): Promise<void> {
     try {
       const data = await this.modelService.getFullDQModel(dqModelId).toPromise();
       this.completeDQModel = this.transformDQModelToIterable(data);
       this.isLoading = false;
   
-      // Obtener el mapa de problemas priorizados
-      const prioritizedProblemsMap = await this.getPrioritizedProblemsMap();
-  
       // Obtener detalles de las dimensiones base
       for (const dimension of this.completeDQModel.dimensions) {
-        await this.getDimensionBaseDetails(dimension, prioritizedProblemsMap);
+        await this.geDQDimensionDetails(dimension);
   
         // Obtener detalles de los factores base
         for (const factor of dimension.factors) {
-          await this.getFactorBaseDetails(factor, prioritizedProblemsMap);
+          await this.getDQFactorDetails(factor);
   
           // Obtener detalles de las métricas base
           for (const metric of factor.metrics) {
-            this.getMetricBaseDetails(metric);
+            this.getDQMetricDetails(metric);
   
             // Obtener detalles de los métodos base
             for (const method of metric.methods) {
-              this.getMethodBaseDetails(method);
+              this.getDQMethodDetails(method);
   
               // Obtener detalles de los métodos aplicados (measurements y aggregations)
               if (method.applied_methods) {
@@ -318,60 +270,6 @@ export class DQModelConfirmationComponent implements OnInit {
     }
   }
 
-
-  async getPrioritizedProblemsMap(): Promise<Map<number, number>> {
-    // Verificar que this.projectId no sea null
-    if (this.projectId === null) {
-      throw new Error("Project ID is null. Cannot load prioritized problems.");
-    }
-  
-    // Obtener los problemas priorizados
-    const prioritizedProblems = await this.projectService
-      .getPrioritizedDQProblemsByProjectId(this.projectId)
-      .toPromise();
-  
-    // Crear el mapa de id de problemas priorizados a dq_problem_id
-    const prioritizedProblemsMap = new Map<number, number>();
-  
-    prioritizedProblems.forEach((problem: { id: number; dq_problem_id: number }) => {
-      prioritizedProblemsMap.set(problem.id, problem.dq_problem_id);
-    });
-  
-    return prioritizedProblemsMap;
-  }
-
-  async getDimensionBaseDetails(dimension: any, prioritizedProblemsMap: Map<number, number>): Promise<void> {
-    this.modelService.getDimensionBaseDetails(dimension.dimension_base).subscribe({
-      next: (data) => {
-        dimension.attributesBase = data; // Agregar detalles base al objeto de dimensión
-  
-        // Mapear los detalles de los problemas asociados a la dimensión
-        dimension.dq_problems_details = this.mapDQProblemDetails(dimension.dq_problems, prioritizedProblemsMap);
-  
-        console.log("Detalles de la dimensión cargados:", dimension);
-        console.log("Problemas de la dimensión:", dimension.dq_problems_details); // Depuración
-      },
-      error: (err) => {
-        console.error('Error al obtener detalles de la dimensión base:', err);
-      },
-    });
-  }
-  
-  async getFactorBaseDetails(factor: any, prioritizedProblemsMap: Map<number, number>): Promise<void> {
-    this.modelService.getFactorBaseDetails(factor.factor_base).subscribe({
-      next: (data) => {
-        factor.attributesBase = data; // Agregar detalles base al objeto de factor
-  
-        // Mapear los detalles de los problemas asociados al factor
-        factor.dq_problems_details = this.mapDQProblemDetails(factor.dq_problems, prioritizedProblemsMap);
-  
-        console.log("Detalles del factor cargados:", factor);
-      },
-      error: (err) => {
-        console.error('Error al obtener detalles del factor base:', err);
-      },
-    });
-  }
 
 
 
@@ -468,8 +366,7 @@ export class DQModelConfirmationComponent implements OnInit {
   }
 
 
-
-  getDimensionBaseDetails_BACKUP(dimension: any): void {
+  geDQDimensionDetails(dimension: any): void {
     this.modelService.getDimensionBaseDetails(dimension.dimension_base).subscribe({
       next: (data) => {
         dimension.attributesBase = data; // Agregar detalles base al objeto de dimensión
@@ -486,19 +383,9 @@ export class DQModelConfirmationComponent implements OnInit {
     });
   }
 
-  getDimensionBaseDetails0(dimension: any): void {
-    this.modelService.getDimensionBaseDetails(dimension.dimension_base).subscribe({
-      next: (data) => {
-        dimension.attributesBase = data; // Agregar detalles al objeto de dimensión
-      },
-      error: (err) => {
-        console.error('Error al obtener detalles de la dimensión base:', err);
-      }
-    });
-  }
 
 
-  getFactorBaseDetails_backup(factor: any): void {
+  getDQFactorDetails(factor: any): void {
 
     this.modelService.getFactorBaseDetails(factor.factor_base).subscribe({
       next: (data) => {
@@ -514,19 +401,8 @@ export class DQModelConfirmationComponent implements OnInit {
     });
   }
 
-  getFactorBaseDetails0(factor: any): void {
-    this.modelService.getFactorBaseDetails(factor.factor_base).subscribe({
-      next: (data) => {
-        factor.attributesBase = data; 
-      },
-      error: (err) => {
-        console.error('Error al obtener detalles del factor base:', err);
-      }
-    });
-  }
 
-
-  getMetricBaseDetails(metric: any): void {
+  getDQMetricDetails(metric: any): void {
     this.modelService.getMetricBaseDetails(metric.metric_base).subscribe({
       next: (data) => {
         metric.attributesBase = data; // Agregar detalles al objeto de métrica
@@ -538,7 +414,7 @@ export class DQModelConfirmationComponent implements OnInit {
   }
 
 
-  getMethodBaseDetails(method: any): void {
+  getDQMethodDetails(method: any): void {
     this.modelService.getMethodBaseDetails(method.method_base).subscribe({
       next: (data) => {
         method.attributesBase = data; // Agregar detalles al objeto de método
@@ -762,7 +638,7 @@ export class DQModelConfirmationComponent implements OnInit {
 
   //DQ MODEL CONFIRMATION
   // Método para abrir el modal de confirmación
-  openConfirmDQModelModal(): void {
+  openConfirmDQModelModal_backup(): void {
     const modalElement = document.getElementById('confirmDQModelModal');
     if (modalElement) {
       const modal = new bootstrap.Modal(modalElement);
@@ -770,11 +646,20 @@ export class DQModelConfirmationComponent implements OnInit {
     }
   }
 
+  openConfirmDQModelModal(): void {
+    this.isConfirmDQModelModalOpen = true;
+  }
+
+  onConfirmDQModelModalClose(): void {
+    this.isConfirmDQModelModalOpen = false;
+  }
+
+  
   // Método para confirmar la finalización del DQ Model
   confirmationFinishedDQModel(): void {
     this.finishCurrentDQModel(); // Llamar al método que hace la operación en el backend
     this.closeConfirmDQModelModal(); // Cerrar el modal después de confirmar
-    this.router.navigate(['/']); // Redirigir a la raíz del proyecto
+    //this.router.navigate(['/']); // Redirigir a la raíz del proyecto
   }
 
   // Método para cancelar y cerrar el modal
@@ -798,6 +683,7 @@ export class DQModelConfirmationComponent implements OnInit {
         next: (response) => {
           console.log('DQ Model finalizado:', response);
           alert('El DQ Model ha sido finalizado con éxito.'); // Mensaje de éxito
+          this.isNextStepEnabled = true;
           this.loadCurrentDQModel(this.currentDQModel.id); // Recargar el DQ Model actualizado
         },
         error: (err) => {
@@ -1371,11 +1257,36 @@ export class DQModelConfirmationComponent implements OnInit {
     this.currentStep = step;
     this.navigateToStep(step);
   }
+  /*onStepChange(step: number): void {
+    if (this.isNextStepEnabled) {
+      this.currentStep = step;
+    } else {
+      console.warn('No se puede avanzar. El estado del modelo no es "finished".');
+    }
+  }*/
   
   navigateToStep(stepIndex: number) {
     const route = this.steps[stepIndex].route;
     this.router.navigate([route]);
   }
 
+
+  // Propiedades para el modal de confirmación
+  isConfirmDQModelModalOpen: boolean = false;
+  confirmDQModelMessage: string = `
+  Are you sure you want to finalize the definition of the DQ Model?
+  By confirming, the model will no longer be editable, and its status will be updated from "Draft" to "Finished".
+  This action cannot be undone.
+`;
+
+
+  // Método para manejar la finalización del stage
+  onCompleteStage(): void {
+    // Navegar al siguiente stage (por ejemplo, Stage 5)
+    this.router.navigate(['/st5/execution']); // Cambia '/stage5' por la ruta correcta
+
+    // Reiniciar el contador de pasos (si es necesario)
+    this.currentStep = 0;
+  }
 
 }

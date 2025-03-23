@@ -4,14 +4,14 @@
 	<h2 class="title">Projects</h2>
   <!--<p class="subtitle-description mt-4">Current Project</p>-->
 
-  <div class="flex-container mt-4">
-    <div class="suggested-section-container">
+  <div class="flex-container">
+    <div class="section-container">
       <div class="dashboard-container">
         <table class="table table-hover">
           <thead class="thead-dark custom-thead">
             <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Description</th>
+              <th scope="col">Project</th>
+              <th scope="col">Creation Date</th>
               <th scope="col">Context version</th>
               <th scope="col">DQ Model version</th>
               <th scope="col">Stage</th>
@@ -26,8 +26,8 @@
               [class.table-active]="project.id === selectedProject?.id"
               class="clickable-row"
             >
-              <td>{{ project.name }}</td>
-              <td>{{ project.description }}</td>
+              <td class="project-name" [attr.data-tooltip]="project.description">{{ project.name }}</td>
+              <td>{{ project.created_at | date:'MMM d, y' }}</td>
               <td>{{ project.context_version }}</td>
               <td>{{ project.dqmodel_version }}</td>
               <td>

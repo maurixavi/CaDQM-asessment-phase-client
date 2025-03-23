@@ -4,6 +4,7 @@
 		[pageStepTitle]="pageStepTitle" 
 		[phaseTitle]="phaseTitle" 
 		[stageTitle]="stageTitle" 
+    [steps]="steps"
 		[currentStep]="currentStep">
 	</app-step-navigator>
 
@@ -182,17 +183,6 @@
                   <div class="label-selected">
                     <label class="label-title-selected-ctx">From Context Components:</label>
                   </div>
-                  <!--<div *ngFor="let selected of selected_Components" class="label-selected">
-                    <label class="label-title-selected">{{ selected?.category }}</label>
-                    <span class="label-value-selected">
-                      {{ selected?.value }}
-                      <i 
-                        *ngIf="isEditSuggestedContextVisible" 
-                        class="bi bi-x-lg" 
-                        (click)="removeSelectedComponent(selected)">
-                      </i>
-                    </span>
-                  </div>-->
                   
                   <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
                     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
@@ -232,9 +222,9 @@
                             [attr.aria-controls]="'panelsStayOpen-collapse' + i"
                             [attr.aria-expanded]="i === 0 ? 'true' : 'false'"
                             [class.collapsed]="i !== 0"
-                            style="padding: 0.1rem 0.9rem;"
+                            style="padding: 0.6rem 0.9rem;"
                           >
-                            {{ formatCategoryName(category) }}
+                            {{ formatCtxCompCategoryName(category) }}
                           </button>
                         </h5>
                         <div
@@ -244,16 +234,16 @@
                           [attr.aria-labelledby]="'panelsStayOpen-heading' + i"
                         >
                           <div class="accordion-body">
-                            <div *ngFor="let item of context_Components[category]" class="form-check">
+                            <div *ngFor="let item of allContextComponents[category]" class="form-check">
                               <input
                               class="form-check-input"
                               type="checkbox"
                               [id]="'checkbox-' + category + '-' + item.id"
                               [checked]="isComponentSelected(category, getFirstNonIdAttribute(item))"
-                              (change)="onCheckboxChange(item.id, category, getFirstNonIdAttribute(item), $event)"
+                              (change)="onCtxComponentsCheckboxChange_fromScratch(item.id, category, getFirstNonIdAttribute(item), $event)"
                               />
                               <label class="form-check-label" [for]="'checkbox-' + category + '-' + item.id">
-                                {{ getFirstNonIdAttribute(item) }} <i class="bi bi-info-circle"></i>
+                                {{ getFirstNonIdAttribute(item) }}
                               </label>
                             </div>
                           </div>
@@ -343,13 +333,28 @@
           </div>
 
 
-          <button 
+          <!--<button 
             type="button" 
-            class="btn btn-dark mt-4" 
-            (click)="addToDQModel(selectedDimension, selectedFactor, selected_Components, this.selectedProblemsFromScratch)" 
+            class="btn btn-sm btn-dark mt-4" 
+            (click)="addToDQModel(selectedDimension, selectedFactor, ctxComponentsChecked_fromScratch, this.selectedProblemsFromScratch)" 
             [disabled]="!selectedDimension || !selectedFactor">
             Add to DQ Model
-          </button>
+          </button>-->
+          <button
+          type="button"
+          class="btn btn-sm btn-dark mt-4"
+          (click)="openConfirmationModal(
+            'Add to DQ Model',
+            'Are you sure you want to add this dimension and factor to the DQ Model?',
+            'addToDQModel',
+            selectedDimension,
+            selectedFactor,
+            ctxComponentsChecked_fromScratch,
+            selectedProblemsFromScratch
+          )"
+          [disabled]="!selectedDimension || !selectedFactor">
+          Add to DQ Model
+        </button>
 
           <div *ngIf="duplicateFactor" class="alert alert-warning mt-2">
             Este par de dimensión y factor ya ha sido agregado.
@@ -604,7 +609,7 @@
                       [class.collapsed]="!hasSelectedComponents(category)"
                       style="padding: 0.6rem 0.9rem;"
                     >
-                      {{ formatCategoryName(category) }}
+                      {{ formatCtxCompCategoryName(category) }}
                     </button>
                   </h2>
                   <div
@@ -614,13 +619,13 @@
                     [attr.aria-labelledby]="'panelsStayOpen-heading' + i"
                   >
                     <div class="accordion-body">
-                      <div *ngFor="let item of context_Components[category]" class="ms-2 form-check">
+                      <div *ngFor="let item of allContextComponents[category]" class="ms-2 form-check">
                         <input
                         class="form-check-input"
                         type="checkbox"
                         [id]="'checkbox-' + category + '-' + item.id"
                         [checked]="isComponentSelectedInSuggestions(category, getFirstNonIdAttribute(item))"
-                        (change)="onCheckboxChangeCtxSuggestions(item.id, category, getFirstNonIdAttribute(item), $event)"
+                        (change)="onCtxComponentsCheckboxChange_suggestion(item.id, category, getFirstNonIdAttribute(item), $event)"
                         />
                         <label class="form-check-label" [for]="'checkbox-' + category + '-' + item.id">
                           {{ getFirstNonIdAttribute(item) }} <i class="bi bi-info-circle"></i>
@@ -772,7 +777,7 @@
             </div>  
             <div class="label-selected">
               <label class="label-title-selected">Data at hand:</label>
-              <span class="label-value-selected">Dataset A</span>
+              <span class="label-value-selected">Data at Hand Id: {{ project.data_at_hand }}</span>
             </div> 
             <div class="label-selected-dqelement">
               <label class="label-title-selected">DQ Dimensions:</label>
@@ -813,21 +818,69 @@
                         <span class="label-value-selected">{{ dim.baseAttributes.semantic }}</span>
                       </div>
 
+                      <!-- Componentes de contexto -->
                       <div class="label-selected">
-                        <label class="label-title-selected">Suggested by:</label>
+                        <label class="label-title-selected">Suggested by (Ctx. Components):</label>
                         <span class="label-value-selected">
-                          <ul>
-                            <li *ngFor="let category of getContextComponentCategories(dim.dimension.context_components)">
-                              <strong>{{ formatCategoryName(category) }}:</strong>
-                              <ul>
-                                <li *ngFor="let componentId of dim.dimension.context_components[category]">
-                                  <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
-                                    {{ getFirstAttribute(category, componentId) }}
-                                  </a>
-                                </li>
-                              </ul>
-                            </li>
-                          </ul>
+                          <!-- Solo lectura -->
+                          <div *ngIf="!dim.dimension.isEditing">
+                            <ul>
+                              <li *ngFor="let category of getContextComponentCategories(dim.dimension.context_components)">
+                                {{ formatCtxCompCategoryName(category) }}:
+                                <ul>
+                                  <li *ngFor="let componentId of dim.dimension.context_components[category]">
+                                    <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
+                                      {{ getFirstAttribute(category, componentId) }}
+                                    </a>
+                                  </li>
+                                </ul>
+                              </li>
+                            </ul>
+                          </div>
+
+                          <!-- Vista de edición (acordeón) -->                 
+                          <div *ngIf="dim.dimension.isEditing" class="ctx-selection-accordion-container-edit">
+                            <div class="accordion" id="accordionPanelsStayOpenExample">
+                              <div *ngFor="let category of categories; let i = index" class="accordion-item">
+                                <h5 class="accordion-header" [id]="'panelsStayOpen-heading' + i">
+                                  <button
+                                    class="accordion-button"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    [attr.data-bs-target]="'#panelsStayOpen-collapse' + i"
+                                    [attr.aria-controls]="'panelsStayOpen-collapse' + i"
+                                    [attr.aria-expanded]="hasComponents(category, dim.dimension.tempContextComponents) ? 'true' : 'false'"
+                                    [class.collapsed]="!hasComponents(category, dim.dimension.tempContextComponents)"
+                                    style="padding: 0.6rem 0.9rem;"
+                                  >
+                                    {{ formatCtxCompCategoryName(category) }}
+                                  </button>
+                                </h5>
+                                <div
+                                  [id]="'panelsStayOpen-collapse' + i"
+                                  class="accordion-collapse collapse"
+                                  [class.show]="hasComponents(category, dim.dimension.tempContextComponents)"
+                                  [attr.aria-labelledby]="'panelsStayOpen-heading' + i"
+                                >
+                                  <div class="accordion-body">
+                                    <div *ngFor="let item of allContextComponents[category]" class="form-check">
+                                      <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        [id]="'checkbox-' + category + '-' + item.id"
+                                        [checked]="isComponentSelected_editing(category, item.id, dim.dimension.tempContextComponents)"
+                                        (change)="onCtxComponentsCheckboxChange(item.id, category, dim.dimension)"
+                                      />
+                                      <label class="form-check-label" [for]="'checkbox-' + category + '-' + item.id">
+                                        {{ getFirstNonIdAttribute(item) }}
+                                      </label>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          </div>
+
                         </span>
                       </div>
 
@@ -842,7 +895,7 @@
                             <div class="modal-body">
                               <ul>
                                 <li *ngFor="let key of selectedComponentKeys">
-                                  <strong>{{ formatCategoryName(key) }}:</strong> {{ selectedComponentDetails[key] }}
+                                  <strong>{{ formatCtxCompCategoryName(key) }}:</strong> {{ selectedComponentDetails[key] }}
                                 </li>
                               </ul>
                             </div>
@@ -853,17 +906,39 @@
                         </div>
                       </div>
 
-                      <!-- DQ Problems IDs 
-                      <span class="label-value-selected">{{ dim.dimension.dq_problems.join(', ') }} </span> -->
-
+                      <!-- DQ Problems -->
                       <div class="label-selected">
                         <label class="label-title-selected">Based on (DQ Problems):</label>
                         <span class="label-value-selected">
-                          <ul>
-                            <li *ngFor="let problem of dim.dimension.dq_problems_details">
-                              {{ problem.description }}
-                            </li>
-                          </ul>
+                          <!-- DQ Problems - Solo lectura -->
+                          <div *ngIf="!dim.dimension.isEditing && dim.dimension.dq_problems_details?.length > 0">
+                          
+                            <ul>
+                              <li *ngFor="let problem of dim.dimension.dq_problems_details">
+                                {{ problem.description }}
+                              </li>
+                            </ul>
+                          </div>
+                          
+                          <!-- DQ Problems - Edicion -->
+                          <div *ngIf="dim.dimension.isEditing" class="dq-problems-accordion-container-edit">
+                       
+                            <div class="checkbox-container">
+                              <div *ngFor="let problem of selectedPrioritizedProblems; let i = index" class="form-check">
+                                <input
+                                  class="form-check-input"
+                                  type="checkbox"
+                                  [id]="'problem-checkbox-' + problem.dq_problem_id"
+                                  [checked]="isProblemSelected(problem.dq_problem_id, dim.dimension.dq_problems)"
+                                  (change)="onProblemCheckboxChange(problem.dq_problem_id, dim.dimension)"
+                                />
+                                <label class="form-check-label" [for]="'problem-checkbox-' + problem.id">
+                                  {{ problem.description }}
+                                </label>
+                                </div>
+                              </div>
+                           
+                          </div>
                         </span>
                         
                       </div>
@@ -873,13 +948,10 @@
                         <label class="label-title-selected">DQ Factors:</label>
                         <!-- SHOW BTN <span class="label-value-selected"><button class="btn btn-light btn-sm ">Show <i class="bi bi-chevron-down"></i></button></span> -->
                       </div>
-                      
-                      <!-- Accordion FACTORS -->
-                      <div class="accordion mt-2 mx-3" [id]="'factorAccordion' + i">
-                        <div
-                          class="accordion-item"
-                          *ngFor="let factor of dim.factors; let j = index"
-                        >
+
+                      <!-- Accordion FACTORS edit -->
+                      <div class="accordion mx-3" [id]="'factorAccordion' + i">
+                        <div class="accordion-item" *ngFor="let factor of dim.factors; let j = index">
                           <h2 class="accordion-header" [id]="'factorHeading' + i + '-' + j">
                             <button
                               class="accordion-button collapsed"
@@ -891,7 +963,8 @@
                               style="padding: 0.6rem 0.9rem;"
                             >
                               <span>
-                                <label class="label-title">DQ Factor:</label> <span class="dimension-name">{{ factor.factor_name }}</span>
+                                <label class="label-title">DQ Factor:</label> 
+                                <span class="dimension-name">{{ factor.factor_name }}</span>
                               </span>
                             </button>
                           </h2>
@@ -900,7 +973,6 @@
                             class="accordion-collapse collapse"
                             [attr.aria-labelledby]="'factorHeading' + i + '-' + j"
                             [attr.data-bs-parent]="'#factorAccordion' + i"
-                            
                           >
                             <div class="accordion-body">
                               <div class="label-selected">
@@ -908,60 +980,145 @@
                                 <span class="label-value-selected">{{ factor.baseAttributes.semantic }}</span>
                               </div>
 
+                              <!-- Componentes de contexto -->
                               <div class="label-selected">
                                 <label class="label-title-selected">Ctx (Arises from):</label>
                                 <span class="label-value-selected">
-                                  <ul>
-                                    <li *ngFor="let category of getContextComponentCategories(factor.context_components)">
-                                      <strong>{{ formatCategoryName(category) }}:</strong>
-                                      <ul>
-                                        <li *ngFor="let componentId of factor.context_components[category]">
-                                          <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
-                                            {{ getFirstAttribute(category, componentId) }}
-                                          </a>
-                                        </li>
-                                      </ul>
-                                    </li>
-                                  </ul>
+                                  <!-- Solo lectura -->
+                                  <div *ngIf="!factor.isEditing">
+                                    <ul>
+                                      <li *ngFor="let category of getContextComponentCategories(factor.context_components)">
+                                        {{ formatCtxCompCategoryName(category) }}:
+                                        <ul>
+                                          <li *ngFor="let componentId of factor.context_components[category]">
+                                            <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
+                                              {{ getFirstAttribute(category, componentId) }}
+                                            </a>
+                                          </li>
+                                        </ul>
+                                      </li>
+                                    </ul>
+                                  </div>
+
+                                  <!-- Vista de edición -->
+                                  <div *ngIf="factor.isEditing" class="ctx-selection-accordion-container-edit">
+                                    <div class="accordion" id="accordionPanelsStayOpenExample">
+                                      <div *ngFor="let category of categories; let k = index" class="accordion-item">
+                                        <h5 class="accordion-header" [id]="'panelsStayOpen-heading' + k">
+                                          <button
+                                            class="accordion-button"
+                                            type="button"
+                                            data-bs-toggle="collapse"
+                                            [attr.data-bs-target]="'#panelsStayOpen-collapse' + k"
+                                            [attr.aria-controls]="'panelsStayOpen-collapse' + k"
+                                            [attr.aria-expanded]="hasComponents(category, factor.tempContextComponents)"
+                                            [class.collapsed]="!hasComponents(category, factor.tempContextComponents)"
+                                            style="padding: 0.6rem 0.9rem;"
+                                          >
+                                            {{ formatCtxCompCategoryName(category) }}
+                                          </button>
+                                        </h5>
+                                        <div
+                                          [id]="'panelsStayOpen-collapse' + k"
+                                          class="accordion-collapse collapse"
+                                          [class.show]="hasComponents(category, factor.tempContextComponents)"
+                                          [attr.aria-labelledby]="'panelsStayOpen-heading' + k"
+                                        >
+                                          <div class="accordion-body">
+                                            <div *ngFor="let item of allContextComponents[category]" class="form-check">
+                                              <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                [id]="'checkbox-' + category + '-' + item.id"
+                                                [checked]="isComponentSelected_editing(category, item.id, factor.tempContextComponents)"
+                                                (change)="onCtxComponentsCheckboxChange(item.id, category, factor)"
+                                              />
+                                              <label class="form-check-label" [for]="'checkbox-' + category + '-' + item.id">
+                                                {{ getFirstNonIdAttribute(item) }}
+                                              </label>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </span>
                               </div>
 
-
+                              <!-- DQ Problems -->
                               <div class="label-selected">
                                 <label class="label-title-selected">DQ Problems (Used):</label>
-                                <!--<span class="label-value-selected">s{{ factor.dq_problems.join(', ') }}</span>-->
-                                <div *ngIf="factor.dq_problems_details.length > 0">
-                                  <ul>
-                                    <li *ngFor="let problem of factor.dq_problems_details">
-                                      {{ problem.description }}
-                                    </li>
-                                  </ul>
-                                </div>
+                                <span class="label-value-selected">
+                                  <div *ngIf="factor.dq_problems_details.length > 0">
+                                    <ul>
+                                      <li *ngFor="let problem of factor.dq_problems_details">
+                                        {{ problem.description }}
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </span>
                               </div>
-                              
-                              
-                              <!-- DQ Factors button -->
+
+                              <!-- Botones de edición -->
                               <div *ngIf="currentDQModel.status === 'draft'">
                                 <br>
-                                <button (click)="deleteFactor(factor.id)" class="btn btn-outline-danger btn-sm">
+                                <button
+                                  (click)="openConfirmationModal(
+                                    'Remove DQ Factor',
+                                    'Are you sure you want to remove this factor from the DQ Model?',
+                                    'deleteFactor',
+                                    factor.id
+                                  )"
+                                  class="btn btn-outline-danger btn-sm"
+                                >
                                   Remove DQ Factor
-                                </button> 
+                                </button>
+                                <button
+                                  class="btn btn-light btn-sm ms-2"
+                                  (click)="toggleEditDQFactorVisibility(factor)"
+                                >
+                                  {{ factor.isEditing ? 'Cancel' : 'Edit' }}
+                                </button>
+                                <button
+                                  *ngIf="factor.isEditing"
+                                  (click)="saveFactorContextComponents(factor, dim.dimension.id)"
+                                  class="btn btn-dark btn-sm ms-2"
+                                >
+                                  Save Changes
+                                </button>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
                       
-                      <!-- DQ Dimensions buttons -->
+                      
+
+                      <br>
                       <div *ngIf="currentDQModel.status === 'draft'">
-                        <br> <br>
-                        <button (click)="deleteDimension(dim.dimension.id)" class="btn btn-outline-danger btn-sm">
+                        <div class="d-flex gap-3 mt-3">
+                         <!--  <button (click)="deleteDimension(dim.dimension.id)" class="btn btn-outline-danger btn-sm flex-grow-0">
+                            Remove DQ Dimension
+                          </button> -->
+                          <button
+                          (click)="openConfirmationModal(
+                            'Remove DQ Dimension',
+                            'Are you sure you want to remove this dimension and its associated factors?',
+                            'deleteDimension',
+                            dim.dimension.id
+                          )"
+                          class="btn btn-outline-danger btn-sm flex-grow-0">
                           Remove DQ Dimension
-                        </button>
-                        <!--<button (click)="scrollToDiv('dimension-factor-selection')" class="btn btn-light btn-sm ms-2">
-                          Add more Factors
-                        </button>-->
+                          </button>
+                          <button class="btn btn-light btn-sm flex-grow-0" (click)="toggleEditDQDimensionVisibility(dim.dimension)">
+                            {{ dim.dimension.isEditing ? 'Cancel' : 'Edit' }}
+                          </button>
+                          <button *ngIf="dim.dimension.isEditing" (click)="saveContextComponents(dim.dimension)" class="btn btn-dark btn-sm flex-grow-0">
+                            Save Changes
+                          </button>
+                        </div>
                       </div>
+        
 
                     </div>
                   </div>
@@ -1016,10 +1173,22 @@
 
 </div>
 
+<!-- Modal de confirmación -->
+<app-confirmation-modal
+  [isOpen]="isConfirmationModalOpen"
+  [title]="confirmationModalTitle"
+  [message]="confirmationModalMessage"
+  (confirm)="handleConfirm()"
+  (cancel)="handleCancel()">
+</app-confirmation-modal>
+
+
+
 
 <app-stepper
   [currentStep]="currentStep"
   [totalSteps]="steps.length"
+  [isNextStepEnabled]="isNextStepEnabled"
   (stepChange)="onStepChange($event)">
 </app-stepper>
 

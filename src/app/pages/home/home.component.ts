@@ -48,6 +48,8 @@ export class HomeComponent implements OnInit {
   dqModelVersionId: number | null = null;
   dqModel: any = null;
 
+  dataSchema: any = null;
+
   projects: any[] = []; // Todos los proyectos
   paginatedProjects: any[] = []; // Proyectos mostrados en la página actual
   selectedProject: any = null;
@@ -71,25 +73,31 @@ export class HomeComponent implements OnInit {
     // Suscribirse al proyecto
     this.projectDataService.project$.subscribe((data) => {
       this.project = data;
-      console.log('Project Data:', data);
+      //console.log('Project Data:', data);
     });
 
     // Suscribirse a los componentes del contexto
     this.projectDataService.contextComponents$.subscribe((data) => {
       this.contextComponents = data;
-      console.log('Context Components:', data);
+      //console.log('Context Components:', data);
     });
 
     // Suscribirse a los problemas de calidad de datos (DQ Problems)
     this.projectDataService.dqProblems$.subscribe((data) => {
       this.dqProblems = data;
-      console.log('DQ Problems:', data);
+      //console.log('DQ Problems:', data);
     });
 
     // Suscribirse a la versión del modelo de calidad de datos (DQ Model Version)
     this.projectDataService.dqModelVersion$.subscribe((dqModelVersionId) => {
       this.dqModelVersionId = dqModelVersionId;
-      console.log('DQ Model Version ID:', this.dqModelVersionId);
+      //console.log('DQ Model Version ID:', this.dqModelVersionId);
+    });
+
+    // Suscribirse al esquema de datos
+    this.projectDataService.dataSchema$.subscribe((data) => {
+      this.dataSchema = data;
+      console.log('Data Schema:', data); // Ver el esquema de datos en la consola
     });
   
   

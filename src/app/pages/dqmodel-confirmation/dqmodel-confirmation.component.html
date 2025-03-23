@@ -4,6 +4,7 @@
 		[pageStepTitle]="pageStepTitle" 
 		[phaseTitle]="phaseTitle" 
 		[stageTitle]="stageTitle" 
+		[steps]="steps"
 		[currentStep]="currentStep">
 	</app-step-navigator>
 
@@ -28,7 +29,7 @@
 					</div>
 					<div class="label-selected">
 						<label class="label-title-selected">Data at hand:</label>
-						<span class="label-value-selected">Dataset A</span>
+						<span class="label-value-selected">Data at Hand Id: {{ project.data_at_hand }}</span>
 					</div>
 					<div class="label-selected">
 						<label class="label-title-selected">DQ Dimensions:</label>
@@ -40,16 +41,15 @@
 							<div class="accordion-item mb-2" *ngFor="let dimension of completeDQModel.dimensions; let i = index"
 							style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
 								<h2 class="accordion-header" [id]="'heading' + i">
-									 <button
-                      class="accordion-button"
-                      [ngClass]="{ 'collapsed': i !== 0 }"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      [attr.data-bs-target]="'#collapse' + i"
-                      [attr.aria-expanded]="i === 0 ? 'true' : 'false'"
-                      [attr.aria-controls]="'collapse' + i"
-                      style="padding: 0.6rem 0.9rem;"
-                    >
+										<button
+											class="accordion-button collapsed" 
+											type="button"
+											data-bs-toggle="collapse"
+											[attr.data-bs-target]="'#collapse' + i"
+											aria-expanded="false" 
+											[attr.aria-controls]="'collapse' + i"
+											style="padding: 0.6rem 0.9rem;"
+										>
 										<span>
 											<label class="label-title">DQ Dimension:</label>
 											<span class="dimension-name">{{ dimension.dimension_name }}</span>
@@ -72,7 +72,7 @@
 											<span class="label-value-selected">
 												<ul>
 													<li *ngFor="let category of getContextComponentCategories(dimension.context_components)">
-														<strong>{{ formatCategoryName(category) }}:</strong>
+														{{ formatCategoryName(category) }}:
 														<ul>
 															<li *ngFor="let componentId of dimension.context_components[category]">
 																<a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
@@ -146,7 +146,7 @@
 															<span class="label-value-selected">
 																<ul>
 																	<li *ngFor="let category of getContextComponentCategories(factor.context_components)">
-																		<strong>{{ formatCategoryName(category) }}:</strong>
+																		{{ formatCategoryName(category) }}:
 																		<ul>
 																			<li *ngFor="let componentId of factor.context_components[category]">
 																				<a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
@@ -340,11 +340,8 @@
 
 					</div>
 
-					<!--<div >
+					<div class="d-flex gap-3 mt-2">
 						<button class="btn btn-dark btn-sm mt-3" (click)="openConfirmDQModelModal()">Confirm DQ Model</button>
-					</div>-->
-
-					<div >
 						<button class="btn btn-info btn-sm mt-3" (click)="generatePdf()">DQ Model Report PDF</button>
 					</div>
 
@@ -357,38 +354,25 @@
 	</div>
 
 
+	
+	<app-modal
+  [isOpen]="isConfirmDQModelModalOpen"
+  [title]="'Confirm DQ Model Finalization'"
+  [message]="confirmDQModelMessage"
+  (close)="onConfirmDQModelModalClose()"
+></app-modal>
 
-<!-- Modal de Confirmacion del DQ Model -->
-<div class="modal fade custom-modal-position" id="confirmDQModelModal" tabindex="-1" aria-labelledby="confirmDQModelModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="confirmDQModelModalLabel">Confirm DQ Model Finalization</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        Are you sure you want to finalize the definition of the DQ Model?
-        By confirming, the model will no longer be editable, and its status will be updated from "Draft" to "Finished".
-        This action cannot be undone.
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="cancelConfirmDQModelModal()">Cancel</button>
-        <button type="button" class="btn btn-dark" (click)="confirmationFinishedDQModel()">Confirm</button>
-      </div>
-    </div>
-  </div>
+<!-- Botones personalizados para el modal de confirmación -->
+<div class="d-flex gap-2 mt-2">
+	<button type="button" class="btn btn-sm btn-light" (click)="onConfirmDQModelModalClose()">Cancel</button>
+	<button type="button" class="btn btn-sm btn-dark" (click)="confirmationFinishedDQModel()">Confirm</button>
 </div>
-
-
-<!--
-<div class="next-step-btn-container">
-  <button class="btn btn-dark btn-sm">Next ></button>
-</div>-->
 
 
 <app-stepper
   [currentStep]="currentStep"
   [totalSteps]="steps.length"
+  [isNextStepEnabled]="isNextStepEnabled"
   (stepChange)="onStepChange($event)"
-  (completeStage)="openConfirmDQModelModal()"> <!-- Abrir el modal al completar la etapa -->
+  (completeStage)="onCompleteStage()">
 </app-stepper>

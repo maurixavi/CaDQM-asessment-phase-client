@@ -2,22 +2,22 @@
   margin: auto;
   color: #222;
 }
-
+/*
 .flex-container {
   display: flex;
   justify-content: center;
 }
-
+*//*
 .suggested-section-container {
   width: 100%;
   border: 1px solid #eeeeee;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
   background-color: #fff;
-  padding: 1.5rem;
+  padding: 2.5rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
   font-size: 0.875rem;
-}
+}*/
 
 .title {
   font-size: 1.6rem;
@@ -93,18 +93,56 @@
   background-color: #f8f9fa;
 }
 
-.custom-thead th {
+table {
   font-size: 15px;
+}
+
+.custom-thead th {
+  
   font-weight: 500;
-  color: #444;
-  padding: 8px 10px;
+  /*color: #444;*//*
+  padding: 8px 10px;*/
   text-align: left;
   white-space: nowrap;
 }
 
-.custom-thead th:nth-child(1) { width: 20%; }
-.custom-thead th:nth-child(2) { width: 25%; }
+.custom-thead th:nth-child(1) { width: 35%; }
+.custom-thead th:nth-child(2) { width: 15%; }
 .custom-thead th:nth-child(3) { width: 15%; }
 .custom-thead th:nth-child(4) { width: 15%; }
 .custom-thead th:nth-child(5) { width: 15%; }
 .custom-thead th:nth-child(6) { width: 10%; }
+
+
+/* Estilo base para el tooltip */
+.project-name {
+  position: relative;
+  cursor: pointer; 
+  /*font-size: 15px;
+  font-weight: 500;*/
+}
+
+/* Estilo para el tooltip */
+.project-name::after {
+  content: attr(data-tooltip); /* Muestra el contenido del atributo data-tooltip */
+  position: absolute;
+  bottom: 100%; /* Posiciona el tooltip arriba del texto */
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 10px;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0; /* Inicialmente oculto */
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  pointer-events: none; /* Evita que el tooltip interfiera con el hover */
+}
+
+/* Mostrar el tooltip al pasar el mouse */
+.project-name:hover::after {
+  opacity: 1;
+  visibility: visible;
+}

@@ -62,24 +62,27 @@ interface QualityMethod {
   selector: 'app-dq-dimensions-methods-definition',
   templateUrl: './dq-dimensions-methods-definition.component.html',
   styleUrls: ['./dq-dimensions-methods-definition.component.css'],
-  encapsulation: ViewEncapsulation.None
+  //encapsulation: ViewEncapsulation.None
 })
 export class DqDimensionsMethodsDefinitionComponent implements OnInit {
+
+  isNextStepEnabled: boolean = true;
 
   currentStep: number = 4; // Step 3
   pageStepTitle: string = 'Implementation of DQ Methods';
   phaseTitle: string = 'Phase 2: DQ Assessment';
   stageTitle: string = 'Stage 4: DQ Model Definition';
 
-  steps = [
-    { displayName: 'A09.1', route: 'st4/a09-1' },
-    { displayName: 'A09.2', route: 'st4/a09-2' },
-    { displayName: 'A10', route: 'st4/a10' },
-    { displayName: 'A11', route: 'st4/a11' },
-    { displayName: 'A12', route: 'st4/a12' },
-    { displayName: 'DQ Model Confirmation', route: 'st4/confirmation-stage-4' }
+  steps: { displayName: string, route: string, description: string }[] = [
+    { displayName: 'A09.1', route: 'st4/a09-1', description: 'Prioritization of DQ Problems' },
+    { displayName: 'A09.2', route: 'st4/a09-2', description: 'Selection of DQ Problems' },
+    { displayName: 'A10', route: 'st4/a10', description: 'Selection of DQ Dimensions and Factors' },
+    { displayName: 'A11', route: 'st4/a11', description: 'Definition of DQ Metrics' },
+    { displayName: 'A12', route: 'st4/a12', description: 'Implementation of DQ Methods' },
+    { displayName: 'DQ Model Confirmation', route: 'st4/confirmation-stage-4', description: 'DQ Model Confirmation' }
   ];
 
+  dataSchema: any = null;
   
   dqMethodForm: FormGroup;
   appliedMethodForm: FormGroup;
@@ -400,6 +403,13 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
         //this.loadDQModelDimensionsAndFactors();
       }
     });
+
+    // Suscribirse al esquema de datos
+    this.projectDataService.dataSchema$.subscribe((data) => {
+      this.dataSchema = data;
+      console.log('Data Schema:', data); // Ver el esquema de datos en la consola
+    });
+    
   }
 
 

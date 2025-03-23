@@ -37,14 +37,15 @@ interface DataQualityProblem {
 export class DQProblemsSelectionComponent implements OnInit {
   dqModelId = -1;
 
-  steps = [
-    { displayName: 'A09.1', route: 'st4/a09-1' },
-    { displayName: 'A09.2', route: 'st4/a09-2' },
-    { displayName: 'A10', route: 'st4/a10' },
-    { displayName: 'A11', route: 'st4/a11' },
-    { displayName: 'A12', route: 'st4/a12' },
-    { displayName: 'DQ Model Confirmation', route: 'st4/confirmation-stage-4' }
+  steps: { displayName: string, route: string, description: string }[] = [
+    { displayName: 'A09.1', route: 'st4/a09-1', description: 'Prioritization of DQ Problems' },
+    { displayName: 'A09.2', route: 'st4/a09-2', description: 'Selection of DQ Problems' },
+    { displayName: 'A10', route: 'st4/a10', description: 'Selection of DQ Dimensions and Factors' },
+    { displayName: 'A11', route: 'st4/a11', description: 'Definition of DQ Metrics' },
+    { displayName: 'A12', route: 'st4/a12', description: 'Implementation of DQ Methods' },
+    { displayName: 'DQ Model Confirmation', route: 'st4/confirmation-stage-4', description: 'DQ Model Confirmation' }
   ];
+
 
   //PROJECT
   project: any; 
@@ -55,6 +56,8 @@ export class DQProblemsSelectionComponent implements OnInit {
   pageStepTitle: string = 'Selection of prioritized DQ problems';
   phaseTitle: string = 'Phase 2: DQ Assessment';
   stageTitle: string = 'Stage 4: DQ Model Definition';
+
+  isNextStepEnabled: boolean = true;
 
 
   //prioritizedProblems: DataQualityProblem[] = [];
@@ -285,6 +288,7 @@ export class DQProblemsSelectionComponent implements OnInit {
           this.highPriorityProblemsSelected.push(problem);
           // Remover el problema de la lista de problemas no seleccionados de alta prioridad
           this.highPriorityProblems = this.highPriorityProblems.filter(p => p.id !== problem.id);
+          console.log(this.highPriorityProblemsSelected)
         }
       } else if (problem.priority === 'Medium') {
         // Verificar que no esté ya en la lista de problemas seleccionados de media prioridad
@@ -346,6 +350,11 @@ export class DQProblemsSelectionComponent implements OnInit {
   }
 
   addAllProblems(problems: any[], priority: string): void {
+    // Marcar todos los problemas como seleccionados
+    problems.forEach(problem => {
+      problem.is_selected = true; // Asegurar que is_selected sea true
+    });
+    
     // Dependiendo de la prioridad, agrega todos los problemas a la lista correspondiente
     if (priority === 'High') {
       // Agregar problemas a la lista de seleccionados de alta prioridad
@@ -472,6 +481,8 @@ export class DQProblemsSelectionComponent implements OnInit {
   
   saveSelection() {
 
+    this.isNextStepEnabled = true;
+    
     console.log("HIGH PRIORITY selection:", this.highPriorityProblemsSelected);
     console.log("MEDIUM PRIORITY selection:",this.mediumPriorityProblemsSelected);
     console.log("LOW PRIORITY selection:",this.lowPriorityProblemsSelected);

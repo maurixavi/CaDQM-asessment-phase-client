@@ -271,6 +271,49 @@ export class DqModelService {
     );
   }
 
+  //FACTORS
+  getFactorsByDQModel(dqmodelId: number): Observable<any[]> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/factors/`;
+    return this.http.get<any[]>(url).pipe(
+      catchError(err => {
+        if (err.status === 404) {
+          console.warn(`DQ Factors not found in DQ Model ${dqmodelId}.`);
+          return of([]);  // `of([])` crea un Observable que emite un array vacío
+        }
+        console.error(`Error al obtener Factores del DQ Model ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  getMetricsByDQModel(dqmodelId: number): Observable<any[]> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/metrics/`;
+    return this.http.get<any[]>(url).pipe(
+      catchError(err => {
+        if (err.status === 404) {
+          console.warn(`DQ Metrics not found in DQ Model ${dqmodelId}.`);
+          return of([]);  // `of([])` crea un Observable que emite un array vacío
+        }
+        console.error(`Error al obtener Metrics del DQ Model ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  getMethodsByDQModel(dqmodelId: number): Observable<any[]> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/methods/`;
+    return this.http.get<any[]>(url).pipe(
+      catchError(err => {
+        if (err.status === 404) {
+          console.warn(`DQ Methods not found in DQ Model ${dqmodelId}.`);
+          return of([]);  // `of([])` crea un Observable que emite un array vacío
+        }
+        console.error(`Error al obtener Methods del DQ Model ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
 
   getDQDimensionDetails(dqmodelId: number, dimensionId: number): Observable<any> {
     const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/${dimensionId}`;
@@ -308,6 +351,10 @@ export class DqModelService {
     return this.http.patch<any>(url, updatedData);
   }
 
+  updateDQFactor(dqmodelId: number, dimensionId: number, factorId: number, updatedData: any): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/${dimensionId}/factors/${factorId}/`;
+    return this.http.patch<any>(url, updatedData);
+  }
   
 
 
@@ -621,6 +668,269 @@ export class DqModelService {
   http://localhost:8000/api/aggregation-methods/*/
 
 
+  // Given a DQ Model: Dimensions, Factors, Metrics and Methods operations
+  /**
+ * Fetches a specific dimension by DQModel ID and Dimension ID.
+ * @param dqmodelId - The ID of the DQModel.
+ * @param dimensionId - The ID of the dimension.
+ * @returns Observable with the dimension data.
+ */
+  getDimensionInDQModel(dqmodelId: number, dimensionId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/${dimensionId}/`;
+    return this.http.get<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error fetching dimension ${dimensionId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
 
+  /**
+   * Updates a specific dimension by DQModel ID and Dimension ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param dimensionId - The ID of the dimension.
+   * @param updatedData - The data to update the dimension.
+   * @returns Observable with the updated dimension data.
+   */
+  updateDimensionInDQModel(dqmodelId: number, dimensionId: number, updatedData: any): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/${dimensionId}/`;
+    return this.http.put<any>(url, updatedData).pipe(
+      catchError(err => {
+        console.error(`Error updating dimension ${dimensionId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Deletes a specific dimension by DQModel ID and Dimension ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param dimensionId - The ID of the dimension.
+   * @returns Observable with the deletion response.
+   */
+  deleteDimensionInDQModel(dqmodelId: number, dimensionId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/${dimensionId}/`;
+    return this.http.delete<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error deleting dimension ${dimensionId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Partially updates a specific dimension by DQModel ID and Dimension ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param dimensionId - The ID of the dimension.
+   * @param updatedData - The partial data to update the dimension.
+   * @returns Observable with the updated dimension data.
+   */
+  patchDimensionInDQModel(dqmodelId: number, dimensionId: number, updatedData: any): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/${dimensionId}/`;
+    return this.http.patch<any>(url, updatedData).pipe(
+      catchError(err => {
+        console.error(`Error partially updating dimension ${dimensionId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+    /**
+   * Fetches a specific factor by DQModel ID and Factor ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param factorId - The ID of the factor.
+   * @returns Observable with the factor data.
+   */
+  getFactorInDQModel(dqmodelId: number, factorId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/factors/${factorId}/`;
+    return this.http.get<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error fetching factor ${factorId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Updates a specific factor by DQModel ID and Factor ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param factorId - The ID of the factor.
+   * @param updatedData - The data to update the factor.
+   * @returns Observable with the updated factor data.
+   */
+  updateFactorInDQModel(dqmodelId: number, factorId: number, updatedData: any): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/factors/${factorId}/`;
+    return this.http.put<any>(url, updatedData).pipe(
+      catchError(err => {
+        console.error(`Error updating factor ${factorId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Deletes a specific factor by DQModel ID and Factor ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param factorId - The ID of the factor.
+   * @returns Observable with the deletion response.
+   */
+  deleteFactorInDQModel(dqmodelId: number, factorId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/factors/${factorId}/`;
+    return this.http.delete<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error deleting factor ${factorId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Partially updates a specific factor by DQModel ID and Factor ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param factorId - The ID of the factor.
+   * @param updatedData - The partial data to update the factor.
+   * @returns Observable with the updated factor data.
+   */
+  patchFactorInDQModel(dqmodelId: number, factorId: number, updatedData: any): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/factors/${factorId}/`;
+    return this.http.patch<any>(url, updatedData).pipe(
+      catchError(err => {
+        console.error(`Error partially updating factor ${factorId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+ * Fetches a specific metric by DQModel ID and Metric ID.
+ * @param dqmodelId - The ID of the DQModel.
+ * @param metricId - The ID of the metric.
+ * @returns Observable with the metric data.
+ */
+  getMetricInDQModel(dqmodelId: number, metricId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/metrics/${metricId}/`;
+    return this.http.get<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error fetching metric ${metricId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Updates a specific metric by DQModel ID and Metric ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param metricId - The ID of the metric.
+   * @param updatedData - The data to update the metric.
+   * @returns Observable with the updated metric data.
+   */
+  updateMetricInDQModel(dqmodelId: number, metricId: number, updatedData: any): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/metrics/${metricId}/`;
+    return this.http.put<any>(url, updatedData).pipe(
+      catchError(err => {
+        console.error(`Error updating metric ${metricId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Deletes a specific metric by DQModel ID and Metric ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param metricId - The ID of the metric.
+   * @returns Observable with the deletion response.
+   */
+  deleteMetricInDQModel(dqmodelId: number, metricId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/metrics/${metricId}/`;
+    return this.http.delete<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error deleting metric ${metricId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Partially updates a specific metric by DQModel ID and Metric ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param metricId - The ID of the metric.
+   * @param updatedData - The partial data to update the metric.
+   * @returns Observable with the updated metric data.
+   */
+  patchMetricInDQModel(dqmodelId: number, metricId: number, updatedData: any): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/metrics/${metricId}/`;
+    return this.http.patch<any>(url, updatedData).pipe(
+      catchError(err => {
+        console.error(`Error partially updating metric ${metricId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+    /**
+   * Fetches a specific method by DQModel ID and Method ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param methodId - The ID of the method.
+   * @returns Observable with the method data.
+   */
+  getMethodInDQModel(dqmodelId: number, methodId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/methods/${methodId}/`;
+    return this.http.get<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error fetching method ${methodId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Updates a specific method by DQModel ID and Method ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param methodId - The ID of the method.
+   * @param updatedData - The data to update the method.
+   * @returns Observable with the updated method data.
+   */
+  InDQModelInDQModel(dqmodelId: number, methodId: number, updatedData: any): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/methods/${methodId}/`;
+    return this.http.put<any>(url, updatedData).pipe(
+      catchError(err => {
+        console.error(`Error updating method ${methodId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Deletes a specific method by DQModel ID and Method ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param methodId - The ID of the method.
+   * @returns Observable with the deletion response.
+   */
+  deleteMethodInDQModel(dqmodelId: number, methodId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/methods/${methodId}/`;
+    return this.http.delete<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error deleting method ${methodId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Partially updates a specific method by DQModel ID and Method ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param methodId - The ID of the method.
+   * @param updatedData - The partial data to update the method.
+   * @returns Observable with the updated method data.
+   */
+  patchMethodInDQModel(dqmodelId: number, methodId: number, updatedData: any): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/methods/${methodId}/`;
+    return this.http.patch<any>(url, updatedData).pipe(
+      catchError(err => {
+        console.error(`Error partially updating method ${methodId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
 
 }

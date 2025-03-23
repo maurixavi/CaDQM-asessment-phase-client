@@ -62,6 +62,7 @@
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.5);
+  z-index: 1040; 
 }
 
 .modal-header {
@@ -74,7 +75,7 @@
   right: 10px;
   background: none;
   border: none;
-  font-size: 1.1rem;
+  font-size: 30px;
   color: #999;
   cursor: pointer;
   outline: none;
@@ -233,4 +234,3 @@
   color: #495057; /* Gris más oscuro al hacer hover */
   background-color: #f8f9fa; /* Fondo claro al hacer hover */
 }
-

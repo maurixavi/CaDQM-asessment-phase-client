@@ -33,15 +33,22 @@
           </div>
           <div class="label-selected">
             <label class="label-title-selected">Data at hand:</label>
-            <span class="label-value-selected">Dataset A</span>
+            <span class="label-value-selected">Data at Hand Id: {{ project.data_at_hand }}</span>
           </div>
           <div class="label-selected">
             <label class="label-title-selected">Stage:</label>
-            <span class="label-value-selected">{{ project.stage }}: DQ Model Definition ({{ project.status }})</span>
-          </div>
+              <span class="label-value-selected" *ngIf="project.stage === 'ST1'">ST1: Elicitation</span>
+              <span class="label-value-selected" *ngIf="project.stage === 'ST2'">ST2: Data Analysis</span>
+              <span class="label-value-selected" *ngIf="project.stage === 'ST3'">ST3: User Requirements Analysis</span>
+              <span class="label-value-selected" *ngIf="project.stage === 'ST4'">ST4: DQ Model Definition</span>
+              <span class="label-value-selected" *ngIf="project.stage === 'ST5'">ST5: DQ Measurement</span>
+              <span class="label-value-selected" *ngIf="project.stage === 'ST6'">ST6: DQ Assessment</span>
+            </div>
           <div class="label-selected">
             <label class="label-title-selected">Status:</label>
-            <span class="label-value-selected">{{ project.status }}</span>
+            <span class="label-value-selected text-capitalize"  *ngIf="project.status === 'to_do'">To Do</span>
+            <span class="label-value-selected text-capitalize" *ngIf="project.status === 'in_progress'" >In Progress</span>
+            <span class="label-value-selected text-capitalize" *ngIf="project.status === 'done'" >Done</span>
           </div>
 
           <!-- Botón "Close Project" reutilizable -->
@@ -53,7 +60,7 @@
 
           <!-- Buttons according to Project and DQ Model Status -->
           <div *ngIf="project.dqmodel_version === null">
-            <button class="btn btn-light btn-sm mt-2" (click)="createDQModel()">
+            <button class="btn btn-dark btn-sm mt-2" (click)="createDQModel()">
               Create DQ Model
             </button>
             <ng-container *ngTemplateOutlet="closeProjectButton"></ng-container>
@@ -70,7 +77,7 @@
             <button class="btn btn-dark btn-sm mt-2" (click)="navigateToViewDQModel()">
               View DQ Model
             </button>
-            <button class="btn btn-light btn-sm mt-2 mx-3" (click)="openConfirmationModal('newProject')">
+            <button class="btn btn-light btn-sm mt-2 mx-3" (click)="openFirstModal()">
               New DQ Model
             </button>
             <ng-container *ngTemplateOutlet="closeProjectButton"></ng-container>
@@ -87,8 +94,8 @@
       <div id="confirmationModal" class="modal" tabindex="-1" role="dialog">
         <div class="modal-dialog custom-modal" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">{{ modalTitle }}</h5>
+            <div class="modal-header d-flex align-items-center">
+              <h5 class="modal-title mb-0">{{ modalTitle }}</h5>
               <button type="button" class="close" (click)="closeConfirmationModal()" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -97,13 +104,13 @@
               <p [innerHTML]="modalMessage"></p>
             </div>
             <div class="modal-footer">
-              <div *ngIf="showNewProjectButtons">
-                <button type="button" class="btn btn-sm btn-light mx-2" (click)="openConfirmationModal('create')">DQ Model from Scratch</button>
-                <button type="button" class="btn btn-sm btn-light mx-2" (click)="openConfirmationModal('edit')">New DQ Model Version</button>
+              <div *ngIf="showNewProjectButtons" class="d-flex gap-3 mt-2">
+                <button type="button" class="btn btn-sm btn-dark" (click)="openConfirmationModal('create')">DQ Model from Scratch</button>
+                <button type="button" class="btn btn-sm btn-dark" (click)="openConfirmationModal('edit')">New DQ Model Version</button>
               </div>
-              <div *ngIf="!showNewProjectButtons">
-                <button type="button" class="btn btn-sm btn-light mx-2" (click)="closeConfirmationModal()">Cancel</button>
-                <button type="button" class="btn btn-sm btn-dark mx-2" (click)="confirmAction()">Confirm</button>
+              <div *ngIf="!showNewProjectButtons" class="d-flex gap-3 mt-2">
+                <button type="button" class="btn btn-sm btn-light" (click)="closeConfirmationModal()">Cancel</button>
+                <button type="button" class="btn btn-sm btn-dark" (click)="confirmAction()">Confirm</button>
               </div>
             </div>
           </div>
@@ -112,3 +119,32 @@
     </div>
   </div>
 </div>
+
+
+<!-- Primer modal (opciones) -->
+<app-modal
+  [isOpen]="isFirstModalOpen"
+  [title]="firstModalTitle"
+  [message]="firstModalMessage"
+  (close)="onFirstModalClose()"
+>
+  <!-- Botones personalizados para el primer modal -->
+  <div class="d-flex gap-2 mt-2">
+    <button type="button" class="btn btn-sm btn-dark" (click)="onOption1Click()">DQ Model from Scratch</button>
+    <button type="button" class="btn btn-sm btn-dark" (click)="onOption2Click()">New DQ Model Version</button>
+  </div>
+</app-modal>
+
+<!-- Segundo modal (confirmación) -->
+<app-modal
+  [isOpen]="isSecondModalOpen"
+  [title]="secondModalTitle"
+  [message]="secondModalMessage"
+  (close)="onSecondModalClose()"
+>
+  <!-- Botones personalizados para el segundo modal -->
+  <div class="d-flex gap-2 mt-2">
+    <button type="button" class="btn btn-sm btn-light" (click)="onSecondModalClose()">Cancel</button>
+    <button type="button" class="btn btn-sm btn-dark" (click)="onSecondModalConfirm()">Confirm</button>
+  </div>
+</app-modal>

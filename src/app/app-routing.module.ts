@@ -10,7 +10,9 @@ import { DQMeasurementPreviewComponent } from './pages/dqmeasurement-preview-run
 import { DQModelConfirmationComponent } from './pages/dqmodel-confirmation/dqmodel-confirmation.component';
 import {DQMetricDefinitionComponent} from './pages/dqmeasurement-metric-definition/dqmeasurement-metric-definition.component';
 import { DqDimensionsMethodsDefinitionComponent } from './pages/dq-dimensions-methods-definition/dq-dimensions-methods-definition.component';
-import { HomeComponent } from './pages/home/home.component';
+import { HomeComponent } from './pages/home/home.component'
+
+import { DqMeasurementExecutionComponent } from './pages/dq-measurement-execution/dq-measurement-execution.component';
  
 /*const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -24,6 +26,7 @@ import { HomeComponent } from './pages/home/home.component';
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'phase2/dashboard', component: DashboardComponent },
+  { path: 'st5/execution', component: DqMeasurementExecutionComponent },
   { path: 'st4', children: [
     { path: 'a09-1', component: DQProblemsPriorizationComponent },
     { path: 'a09-2', component: DQProblemsSelectionComponent },

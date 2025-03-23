@@ -34,6 +34,9 @@ export class ProjectDataService {
   public dqModelVersion$ = this.dqModelVersionSubject.asObservable(); 
   //public dqModel$ = this.dqModelSubject.asObservable();
 
+  private dataSchema: any = null;
+  private dataSchemaSubject = new BehaviorSubject<any>(null);
+  public dataSchema$ = this.dataSchemaSubject.asObservable();
   //constructor(private http: HttpClient) {}
 
   constructor(private http: HttpClient) {
@@ -100,6 +103,12 @@ export class ProjectDataService {
         if (this.contextVersionId) {
           this.loadAdditionalData(); // Cargar los otros datos solo si hay context_version
         }
+
+        // Obtener el esquema de datos usando el data_at_hand del proyecto
+        if (project.data_at_hand) {
+          this.getDataSchemaByDataAtHandId(project.data_at_hand).subscribe();
+        }
+
       }),
       catchError(this.handleError<any>('loadProjectAndComponents'))
     );
@@ -127,6 +136,17 @@ export class ProjectDataService {
     });
   }
 
+  private getDataSchemaByDataAtHandId(dataAtHandId: number): Observable<any> {
+    const url = `${this.baseUrl}/data-at-hand/${dataAtHandId}/data-schema/`;
+    return this.http.get<any>(url).pipe(
+      tap((data) => {
+        this.dataSchema = data;
+        this.dataSchemaSubject.next(data);
+      }),
+      catchError(this.handleError<any>('getDataSchemaByDataAtHandId'))
+    );
+  }
+
   private getProjectById(projectId: number): Observable<any> {
     const url = `${this.API_URL_PROJECTS}${projectId}/`;
     return this.http.get<any>(url).pipe(
@@ -138,7 +158,7 @@ export class ProjectDataService {
   private getContextComponentsByContextVersion(contextVersionId: number): Observable<any> {
     const url = `${this.API_URL_CONTEXT_VERSIONS}${contextVersionId}/context-components/`;
     return this.http.get<any>(url).pipe(
-      tap((data) => console.log(`Fetched Context Components for Version ID=${contextVersionId}:`, data)),
+      //tap((data) => console.log(`Fetched Context Components for Version ID=${contextVersionId}:`, data)),
       catchError(this.handleError<any>(`getContextComponentsByContextVersion id=${contextVersionId}`))
     );
   }
@@ -146,7 +166,7 @@ export class ProjectDataService {
   private getDQProblemsByProjectId(projectId: number): Observable<any[]> {
     const url = `${this.API_URL_PROJECTS}${projectId}/dq-problems/`;
     return this.http.get<any[]>(url).pipe(
-      tap((data) => console.log(`Fetched DQ Problems for Project ID=${projectId}:`, data)),
+      //tap((data) => console.log(`Fetched DQ Problems for Project ID=${projectId}:`, data)),
       catchError(this.handleError<any[]>(`getDQProblemsByProjectId id=${projectId}`, []))
     );
   }
@@ -161,6 +181,11 @@ export class ProjectDataService {
 
   public getCurrentProject(): any {
     return this.projectSubject.value;
+  }
+
+ 
+  getProject(): Observable<any> {
+    return this.project$; 
   }
 
   getCurrentContextComponents(): any {

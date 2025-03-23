@@ -1,0 +1,141 @@
+/* Para centrar el modal en la pantalla */
+.modal-dialog {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Para que ocupe toda la altura de la pantalla */
+}
+
+.modal-content {
+  position: relative; /* Asegura que el contenido no se salga del modal */
+}
+
+/* Para agregar el borde en la parte inferior del header */
+.modal-header {
+  position: relative;
+  padding: 1rem;
+  border-bottom: 2px solid #e9ecef; /* El borde que deseas agregar en la parte inferior */
+}
+
+/* Ajuste adicional para centrar el contenido del modal */
+.modal {
+  display: none; /* El modal estará oculto por defecto */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1050; /* Asegúrate de que esté sobre otros elementos */
+  justify-content: center;
+  align-items: center;
+}
+
+.modal.show {
+  display: flex; /* Cuando se muestra, usa flexbox para centrar */
+}
+
+/* Fondo de la modal */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+.modal-backdrop.show {
+  display: block;
+}
+
+/* Resto de las clases */
+.modal-header {
+  position: relative;
+  padding: 1rem;
+  border-bottom: 2px solid #e9ecef; /* Nuevo borde */
+}
+
+.modal-title {
+  font-size: 18px;
+}
+
+.modal-header .close {
+  position: absolute;
+  top: 4px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: #999;
+  cursor: pointer;
+  outline: none;
+}
+
+.modal-header .close span {
+  display: inline-block;
+}
+
+.modal-header .close:hover {
+  color: #222;
+}
+
+.modal-body .form-group {
+  margin-bottom: 15px;
+}
+
+.modal-body {
+  font-size: 15px;
+  color: #444;
+}
+
+.modal-body input {
+  font-size: 0.875rem;
+  color: #222;
+}
+
+.modal-footer {
+  border-top: none; /* Elimina el borde superior del footer */
+  padding: 1rem; /* Ajusta el padding si es necesario */
+}
+
+.modal-content {
+  border: none; /* Elimina el borde del contenido del modal */
+  box-shadow: none; /* Elimina la sombra del modal si es necesario */
+}
+
+/* Estilo para los botones */
+.btn {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.btn-dark {
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #111;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.btn-dark:hover {
+  background-color: #333;
+  border: 1px solid #333;
+}
+
+.btn-light {
+  background-color: #fff;
+  color: #111;
+  border: 1px solid #bbb;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.btn-light:hover {
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #222;
+  padding-left: 14px;
+  padding-right: 14px;
+}
