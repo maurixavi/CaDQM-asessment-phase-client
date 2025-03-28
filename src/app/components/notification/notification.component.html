@@ -1,0 +1,9 @@
+<div *ngIf="notification" class="notification" [ngClass]="'notification-' + notification.type">
+  <div class="notification-content">
+    <i class="bi" [ngClass]="getIcon()"></i>
+    <span>{{ notification.message }}</span>
+  </div>
+  <button (click)="dismiss()" class="close-btn">
+    <i class="bi bi-x"></i>
+  </button>
+</div>

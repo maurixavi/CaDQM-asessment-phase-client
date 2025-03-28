@@ -1,0 +1,84 @@
+.flex-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 80px;
+}
+
+/* Table */
+.table-container {
+  width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
+  overflow-x: auto; /* Habilita el scroll horizontal */
+  white-space: nowrap; /* Evita que el contenido se divida en varias líneas */
+}
+
+.table {
+  width: 100%; /* Asegura que la tabla ocupe todo el ancho del contenedor */
+}
+
+table {
+  font-size: 14px;
+}
+
+tr.selected-row {
+  background-color: #e9ecef; /* Color de fondo para filas seleccionadas */
+}
+
+.custom-thead th {
+  font-weight: 500;
+  /*color: #444;*//*
+  padding: 8px 10px;*/
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* Estilo para el texto clickeable */
+.clickable-text {
+  cursor: pointer; 
+  text-decoration: underline; 
+}
+
+/* Estilo para los encabezados clickeables */
+.sortable-header {
+  cursor: pointer; /* Efecto de manito */
+  user-select: none; /* Evita que el texto se seleccione al hacer clic */
+}
+
+/* Estilo para los iconos de ordenamiento */
+.sortable-header i {
+  margin-left: 5px;
+  font-size: 12px;
+  color: #6c757d; /* Color gris para el icono por defecto */
+}
+
+/* Cambiar el color del icono cuando la columna está ordenada */
+.sortable-header i.bi-caret-up-fill,
+.sortable-header i.bi-caret-down-fill {
+  color: #007bff; /* Color azul para indicar ordenamiento activo */
+}
+
+/* Estilo para el checkbox */
+input[type="checkbox"] {
+  cursor: pointer;
+}
+
+/* Buttons */
+.btn {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.btn-light {
+  background-color: #fff;
+  color: #111;
+  border: 1px solid #bbb;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.btn-light:hover {
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #222;
+  padding-left: 14px;
+  padding-right: 14px;
+}

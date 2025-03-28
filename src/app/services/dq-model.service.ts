@@ -294,7 +294,7 @@ export class DqModelService {
     );
   }
 
-  getMetricsByDQModel(dqmodelId: number): Observable<any[]> {
+  getMetricsByDQModel_(dqmodelId: number): Observable<any[]> {
     const url = `${this.API_URL_DQMODELS}${dqmodelId}/metrics/`;
     return this.http.get<any[]>(url).pipe(
       catchError(err => {
@@ -303,6 +303,25 @@ export class DqModelService {
           return of([]);  // `of([])` crea un Observable que emite un array vacío
         }
         console.error(`Error al obtener Metrics del DQ Model ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  getMetricsByDQModel(dqmodelId: number): Observable<any[]> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/metrics/`;
+    console.log(`Fetching metrics from URL: ${url}`); 
+    
+    return this.http.get<any[]>(url).pipe(
+      tap(response => {
+        console.log('DQ Metrics fetched', response); 
+      }),
+      catchError(err => {
+        console.error(`Error in getMetricsByDQModel for ID ${dqmodelId}:`, err); // Diagnóstico 4
+        if (err.status === 404) {
+          console.warn(`DQ Metrics not found in DQ Model ${dqmodelId}.`);
+          return of([]);
+        }
         throw err;
       })
     );
@@ -627,6 +646,20 @@ export class DqModelService {
   // Obtener detalles de una aggregation
   getAggregationDetails(aggregationId: number): Observable<any> {
     return this.http.get<any>(`${this.API_URL_ME_METHODS_DQMODEL}${aggregationId}/`);
+  }
+
+
+  getMethodsBaseByMetricBase(metricBaseId: number): Observable<any[]> {
+    const url = `${this.API_URL_METRICS_BASE}${metricBaseId}/methods-base/`;
+    return this.http.get<any[]>(url).pipe(
+      catchError(err => {
+        if (err.status === 404) {
+          console.warn(`No base methods found for metric base ${metricBaseId}`);
+          return of([]);
+        }
+        throw err;
+      })
+    );
   }
 
   //APPLIED DQ METHODS

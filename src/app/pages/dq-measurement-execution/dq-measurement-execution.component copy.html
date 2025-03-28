@@ -1,0 +1,87 @@
+
+<div class="container">
+	<app-step-navigator 
+		[pageStepTitle]="pageStepTitle" 
+		[phaseTitle]="phaseTitle" 
+		[stageTitle]="stageTitle" 
+		[steps]="steps"
+		[currentStep]="currentStep">
+	</app-step-navigator>
+
+	<div>
+		<p class="subtitle-description mt-4">DQ measurement is carried
+			out by executing the DQ methods implemented for each DQ metric</p>
+		<div class="flex-container">
+			<div class="section-container">
+
+				<!-- Spinner de carga -->
+				<div *ngIf="isLoading" class="text-center">
+					<div class="spinner-border" role="status">
+						<span class="sr-only"></span>
+					</div>
+				</div>
+
+				<!-- Mensaje de error -->
+				<div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+					{{ errorMessage }}
+				</div>
+
+				<!-- LIST APPLIED METHODS -->
+				<table class="table table-hover">
+					<thead class="thead-dark custom-thead">
+						<tr>
+							<!-- Checkbox para seleccionar/deseleccionar todos -->
+							<th scope="col">
+								<input
+									type="checkbox"
+									[checked]="isAllSelected()"
+									(change)="toggleSelectAll($event)"
+								/>
+							</th>
+							<th scope="col">DQ Method ></th>
+							<th scope="col">Applied DQ Method</th>
+							<th scope="col">Table</th>
+							<th scope="col">Column</th>
+							<th scope="col">Cell</th>
+							<th scope="col">DQ Metric</th>
+							<th scope="col">DQ Factor</th>
+							<th scope="col">DQ Dimension</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!-- Fila de ejemplo con checkbox -->
+						<tr *ngFor="let method of dqMethods">
+							<!-- Checkbox para seleccionar items individuales -->
+							<td>
+								<input
+									type="checkbox"
+									[checked]="method.selected"
+									(change)="toggleSelectItem(method)"
+								/>
+							</td>
+							<td>{{ method.method_name }}</td>
+							<td></td>
+							<td>Table name</td>
+							<td>Column name</td>
+							<td>Cell name</td>
+							<td>{{ method.metric }}</td>
+							<td></td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table>
+
+				<div class="action-items-container">
+					<button class="btn btn-sm btn-dark" >Execute</button>
+				</div>
+				
+      		
+			</div>
+		</div>
+	</div>
+</div>
+	
+
+
+	
+

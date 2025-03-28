@@ -37,6 +37,7 @@ import { ConfirmationModalComponent } from './components/confirmation-modal/conf
 import { DqMeasurementExecutionComponent } from './pages/dq-measurement-execution/dq-measurement-execution.component';
 import { DataAtHandViewModalComponent } from './shared/data-at-hand-view-modal/data-at-hand-view-modal.component';
 import { ContextComponentViewModalComponent } from './shared/context-component-view-modal/context-component-view-modal.component';
+import { NotificationComponent } from './components/notification/notification.component';
 
 
 @NgModule({
@@ -60,7 +61,8 @@ import { ContextComponentViewModalComponent } from './shared/context-component-v
     ConfirmationModalComponent,
     DqMeasurementExecutionComponent,
     DataAtHandViewModalComponent,
-    ContextComponentViewModalComponent
+    ContextComponentViewModalComponent,
+    NotificationComponent
   ],
   imports: [
     BrowserModule,
