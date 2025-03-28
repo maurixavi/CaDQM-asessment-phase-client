@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation, HostListener } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, HostListener, ChangeDetectorRef } from '@angular/core';
 import contextComponentsJson from '../../../assets/context-components.json';
 import { Router } from '@angular/router';
 import { DqModelService } from '../../services/dq-model.service';
@@ -7,7 +7,23 @@ import { FormBuilder, FormGroup, Validators  } from '@angular/forms';
 
 import { ProjectDataService } from '../../services/project-data.service';
 
+import { buildContextComponents, formatCtxCompCategoryName, getFirstNonIdAttribute } from '../../shared/utils/utils';
+
 declare var bootstrap: any; 
+
+interface ColumnOption {
+  table_id: any;
+  table_name: any;
+  column_id: any;
+  column_name: any;
+  data_type: any;
+}
+
+interface DataColumnOption {
+  value: ColumnOption;
+  label: string;
+}
+
 
 interface ContextComponent {
   id: string;
@@ -85,6 +101,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   isLoading: boolean = false;
 
   dataSchema: any = null;
+  dataAtHandDetails: any = null;
   
   dqMethodForm: FormGroup;
   appliedMethodForm: FormGroup;
@@ -122,34 +139,13 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   confirmedSelectedProblems: DataQualityProblem[] = [];
   confirmedFactors: { [key: number]: number[] } = {};
 
-  qualityDimensions: QualityDimension[] = [
-    { id: 1, name: 'Exactitud (accuracy)' },
-    { id: 2, name: 'Completitud (completeness)' },
-    { id: 3, name: 'Frescura (freshness)' },
-    { id: 4, name: 'Consistencia (consistency)' },
-    { id: 5, name: 'Unicidad (uniqueness)' }
-  ];
-
 
   possibleOutputs: string[] = ['Entero', 'Real', 'Booleano'];
   domains: string[] = ['Entero', 'Real', 'Booleano'];
   newMethod: any = {
     name: '', input: '', output: '', algorithm: '', expanded: false,  metric: undefined};
-  definedMetrics: QualityMethod[] = [];
-  qualityMetrics: QualityMetric[]= [
-    {
-      name: 'Metric1',
-      purpose: 'Nothing',
-      granularity: 'Tupla',
-      domain: 'Real',
-      factor: undefined,
-      definedMethods: [],
-      expanded:false,
-      newMethod: {
-        name: '', input: '', output: '', algorithm: '', expanded: false, metric: undefined}
-    }
-  ];
 
+  definedMetrics: QualityMethod[] = [];
 
   dqFactor_measures: string = '';
 
@@ -215,39 +211,11 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   }
 
   selectedMethodDQModel: any = null; 
-  onMethodDQModelSelected2(): void {
-    console.log("Selected Method DQ Model:", JSON.stringify(this.selectedMethodDQModel, null, 2));
-    console.log("All methods:", this.allMethods);
-
-    const selectedMethodId = Number(this.selectedMethodDQModel);
-  
-    // Busca el método seleccionado en allMethods
-    const selectedMethod = this.allMethods.find((method) => method.id === selectedMethodId);
-  
-    if (selectedMethod) {
-      console.log("Método seleccionado encontrado:", selectedMethod);
-  
-      // Obtiene el method_base del método seleccionado
-      const methodBaseId = selectedMethod.method_base;
-  
-      if (methodBaseId) {
-        console.log("ID del método base:", methodBaseId);
-  
-        // Llama al servicio para obtener los detalles del método base
-        this.getDQMethodsBaseDetails(methodBaseId);
-      } else {
-        console.warn("El método seleccionado no tiene un method_base definido.");
-      }
-    } else {
-      console.warn("No se encontró el método seleccionado en allMethods.");
-    }
-  }
-
   onMethodDQModelSelected(): void {
     // Convierte el valor seleccionado a número
     const selectedId = Number(this.selectedMethodDQModel);
   
-    console.log("Selected Method DQ Model (converted to number):", selectedId);
+    console.log("Selected DQ Method DQ Model id for Applied Method(converted to number):", selectedId);
   
     // Llama a la función para obtener los detalles del método
     this.getDQMethodDetails(selectedId);
@@ -258,43 +226,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   // En tu componente
   selectedDQMethodDetails: any = null; // Almacena los detalles del método base
 
-  // Función para obtener los detalles del método seleccionado y su método base
-  getDQMethodDetails(methodId: number): void {
-    // Busca el método seleccionado en allMethods
-    const selectedMethod = this.allMethods.find((method) => method.id === methodId);
-
-    if (selectedMethod) {
-      console.log("Método seleccionado encontrado:", selectedMethod);
-
-      // Obtiene el method_base del método seleccionado
-      const methodBaseId = selectedMethod.method_base;
-
-      if (methodBaseId) {
-        console.log("ID del método base:", methodBaseId);
-
-        // Llama al servicio para obtener los detalles del método base
-        this.getDQMethodsBaseDetails(methodBaseId);
-      } else {
-        console.warn("El método seleccionado no tiene un method_base definido.");
-      }
-    } else {
-      console.warn("No se encontró el método seleccionado en allMethods.");
-    }
-  }
-
-  // Función para obtener los detalles del método base
-  getDQMethodsBaseDetails(methodBaseId: number): void {
-    this.modelService.getDQMethodBaseById(methodBaseId).subscribe(
-      (methodBase) => {
-        console.log("Detalles del método base:", methodBase);
-        this.selectedMethodDetails = methodBase; // Almacena los detalles del método base
-      },
-      (error) => {
-        console.error("Error al obtener los detalles del método base:", error);
-      }
-    );
-  }
-
+  
   // Función para obtener los detalles del método base
   /*getDQMethodsBaseDetails(methodBaseId: number): void {
     this.modelService.getDQMetricBaseById(methodBaseId).subscribe(
@@ -308,12 +240,30 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     );
   }*/
 
+  project_: any;
+  allDQProblems: any[] = [];
+  allContextComponents_: any;
+
+
+  // Variables de datos
+
+  projectId: number | null = null;
+  noProjectMessage: string = "";
+
+  dqModelVersionId: number | null = null;
+  dqModel: any = null;
+
+  contextVersionId: number | null = null;
+
+  allContextComponents: any; // Variable para almacenar el contexto obtenido
+
   constructor(
     private router: Router, 
     private modelService: DqModelService,
     private projectService: ProjectService,  
     private projectDataService: ProjectDataService, 
-    private fb:FormBuilder
+    private fb:FormBuilder,
+    private cdr: ChangeDetectorRef
   ) { 
     // Inicialización del formulario en el constructor
     this.dqMethodForm = this.fb.group({
@@ -325,15 +275,13 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     this.appliedMethodForm = this.fb.group({
       name: ['', Validators.required],
       appliedTo: ['', Validators.required],
+      algorithm: ['', Validators.required],
       type: ['Aggregated', Validators.required]
     });
   }
 
   ngOnInit() {
     this.getDQFactorsBase();
-
-    //this.loadCurrentProject();
-
 
     // Obtener el Project ID actual
     this.projectId = this.projectDataService.getProjectId();
@@ -355,18 +303,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
       }
     }
 
-  project_: any;
-  allDQProblems: any[] = [];
-  allContextComponents_: any;
-
-
-  // Variables de datos
-
-  projectId: number | null = null;
-  noProjectMessage: string = "";
-
-  dqModelVersionId: number | null = null;
-  dqModel: any = null;
+  
 
   // Métodos de suscripción a datos
   subscribeToData(): void {
@@ -374,6 +311,11 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     this.projectDataService.project$.subscribe((data) => {
       this.project = data;
       console.log('Project Data:', data);
+
+      if (this.project.data_at_hand) {
+        this.loadDataAtHandDetails(this.project.data_at_hand);
+      }
+
     });
 
     // Suscribirse a los componentes del contexto
@@ -410,58 +352,261 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     this.projectDataService.dataSchema$.subscribe((data) => {
       this.dataSchema = data;
       console.log('Data Schema:', data); // Ver el esquema de datos en la consola
+
+      this.generateAppliedToDataSchemaOptions();
+
     });
 
   }
 
-
-  
-  
-  // projectId: number | null = null;
-  contextVersionId: number | null = null;
-
-  loadCurrentProject(): void {
-    this.projectService.loadCurrentProject().subscribe({
-      next: (project) => {
-        this.project = project;
-        console.log('Proyecto cargado en el componente:', this.project);
-
-        this.projectId = project.id;
-
-        this.contextVersionId = project.context_version;
-
-        if (this.contextVersionId){
-          this.getAllContextComponents(this.contextVersionId);
-        }
-
-        //Load complete DQ Model (with Dimensions,Factors...) of current project
-        this.loadCompleteCurrentDQModel();
-      },
-      error: (err) => {
-        console.error('Error al cargar el proyecto en el componente:', err);
-      }
+  dataColumnOptions: { value: any, label: string }[] = []; // Lista de opciones para el select
+  // Función para generar las opciones del select de atributo appliedTo para Applied Methods
+  /*generateAppliedToDataSchemaOptions() {
+    this.dataColumnOptions = [];
+    this.dataSchema.forEach((table: { columns: { column_id: any; column_name: any; }[]; table_name: any; }) => {
+      table.columns.forEach((column: { column_id: any; column_name: any; }) => {
+        this.dataColumnOptions.push({
+          value: column.column_id,  // Valor que se asignará al campo appliedTo
+          label: `${column.column_name} (${table.table_name})`  // Texto que se mostrará en el select
+        });
+      });
     });
-  }
-
-  /* ------------- CONTEXTO  ---------- */
-  // CONTEXT
-
-  allContextComponents: any; // Variable para almacenar el contexto obtenido
-
-  getAllContextComponents(contextVersionId: number): void {
-    this.projectService.getContextComponents(contextVersionId).subscribe({
-      next: (data) => {
-        console.log('ALL CTX. COMPONENTS:', data);
-        this.allContextComponents = data;
-      },
-      error: (err) => console.error('Error fetching context components:', err)
-    });
-  }
-
-  // Método para obtener las categorías de los componentes de contexto
-  /*getContextComponentCategories(contextComponents: any): string[] {
-    return Object.keys(contextComponents).filter(category => contextComponents[category].length > 0);
+    console.log("dataColumnOptions", this.dataColumnOptions)
   }*/
+  generateAppliedToDataSchemaOptions_() {
+    this.dataColumnOptions = [];
+    this.dataSchema.forEach((table: { columns: { column_id: any; column_name: any; }[]; table_name: any; }) => {
+      table.columns.forEach((column: { column_id: any; column_name: any; }) => {
+        this.dataColumnOptions.push({
+          value: column.column_id,
+          label: `${column.column_name} (${table.table_name})`
+        });
+      });
+    });
+    console.log('dataColumnOptions', this.dataColumnOptions);
+  }
+
+  onTypeChange_() {
+    const type = this.appliedMethodForm.get('type')?.value;
+    
+    // Restablecer el campo appliedTo cuando cambia el tipo
+    this.appliedMethodForm.get('appliedTo')?.setValue('');
+
+    // No necesitas una función especial para actualizar el estado de "multiple"
+    // El binding se maneja automáticamente en la plantilla
+  }
+
+  onAppliedToChange_(event: Event) {
+    const selectElement = event.target as HTMLSelectElement;
+    const selectedOptions = Array.from(selectElement.selectedOptions).map(option => option.value);
+
+    // Si el tipo es "Aggregated", concatenar los valores seleccionados
+    if (this.appliedMethodForm.get('type')?.value === 'Aggregated') {
+      const concatenatedValue = selectedOptions.join(';');
+      this.appliedMethodForm.get('appliedTo')?.setValue(concatenatedValue);
+    } else {
+      // Si el tipo es "Measurement", usar solo el primer valor seleccionado
+      this.appliedMethodForm.get('appliedTo')?.setValue(selectedOptions[0] || '');
+    }
+  }
+
+  generateAppliedToDataSchemaOptions_backup() {
+    this.dataColumnOptions = [];
+    this.dataSchema.forEach((table: { columns: { column_id: any; column_name: any; }[]; table_name: any; }) => {
+      table.columns.forEach((column: { column_id: any; column_name: any; }) => {
+        this.dataColumnOptions.push({
+          value: column.column_id,
+          label: `${column.column_name} (${table.table_name})`
+        });
+      });
+    });
+  }
+
+  generateAppliedToDataSchemaOptions() {
+    this.dataColumnOptions = [];
+    this.dataSchema.forEach((table: any) => {
+      table.columns.forEach((column: any) => {
+        this.dataColumnOptions.push({
+          value: {
+            table_id: table.table_id,
+            table_name: table.table_name,
+            column_id: column.column_id,
+            column_name: column.column_name,
+            data_type: column.data_type
+          },
+          label: `${column.column_name} (${table.table_name})`
+        });
+      });
+    });
+  }
+
+  generateAppliedToDataSchemaOptions1() {
+    this.dataColumnOptions = [];
+    this.dataSchema.forEach((table: { columns: { column_id: any; column_name: any; }[]; table_name: any; }) => {
+      table.columns.forEach((column: { column_id: any; column_name: any; }) => {
+        this.dataColumnOptions.push({
+          value: column.column_id,
+          label: `${column.column_name} (${table.table_name})`
+        });
+      });
+    });
+  }
+
+
+  dataAppliedToOptions: DataColumnOption[] = [];
+  /*generateAppliedToDataSchemaOptions() {
+    this.dataAppliedToOptions = [];
+    this.dataSchema.forEach((table: { table_id: any; table_name: any; columns: any[] }) => {
+      table.columns.forEach((column: { column_id: any; column_name: any; data_type: any }) => {
+        const columnOption: ColumnOption = {
+          table_id: table.table_id,
+          table_name: table.table_name,
+          column_id: column.column_id,
+          column_name: column.column_name,
+          data_type: column.data_type
+        };
+        this.dataAppliedToOptions.push({
+          value: columnOption,
+          label: `${column.column_name} (${table.table_name})`
+        } as DataColumnOption);
+      });
+    });
+  }*/
+
+  generateAppliedToDataSchemaOptions0() {
+    this.dataAppliedToOptions = [];
+    this.dataSchema.forEach((table: { table_id: any; table_name: any; columns: any[] }) => {
+      table.columns.forEach((column: { column_id: any; column_name: any; data_type: any }) => {
+        this.dataAppliedToOptions.push({
+          value: {
+            table_id: table.table_id,
+            table_name: table.table_name,
+            column_id: column.column_id,
+            column_name: column.column_name,
+            data_type: column.data_type
+          },
+          label: `${column.column_name} (${table.table_name})`
+        });
+      });
+    });
+  }
+  
+
+  onTypeChange() {
+    const type = this.appliedMethodForm.get('type')?.value;
+    
+    if (type === 'Aggregated') {
+      // Si el tipo es 'Aggregated', inicializamos el campo appliedTo como un array vacío para soportar múltiples selecciones
+      this.appliedMethodForm.get('appliedTo')?.setValue([]);
+    } else {
+      // Si el tipo es 'Measurement', lo inicializamos como un string vacío
+      this.appliedMethodForm.get('appliedTo')?.setValue('');
+    }
+
+    // Forzar el cambio de detección para asegurarse de que el atributo 'multiple' se actualice en la vista
+    this.cdr.detectChanges();
+  }
+
+  
+  onAppliedToChange_backup(event: Event) {
+    const selectElement = event.target as HTMLSelectElement;
+    const selectedOptions = Array.from(selectElement.selectedOptions).map(option => option.value);
+    
+    const type = this.appliedMethodForm.get('type')?.value;
+  
+    if (type === 'Aggregated') {
+      // Si el tipo es 'Aggregated', concatenamos los valores seleccionados y los guardamos como un string
+      this.appliedMethodForm.get('appliedTo')?.setValue(selectedOptions.join(';'));
+    } else {
+      // Si el tipo es 'Measurement', tomamos el primer valor seleccionado como un string
+      this.appliedMethodForm.get('appliedTo')?.setValue(selectedOptions[0] || '');
+    }
+  }
+
+  onAppliedToChange(event: Event) {
+    const selectElement = event.target as HTMLSelectElement;
+    const selectedOptions = Array.from(selectElement.selectedOptions).map(option => JSON.parse(option.value));
+  
+    // Agrupar las columnas por tabla
+    const groupedByTable = selectedOptions.reduce((acc, option) => {
+      const tableKey = `${option.table_id}-${option.table_name}`;
+      if (!acc[tableKey]) {
+        acc[tableKey] = {
+          table_id: option.table_id,
+          table_name: option.table_name,
+          columns: []
+        };
+      }
+      acc[tableKey].columns.push({
+        column_id: option.column_id,
+        column_name: option.column_name,
+        data_type: option.data_type
+      });
+      return acc;
+    }, {});
+  
+    // Convertir el objeto agrupado en una lista
+    const appliedToData = Object.values(groupedByTable);
+  
+    // Asignar el valor al formulario
+    this.appliedMethodForm?.get('appliedTo')?.setValue(appliedToData);
+  }
+
+  onSubmit() {
+    const formValue = this.appliedMethodForm.value;
+  
+    // Asegurarse de que `appliedTo` sea un string
+    if (Array.isArray(formValue.appliedTo)) {
+      formValue.appliedTo = formValue.appliedTo.join(';');  // Convierte el array en un string, separado por ;
+    }
+  
+    // Aquí puedes hacer la llamada a la API o procesar el formulario
+    console.log('Form data to submit:', formValue);
+  }
+  
+  
+  /*onTypeChange() {
+    const type = this.appliedMethodForm.get('type')?.value;
+    
+    if (type === 'Aggregated') {
+      this.appliedMethodForm.get('appliedTo')?.setValue([]);
+    } else {
+      this.appliedMethodForm.get('appliedTo')?.setValue('');
+    }
+
+    this.cdr.detectChanges();
+  }
+
+  onAppliedToChange(event: Event) {
+    const selectElement = event.target as HTMLSelectElement;
+    const selectedOptions = Array.from(selectElement.selectedOptions).map(option => option.value);
+
+    const type = this.appliedMethodForm.get('type')?.value;
+
+    if (type === 'Aggregated') {
+      this.appliedMethodForm.get('appliedTo')?.setValue(selectedOptions.join(';'));
+    } else {
+      this.appliedMethodForm.get('appliedTo')?.setValue(selectedOptions[0] || '');
+    }
+  }*/
+
+
+  // Función para cargar los detalles del data_at_hand
+  loadDataAtHandDetails(dataAtHandId: number): void {
+    this.projectDataService.getDataAtHandById(dataAtHandId).subscribe(
+      (data) => {
+        this.dataAtHandDetails = data; // Asignar los detalles a la variable del componente
+      },
+      (error) => {
+        console.error('Error loading data at hand details:', error);
+      }
+    );
+  }
+
+
+  
+
+
 
   getContextComponentCategories(contextComponents: any): string[] {
     if (Array.isArray(contextComponents)) {
@@ -475,11 +620,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     }
   }
 
-  /*getContextComponentCategoriesFromArray(components: { id: number; category: string; value: string }[]): string[] {
-    const categories = new Set<string>();
-    components.forEach((component) => categories.add(component.category));
-    return Array.from(categories);
-  }*/
+
   
   getComponentsByCategory(components: any[], category: string): any[] {
     return components.filter((component) => component.category === category);
@@ -740,47 +881,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     );
   }
 
-  getContext() {
-    this.modelService.getCtxComponents().subscribe({
-      next: (data) => {
-        console.log("Context components loaded:", data);
-        this.contextModel = data.context_model;
-        this.contextComponents = [];
-  
-        if (this.contextModel) {
-          this.groupContextComponents(this.contextModel);
-        }
-      },
-      error: (err) => console.error("Error loading context components:", err)
-    });
-  }
 
-  groupContextComponents(contextModel: any) {
-    this.contextComponentsGrouped = [];
-  
-    for (const key in contextModel) {
-      if (contextModel.hasOwnProperty(key)) {
-        const items = contextModel[key];
-  
-        if (Array.isArray(items)) {
-          items.forEach(item => {
-            const type = key;
-            const id = item.id;
-  
-            const existingGroup = this.contextComponentsGrouped.find(group => group.type === type);
-            
-            if (existingGroup) {
-              existingGroup.ids.push(id);
-            } else {
-              this.contextComponentsGrouped.push({ type: type, ids: [id] });
-            }
-          });
-        }
-      }
-    }
-  
-    console.log("Grouped Context Components:", this.contextComponentsGrouped);
-  }
 
   getBaseMetricsByFactor(){
     let that = this;
@@ -812,30 +913,6 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   }
 
 
-  toggleDropdown() {
-    this.dropdownOpen = !this.dropdownOpen; // Cambia el estado del dropdown
-  }
-
-  selectComponent(component: ContextComponent) {
-    if (!this.selectedComponents.includes(component)) {
-      this.selectedComponents.push(component); // Añade el componente seleccionado
-    }
-    this.dropdownOpen = false; // Cierra el dropdown después de seleccionar
-  }
-
-  getContextDescription(contextId: string): string {
-    const context = this.contextComponents.find(c => c.id === contextId);
-    return context ? context.description : 'No description';
-  }
-
-  // getFactorsByDimension(dimensionId: number): QualityFactor[] {
-  //   return this.qualityFactors.filter(factor => factor.dimensionId === dimensionId);
-  // }
-
-  // getFactorNameById(factorId: number): string | undefined {
-  //   const factor = this.qualityFactors.find(f => f.id === factorId);
-  //   return factor ? factor.name : undefined;
-  // }
 
   getProblemsForFactor(factorId: number): string[] {
     return this.confirmedSelectedProblems
@@ -858,33 +935,6 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     }
   }
 
-  showDimensionsFactorsTitle = false;
-  showDimensionsFactorsTable = false;
-
-
-
-  // getSelectedDimensionsWithFactors(): { dimension: QualityDimension, factors: { factor: QualityFactor, problems: string[] }[] }[] {
-  //   return this.qualityDimensions
-  //     .map(dimension => {
-  //       const factorsWithProblems = this.getFactorsByDimension(dimension.id)
-  //         .map(factor => ({
-  //           factor,
-  //           problems: this.getProblemsForFactor(factor.id)
-  //         }))
-  //         .filter(factorWithProblems => factorWithProblems.problems.length > 0);
-
-  //       return { dimension, factors: factorsWithProblems };
-  //     })
-  //     .filter(dimensionWithFactors => dimensionWithFactors.factors.length > 0);
-  // }
-
-  confirmAllFactors() {
-    this.router.navigate(['/step4']);
-  }
-
-  removeComponent(component: ContextComponent) {
-    this.selectedComponents = this.selectedComponents.filter(selected => selected.id !== component.id);
-  }
 
   isModalOpen = false;
 
@@ -905,8 +955,57 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     this.selectedMethodObject = this.allMethods.find(elem=> elem.id == event?.target.value);
   }
 
-  openCreateAppliedMethodModal(method: any){
+  openCreateAppliedMethodModal(method: any) {
+    this.selectedMethodObject = this.allMethods.find(elem => elem.id == method);
+    console.log("SELECT METHOD for APPLIED METHODS", this.selectedMethodObject);
+  
+    // Obtener los detalles del método base y la métrica base
+    this.getDQMethodDetails(this.selectedMethodObject.id);
+  
+    const implementationName = `${this.selectedMethodObject.method_name}_implementation_x`;
+
+    const appliedAlgorithm = this.selectedMethodObject.baseAttr.algorithm;
+  
+    // Asigna valores predeterminados al formulario
+    this.appliedMethodForm.patchValue({
+      name: implementationName,
+      appliedTo: '',
+      algorithm: appliedAlgorithm,
+      type: 'Aggregated'
+    });
+    
+    this.isCreateAppliedMethodModalOpen = true;
+  }
+  
+  openCreateAppliedMethodModal00(method: any){
     this.selectedMethodObject = this.allMethods.find(elem=> elem.id == method);
+    console.log("SELECT METHOD fro APPLIED METHODS", this.selectedMethodObject);
+
+    const implementationName = `${this.selectedMethodObject.method_name}_implementation_x`;
+
+    const appliedAlgorithm = this.selectedMethodObject.algorithm;
+    console.log("appliedAlgorithm", appliedAlgorithm)
+
+    // Asigna valores predeterminados al formulario
+    this.appliedMethodForm.patchValue({
+      name: implementationName,  // Nombre del método aplicado
+      appliedTo: '',  // Valor predeterminado para "appliedTo"
+      algorithm: this.selectedMethodObject.algorithm || 'Default algorithm',
+      type: 'Aggregated'  // Valor predeterminado para "type"
+    });
+    
+    // Presetea los valores del formulario con los datos del método seleccionado
+    /*this.appliedMethodForm.patchValue({
+      name: this.selectedMethodObject.method_name,  // Asigna el nombre del método seleccionado
+      appliedTo: '',   
+      type: 'Aggregated'   
+    });*/
+
+    console.log("name:", this.appliedMethodForm.get('name')?.value);
+    console.log("appliedTo:", this.appliedMethodForm.get('appliedTo')?.value);
+    console.log("algorithm:", this.appliedMethodForm.get('algorithm')?.value);
+    console.log("type:", this.appliedMethodForm.get('type')?.value);
+
     this.isCreateAppliedMethodModalOpen = true;
   }
 
@@ -965,7 +1064,115 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     }
   }
 
-  createAppliedMethod(){
+  createAppliedMethod___() {
+    if (this.appliedMethodForm.valid) {
+      const appliedMethod = this.appliedMethodForm.value;
+      console.log('Applied Method Created:', appliedMethod);
+  
+      // Obtener el valor de appliedTo y asegurarse de que sea un string
+      let appliedToValue = this.appliedMethodForm.get("appliedTo")?.value;
+  
+      // Verificar si appliedTo es un array y convertirlo en un string si es necesario
+      if (Array.isArray(appliedToValue)) {
+        appliedToValue = appliedToValue.join(';');  // Convertir array a string
+      }
+  
+      const newAppMeth = {
+        name: this.appliedMethodForm.get("name")?.value,
+        appliedTo: appliedToValue,  // Asegurarse de que sea un string
+        associatedTo: this.selectedMethodObject.id
+      };
+  
+      if (this.appliedMethodForm.get("type")?.value === "Aggregated") {
+        this.modelService.createAggregatedMethod(newAppMeth).subscribe({
+          next: (data) => {
+            console.log("Applied Method created:", data);
+            this.loadDQModelDimensionsAndFactors(); 
+            alert("Applied Method successfully created");
+          },
+          error: (err) => {
+            console.error("Error creating the Applied Method:", err);
+            alert("Error creating the Applied Method.");
+          }
+        });
+      } else {
+        this.modelService.createMeasurementMethod(newAppMeth).subscribe({
+          next: (data) => {
+            console.log("Applied Method created:", data);
+            this.loadDQModelDimensionsAndFactors(); 
+            alert("Applied Method successfully created");
+          },
+          error: (err) => {
+            console.error("Error creating the Applied Method:", err);
+            alert("Error creating the Applied Method.");
+          }
+        });
+      }
+  
+      this.closeCreateAppliedMethodModal();
+    }
+  }
+
+  public JSON = JSON;
+  
+  createAppliedMethod() {
+    if (this.appliedMethodForm.valid) {
+      const appliedMethod = this.appliedMethodForm.value;
+  
+      // Parsear appliedTo si es una cadena JSON
+      let appliedToValue = appliedMethod.appliedTo;
+      if (typeof appliedToValue === 'string') {
+        try {
+          appliedToValue = JSON.parse(appliedToValue);
+        } catch (error) {
+          console.error("Error parsing appliedTo:", error);
+          alert("Invalid data in 'Applied To' field.");
+          return;
+        }
+      }
+  
+      console.log('Applied Method Created:', appliedMethod);
+  
+      const newAppMeth = {
+        name: appliedMethod.name,
+        appliedTo: appliedToValue, // Usar el valor parseado
+        algorithm: appliedMethod.algorithm, // Agregar el campo algorithm
+        associatedTo: this.selectedMethodObject.id
+      };
+  
+      if (appliedMethod.type === "Aggregated") {
+        this.modelService.createAggregatedMethod(newAppMeth).subscribe({
+          next: (data) => {
+            console.log("Applied Method created:", data);
+            this.loadDQModelDimensionsAndFactors();
+            alert("Applied Method successfully created");
+          },
+          error: (err) => {
+            console.error("Error creating the Applied Method:", err);
+            alert("Error creating the Applied Method.");
+          }
+        });
+      } else {
+        this.modelService.createMeasurementMethod(newAppMeth).subscribe({
+          next: (data) => {
+            console.log("Applied Method created:", data);
+            this.loadDQModelDimensionsAndFactors();
+            alert("Applied Method successfully created");
+          },
+          error: (err) => {
+            console.error("Error creating the Applied Method:", err);
+            alert("Error creating the Applied Method.");
+          }
+        });
+      }
+  
+      this.closeCreateAppliedMethodModal();
+    } else {
+      console.log("Formulario inválido. No se puede crear el método.");
+    }
+  }
+  
+  createAppliedMethod_BACKUP(){
     if (this.appliedMethodForm.valid) {
       const appliedMethod = this.appliedMethodForm.value;
       console.log('Applied Method Created:', appliedMethod);
@@ -1035,43 +1242,6 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     }
   }
 
-  buildContextComponents(selectedComponents: { id: number; category: string; value: string }[]): any {
-    const contextComponents = {
-      applicationDomain: selectedComponents
-        .filter((comp) => comp.category === "applicationDomain")
-        .map((comp) => comp.id),
-      businessRule: selectedComponents
-        .filter((comp) => comp.category === "businessRule")
-        .map((comp) => comp.id),
-      dataFiltering: selectedComponents
-        .filter((comp) => comp.category === "dataFiltering")
-        .map((comp) => comp.id),
-      dqMetadata: selectedComponents
-        .filter((comp) => comp.category === "dqMetadata")
-        .map((comp) => comp.id),
-      dqRequirement: selectedComponents
-        .filter((comp) => comp.category === "dqRequirement")
-        .map((comp) => comp.id),
-      otherData: selectedComponents
-        .filter((comp) => comp.category === "otherData")
-        .map((comp) => comp.id),
-      otherMetadata: selectedComponents
-        .filter((comp) => comp.category === "otherMetadata")
-        .map((comp) => comp.id),
-      systemRequirement: selectedComponents
-        .filter((comp) => comp.category === "systemRequirement")
-        .map((comp) => comp.id),
-      taskAtHand: selectedComponents
-        .filter((comp) => comp.category === "taskAtHand")
-        .map((comp) => comp.id),
-      userType: selectedComponents
-        .filter((comp) => comp.category === "userType")
-        .map((comp) => comp.id),
-    };
-  
-    return contextComponents;
-  }
-
   // Función para agregar el método al DQ Model
   addMethodToDQModel(metric: any, method: any) {
     if (!metric || !method) {
@@ -1079,7 +1249,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
       return;
     }
 
-    const context_components = this.buildContextComponents(this.selectionCheckboxCtxComponents);
+    const context_components = buildContextComponents(this.selectionCheckboxCtxComponents);
     console.log(context_components)
   
     // Preparar los datos para el servicio
@@ -1141,37 +1311,6 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   }
 
 
-  // addBaseMethod(factor: any): void {
-  //   if (this.newMethod.name && this.newMethod.output &&this.newMethod.input && this.newMethod.algorithm){
-  //     var newMetric = this.currentMetric!;
-  //     let dqMetric = this.allMetrics.find(item => item.id == newMetric.id)
-  //     //newFactor.definedMetrics.push({ ...this.newMetric });
-  //     const methodBaseToAdd = {
-  //       implements: parseInt(dqMetric.baseAttr.id),
-  //       name: this.newMethod.name,
-  //       inputDataType: this.newMethod.input,
-  //       outputDataType: this.newMethod.output,
-  //       algorithm: this.newMethod.algorithm
-  //     };
-  //     this.newMethod = {
-  //       name: '', input: '', output: '', algorithm: '', expanded: false,  metric: undefined}
-  //     this.modelService.createDQMethod(methodBaseToAdd).subscribe({
-  //       next: (data) => {
-  //         console.log("Base Metric created:", data);
-  //         this.loadDQModelDimensionsAndFactors(); 
-  //         alert("Base Metric successfully created.");
-  //       },
-  //       error: (err) => {
-  //         console.error("Error creating the metric:", err);
-  //         alert("An error occurred while trying to create the metric.");
-  //       }
-  //     });
-  //     this.closeModalBase();
-  //   }
-  //   else {
-  //     alert("Missing fields. Please complete all.")
-  //   }
-  // }
 
   addBaseMethod(factor: any) : void {
     if (this.dqMethodForm.valid) {
@@ -1277,5 +1416,82 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     const route = this.steps[stepIndex].route;
     this.router.navigate([route]);
   }
+
+
+  selectedMetricBaseDetails: any; // Detalles de la métrica base
+  // Función para obtener los detalles del método seleccionado y su método base
+  getDQMethodDetails(methodId: number): void {
+    const selectedMethod = this.allMethods.find((method) => method.id === methodId);
+  
+    if (selectedMethod) {
+      const methodBaseId = selectedMethod.method_base;
+  
+      if (methodBaseId) {
+        this.modelService.getDQMethodBaseById(methodBaseId).subscribe(
+          (methodBase) => {
+            this.selectedMethodDetails = methodBase;
+            
+            // Ahora obtenemos los detalles de la métrica base
+            if (methodBase.implements) {
+              this.modelService.getMetricBaseDetails(methodBase.implements).subscribe(
+                (metricBase) => {
+                  this.selectedMetricBaseDetails = metricBase;
+
+                  // Reset appliedTo cuando cambia la granularidad
+                  this.appliedMethodForm.get('appliedTo')?.setValue(
+                    metricBase.granularity?.toLowerCase() === 'Column' ? '' : []
+                );
+                },
+                (error) => {
+                  console.error("Error al obtener los detalles de la métrica base:", error);
+                }
+              );
+            }
+          },
+          (error) => {
+            console.error("Error al obtener los detalles del método base:", error);
+          }
+        );
+      }
+    }
+  }
+
+  getDQMethodDetails00(methodId: number): void {
+    // Busca el método seleccionado en allMethods
+    const selectedMethod = this.allMethods.find((method) => method.id === methodId);
+
+    if (selectedMethod) {
+      console.log("Método seleccionado encontrado:", selectedMethod);
+
+      // Obtiene el method_base del método seleccionado
+      const methodBaseId = selectedMethod.method_base;
+
+      if (methodBaseId) {
+        console.log("ID del método base:", methodBaseId);
+
+        // Llama al servicio para obtener los detalles del método base
+        this.getDQMethodsBaseDetails(methodBaseId);
+      } else {
+        console.warn("El método seleccionado no tiene un method_base definido.");
+      }
+    } else {
+      console.warn("No se encontró el método seleccionado en allMethods.");
+    }
+  }
+
+  // Función para obtener los detalles del método base
+  getDQMethodsBaseDetails(methodBaseId: number): void {
+    this.modelService.getDQMethodBaseById(methodBaseId).subscribe(
+      (methodBase) => {
+        console.log("Detalles del método base:", methodBase);
+        this.selectedMethodDetails = methodBase; // Almacena los detalles del método base
+      },
+      (error) => {
+        console.error("Error al obtener los detalles del método base:", error);
+      }
+    );
+  }
+
+
 
 }

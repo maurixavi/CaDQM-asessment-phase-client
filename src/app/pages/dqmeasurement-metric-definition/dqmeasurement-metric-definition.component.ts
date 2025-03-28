@@ -119,7 +119,8 @@ export class DQMetricDefinitionComponent implements OnInit {
   name: '',
   purpose:'',
   granularity:'',
-  domain: ''
+  domain: '',
+  customResultDomain: '' // Para especificar un tipo personalizado si se elige "Otro"
  }
 
   granularities: string[] = ['Celda', 'Tupla', 'Tabla'];
@@ -807,20 +808,116 @@ export class DQMetricDefinitionComponent implements OnInit {
     }
   }
 
+
   addBaseMetric(factor: any): void {
-    if (this.newBaseMetric.name && this.newBaseMetric.purpose &&this.newBaseMetric.granularity && this.newBaseMetric.domain){
+    // Comprobamos que los campos requeridos no estén vacíos
+    if (
+      this.newBaseMetric.name && 
+      this.newBaseMetric.purpose && 
+      this.newBaseMetric.granularity && 
+      (this.newBaseMetric.domain !== 'Other' || this.newBaseMetric.customResultDomain)
+    ) {
+      // Si el resultDomain es 'Other', usamos el valor del campo customResultDomain
+      let resultDomainValue = this.newBaseMetric.domain;
+      if (resultDomainValue === 'Other' && this.newBaseMetric.customResultDomain) {
+        resultDomainValue = this.newBaseMetric.customResultDomain;
+      }
+  
       var newFactor = this.metricFactor!;
-      let dqFactor = this.factorsByDim.find(item => item.id == newFactor.id)
-      //newFactor.definedMetrics.push({ ...this.newMetric });
+      let dqFactor = this.factorsByDim.find(item => item.id == newFactor.id);
+  
+      // Construimos el objeto baseMetricToAdd con los valores obtenidos
       const baseMetricToAdd = {
         name: this.newBaseMetric.name, 
         purpose: this.newBaseMetric.purpose,
         granularity: this.newBaseMetric.granularity,
-        resultDomain:  this.newBaseMetric.domain,
+        resultDomain: resultDomainValue,
         measures: dqFactor.factor_base
       };
+  
+      // Limpiamos los campos del formulario
+      this.newBaseMetric = { 
+        name: '', 
+        purpose: '', 
+        granularity: '', 
+        domain: '', 
+        customResultDomain: '' 
+      };
+  
+      // Llamamos al servicio para crear la métrica
+      this.modelService.createDQMetric(baseMetricToAdd).subscribe({
+        next: (data) => {
+          console.log("Base Metric created:", data);
+          
+          // 1. Actualizar las métricas base del factor seleccionado
+          const factorIndex = this.factorsByDim.findIndex(item => item.id === newFactor.id);
+          if (factorIndex !== -1) {
+            if (!this.factorsByDim[factorIndex].baseMetrics) {
+              this.factorsByDim[factorIndex].baseMetrics = [];
+            }
+            this.factorsByDim[factorIndex].baseMetrics.push(data);
+            
+            // 2. Mantener el factor seleccionado
+            this.selectedFactor = this.factorsByDim[factorIndex];
+            
+            // 3. Seleccionar automáticamente la métrica recién creada
+            this.selectedBaseMetric = data;
+          }
+          
+          // Mostrar mensaje de éxito
+          alert('The DQ Metric was successfully created. You can now select it to add it to the DQ Model.');
+        },
+        error: (err) => {
+          console.error("Error creating the metric:", err);
+          alert("An error occurred while trying to create the metric.");
+        }
+      });
+  
+      this.closeModalBase();
+    }
+    else {
+      alert("Missing fields. Please complete all.");
+    }
+  }
+
+
+  addBaseMetric000(factor: any): void {
+    // Comprobamos que los campos requeridos no estén vacíos
+    if (
+      this.newBaseMetric.name && 
+      this.newBaseMetric.purpose && 
+      this.newBaseMetric.granularity && 
+      (this.newBaseMetric.domain !== 'Other' || this.newBaseMetric.customResultDomain)
+    ) {
       
-      this.newBaseMetric = { name: '', purpose: '', granularity: '', domain: ''};
+      // Si el resultDomain es 'Other', usamos el valor del campo customResultDomain
+      let resultDomainValue = this.newBaseMetric.domain;
+      if (resultDomainValue === 'Other' && this.newBaseMetric.customResultDomain) {
+        resultDomainValue = this.newBaseMetric.customResultDomain;
+      }
+  
+      var newFactor = this.metricFactor!;
+      let dqFactor = this.factorsByDim.find(item => item.id == newFactor.id);
+  
+      // Construimos el objeto baseMetricToAdd con los valores obtenidos
+      const baseMetricToAdd = {
+        name: this.newBaseMetric.name, 
+        purpose: this.newBaseMetric.purpose,
+        granularity: this.newBaseMetric.granularity,
+        resultDomain: resultDomainValue, // Usamos el resultDomain ajustado
+        measures: dqFactor.factor_base
+      };
+  
+      // Limpiamos los campos del formulario
+      this.newBaseMetric = { 
+        name: '', 
+        purpose: '', 
+        granularity: '', 
+        domain: '', 
+        customResultDomain: '' 
+      };
+  
+      // Llamamos al servicio para crear la métrica
       this.modelService.createDQMetric(baseMetricToAdd).subscribe({
         next: (data) => {
           console.log("Base Metric created:", data);
@@ -832,13 +929,14 @@ export class DQMetricDefinitionComponent implements OnInit {
           alert("An error occurred while trying to create the metric.");
         }
       });
+  
       this.closeModalBase();
     }
     else {
-      alert("Missing fields. Please complete all.")
+      alert("Missing fields. Please complete all.");
     }
   }
-
+  
 
 
   saveMetrics(){

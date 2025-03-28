@@ -250,12 +250,44 @@
                   <input type="text" name="MetPurpose" [(ngModel)]="newBaseMetric.purpose" placeholder="Metric Purpose" class="form-control" [ngModelOptions]="{standalone: true}" />
                 </div>
                 <div class="form-group">
+                  <label for="MetPurpose">Granularity</label>
+                <select name="MetGranularity" [(ngModel)]="newBaseMetric.granularity" class="form-control" [ngModelOptions]="{standalone: true}">
+                  <option value="">Select granularity...</option>
+                  <option value="Database">Database (all tables/columns)</option>
+                  <!--<option value="Schema">Schema (all tables/columns in a schema)</option>-->
+                  <option value="Table">Table (all columns in a table)</option>
+                  <option value="Column">Column (a specific attribute)</option>
+                  <option value="Tuple">Tuple (set of specific attributes)</option>
+                  <option value="Cell">Cell (a specific value in a column)</option>
+                </select>
+                </div>
+                <!--<div class="form-group">
                   <label for="MetGranularity">Granularity</label>
                   <input type="text" name="MetGranularity" [(ngModel)]="newBaseMetric.granularity" placeholder="It can be a Cell, Column, Row, a Relation or the Entire DB" class="form-control" [ngModelOptions]="{standalone: true}" />
-                </div>
-                <div class="form-group">
+                </div>-->
+                <!--<div class="form-group">
                   <label for="MetDomain">Domain</label>
                   <input type="text" name="MetDomain" [(ngModel)]="newBaseMetric.domain" placeholder="For example, a Boolean, an Integer, etc." class="form-control" [ngModelOptions]="{standalone: true}" />
+                </div>-->
+                <div class="form-group">
+                  <label for="MetPurpose">Result Domain</label>
+                <select name="MetDomain" [(ngModel)]="newBaseMetric.domain" class="form-control" [ngModelOptions]="{standalone: true}">
+                  <option value="">Select domain...</option>
+                  <option value="Boolean">Boolean (e.g. Is the element quality acceptable?)</option>
+                  <option value="Integer">Integer (e.g. Number of defects)</option>
+                  <option value="Float">Float (Proportion, Range, e.g. 0.85 or score between 0 and 10)</option>
+                  <!--<option value="Percentage">Percentage (0 to 100, e.g. 90% compliance rate)</option>
+                  <option value="String">String (Category, e.g. Quality status: "Excellent", "Good", "Poor")</option>
+                  <option value="Date">Date/Time (Date or timestamp, e.g. Last validation date)</option>
+                  <option value="Enum">Enum (Predefined categories, e.g. Status: "Passed", "Failed")</option>
+                  <option value="Ratio">Ratio (Proportion of two numbers, e.g. number of defects / total items)</option>-->
+                  <option value="Other">Other (please specify)</option>
+                </select>
+                <!-- Campo para especificar tipo personalizado si se selecciona "Other" -->
+                  <div *ngIf="newBaseMetric.domain === 'Other'" class="form-group">
+                    <label for="customResultDomain">Please specify:</label>
+                    <input type="text" name="customResultDomain" [(ngModel)]="newBaseMetric.customResultDomain" placeholder="e.g. Ratio, Enum, etc." class="form-control" [ngModelOptions]="{standalone: true}" />
+                  </div>
                 </div>
               </form>
             </div>

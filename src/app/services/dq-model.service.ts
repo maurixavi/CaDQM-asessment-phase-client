@@ -602,48 +602,6 @@ export class DqModelService {
 
 
 
-  //---- CONTEXT ------
-  getContext(): Observable<any> {
-    return this.http.get<any[]>(this.API_PATH_CONTEXT);
-  }
-
-  getContextComponents(): Observable<any> {
-    console.log('Iniciando petición al JSON en:', this.API_PATH_CONTEXT);
-    
-    return this.http.get<any[]>(this.API_PATH_CONTEXT).pipe(
-      tap(response => {
-        console.log('Respuesta JSON recibida:', response);
-        console.log('Estructura de la respuesta:', JSON.stringify(response, null, 2));
-      }),
-      catchError(error => {
-        console.error('Error al cargar el JSON:', error);
-        console.error('Mensaje de error:', error.message);
-        console.error('Status:', error.status);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  getCtxComponents2(): Observable<any> {
-    return this.http.get<any[]>(`${this.basePath}/ctx_components.json`);
-  }
-
-  getCtxComponents(): Observable<any> {
-    return this.http.get<any[]>(this.API_URL_CTX);
-  }
-
-  getContextById(id: number): Observable<any> {
-    return this.http.get<Context[]>(this.API_URL_CTX).pipe(
-      map(data => data.find((item: Context) => item.id === id)),
-      catchError(err => {
-        console.error('Error:', err);
-        throw err;
-      })
-    );
-  }
-
-
-
 
 
   getDimensionBaseDetails(dimensionBaseId: number): Observable<any> {
