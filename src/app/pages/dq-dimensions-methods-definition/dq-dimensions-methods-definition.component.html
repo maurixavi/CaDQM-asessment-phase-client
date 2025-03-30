@@ -590,11 +590,11 @@
                                           <div class="label-selected">
                                             <label class="label-title-selected">Applied To:</label>
                                             <span class="label-value-selected">
-                                              <div *ngFor="let table of getAppliedToDisplay(appliedMethod.appliedTo)">
-                                                Table: {{ table.tableName }}<br>
-                                                Columns: {{ table.columns.join(', ') }}
-                                                <div *ngIf="!$last"><br></div>
-                                              </div>
+                                              <div *ngFor="let table of getAppliedToDisplay(appliedMethod.appliedTo)" 
+                                                class="table-display">
+                                              <strong>Table:</strong> {{ table.tableName }}<br>
+                                              <strong>Columns:</strong> {{ table.columns.join(', ') }}
+                                            </div>
                                             </span>
                                           </div>
                                           <div class="mt-3">

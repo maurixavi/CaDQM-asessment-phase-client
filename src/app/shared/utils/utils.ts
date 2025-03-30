@@ -84,3 +84,61 @@ export function getFirstNonIdAttribute(item: any): string {
 }
 
 
+
+export function formatAppliedTo(appliedTo: any): string {
+  if (!appliedTo) return 'Not specified';
+  
+  // Si es un array de objetos
+  if (Array.isArray(appliedTo)) {
+    // Agrupar por table_name
+    const tablesMap = new Map<string, string[]>();
+    
+    appliedTo.forEach(item => {
+      if (!tablesMap.has(item.table_name)) {
+        tablesMap.set(item.table_name, []);
+      }
+      tablesMap.get(item.table_name)?.push(item.column_name);
+    });
+    
+    // Construir el string formateado
+    let result = '';
+    tablesMap.forEach((columns, tableName) => {
+      result += `Table: ${tableName}\nColumns: ${columns.join(', ')}\n\n`;
+    });
+    
+    return result.trim();
+  }
+  
+  // Si es un solo objeto
+  else if (typeof appliedTo === 'object') {
+    return `Table: ${appliedTo.table_name}\nColumn: ${appliedTo.column_name}`;
+  }
+  
+  // Si ya es un string
+  return appliedTo;
+}
+
+export function getAppliedToDisplay(appliedTo: any): {tableName: string, columns: string[]}[] {
+  if (!appliedTo) return [];
+  
+  if (Array.isArray(appliedTo)) {
+    const tablesMap = new Map<string, string[]>();
+    
+    appliedTo.forEach(item => {
+      if (!tablesMap.has(item.table_name)) {
+        tablesMap.set(item.table_name, []);
+      }
+      tablesMap.get(item.table_name)?.push(item.column_name);
+    });
+    
+    return Array.from(tablesMap.entries()).map(([tableName, columns]) => ({
+      tableName,
+      columns
+    }));
+  }
+  
+  return [{
+    tableName: appliedTo.table_name,
+    columns: [appliedTo.column_name]
+  }];
+}

@@ -932,4 +932,38 @@ export class DqModelService {
     );
   }
 
+
+  
+
+  /**
+   * Get the latest execution results for a DQ Model
+   * @param dqModelId The ID of the DQ Model
+   * @returns Observable with the latest execution results
+   */
+  getLatestExecutionResults(dqModelId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/latest-results/`;
+    return this.http.get<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error fetching latest execution results for DQ Model ${dqModelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Get specific method execution result
+   * @param dqModelId The ID of the DQ Model
+   * @param appliedMethodId The ID of the applied method (measurement or aggregation)
+   * @returns Observable with the method execution result
+   */
+  getMethodExecutionResult(dqModelId: number, appliedMethodId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/applied-dq-methods/${appliedMethodId}/execution-result/`;
+    return this.http.get<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error fetching execution result for method ${appliedMethodId} in DQ Model ${dqModelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
 }

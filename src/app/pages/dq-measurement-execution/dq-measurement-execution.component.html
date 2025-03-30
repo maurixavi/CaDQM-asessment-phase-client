@@ -24,6 +24,19 @@
           {{ errorMessage }}
         </div>
 
+        <!-- Filtro de estado -->
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <label for="statusFilter" class="form-label">Filter by Execution Status</label>
+            <select id="statusFilter" class="form-select" [(ngModel)]="selectedStatus" (change)="filterMethods()">
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+              <option value="all">All Methods</option>
+              
+            </select>
+          </div>
+        </div>
+
         <!-- LIST APPLIED METHODS -->
         <div class="table-container">
           <table class="table table-hover">
@@ -90,7 +103,8 @@
             </thead>
             <tbody>
               <!-- Fila de ejemplo con checkbox -->
-              <tr *ngFor="let item of appliedDQMethods">
+              <!--<tr *ngFor="let item of appliedDQMethods">-->
+              <tr *ngFor="let item of filteredMethods">
                 <!-- Checkbox para seleccionar items individuales -->
                 <td>
                   <input
@@ -104,8 +118,13 @@
                   {{ item.dqMethod }}
                 </td>
                 <td>{{ item.name }}</td>
-                <td>{{ item.appliedTo }}</td>
+                <td><div *ngFor="let table of getAppliedToDisplay(item.appliedTo)" 
+                  class="table-display">
+               Table: {{ table.tableName }}<br>
+               Columns: {{ table.columns.join(', ') }}
+             </div></td>
                 <td>{{ item.dqMetric }}</td>
+                
                 <td>{{ item.dqFactor }}</td>
                 <td>{{ item.dqDimension }}</td>
               </tr>

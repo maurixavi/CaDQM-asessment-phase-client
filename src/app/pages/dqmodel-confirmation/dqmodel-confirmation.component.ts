@@ -5,6 +5,11 @@ import { DqModelService } from '../../services/dq-model.service';
 import { ProjectDataService } from '../../services/project-data.service';
 import { Router } from '@angular/router';
 
+
+import { buildContextComponents, formatCtxCompCategoryName, getFirstNonIdAttribute, formatAppliedTo, getAppliedToDisplay } from '../../shared/utils/utils';
+
+
+
 import { jsPDF } from 'jspdf';
 
 declare var bootstrap: any; 
@@ -19,6 +24,12 @@ declare var bootstrap: any;
 
 
 export class DQModelConfirmationComponent implements OnInit {
+
+  // Utils
+  //public formatCtxCompCategoryName = formatCtxCompCategoryName;
+  //public getFirstNonIdAttribute = getFirstNonIdAttribute;
+  public formatAppliedTo = formatAppliedTo;
+  public getAppliedToDisplay = getAppliedToDisplay;
 
   currentStep: number = 5; // Confirmación es el paso 6
   pageStepTitle: string = 'DQ Model confirmation';

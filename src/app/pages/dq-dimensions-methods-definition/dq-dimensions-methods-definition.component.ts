@@ -3,10 +3,12 @@ import contextComponentsJson from '../../../assets/context-components.json';
 import { Router } from '@angular/router';
 import { DqModelService } from '../../services/dq-model.service';
 import { ProjectService } from '../../services/project.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProjectDataService } from '../../services/project-data.service';
-import { buildContextComponents, formatCtxCompCategoryName, getFirstNonIdAttribute } from '../../shared/utils/utils';
 import { NotificationService } from '../../services/notification.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
+import { buildContextComponents, formatCtxCompCategoryName, getFirstNonIdAttribute, formatAppliedTo, getAppliedToDisplay } from '../../shared/utils/utils';
+
 
 declare var bootstrap: any;
 
@@ -49,6 +51,8 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   // Utils
   public formatCtxCompCategoryName = formatCtxCompCategoryName;
   public getFirstNonIdAttribute = getFirstNonIdAttribute;
+  public formatAppliedTo = formatAppliedTo;
+  public getAppliedToDisplay = getAppliedToDisplay;
 
   // Estado y Navegación
   isNextStepEnabled: boolean = true;
@@ -1184,6 +1188,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   }
 
 
+  /*
   formatAppliedTo(appliedTo: any): string {
     if (!appliedTo) return 'Not specified';
     
@@ -1241,4 +1246,6 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
       columns: [appliedTo.column_name]
     }];
   }
+
+  */
 }

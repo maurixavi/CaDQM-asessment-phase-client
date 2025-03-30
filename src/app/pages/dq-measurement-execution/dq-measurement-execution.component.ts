@@ -5,6 +5,8 @@ import { DqModelService } from '../../services/dq-model.service';
 import { ProjectDataService } from '../../services/project-data.service';
 import { Router } from '@angular/router';
 
+import { buildContextComponents, formatCtxCompCategoryName, getFirstNonIdAttribute, formatAppliedTo, getAppliedToDisplay } from '../../shared/utils/utils';
+
 declare var bootstrap: any;
 
 @Component({
@@ -13,6 +15,14 @@ declare var bootstrap: any;
   styleUrl: './dq-measurement-execution.component.css',
 })
 export class DqMeasurementExecutionComponent implements OnInit {
+
+  // Utils
+  //public formatCtxCompCategoryName = formatCtxCompCategoryName;
+  //public getFirstNonIdAttribute = getFirstNonIdAttribute;
+  public formatAppliedTo = formatAppliedTo;
+  public getAppliedToDisplay = getAppliedToDisplay;
+
+  
   currentStep: number = 0;
   pageStepTitle: string = 'Execution of the DQ measurement';
   phaseTitle: string = 'Phase 2: DQ Assessment';
@@ -149,8 +159,11 @@ export class DqMeasurementExecutionComponent implements OnInit {
                         })),
                       ];
   
-                      // Agregar los appliedMethods a dqData
                       this.appliedDQMethods = [...this.appliedDQMethods, ...appliedMethods];
+                      //console.log('Applied DQ Methods fecthed:', this.appliedDQMethods);
+
+                      this.fetchLatestExecutionResults();
+        
                     }
                   });
                 }
@@ -222,14 +235,24 @@ export class DqMeasurementExecutionComponent implements OnInit {
   }
 
   // Método para verificar si todos los items están seleccionados
-  isAllSelected(): boolean {
+  isAllSelected_(): boolean {
     return this.appliedDQMethods.every((item) => item.selected);
   }
 
   // Método para seleccionar/deseleccionar todos los items
-  toggleSelectAll(event: Event): void {
+  toggleSelectAll_(event: Event): void {
     const isChecked = (event.target as HTMLInputElement).checked;
     this.appliedDQMethods.forEach((item) => (item.selected = isChecked));
+  }
+
+  isAllSelected(): boolean {
+    return this.filteredMethods.length > 0 && 
+           this.filteredMethods.every(item => item.selected);
+  }
+  
+  toggleSelectAll(event: Event): void {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    this.filteredMethods.forEach(item => item.selected = isChecked);
   }
 
   // Método para seleccionar/deseleccionar un item individual
@@ -300,5 +323,188 @@ export class DqMeasurementExecutionComponent implements OnInit {
     const route = this.steps[stepIndex].route;
     this.router.navigate([route]);
   }
+
+
+
+
+  // Execution results
+  executionResults: any = null;
+  selectedMethodResult: any = null;
+  isLoadingResults: boolean = false;
+  resultsError: string | null = null;
+
+  // Method to fetch latest execution results
+  fetchLatestExecutionResults(): void {
+    if (!this.dqModelVersionId) return;
+    
+    this.isLoadingResults = true;
+    this.resultsError = null;
+    
+    this.modelService.getLatestExecutionResults(this.dqModelVersionId).subscribe({
+      next: (results) => {
+        this.executionResults = results;
+        this.isLoadingResults = false;
+
+        //console.log("this.executionResults", this.executionResults);
+
+        // Merge execution results with applied methods
+        this.mergeExecutionResultsWithMethods();
+      },
+      error: (err) => {
+        this.resultsError = 'Failed to load execution results';
+        this.isLoadingResults = false;
+        console.error('Error fetching execution results:', err);
+      }
+    });
+  }
+
+  // Method to fetch specific method result
+  fetchMethodExecutionResult(methodId: number): void {
+    if (!this.dqModelVersionId) return;
+    
+    this.isLoadingResults = true;
+    this.modelService.getMethodExecutionResult(this.dqModelVersionId, methodId).subscribe({
+      next: (result) => {
+        this.selectedMethodResult = result;
+
+        console.log("this.selectedMethodResult", this.selectedMethodResult);
+
+        this.isLoadingResults = false;
+      },
+      error: (err) => {
+        this.resultsError = `Failed to load results for method ${methodId}`;
+        this.isLoadingResults = false;
+        console.error(`Error fetching execution result for method ${methodId}:`, err);
+      }
+    });
+  }
+
+  // Helper method to merge execution results with applied methods
+  private mergeExecutionResultsWithMethods0(): void {
+    if (!this.executionResults || !this.appliedDQMethods) return;
+    
+    this.appliedDQMethods.forEach(method => {
+      const result = this.executionResults.results.find((r: any) => r.method_id === method.id);
+      if (result) {
+        method.executionResult = {
+          status: result.status,
+          dq_value: result.dq_value,
+          executed_at: result.executed_at,
+          details: result.details
+        };
+      } else {
+        method.executionResult = {
+          status: 'pending'
+        };
+      }
+    });
+  }
+
+  // Method to open execution details for a method
+  openExecutionDetails(methodId: number): void {
+    this.fetchMethodExecutionResult(methodId);
+    // You might want to open a modal here to show the details
+  }
+
+  pendingMethods: any[] = [];
+  completedMethods: any[] = [];
+
+  separateMethodsByStatus(): void {
+    if (!this.appliedDQMethods) return;
+    
+    this.pendingMethods = this.appliedDQMethods.filter(method => 
+      !method.executionResult || method.executionResult.status === 'pending'
+    );
+    
+    this.completedMethods = this.appliedDQMethods.filter(method => 
+      method.executionResult && method.executionResult.status === 'completed'
+    );
+  }
+
+  // Actualiza el método mergeExecutionResultsWithMethods
+  private mergeExecutionResultsWithMethods2(): void {
+    if (!this.executionResults || !this.appliedDQMethods) return;
+    
+    this.appliedDQMethods.forEach(method => {
+      const result = this.executionResults.results.find((r: any) => r.method_id === method.id);
+      method.executionResult = result ? {
+        status: result.status,
+        dq_value: result.dq_value,
+        executed_at: result.executed_at,
+        details: result.details
+      } : {
+        status: 'pending'
+      };
+    });
+    
+    this.separateMethodsByStatus(); 
+  }
+
+
+  /*fetchLatestExecutionResults(): void {
+    if (!this.dqModelVersionId) return;
+    
+    this.isLoadingResults = true;
+    this.resultsError = null;
+    
+    this.modelService.getLatestExecutionResults(this.dqModelVersionId).subscribe({
+      next: (results) => {
+        this.executionResults = results;
+        this.mergeExecutionResultsWithMethods();
+        this.isLoadingResults = false;
+      },
+      error: (err) => {
+        this.resultsError = 'Failed to load execution results';
+        this.isLoadingResults = false;
+        console.error('Error fetching execution results:', err);
+      }
+    });
+  }*/
+
+  // Agrega estas propiedades a tu componente
+  selectedStatus: string = 'all';
+  filteredMethods: any[] = [];
+
+  // Agrega estructura executionResult a cada Applied Method
+  mergeExecutionResultsWithMethods(): void {
+    if (!this.executionResults || !this.appliedDQMethods) return;
+    
+    this.appliedDQMethods.forEach(method => {
+      const result = this.executionResults.results.find((r: any) => r.method_id === method.id);
+      
+      method.executionResult = result ? {
+        status: result.status,
+        dq_value: result.dq_value,
+        executed_at: result.executed_at,
+        details: result.details
+      } : {
+        status: 'pending'
+      };
+    });
+    
+    //console.log("this.appliedDQMethods", this.appliedDQMethods);
+    this.filterMethods(); // Aplicar filtro inicial
+  }
+
+  // Agrega este método para filtrar los métodos
+  filterMethods(): void {
+    if (!this.appliedDQMethods) return;
+    
+    switch (this.selectedStatus) {
+      case 'completed':
+        this.filteredMethods = this.appliedDQMethods.filter(m => 
+          m.executionResult?.status === 'completed'
+        );
+        break;
+      case 'pending':
+        this.filteredMethods = this.appliedDQMethods.filter(m => 
+          !m.executionResult || m.executionResult.status === 'pending'
+        );
+        break;
+      default:
+        this.filteredMethods = [...this.appliedDQMethods];
+    }
+  }
+
 
 }

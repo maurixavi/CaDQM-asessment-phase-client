@@ -82,3 +82,29 @@ input[type="checkbox"] {
   padding-left: 14px;
   padding-right: 14px;
 }
+
+
+/* Permitir que el texto se ajuste en estas columnas */
+td:nth-child(2), td:nth-child(3) {
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Hacer más pequeña la columna AppliedTo */
+th:nth-child(4), td:nth-child(4) {
+  width: 20%; /* Ajusta este valor según necesites */
+  max-width: 200px;
+}
+
+td:nth-child(5), td:nth-child(6) {
+  width: 10%;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Estilo para el contenido de AppliedTo */
+.table-display {
+  max-height: 100px;
+  overflow-y: auto;
+  white-space: normal;
+}

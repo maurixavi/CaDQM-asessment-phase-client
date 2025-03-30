@@ -262,7 +262,13 @@
 																										<div class="accordion-body">
 																											<div class="label-selected">
 																												<label class="label-title-selected">Applied to:</label>
-																												<span class="label-value-selected">{{ measurement.appliedTo }}</span>
+																												<span class="label-value-selected">
+																													<div *ngFor="let table of getAppliedToDisplay(measurement.appliedTo)" 
+																															 class="table-display">
+																														Table: {{ table.tableName }}<br>
+																														Columns: {{ table.columns.join(', ') }}
+																													</div>
+																												</span>
 																											</div>
 																											
 																										</div>
@@ -298,10 +304,17 @@
 																									>
 																										<div class="accordion-body">
 																											<div class="label-selected">
-																												<label class="label-title-selected">Applied to:</label>
-																												<span class="label-value-selected">{{ aggregation.appliedTo }}</span>
+																												<label class="label-title-selected">Applied To:</label>
+																												<span class="label-value-selected">
+																													<div *ngFor="let table of getAppliedToDisplay(aggregation.appliedTo)" 
+																															 class="table-display">
+																														Table: {{ table.tableName }}<br>
+																														Columns: {{ table.columns.join(', ') }}
+																													</div>
+																												</span>
 																											</div>
-																								
+
+
 																										</div>
 																									</div>
 																								</div>
