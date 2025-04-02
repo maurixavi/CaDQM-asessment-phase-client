@@ -38,6 +38,8 @@ import { DqMeasurementExecutionComponent } from './pages/dq-measurement-executio
 import { DataAtHandViewModalComponent } from './shared/data-at-hand-view-modal/data-at-hand-view-modal.component';
 import { ContextComponentViewModalComponent } from './shared/context-component-view-modal/context-component-view-modal.component';
 import { NotificationComponent } from './components/notification/notification.component';
+import { DqMeasurementResultsComponent } from './pages/dq-measurement-results/dq-measurement-results.component';
+import { DqAssessmentApproachesDefinitionComponent } from './pages/dq-assessment-approaches-definition/dq-assessment-approaches-definition.component';
 
 
 @NgModule({
@@ -62,7 +64,9 @@ import { NotificationComponent } from './components/notification/notification.co
     DqMeasurementExecutionComponent,
     DataAtHandViewModalComponent,
     ContextComponentViewModalComponent,
-    NotificationComponent
+    NotificationComponent,
+    DqMeasurementResultsComponent,
+    DqAssessmentApproachesDefinitionComponent
   ],
   imports: [
     BrowserModule,

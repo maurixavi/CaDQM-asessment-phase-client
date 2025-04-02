@@ -5,6 +5,7 @@ import { DqModelService } from '../../services/dq-model.service';
 import { ProjectDataService } from '../../services/project-data.service';
 import { Router } from '@angular/router';
 
+
 import { buildContextComponents, formatCtxCompCategoryName, getFirstNonIdAttribute, formatAppliedTo, getAppliedToDisplay } from '../../shared/utils/utils';
 
 declare var bootstrap: any;
@@ -29,7 +30,8 @@ export class DqMeasurementExecutionComponent implements OnInit {
   stageTitle: string = 'Stage 5: DQ Measurement';
 
   steps: { displayName: string; route: string; description: string }[] = [
-    { displayName: 'A14', route: 'st5/execution', description: 'Prioritization of DQ Problems' },
+    { displayName: 'A14', route: 'st5/execution', description: 'Execution of the DQ measurement' },
+    { displayName: 'A15', route: 'st5/results', description: 'Results of the DQ measurement' },
   ];
 
   isNextStepEnabled: boolean = true;
@@ -39,7 +41,7 @@ export class DqMeasurementExecutionComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private modelService: DqModelService,
     private projectService: ProjectService,
-    private projectDataService: ProjectDataService
+    private projectDataService: ProjectDataService,
   ) {}
 
   // Main variables
@@ -52,6 +54,8 @@ export class DqMeasurementExecutionComponent implements OnInit {
 
   isLoading: boolean = false;
   errorMessage: string | null = null;
+
+  isExecutionLoading: boolean = false;
 
   // DQ Methods
   dqMethods: any[] = [];
@@ -250,15 +254,142 @@ export class DqMeasurementExecutionComponent implements OnInit {
            this.filteredMethods.every(item => item.selected);
   }
   
-  toggleSelectAll(event: Event): void {
+  toggleSelectAll____(event: Event): void {
     const isChecked = (event.target as HTMLInputElement).checked;
     this.filteredMethods.forEach(item => item.selected = isChecked);
   }
 
   // Método para seleccionar/deseleccionar un item individual
-  toggleSelectItem(item: any): void {
+  toggleSelectItem_backup(item: any): void {
     item.selected = !item.selected;
   }
+
+  selectedMethodsObjects: any[] = [];   // Métodos seleccionados para ejecutar
+  selectedMethods: number[] = [];    // IDs de los métodos seleccionados para ejecutar
+
+  // Maneja la selección/deselección de un método aplicado
+  toggleSelectItem(item: any): void {
+    // Si el método está seleccionado, lo deseleccionamos
+    if (item.selected) {
+      const index = this.selectedMethodsObjects.findIndex(m => m.id === item.id);
+      if (index !== -1) {
+        this.selectedMethodsObjects.splice(index, 1);
+      }
+    } else {
+      // Si el método no está seleccionado, lo agregamos al array
+      this.selectedMethodsObjects.push(item);
+      this.selectedMethods.push(item.id);  //  agregamos solo el id
+    }
+
+    // Actualizamos el estado de selección del método
+    item.selected = !item.selected;
+
+    console.log("this.selectedMethods", this.selectedMethods)
+    console.log("this.selectedMethodsObjects", this.selectedMethodsObjects)
+  }
+
+  // Función para seleccionar/deseleccionar todos los métodos
+  toggleSelectAll(event: any): void {
+    if (event.target.checked) {
+      this.selectedMethods = [...this.filteredMethods]; // Selecciona todos los métodos filtrados
+    } else {
+      this.selectedMethods = []; // Deselecciona todos
+    }
+
+    // Actualizamos el estado de selección de cada método
+    this.filteredMethods.forEach(method => method.selected = event.target.checked);
+  }
+
+  // Lógica para seleccionar métodos
+  toggleSelectItem2(item: any): void {
+    item.selected = !item.selected;
+    if (item.selected) {
+      this.selectedMethods.push(item.appliedMethodId);  // Solo guardamos el ID del método aplicado
+    } else {
+      const index = this.selectedMethods.indexOf(item.appliedMethodId);
+      if (index > -1) {
+        this.selectedMethods.splice(index, 1);
+      }
+    }
+    console.log("this.selectedMethods", this.selectedMethods);
+  }
+
+  //EJECUCION --------------
+  executingMethods: any[] = [];  // Métodos en ejecución con su estado y tiempo
+  intervalIds: any[] = [];  // Almacenamos los intervalos para detener el contador
+
+  
+  // Ejecutar los métodos seleccionados.
+  // Ejecutar los métodos seleccionados.
+  executeSelectedMethods(): void {
+
+    if (!this.dqModelVersionId) 
+      return;
+
+    const dqModelId = this.dqModelVersionId;
+
+    if (this.selectedMethods.length === 0) {
+      this.errorMessage = 'Please select at least one method to execute.';
+      return;
+    }
+
+    this.isExecutionLoading = true;
+    this.errorMessage = '';
+
+    // Preparamos los métodos en ejecución (para mostrar el progreso en la UI)
+    this.executingMethods = this.selectedMethodsObjects.map(method => ({
+      ...method,
+      status: 'Executing...',
+      timeElapsed: 0,
+      intervalId: this.startTimerForExecution(method)
+    }));
+
+    // Usamos los IDs directamente para ejecutar los métodos
+    const appliedMethodIds = this.selectedMethods;  // Usamos los IDs que ya tienes
+
+    if (appliedMethodIds.length === 0) {
+      this.errorMessage = 'No valid methods selected.';
+      this.isExecutionLoading = false;
+      return;
+    }
+
+    // Usamos el método del servicio para ejecutar los métodos aplicados pasando solo los IDs
+    this.modelService.executeMultipleAppliedMethods(dqModelId, appliedMethodIds).subscribe(
+      results => {
+        this.isExecutionLoading = false;
+        this.executingMethods.forEach(method => method.status = 'Done');
+        this.intervalIds.forEach(id => clearInterval(id));  // Limpiar todos los intervalos
+        console.log('All methods executed:', results);
+      },
+      error => {
+        this.isExecutionLoading = false;
+        this.errorMessage = 'Error executing selected methods.';
+        console.error('Error executing methods:', error);
+        this.executingMethods.forEach(method => method.status = 'Failed');
+        this.intervalIds.forEach(id => clearInterval(id));  // Limpiar todos los intervalos
+      }
+    );
+  }
+
+
+
+  // Función para iniciar un temporizador para cada ejecución
+  startTimerForExecution(method: any) {
+    let elapsedTime = 0;  // Tiempo transcurrido en segundos
+    const intervalId = setInterval(() => {
+      elapsedTime++;
+      method.timeElapsed = elapsedTime;
+      this.cdr.detectChanges();
+    }, 1000); // Actualiza cada segundo
+    return intervalId;
+  }
+
+  // Detener todos los intervalos cuando no sean necesarios
+  clearAllTimers() {
+    this.intervalIds.forEach(id => clearInterval(id));
+  }
+
+  //
 
   //DQ Methods details
   // Método para abrir el modal y cargar los detalles del método

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, throwError, forkJoin } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 
 interface DQModel {
@@ -951,6 +951,27 @@ export class DqModelService {
   }
 
   /**
+   * Get execution results for a specific DQ Model and execution ID
+   * @param dqModelId The ID of the DQ Model
+   * @param executionId The ID of the execution
+   * @returns Observable with the execution results
+   */
+  getDQModelExecutionResults(dqModelId: number, executionId: string): Observable<any> {
+    // Construimos la URL utilizando los parámetros de ID del modelo y ejecución
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/execution-results/${executionId}/`;
+
+    // Realizamos la solicitud HTTP GET a la URL
+    return this.http.get<any>(url).pipe(
+      // Capturamos cualquier error y lo mostramos en la consola
+      catchError(err => {
+        console.error(`Error fetching execution results for DQ Model ${dqModelId} with execution ID ${executionId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+
+  /**
    * Get specific method execution result
    * @param dqModelId The ID of the DQ Model
    * @param appliedMethodId The ID of the applied method (measurement or aggregation)
@@ -961,6 +982,63 @@ export class DqModelService {
     return this.http.get<any>(url).pipe(
       catchError(err => {
         console.error(`Error fetching execution result for method ${appliedMethodId} in DQ Model ${dqModelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Ejecuta un solo método aplicado para un DQ Model
+   * @param dqModelId El ID del DQ Model
+   * @param appliedMethodId El ID del método aplicado
+   * @returns Observable con el resultado de la ejecución
+   */
+  executeAppliedMethod(dqModelId: number, appliedMethodId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/applied-dq-methods/${appliedMethodId}/execute/`;
+    return this.http.post<any>(url, {}).pipe(
+      catchError(err => {
+        console.error(`Error al ejecutar el método aplicado ${appliedMethodId} para el DQ Model ${dqModelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Ejecuta múltiples métodos aplicados de manera concurrente para un DQ Model
+   * @param dqModelId El ID del DQ Model
+   * @param appliedMethodIds Un array con los IDs de los métodos aplicados
+   * @returns Observable con los resultados de las ejecuciones
+   */
+   executeMultipleAppliedMethods(dqModelId: number, appliedMethodIds: number[]): Observable<any[]> {
+    // Creamos un array de observables para cada método aplicado
+    const requests = appliedMethodIds.map(appliedMethodId =>
+      this.executeAppliedMethod(dqModelId, appliedMethodId)
+    );
+
+    // Usamos forkJoin para ejecutar todas las solicitudes concurrentemente
+    return forkJoin(requests).pipe(
+      catchError(err => {
+        console.error('Error al ejecutar los métodos aplicados:', err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Updates assessment thresholds for a method execution result
+   * @param dqModelId The ID of the DQ Model
+   * @param methodId The ID of the applied method
+   * @param resultId The ID of the execution result
+   * @param thresholds Array of threshold definitions
+   * @returns Observable with the response
+   */
+  updateAssessmentThresholds(dqModelId: number, methodId: number,  resultId: number, thresholds: any[]
+  ): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/applied-dq-methods/${methodId}/execution-result/${resultId}/thresholds/`;
+    
+    return this.http.patch(url, { thresholds }).pipe(
+      catchError(err => {
+        console.error(`Error updating thresholds for result ${resultId}:`, err);
         throw err;
       })
     );

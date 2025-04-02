@@ -111,6 +111,9 @@
                     type="checkbox"
                     [checked]="item.selected"
                     (change)="toggleSelectItem(item)"
+                    [disabled]="item.executionResult?.status === 'completed'"
+                    [class.disabled-checkbox]="item.executionResult?.status === 'completed'"
+                    
                   />
                 </td>
                 <!-- Celda con el DQ Method clickeable -->
@@ -132,9 +135,48 @@
           </table>
         </div>
 
+        <!-- Botón para ejecutar los métodos seleccionados -->
         <div class="mt-3">
-          <button class="btn btn-sm btn-dark">Execute</button>
+          <button class="btn btn-sm btn-dark" (click)="executeSelectedMethods()">Execute</button>
         </div>
+
+        <!-- Mostrar los métodos seleccionados y su progreso
+        <div *ngIf="executingMethods.length > 0">
+          <h4>Executing Methods:</h4>
+          <ul>
+            <li *ngFor="let method of executingMethods">
+              <div>
+                <strong>{{ method.dqMethod }}</strong>
+                <span *ngIf="method.status === 'Executing'"> - Executing</span>
+                <span *ngIf="method.status === 'Done'"> - Done</span>
+                <span *ngIf="method.status === 'Failed'"> - Failed</span>
+              </div>
+              <div>
+                Time elapsed: {{ method.timeElapsed }} seconds
+              </div>
+            </li>
+          </ul>
+        </div> -->
+
+        <!-- Métodos en ejecución  -->
+        <div *ngIf="executingMethods.length > 0" class="mt-4">
+          <h5>Executing Methods</h5>
+          <ul class="list-group">
+            <li *ngFor="let method of executingMethods" class="list-group-item">
+              <strong>{{ method.dqMethod }}</strong> - 
+              <span>{{ method.status }}</span> -
+              <span>{{ method.timeElapsed }}</span>
+              <!-- Spinner de carga -->
+              <div *ngIf="isLoading" class="text-center">
+                <div class="spinner-border" role="status">
+                  <span class="sr-only"></span>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>     
+        
+
       </div>
     </div>
   </div>

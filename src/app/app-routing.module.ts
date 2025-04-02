@@ -13,6 +13,9 @@ import { DqDimensionsMethodsDefinitionComponent } from './pages/dq-dimensions-me
 import { HomeComponent } from './pages/home/home.component'
 
 import { DqMeasurementExecutionComponent } from './pages/dq-measurement-execution/dq-measurement-execution.component';
+import { DqMeasurementResultsComponent } from './pages/dq-measurement-results/dq-measurement-results.component';
+ 
+import { DqAssessmentApproachesDefinitionComponent } from  './pages/dq-assessment-approaches-definition/dq-assessment-approaches-definition.component';
  
 /*const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -27,6 +30,8 @@ const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'phase2/dashboard', component: DashboardComponent },
   { path: 'st5/execution', component: DqMeasurementExecutionComponent },
+  { path: 'st5/results', component: DqMeasurementResultsComponent },
+  { path: 'st6/assessment-approaches', component: DqAssessmentApproachesDefinitionComponent },
   { path: 'st4', children: [
     { path: 'a09-1', component: DQProblemsPriorizationComponent },
     { path: 'a09-2', component: DQProblemsSelectionComponent },

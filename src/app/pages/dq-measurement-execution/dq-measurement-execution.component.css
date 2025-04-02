@@ -108,3 +108,8 @@ td:nth-child(5), td:nth-child(6) {
   overflow-y: auto;
   white-space: normal;
 }
+
+.disabled-checkbox {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
