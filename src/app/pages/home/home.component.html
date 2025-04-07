@@ -32,22 +32,22 @@
               <td>{{ project.dqmodel_version }}</td>
               <td>
                 <!-- Condicional para mostrar el texto descriptivo según el stage -->
-                <span *ngIf="project.stage === 'ST1'">ST1: Elicitation</span>
-                <span *ngIf="project.stage === 'ST2'">ST2: Data Analysis</span>
-                <span *ngIf="project.stage === 'ST3'">ST3: User Requirements Analysis</span>
-                <span *ngIf="project.stage === 'ST4'">ST4: DQ Model Definition</span>
-                <span *ngIf="project.stage === 'ST5'">ST5: DQ Measurement</span>
-                <span *ngIf="project.stage === 'ST6'">ST6: DQ Assessment</span>
+                <span *ngIf="project.current_stage?.stage === 'ST1'">ST1: Elicitation</span>
+                <span *ngIf="project.current_stage?.stage === 'ST2'">ST2: Data Analysis</span>
+                <span *ngIf="project.current_stage?.stage === 'ST3'">ST3: User Requirements Analysis</span>
+                <span *ngIf="project.current_stage?.stage === 'ST4'">ST4: DQ Model Definition</span>
+                <span *ngIf="project.current_stage?.stage === 'ST5'">ST5: DQ Measurement</span>
+                <span *ngIf="project.current_stage?.stage === 'ST6'">ST6: DQ Assessment</span>
               </td>
               <td>
                 <!-- Badge condicional según el estado -->
-                <span *ngIf="project.status === 'to_do'" class="badge bg-secondary rounded-pill text-uppercase">
+                <span *ngIf="project.current_stage?.status === 'TO_DO'" class="badge bg-secondary rounded-pill text-uppercase">
                    To Do
                 </span>
-                <span *ngIf="project.status === 'in_progress'" class="badge bg-warning rounded-pill text-uppercase">
+                <span *ngIf="project.current_stage?.status === 'IN_PROGRESS'" class="badge bg-warning rounded-pill text-uppercase">
                    In Progress
                 </span>
-                <span *ngIf="project.status === 'done'" class="badge bg-success rounded-pill text-uppercase">
+                <span *ngIf="project.current_stage?.status === 'DONE'" class="badge bg-success rounded-pill text-uppercase">
                    Done
                 </span>
               </td>

@@ -238,11 +238,12 @@ export class DashboardComponent implements OnInit {
     const description = 'Descripción del nuevo proyecto';
     const dqmodel_version = dqmodelId; 
     const context_version = this.project?.context_version;
+    const data_at_hand = this.project?.data_at_hand;
   
     // Verificar que los datos se están pasando correctamente
-    console.log('Datos del nuevo proyecto:', { name, description, dqmodel_version, context_version });
+    console.log('Datos del nuevo proyecto:', { name, description, dqmodel_version, context_version, data_at_hand });
   
-    this.projectService.createProject(name, description, dqmodel_version, context_version).subscribe({
+    this.projectService.createProject(name, description, dqmodel_version, context_version, data_at_hand).subscribe({
       next: (project) => {
         console.log('Proyecto creado:', project);
   
@@ -474,8 +475,9 @@ export class DashboardComponent implements OnInit {
     const description = 'Descripción del nuevo proyecto';
     const dqmodel_version = this.newDQModelVersionId; 
     const context_version = this.project?.context_version;
+    const data_at_hand = this.project?.data_at_hand;
 
-    this.projectService.createProject(name, description, dqmodel_version, context_version).subscribe({
+    this.projectService.createProject(name, description, dqmodel_version, context_version, data_at_hand).subscribe({
       next: (project) => {
         console.log('Proyecto creado:', project);
         this.projectService.setProjectId(project.id);

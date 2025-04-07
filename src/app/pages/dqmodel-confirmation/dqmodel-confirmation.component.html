@@ -373,6 +373,19 @@
   (close)="onConfirmDQModelModalClose()">
 </app-modal>
 
+<app-modal
+  [isOpen]="isConfirmDQModelModalOpen"
+  [title]="'Confirm DQ Model Finalization'"
+  [message]="confirmDQModelMessage"
+  (close)="onConfirmDQModelModalClose()">
+  
+  <!-- Botones personalizados para el modal de confirmación -->
+  <div class="d-flex gap-2 mt-2">
+      <button type="button" class="btn btn-sm btn-light" (click)="onConfirmDQModelModalClose()">Cancel</button>
+      <button type="button" class="btn btn-sm btn-dark" (click)="confirmationFinishedDQModel()">Confirm</button>
+  </div>
+</app-modal>
+
 <!-- Botones personalizados para el modal de confirmación -->
 <div class="d-flex gap-2 mt-2">
 	<button type="button" class="btn btn-sm btn-light" (click)="onConfirmDQModelModalClose()">Cancel</button>

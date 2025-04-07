@@ -339,12 +339,13 @@ export class ProjectService {
     );
   }
 
-  createProject(name: string, description: string, dqmodel_version: number | null, context_version: number | null): Observable<any> {
+  createProject(name: string, description: string, dqmodel_version: number | null, context_version: number | null, data_at_hand: number | null): Observable<any> {
     const newProject = {
       name,
       description,
       dqmodel_version, 
       context_version, 
+      data_at_hand,
       stage: 4,
       status: 'in_progress'
     };

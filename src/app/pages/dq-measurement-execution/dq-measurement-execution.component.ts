@@ -638,4 +638,104 @@ export class DqMeasurementExecutionComponent implements OnInit {
   }
 
 
+  // Applied DQ Method details modal
+  isAppliedMethodModalOpen: boolean = false;
+  appliedMethodDetails: any = null;
+  appliedMethodModalTitle: string = 'Applied DQ Method';
+
+  /**
+ * Opens a modal with details of the applied DQ method
+ * @param appliedMethod The applied method object to show details for
+ */
+  openAppliedMethodDetailsModal(appliedMethod: any): void {
+    if (!this.dqModelVersionId) return;
+    
+    this.isAppliedMethodModalOpen = true;
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    // Set basic details immediately
+    this.appliedMethodDetails = {
+      ...appliedMethod,
+      loadingDetails: true
+    };
+
+    // Fetch additional details from the server
+    this.modelService.getAppliedDQMethod(this.dqModelVersionId, appliedMethod.id).subscribe(
+      (details) => {
+        this.appliedMethodDetails = {
+          ...appliedMethod,
+          ...details,
+          loadingDetails: false
+        };
+        this.isLoading = false;
+      },
+      (error) => {
+        this.errorMessage = 'Failed to load method details.';
+        this.isLoading = false;
+        this.appliedMethodDetails.loadingDetails = false;
+      }
+    );
+  }
+
+  /**
+   * Closes the applied method details modal
+   */
+  closeAppliedMethodModal(): void {
+    this.isAppliedMethodModalOpen = false;
+    this.appliedMethodDetails = null;
+  }
+
+  // Edición de algoritmo
+  isEditingAlgorithm: boolean = false;
+  editedAlgorithm: string = '';
+
+  /**
+ * Starts editing the algorithm
+ */
+startEditingAlgorithm(): void {
+  this.isEditingAlgorithm = true;
+  this.editedAlgorithm = this.appliedMethodDetails?.algorithm || '';
+}
+
+/**
+ * Saves the edited algorithm
+ */
+saveAlgorithm(): void {
+  if (!this.dqModelVersionId || !this.appliedMethodDetails) return;
+
+  this.isLoading = true;
+  const updatedData = { algorithm: this.editedAlgorithm };
+
+  this.modelService.patchAppliedDQMethod(
+    this.dqModelVersionId, 
+    this.appliedMethodDetails.id, 
+    updatedData
+  ).subscribe({
+    next: (updatedMethod) => {
+      this.appliedMethodDetails.algorithm = updatedMethod.algorithm;
+      this.isEditingAlgorithm = false;
+      this.isLoading = false;
+      
+      // Actualiza también en la lista principal
+      const index = this.appliedDQMethods.findIndex(m => m.id === this.appliedMethodDetails.id);
+      if (index !== -1) {
+        this.appliedDQMethods[index].algorithm = updatedMethod.algorithm;
+      }
+    },
+    error: (err) => {
+      this.errorMessage = 'Failed to update algorithm';
+      this.isLoading = false;
+      console.error('Error updating algorithm:', err);
+    }
+  });
+}
+
+/**
+ * Cancels editing the algorithm
+ */
+cancelEditingAlgorithm(): void {
+  this.isEditingAlgorithm = false;
+}
+
 }

@@ -59,6 +59,7 @@
                     'bi-filter': sortColumn !== 'dqMethod'
                   }"></i>
                 </th>
+
                 <th scope="col" class="sortable-header" (click)="sortTable('name')">
                   Applied DQ Method
                   <i class="bi" [ngClass]="{
@@ -67,6 +68,7 @@
                     'bi-filter': sortColumn !== 'name'
                   }"></i>
                 </th>
+                
                 <th scope="col" class="sortable-header" (click)="sortTable('appliedTo')">
                   Applied to
                   <i class="bi" [ngClass]="{
@@ -120,7 +122,15 @@
                 <td class="clickable-text" (click)="openMethodDetailsModal(item.methodBase)">
                   {{ item.dqMethod }}
                 </td>
-                <td>{{ item.name }}</td>
+                <td class="clickable-text" (click)="openAppliedMethodDetailsModal(item)">
+                  {{ item.name }}
+                  <span *ngIf="item.executionResult" 
+                        [class.text-success]="item.executionResult.status === 'completed'"
+                        [class.text-warning]="item.executionResult.status === 'pending'"
+                        class="badge ms-2">
+                    {{ item.executionResult.status }}
+                  </span>
+                </td>
                 <td><div *ngFor="let table of getAppliedToDisplay(item.appliedTo)" 
                   class="table-display">
                Table: {{ table.tableName }}<br>
@@ -203,6 +213,223 @@
     <button class="btn btn-secondary" (click)="closeModal()">Close</button>
   </div>
 </app-modal>
+
+
+
+<!-- Applied DQ Method Details Modal
+<div *ngIf="isAppliedMethodModalOpen" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="appliedMethodModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="appliedMethodModalLabel">
+          {{ appliedMethodModalTitle }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeAppliedMethodModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="isLoading" class="text-center">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+        
+        <div *ngIf="!isLoading && appliedMethodDetails">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <h6>Basic Information</h6>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                  <strong>Name:</strong> {{ appliedMethodDetails.name }}
+                </li>
+                <li class="list-group-item">
+                  <strong>DQ Method:</strong> {{ appliedMethodDetails.dqMethod }}
+                </li>
+                <li class="list-group-item">
+                  <strong>Algorithm:</strong> {{ appliedMethodDetails.algorithm || 'Not specified' }}
+                </li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h6>DQ Model Hierarchy</h6>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                  <strong>Metric:</strong> {{ appliedMethodDetails.dqMetric }}
+                </li>
+                <li class="list-group-item">
+                  <strong>Factor:</strong> {{ appliedMethodDetails.dqFactor }}
+                </li>
+                <li class="list-group-item">
+                  <strong>Dimension:</strong> {{ appliedMethodDetails.dqDimension }}
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <h6>Applied To</h6>
+            <div *ngFor="let table of getAppliedToDisplay(appliedMethodDetails.appliedTo)" class="table-display mb-2 p-2 border rounded">
+              <strong>Table:</strong> {{ table.tableName }}<br>
+              <strong>Columns:</strong> {{ table.columns.join(', ') }}
+            </div>
+          </div>
+
+          <div *ngIf="appliedMethodDetails.executionResult" class="mb-3">
+            <h6>Execution Details</h6>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <strong>Status:</strong> 
+                <span [class.text-success]="appliedMethodDetails.executionResult.status === 'completed'"
+                      [class.text-warning]="appliedMethodDetails.executionResult.status === 'pending'">
+                  {{ appliedMethodDetails.executionResult.status }}
+                </span>
+              </li>
+              <li *ngIf="appliedMethodDetails.executionResult.dq_value" class="list-group-item">
+                <strong>DQ Value:</strong> {{ appliedMethodDetails.executionResult.dq_value }}
+              </li>
+              <li *ngIf="appliedMethodDetails.executionResult.executed_at" class="list-group-item">
+                <strong>Executed At:</strong> {{ appliedMethodDetails.executionResult.executed_at | date:'medium' }}
+              </li>
+              <li *ngIf="appliedMethodDetails.executionResult.details" class="list-group-item">
+                <strong>Details:</strong> 
+                <pre class="mt-2 p-2 bg-light rounded">{{ appliedMethodDetails.executionResult.details | json }}</pre>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-danger mt-3">
+          {{ errorMessage }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeAppliedMethodModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="isAppliedMethodModalOpen" class="modal-backdrop fade show"></div>
+ -->
+
+<!-- Applied DQ Method Details Modal -->
+<div *ngIf="isAppliedMethodModalOpen" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="appliedMethodModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="appliedMethodModalLabel">
+          {{ appliedMethodModalTitle }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeAppliedMethodModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="isLoading" class="text-center">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+        
+        <div *ngIf="!isLoading && appliedMethodDetails">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <h6>Basic Information</h6>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                  <strong>Name:</strong> {{ appliedMethodDetails.name }}
+                </li>
+                <li class="list-group-item">
+                  <strong>DQ Method:</strong> {{ appliedMethodDetails.dqMethod }}
+                </li>
+                <li class="list-group-item">                 
+                  <div *ngIf="isEditingAlgorithm" class="mt-2">
+                    <textarea class="form-control mb-2" rows="5" [(ngModel)]="editedAlgorithm"></textarea>
+                    <div class="d-flex justify-content-end gap-2">
+                      <button class="btn btn-sm btn-outline-secondary" (click)="cancelEditingAlgorithm()">
+                        Cancel
+                      </button>
+                      <button class="btn btn-sm btn-primary" (click)="saveAlgorithm()" [disabled]="isLoading">
+                        <span *ngIf="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h6>DQ Model Hierarchy</h6>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                  <strong>Metric:</strong> {{ appliedMethodDetails.dqMetric }}
+                </li>
+                <li class="list-group-item">
+                  <strong>Factor:</strong> {{ appliedMethodDetails.dqFactor }}
+                </li>
+                <li class="list-group-item">
+                  <strong>Dimension:</strong> {{ appliedMethodDetails.dqDimension }}
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <h6>Algorithm:</h6>
+            <div class="table-display mb-2 p-2 border rounded">
+              <div *ngIf="!isEditingAlgorithm" class="d-flex justify-content-between align-items-center">
+                <div>
+                  <pre *ngIf="appliedMethodDetails.algorithm" class="d-inline p-2 bg-light rounded">{{ appliedMethodDetails.algorithm }}</pre>
+                  <span *ngIf="!appliedMethodDetails.algorithm" class="text-muted">Not specified</span>
+                </div>
+                <br>
+                <button class="btn btn-sm btn-outline-primary" (click)="startEditingAlgorithm()">
+                  <i class="bi bi-pencil"></i> Edit
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <h6>Applied To</h6>
+            <div *ngFor="let table of getAppliedToDisplay(appliedMethodDetails.appliedTo)" class="table-display mb-2 p-2 border rounded">
+              <strong>Table:</strong> {{ table.tableName }}<br>
+              <strong>Columns:</strong> {{ table.columns.join(', ') }}
+            </div>
+          </div>
+
+          <div *ngIf="appliedMethodDetails.executionResult" class="mb-3">
+            <h6>Execution Details</h6>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <strong>Status:</strong> 
+                <span [class.text-success]="appliedMethodDetails.executionResult.status === 'completed'"
+                      [class.text-warning]="appliedMethodDetails.executionResult.status === 'pending'">
+                  {{ appliedMethodDetails.executionResult.status }}
+                </span>
+              </li>
+              <li *ngIf="appliedMethodDetails.executionResult.dq_value" class="list-group-item">
+                <strong>DQ Value:</strong> {{ appliedMethodDetails.executionResult.dq_value }}
+              </li>
+              <li *ngIf="appliedMethodDetails.executionResult.executed_at" class="list-group-item">
+                <strong>Executed At:</strong> {{ appliedMethodDetails.executionResult.executed_at | date:'medium' }}
+              </li>
+              <li *ngIf="appliedMethodDetails.executionResult.details" class="list-group-item">
+                <strong>Details:</strong> 
+                <pre class="mt-2 p-2 bg-light rounded">{{ appliedMethodDetails.executionResult.details | json }}</pre>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-danger mt-3">
+          {{ errorMessage }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeAppliedMethodModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="isAppliedMethodModalOpen" class="modal-backdrop fade show"></div>
+
 
 
 <app-stepper

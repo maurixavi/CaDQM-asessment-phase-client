@@ -666,6 +666,105 @@ export class DqModelService {
   /*http://localhost:8000/api/measurement-methods/
   http://localhost:8000/api/aggregation-methods/*/
 
+  // APPLIED DQ METHODS OPERATIONS
+
+  /**
+   * Fetches a specific applied DQ method by DQModel ID and Applied Method ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param appliedMethodId - The ID of the applied method.
+   * @returns Observable with the applied method data.
+   */
+  getAppliedDQMethod(dqmodelId: number, appliedMethodId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/applied-dq-methods/${appliedMethodId}/`;
+    return this.http.get<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error fetching applied DQ method ${appliedMethodId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Creates a new applied DQ method for a specific DQModel.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param methodData - The data for the new applied method.
+   * @returns Observable with the created applied method data.
+   */
+  createAppliedDQMethod(dqmodelId: number, methodData: any): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/applied-dq-methods/`;
+    return this.http.post<any>(url, methodData).pipe(
+      catchError(err => {
+        console.error(`Error creating applied DQ method for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Updates a specific applied DQ method by DQModel ID and Applied Method ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param appliedMethodId - The ID of the applied method.
+   * @param updatedData - The data to update the applied method.
+   * @returns Observable with the updated applied method data.
+   */
+  updateAppliedDQMethod(dqmodelId: number, appliedMethodId: number, updatedData: any): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/applied-dq-methods/${appliedMethodId}/`;
+    return this.http.put<any>(url, updatedData).pipe(
+      catchError(err => {
+        console.error(`Error updating applied DQ method ${appliedMethodId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Deletes a specific applied DQ method by DQModel ID and Applied Method ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param appliedMethodId - The ID of the applied method.
+   * @returns Observable with the deletion response.
+   */
+  deleteAppliedDQMethod(dqmodelId: number, appliedMethodId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/applied-dq-methods/${appliedMethodId}/`;
+    return this.http.delete<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error deleting applied DQ method ${appliedMethodId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Partially updates a specific applied DQ method by DQModel ID and Applied Method ID.
+   * @param dqmodelId - The ID of the DQModel.
+   * @param appliedMethodId - The ID of the applied method.
+   * @param updatedData - The partial data to update the applied method.
+   * @returns Observable with the updated applied method data.
+   */
+  patchAppliedDQMethod(dqmodelId: number, appliedMethodId: number, updatedData: any): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/applied-dq-methods/${appliedMethodId}/`;
+    return this.http.patch<any>(url, updatedData).pipe(
+      catchError(err => {
+        console.error(`Error partially updating applied DQ method ${appliedMethodId} for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Fetches all applied DQ methods for a specific DQModel.
+   * @param dqmodelId - The ID of the DQModel.
+   * @returns Observable with the list of applied methods.
+   */
+  getAllAppliedDQMethods(dqmodelId: number): Observable<any[]> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/applied-dq-methods/`;
+    return this.http.get<any[]>(url).pipe(
+      catchError(err => {
+        console.error(`Error fetching applied DQ methods for DQModel ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
 
   // Given a DQ Model: Dimensions, Factors, Metrics and Methods operations
   /**
@@ -889,7 +988,7 @@ export class DqModelService {
    * @param updatedData - The data to update the method.
    * @returns Observable with the updated method data.
    */
-  InDQModelInDQModel(dqmodelId: number, methodId: number, updatedData: any): Observable<any> {
+   updateMethodInDQModel(dqmodelId: number, methodId: number, updatedData: any): Observable<any> {
     const url = `${this.API_URL_DQMODELS}${dqmodelId}/methods/${methodId}/`;
     return this.http.put<any>(url, updatedData).pipe(
       catchError(err => {
