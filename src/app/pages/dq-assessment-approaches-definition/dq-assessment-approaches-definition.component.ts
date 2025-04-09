@@ -15,39 +15,37 @@ declare var bootstrap: any;
   styleUrl: './dq-assessment-approaches-definition.component.css'
 })
 export class DqAssessmentApproachesDefinitionComponent implements OnInit {
-
   // =============================================
-  // 1. CONSTANTES Y CONFIGURACIÓN DEL COMPONENTE
+  // 1. CONSTANTES Y CONFIGURACIÓN
   // =============================================
   public formatAppliedTo = formatAppliedTo;
   public getAppliedToDisplay = getAppliedToDisplay;
   
-  pageStepTitle: string = 'Definition of assessment approaches';
-  phaseTitle: string = 'Phase 2: DQ Assessment';
-  stageTitle: string = 'Stage 6: DQ Assessment';
+  pageStepTitle = 'Definition of assessment approaches';
+  phaseTitle = 'Phase 2: DQ Assessment';
+  stageTitle = 'Stage 6: DQ Assessment';
 
-  steps: { displayName: string; route: string; description: string }[] = [
-    { displayName: 'A16', route: 'st6/assessment-approaches', description: 'Definition of assessment approaches' },
+  steps = [
+    { displayName: 'A16', route: 'st6/assessment-approaches', description: 'Definition of assessment approaches' }
   ];
 
   // =============================================
   // 2. VARIABLES DE ESTADO Y DATOS
   // =============================================
-  // Estado de la aplicación
-  currentStep: number = 0;
-  isNextStepEnabled: boolean = true;
-  isLoading: boolean = false;
-  isLoadingResults: boolean = false;
-  isModalOpen: boolean = false;
-  considerContext: boolean = false;
+  currentStep = 0;
+  isNextStepEnabled = true;
+  isLoading = false;
+  isLoadingResults = false;
+  isModalOpen = false;
+  considerContext = false;
+  showMultipleResults = false;
+  maxVisibleRows = 5;
   
-  // Mensajes y errores
   errorMessage: string | null = null;
   resultsError: string | null = null;
-  modalTitle: string = 'DQ Method Details';
-  modalMessage: string = '';
+  modalTitle = 'DQ Method Details';
+  modalMessage = '';
 
-  // Datos del proyecto
   project: any = null;
   projectId: number | null = null;
   contextComponents: any = null;
@@ -55,7 +53,6 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
   dqModelVersionId: number | null = null;
   dqModel: any = null;
 
-  // Métodos DQ
   dqMethods: any[] = [];
   appliedDQMethods: any[] = [];
   executedMethods: any[] = [];
@@ -63,12 +60,10 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
   selectedMethodDetail: any = null;
   methodDetails: any = null;
 
-  // Resultados de ejecución
   executionResults: any = null;
   selectedMethodResult: any = null;
-
-  // Thresholds
   thresholds: any[] = [];
+  selectedThresholdStatus: any = null;
 
   thresholdType = 'percentage';
   thresholdTypes = [
@@ -79,33 +74,18 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
   ];
 
   defaultThresholds = [
-    {
-      name: 'Excellent',
-      minValue: 80,
-      maxValue: 100,
-      isPassing: true,
-      description: 'Fully meets quality requirements'
-    },
-    {
-      name: 'Good',
-      minValue: 60,
-      maxValue: 79,
-      isPassing: true,
-      description: 'Acceptable with minor issues'
-    },
-    {
-      name: 'Poor',
-      minValue: 0,
-      maxValue: 59,
-      isPassing: false,
-      description: 'Needs improvement'
-    }
+    { name: 'Excellent', minValue: 80, maxValue: 100, isPassing: true, description: 'Fully meets quality requirements' },
+    { name: 'Good', minValue: 60, maxValue: 79, isPassing: true, description: 'Acceptable with minor issues' },
+    { name: 'Poor', minValue: 0, maxValue: 59, isPassing: false, description: 'Needs improvement' }
   ];
 
   qualityThresholds = [...this.defaultThresholds];
+  areThresholdsEditable = true;
   selectedUserType = [];
   selectedBusinessRules = [];
   contextNotes = '';
+  filteredMethods: any[] = [];
+  filteredMethodOptions: any[] = [];
 
   constructor(
     private router: Router,
@@ -121,7 +101,6 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
   // =============================================
   ngOnInit(): void {
     this.projectId = this.projectDataService.getProjectId();
-    console.log('projectIdGet: ', this.projectId);
     this.subscribeToData();
     this.syncCurrentStepWithRoute();
   }
@@ -218,35 +197,17 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
   // =============================================
   // 5. MANEJO DE THRESHOLDS
   // =============================================
-  selectedThresholdStatus: string = 'pending';
-  filteredMethods: any[] = [];
-
-  filterMethodsByThresholdsDefined(): void {
-    if (!this.executedMethods) return;
-    
-    this.filteredMethods = this.executedMethods.filter(method => {
-      const hasThresholds = this.hasThresholdsDefined(method);
-      
-      return this.selectedThresholdStatus === 'all' || 
-            (this.selectedThresholdStatus === 'defined' && hasThresholds) ||
-            (this.selectedThresholdStatus === 'pending' && !hasThresholds);
-    });
-  }
-
-
   hasThresholdsDefined(method: any): boolean {
     return method?.executionResult?.assessment_details?.thresholds?.length > 0;
   }
   
   selectMethodForThresholds(method: any): void {
     this.selectedMethodId = method.id;
-    this.onMethodSelected(); // Esto activará la misma lógica que el select
-    // Opcional: desplazar la vista al editor de thresholds
+    this.onMethodSelected();
+    
     setTimeout(() => {
       const element = document.getElementById('threshold-editor-section');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
+      if (element) element.scrollIntoView({ behavior: 'smooth' });
     }, 100);
   }
 
@@ -254,81 +215,63 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
     if (!this.selectedMethodId) {
       this.selectedMethodDetail = null;
       this.resetToDefaultThresholds();
-      this.areThresholdsEditable = true; // Resetear a editable
+      this.areThresholdsEditable = true;
       return;
     }
-
+  
+    this.showMultipleResults = false;
     this.selectedMethodDetail = this.executedMethods.find(m => m.id == this.selectedMethodId);
-    console.log("APPLIED METHOD SELECTED;", this.selectedMethodDetail)
     
     if (!this.selectedMethodDetail) {
       this.resetToDefaultThresholds();
-      this.areThresholdsEditable = true; // Resetear a editable
+      this.areThresholdsEditable = true;
       return;
     }
-
-    // Inicializar executionResult si no existe
+  
+    this.fetchMethodExecutionResult(this.selectedMethodId);
+  
     if (!this.selectedMethodDetail.executionResult) {
       this.selectedMethodDetail.executionResult = { assessment_details: {} };
     }
-
-    // Verificar si hay thresholds existentes
+  
     const existingThresholds = this.selectedMethodDetail.executionResult.assessment_details?.thresholds;
     
     if (existingThresholds && existingThresholds.length > 0) {
-      this.qualityThresholds = existingThresholds.map((t: { name: any; min: any; max: any; is_passing: any; description: any; }) => ({
+      this.qualityThresholds = existingThresholds.map((t: any) => ({
         name: t.name,
         minValue: t.min,
         maxValue: t.max,
         isPassing: t.is_passing,
         description: t.description || '',
-        isEditable: false // Marcar como no editable
+        isEditable: false
       }));
-      this.areThresholdsEditable = false; // Deshabilitar edición general
+      this.areThresholdsEditable = false;
     } else {
       this.resetToDefaultThresholds();
-      this.areThresholdsEditable = true; // Habilitar edición
+      this.areThresholdsEditable = true;
     }
   }
 
-  areThresholdsEditable: boolean = true;
-
   toggleEditThresholds(): void {
-    // Cambiar el estado de edición
     this.areThresholdsEditable = !this.areThresholdsEditable;
     
-    // Si estamos habilitando la edición, marcar todos los thresholds como editables
     if (this.areThresholdsEditable) {
       this.qualityThresholds = this.qualityThresholds.map(threshold => ({
         ...threshold,
         isEditable: true
       }));
     }
-
-    
-    
-    // Mostrar notificación según el estado
-    /*if (this.areThresholdsEditable) {
-      this.notificationService.showInfo('Thresholds are now editable');
-    } else {
-      this.notificationService.showInfo('Thresholds editing cancelled');
-    }*/
   }
 
   cancelEdit(): void {
     this.areThresholdsEditable = false;
-
   }
 
   resetToDefaultThresholds(): void {
     this.qualityThresholds = this.defaultThresholds.map(t => ({
       ...t,
-      isEditable: true // Todos editables por defecto
+      isEditable: true
     }));
-  }
-
-  resetToDefaultThresholds0(): void {
-    this.qualityThresholds = this.defaultThresholds.map(t => ({...t}));
   }
 
   saveThresholds() {
@@ -387,17 +330,11 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
     };
 
     switch(this.thresholdType) {
-      case 'percentage':
-        newThreshold.maxValue = 100;
-        break;
-      case 'percentage_decimal':
-        newThreshold.maxValue = 1;
-        break;
-      case 'boolean':
+      case 'percentage': newThreshold.maxValue = 100; break;
+      case 'percentage_decimal': newThreshold.maxValue = 1; break;
+      case 'boolean': 
         newThreshold.minValue = 0;
         newThreshold.maxValue = 1;
-        break;
-      default:
         break;
     }
 
@@ -429,6 +366,32 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
     });
   }
 
+  filterMethodsByThresholdsDefined() {
+    if (!this.selectedThresholdStatus) {
+      this.filteredMethods = [];
+      this.filteredMethodOptions = [];
+      this.selectedMethodId = null;
+      this.selectedMethodDetail = null;
+      return;
+    }
+
+    if (this.selectedThresholdStatus === 'all') {
+      this.filteredMethods = [...this.executedMethods];
+    } else if (this.selectedThresholdStatus === 'defined') {
+      this.filteredMethods = this.executedMethods.filter(method => this.hasThresholdsDefined(method));
+    } else {
+      this.filteredMethods = this.executedMethods.filter(method => !this.hasThresholdsDefined(method));
+    }
+    
+    this.filteredMethodOptions = this.filteredMethods.map(method => ({
+      id: method.id,
+      name: `${method.name} (${method.dqMethod})`
+    }));
+    
+    this.selectedMethodId = null;
+    this.selectedMethodDetail = null;
+  }
+
   // =============================================
   // 6. MANEJO DE RESULTADOS DE EJECUCIÓN
   // =============================================
@@ -452,6 +415,26 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
     });
   }
 
+  toggleMultipleResults(): void {
+    this.showMultipleResults = !this.showMultipleResults;
+  }
+  
+  getRowId(row: any): number {
+    return row?.rowId || 0;
+  }
+  
+  getDqValue(row: any): number {
+    return row?.dqValue || 0;
+  }
+  
+  getTableByRow(row: any): string {
+    return row?.tableName || '';
+  }
+  
+  getColumnByRow(row: any): string {
+    return row?.columnNames[0] || '';
+  }
+
   fetchMethodExecutionResult(methodId: number): void {
     if (!this.dqModelVersionId) return;
     
@@ -459,6 +442,13 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
     this.modelService.getMethodExecutionResult(this.dqModelVersionId, methodId).subscribe({
       next: (result) => {
         this.selectedMethodResult = result;
+        
+        if (result.result_type === 'multiple') {
+          this.processMultipleResults(result);
+        } else {
+          this.processSingleResult(result);
+        }
+        
         this.isLoadingResults = false;
       },
       error: (err) => {
@@ -467,6 +457,32 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
         console.error(`Error fetching execution result for method ${methodId}:`, err);
       }
     });
+  }
+  
+  private processSingleResult(result: any): void {
+    if (this.selectedMethodDetail) {
+      this.selectedMethodDetail.executionResult = {
+        ...result,
+        displayType: 'single'
+      };
+    }
+  }
+  
+  private processMultipleResults(result: any): void {
+    if (this.selectedMethodDetail) {
+      const tableData = result.dq_values.rows.map((row: any) => ({
+        rowId: row.row_id,
+        dqValue: row.dq_value,
+        tableName: result.tables?.[0]?.table_name || 'N/A',
+        columnNames: result.columns?.map((col: any) => col.column_name) || []
+      }));
+  
+      this.selectedMethodDetail.executionResult = {
+        ...result,
+        displayType: 'multiple',
+        tableData: tableData
+      };
+    }
   }
 
   mergeExecutionResultsWithMethods(): void {
@@ -606,41 +622,10 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
   }
 
   getDQValueType(value: any): string {
-    if (value === null || value === undefined) {
-      return 'N/A';
-    }
-    if (typeof value === 'number') {
-      return Number.isInteger(value) ? 'Integer' : 'Float';
-    } else if (typeof value === 'string') {
-      return 'String';
-    } else if (typeof value === 'boolean') {
-      return 'Boolean';
-    } else {
-      return 'Unknown';
-    }
+    if (value === null || value === undefined) return 'N/A';
+    if (typeof value === 'number') return Number.isInteger(value) ? 'Integer' : 'Float';
+    if (typeof value === 'string') return 'String';
+    if (typeof value === 'boolean') return 'Boolean';
+    return 'Unknown';
   }
-
-  /*getRatingColor(value: number): string {
-    if (value === undefined || value === null) return '#6c757d';
-    
-    const rating = this.qualityRatings.find(r => 
-      value >= r.minValue && value <= r.maxValue
-    );
-    
-    return rating ? rating.color : '#6c757d';
-  }*/
-  
-  /*getRatingName(value: number): string {
-    if (value === undefined || value === null) return '';
-    
-    const rating = this.qualityRatings.find(r => 
-      value >= r.minValue && value <= r.maxValue
-    );
-    
-    return rating ? rating.name : '';
-  }*/
-
-  /*removeRating(index: number) {
-    this.qualityRatings.splice(index, 1);
-  }*/
 }

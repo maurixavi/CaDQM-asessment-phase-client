@@ -9,19 +9,21 @@
   font-size: 13.5px;
 }
 
+
+
 .select-style {
-  /*width: 100%;*/
-  max-width: 800px;
+  width: 640px;
   font-size: 0.9rem; 
   font-weight: 500;  
   padding-left: 14px;  
-  padding-right: 14px;  
+  padding-right: 32px;  
   border: 1px solid #bbb;  
   border-radius: 0.25rem;  
   background-color: #fff; 
   color: #111;  
   cursor: pointer;  
 }
+
 
 
 .btn {
@@ -84,9 +86,9 @@
 }
 
 /* Espaciado y márgenes */
-.quality-ratings-container {
+/*.quality-ratings-container {
   margin-top: 1.5rem;
-}
+}*/
 
 /*
 .context-fields {
@@ -108,4 +110,90 @@
 
 .readonly-field {
   cursor: not-allowed;
+}
+
+.label-container {
+  display: flex;
+  flex-direction: column; /* Coloca cada par de label y value en una nueva línea */
+  gap: 4px; /* Espacio entre cada fila */
+  font-size: 16px;  
+  font-weight: 500;
+}
+
+.label {
+  display: flex; /* Permite que el título y el valor estén en línea */
+  align-items: center; /* Centra verticalmente el contenido */
+}
+
+.label-title {
+  width: 230px;
+  font-weight: 500;
+}
+
+
+.table-container {
+  width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
+  overflow-x: auto; /* Habilita el scroll horizontal */
+}
+
+.table {
+  width: 100%; 
+  white-space: normal;
+  word-break: break-word;
+}
+
+table {
+  font-size: 14px;
+}
+
+.custom-thead th {
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  /*white-space: nowrap;*/
+}
+
+.custom-thead th:nth-child(1) { width: 20%; }
+.custom-thead th:nth-child(2) { width: 15%; }
+.custom-thead th:nth-child(3) { width: 15%; }
+.custom-thead th:nth-child(4) { width: 15%; }
+.custom-thead th:nth-child(5) { width: 15%; }
+.custom-thead th:nth-child(6) { width: 10%; }
+
+
+
+.label-container-selected {
+	display: flex;
+	flex-direction: column;  
+	gap: 4px; 
+	font-size: 14px;  
+  }
+  
+.label-selected {
+  display: flex;
+  align-items: flex-start; 
+  padding-bottom: 16px;
+  font-size: 15px;
+  }
+
+.label-name-selected {
+  font-weight: 700;
+  font-size: 17px; 
+}
+
+.label-name-selected {
+  font-weight: 700;
+  font-size: 17px; 
+}
+
+.label-title-selected {
+  width: 140px;
+  margin-right: 8px;
+  font-weight: 500;
+}
+
+.label-title-selected-ctx {
+  width: 280px;
+  margin-right: 8px;
+  font-weight: 500;
 }
