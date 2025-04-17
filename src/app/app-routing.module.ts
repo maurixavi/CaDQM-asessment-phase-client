@@ -16,6 +16,8 @@ import { DqMeasurementExecutionComponent } from './pages/dq-measurement-executio
 import { DqMeasurementResultsComponent } from './pages/dq-measurement-results/dq-measurement-results.component';
  
 import { DqAssessmentApproachesDefinitionComponent } from  './pages/dq-assessment-approaches-definition/dq-assessment-approaches-definition.component';
+import { DqAssessmentExecutionComponent } from  './pages/dq-assessment-execution/dq-assessment-execution.component';
+ 
  
 /*const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -32,6 +34,7 @@ const routes: Routes = [
   { path: 'st5/execution', component: DqMeasurementExecutionComponent },
   { path: 'st5/results', component: DqMeasurementResultsComponent },
   { path: 'st6/assessment-approaches', component: DqAssessmentApproachesDefinitionComponent },
+  { path: 'st6/assessment-execution', component: DqAssessmentExecutionComponent },
   { path: 'st4', children: [
     { path: 'a09-1', component: DQProblemsPriorizationComponent },
     { path: 'a09-2', component: DQProblemsSelectionComponent },

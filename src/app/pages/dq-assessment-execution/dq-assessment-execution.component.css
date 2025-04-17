@@ -1,0 +1,199 @@
+.section-container{
+  padding: 2.6rem;
+}
+
+.alert-tip-message {
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+  font-size: 13.5px;
+}
+
+
+
+.select-style {
+  width: 640px;
+  font-size: 0.9rem; 
+  font-weight: 500;  
+  padding-left: 14px;  
+  padding-right: 32px;  
+  border: 1px solid #bbb;  
+  border-radius: 0.25rem;  
+  background-color: #fff; 
+  color: #111;  
+  cursor: pointer;  
+}
+
+
+
+.btn {
+	font-size: 0.9rem;
+  font-weight: 500;
+  /*border-radius: 8px;*/
+}
+.btn-dark {
+  background-color: #222; 
+  color: #fff; 
+  border: 1px solid  #111; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-dark:hover {
+  background-color: #333; 
+  border: 1px solid #333; 
+}
+
+.btn-light {
+  background-color: #fff; 
+  color: #111; 
+  border: 1px solid #bbb; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-light:hover {
+  background-color: #222; 
+  color: #fff; 
+  border: 1px solid  #222; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+
+/* Estilos para la sección de thresholds */
+/*.threshold-section {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+}*/
+
+.rating-item {
+  background-color: white;
+}
+
+/* Mejora la visualización de los badges con rating */
+.badge {
+  transition: all 0.3s ease;
+  font-size: 0.9em;
+  padding: 0.5em 0.75em;
+}
+
+
+/* Mejora la visualización de los inputs de color */
+.form-control-color {
+  height: 38px;
+  padding: 2px;
+}
+
+/* Espaciado y márgenes */
+/*.quality-ratings-container {
+  margin-top: 1.5rem;
+}*/
+
+/*
+.context-fields {
+  border-left: 3px solid #6c757d;
+}*/
+
+
+.bg-light {
+  background-color: #ffffff !important;
+}
+
+.rating-item {
+  transition: all 0.3s ease;
+}
+
+.rating-item:not(.editable) {
+  background-color: #ffffff;
+}
+
+.readonly-field {
+  cursor: not-allowed;
+}
+
+.label-container {
+  display: flex;
+  flex-direction: column; /* Coloca cada par de label y value en una nueva línea */
+  gap: 4px; /* Espacio entre cada fila */
+  font-size: 16px;  
+  font-weight: 500;
+}
+
+.label {
+  display: flex; /* Permite que el título y el valor estén en línea */
+  align-items: center; /* Centra verticalmente el contenido */
+}
+
+.label-title {
+  width: 180px;
+  font-weight: 500;
+}
+
+
+.table-container {
+  width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
+  overflow-x: auto; /* Habilita el scroll horizontal */
+}
+
+.table {
+  width: 100%; 
+  white-space: normal;
+  word-break: break-word;
+}
+
+table {
+  font-size: 14px;
+}
+
+.custom-thead th {
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  /*white-space: nowrap;*/
+}
+
+.custom-thead th:nth-child(1) { width: 20%; }
+.custom-thead th:nth-child(2) { width: 15%; }
+.custom-thead th:nth-child(3) { width: 15%; }
+.custom-thead th:nth-child(4) { width: 15%; }
+.custom-thead th:nth-child(5) { width: 15%; }
+.custom-thead th:nth-child(6) { width: 10%; }
+
+
+
+.label-container-selected {
+	display: flex;
+	flex-direction: column;  
+	gap: 4px; 
+	font-size: 14px;  
+  }
+  
+.label-selected {
+  display: flex;
+  align-items: flex-start; 
+  padding-bottom: 16px;
+  font-size: 15px;
+  }
+
+.label-name-selected {
+  font-weight: 700;
+  font-size: 17px; 
+}
+
+.label-name-selected {
+  font-weight: 700;
+  font-size: 17px; 
+}
+
+.label-title-selected {
+  width: 140px;
+  margin-right: 8px;
+  font-weight: 500;
+}
+
+.label-title-selected-ctx {
+  width: 280px;
+  margin-right: 8px;
+  font-weight: 500;
+}
