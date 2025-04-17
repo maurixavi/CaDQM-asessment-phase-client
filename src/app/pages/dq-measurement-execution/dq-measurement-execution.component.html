@@ -12,30 +12,57 @@
     <div class="flex-container">
       <div class="section-container">
 
-        <!-- Spinner de carga -->
+        <!-- Spinner de carga 
         <div *ngIf="isLoading" class="text-center">
           <div class="spinner-border" role="status">
             <span class="sr-only"></span>
           </div>
-        </div>
+        </div>-->
 
         <!-- Mensaje de error -->
         <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
           {{ errorMessage }}
         </div>
 
-        <!-- Filtro de estado -->
-        <div class="row mb-3">
-          <div class="col-md-3">
-            <label for="statusFilter" class="form-label">Filter by Execution Status</label>
-            <select id="statusFilter" class="form-select" [(ngModel)]="selectedStatus" (change)="filterMethods()">
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
-              <option value="all">All Methods</option>
+        
+        <div>
+          <div class="label-container mb-3">
+            <div class="label">
+              <label class="label-title">DQ Measurement Executions:</label>
+              <span class="label-value d-flex align-items-center">
+                <select id="executionSelector" class="form-select select-style" [(ngModel)]="selectedExecution" (change)="onExecutionChange()">
+                  <option value="">Select an execution...</option>
+                  <option *ngFor="let exec of measurementExecutions" [value]="exec.execution_id">
+                    {{ exec.started_at  | date:'medium' }} ({{ exec.status }})
+                  </option>
+                </select>
+              </span>
+            </div>
+          </div>
+
+          <!-- Filtro de estado -->
+          <!--<label for="methodSelector" class="form-label">Select an Applied DQ Method to view execution results</label>-->
+          <div class="label-container">
+            <div class="label">
+              <label class="label-title">Execution Status:</label>
+              <span class="label-value d-flex align-items-center">
+                <select id="statusFilter" class="form-select select-style" [(ngModel)]="selectedStatus" (change)="filterMethodsByExecutionStatus()">
+                  <option value="pending">Pending</option>
+                  <option value="completed">Completed</option>
+                  <option value="all">All Methods</option>
+                  
+                </select>
+              </span>
               
-            </select>
+            </div>
+          </div>
+          <!-- Alert Informativo (solo visible si no hay selección) -->
+          <div class="alert alert-light mb-3 mt-4">
+            <i class="bi bi-info-circle me-1"></i>
+            There is no pending Applied DQ Methods to execute
           </div>
         </div>
+
 
         <!-- LIST APPLIED METHODS -->
         <div class="table-container">
@@ -113,8 +140,8 @@
                     type="checkbox"
                     [checked]="item.selected"
                     (change)="toggleSelectItem(item)"
-                    [disabled]="item.executionResult?.status === 'completed'"
-                    [class.disabled-checkbox]="item.executionResult?.status === 'completed'"
+                    [disabled]="item.executionStatus === 'completed'"
+                    [class.disabled-checkbox]="item.executionStatus === 'completed'"
                     
                   />
                 </td>
@@ -125,10 +152,16 @@
                 <td class="clickable-text" (click)="openAppliedMethodDetailsModal(item)">
                   {{ item.name }}
                   <span *ngIf="item.executionResult" 
-                        [class.text-success]="item.executionResult.status === 'completed'"
-                        [class.text-warning]="item.executionResult.status === 'pending'"
-                        class="badge ms-2">
-                    {{ item.executionResult.status }}
+                        [class.text-success]="item.executionStatus === 'completed'"
+                        [class.text-warning]="item.executionStatus === 'pending'"
+                        class="badge d-flex align-items-center gap-1">
+                    
+                    <!-- Icono condicional -->
+                    <i *ngIf="item.executionStatus === 'completed'" class="bi bi-check2-circle"></i>
+                    <i *ngIf="item.executionStatus === 'pending'" class="bi bi-hourglass-split"></i>
+                    
+                    <!-- Texto del estado -->
+                    {{ item.executionStatus | titlecase }}
                   </span>
                 </td>
                 <td><div *ngFor="let table of getAppliedToDisplay(item.appliedTo)" 
@@ -145,47 +178,42 @@
           </table>
         </div>
 
-        <!-- Botón para ejecutar los métodos seleccionados -->
-        <div class="mt-3">
-          <button class="btn btn-sm btn-dark" (click)="executeSelectedMethods()">Execute</button>
+
+        <!-- Métodos en ejecución -->
+        <div *ngIf="executingMethods.length > 0" class="mt-4">
+          <h5>Execution</h5>
+          <ul class="list-group mt-2">
+            <li *ngFor="let method of executingMethods" class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{{ method.name }}</strong>  
+                <span>{{ method.status }}</span>
+              </div>
+              <div>
+                <span *ngIf="method.status === 'Done'"><i class="bi bi-check-circle"></i></span>
+                <span *ngIf="method.status === 'Executing...'" class="spinner-border spinner-border-sm ms-2" role="status"></span>
+              </div>
+            </li>
+          </ul>
         </div>
 
-        <!-- Mostrar los métodos seleccionados y su progreso
-        <div *ngIf="executingMethods.length > 0">
-          <h4>Executing Methods:</h4>
-          <ul>
-            <li *ngFor="let method of executingMethods">
-              <div>
-                <strong>{{ method.dqMethod }}</strong>
-                <span *ngIf="method.status === 'Executing'"> - Executing</span>
-                <span *ngIf="method.status === 'Done'"> - Done</span>
-                <span *ngIf="method.status === 'Failed'"> - Failed</span>
-              </div>
-              <div>
-                Time elapsed: {{ method.timeElapsed }} seconds
-              </div>
-            </li>
-          </ul>
-        </div> -->
+        <div class="mt-3">
+          <button 
+            class="btn btn-sm btn-dark" 
+            (click)="executeSelectedMethods()"
+            [disabled]="isExecutionLoading || selectedMethods.length === 0">
+            
+            <span *ngIf="!isExecutionLoading">Execute</span>
+            <span *ngIf="isExecutionLoading">
+              Executing ({{ executionTime | date:'mm:ss' }})
+              <span class="spinner-border spinner-border-sm ms-2" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </span>
+            </span>
+          </button>
+        </div>
 
-        <!-- Métodos en ejecución  -->
-        <div *ngIf="executingMethods.length > 0" class="mt-4">
-          <h5>Executing Methods</h5>
-          <ul class="list-group">
-            <li *ngFor="let method of executingMethods" class="list-group-item">
-              <strong>{{ method.dqMethod }}</strong> - 
-              <span>{{ method.status }}</span> -
-              <span>{{ method.timeElapsed }}</span>
-              <!-- Spinner de carga -->
-              <div *ngIf="isLoading" class="text-center">
-                <div class="spinner-border" role="status">
-                  <span class="sr-only"></span>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>     
         
+
 
       </div>
     </div>

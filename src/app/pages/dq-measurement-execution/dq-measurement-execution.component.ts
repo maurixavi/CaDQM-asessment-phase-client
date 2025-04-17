@@ -116,8 +116,26 @@ export class DqMeasurementExecutionComponent implements OnInit {
       //console.log('DQ Model Version ID:', this.dqModelVersionId);
       if (this.dqModelVersionId) {
         this.fetchExpandedDQMethodsData(this.dqModelVersionId);
+
+        this.loadMeasurementExecutions();
       }
     });
+  }
+
+  // 1.  propiedad para guardar los datos de ejecución
+  currentExecutionData: any = null;
+
+  // 2. Función auxiliar para determinar el estado
+  setExecutionStatus(methodId: number): 'completed' | 'pending' {
+    if (!this.currentExecutionData) return 'pending';
+    
+    if (this.currentExecutionData.applied_methods_executed?.includes(methodId)) {
+      return 'completed';
+    } else if (this.currentExecutionData.applied_methods_pending?.includes(methodId)) {
+      return 'pending';
+    }
+    
+    return 'pending'; // Estado por defecto
   }
 
   // Obtener los métodos de un DQModel y aplanar los applied_methods
@@ -152,6 +170,8 @@ export class DqMeasurementExecutionComponent implements OnInit {
                           dqFactor: factor.factor_name, // Nombre del factor
                           dqDimension: dimension.dimension_name, // Nombre de la dimensión
                           selected: false, // Inicializar el checkbox como no seleccionado
+                          executionStatus: 'pending' // Estado inicial
+                          //executionStatus: this.setExecutionStatus(measurement.id)
                         })),
                         ...method.applied_methods.aggregations.map((aggregation: any) => ({
                           ...aggregation,
@@ -160,13 +180,15 @@ export class DqMeasurementExecutionComponent implements OnInit {
                           dqFactor: factor.factor_name, // Nombre del factor
                           dqDimension: dimension.dimension_name, // Nombre de la dimensión
                           selected: false, // Inicializar el checkbox como no seleccionado
+                          executionStatus: 'pending' // Estado inicial
+                          //executionStatus: this.setExecutionStatus(aggregation.id)
                         })),
                       ];
   
                       this.appliedDQMethods = [...this.appliedDQMethods, ...appliedMethods];
-                      //console.log('Applied DQ Methods fecthed:', this.appliedDQMethods);
+                      console.log('Applied DQ Methods fecthed:', this.appliedDQMethods);
 
-                      this.fetchLatestExecutionResults();
+                      //this.fetchLatestExecutionResults();
         
                     }
                   });
@@ -178,7 +200,9 @@ export class DqMeasurementExecutionComponent implements OnInit {
           return []; // Retornar un array vacío temporalmente
         });
   
+        //this.loadMeasurementExecutions(); 
         this.isLoading = false; // Desactiva el spinner de carga
+
       },
       error: (error: any) => {
         this.errorMessage = 'Error al cargar los métodos. Inténtalo de nuevo.'; // Muestra un mensaje de error
@@ -187,56 +211,7 @@ export class DqMeasurementExecutionComponent implements OnInit {
       },
     });
   }
-  
-  fetchExpandedDQMethodsData2(dqmodelId: number): void {
-    this.isLoading = true; // Activa el spinner de carga
-    this.errorMessage = null; // Limpia cualquier mensaje de error previo
 
-    this.modelService.getMethodsByDQModel(dqmodelId).subscribe({
-      next: (methods: any[]) => {
-        // Aplanar la lista de applied_methods
-        this.appliedDQMethods = methods.flatMap((method) => {
-          const dqMethodName = method.method_name; // Nombre del DQ Method
-          const methodBase = method.method_base; // Id del DQ Method Base
-          const appliedTo = method.appliedTo;
-          const dqMetric = method.metric; // ID de la métrica
-          const dqFactor = method.metric; // ID del factor (ajusta según tu estructura)
-          const dqDimension = method.metric; // ID de la dimensión (ajusta según tu estructura)
-
-          // Mapear los applied_methods (measurements y aggregations)
-          const appliedMethods = [
-            ...method.applied_methods.measurements.map((measurement: any) => ({
-              ...measurement,
-              dqMethod: dqMethodName,
-              methodBase: methodBase,
-              dqMetric: dqMetric,
-              dqFactor: dqFactor,
-              dqDimension: dqDimension,
-              selected: false, // Inicializar el checkbox como no seleccionado
-            })),
-            ...method.applied_methods.aggregations.map((aggregation: any) => ({
-              ...aggregation,
-              dqMethod: dqMethodName,
-              methodBase: methodBase,
-              dqMetric: dqMetric,
-              dqFactor: dqFactor,
-              dqDimension: dqDimension,
-              selected: false, // Inicializar el checkbox como no seleccionado
-            })),
-          ];
-
-          return appliedMethods;
-        });
-
-        this.isLoading = false; // Desactiva el spinner de carga
-      },
-      error: (error: any) => {
-        this.errorMessage = 'Error al cargar los métodos. Inténtalo de nuevo.'; // Muestra un mensaje de error
-        this.isLoading = false; // Desactiva el spinner de carga
-        console.error('Error fetching DQ Methods:', error);
-      },
-    });
-  }
 
   // Método para verificar si todos los items están seleccionados
   isAllSelected_(): boolean {
@@ -320,8 +295,105 @@ export class DqMeasurementExecutionComponent implements OnInit {
 
   
   // Ejecutar los métodos seleccionados.
+  executionTime: Date = new Date(0); // Inicializa en 00:00
+executionTimer: any = null;
+//isExecutionLoading: boolean = false;
+
+// Modifica el método executeSelectedMethods
+executeSelectedMethods(): void {
+  if (!this.dqModelVersionId || this.selectedMethods.length === 0) return;
+
+  this.isExecutionLoading = true;
+  this.errorMessage = '';
+  
+  // Reinicia el temporizador
+  this.executionTime = new Date(0);
+  this.startExecutionTimer();
+
+  // Prepara los métodos en ejecución
+  this.executingMethods = this.selectedMethodsObjects.map(method => ({
+    ...method,
+    status: 'Executing...',
+    timeElapsed: 0,
+    intervalId: setInterval(() => {
+      method.timeElapsed++;
+      this.cdr.detectChanges();
+    }, 1000)
+  }));
+
+  // Ejecuta los métodos
+  this.modelService.executeMultipleAppliedMethods(
+    this.dqModelVersionId, 
+    this.selectedMethods
+  ).subscribe({
+    next: (results) => {
+      this.handleExecutionSuccess(results);
+    },
+    error: (error) => {
+      this.handleExecutionError(error);
+    }
+  });
+}
+
+
+// Método para iniciar el temporizador general
+startExecutionTimer(): void {
+  this.stopExecutionTimer(); // Limpia cualquier temporizador previo
+  
+  this.executionTimer = setInterval(() => {
+    const newTime = new Date(this.executionTime.getTime() + 1000);
+    this.executionTime = newTime;
+    this.cdr.detectChanges();
+  }, 1000);
+}
+
+// Método para detener el temporizador
+stopExecutionTimer(): void {
+  if (this.executionTimer) {
+    clearInterval(this.executionTimer);
+    this.executionTimer = null;
+  }
+}
+
+// Maneja el éxito de la ejecución
+private handleExecutionSuccess(results: any): void {
+  this.isExecutionLoading = false;
+  this.stopExecutionTimer();
+  
+  // Actualiza el estado de los métodos
+  this.executingMethods.forEach(method => {
+    method.status = 'Done';
+    clearInterval(method.intervalId);
+  });
+  
+  console.log('All methods executed:', results);
+  //this.fetchLatestExecutionResults(); // Actualiza los resultados
+}
+
+// Maneja errores en la ejecución
+private handleExecutionError(error: any): void {
+  this.isExecutionLoading = false;
+  this.stopExecutionTimer();
+  this.errorMessage = 'Error executing selected methods.';
+  
+  // Actualiza el estado de los métodos
+  this.executingMethods.forEach(method => {
+    method.status = 'Failed';
+    clearInterval(method.intervalId);
+  });
+  
+  console.error('Error executing methods:', error);
+}
+
+// Limpia los temporizadores al destruir el componente
+ngOnDestroy(): void {
+  this.stopExecutionTimer();
+  this.executingMethods.forEach(method => {
+    if (method.intervalId) clearInterval(method.intervalId);
+  });
+}
   // Ejecutar los métodos seleccionados.
-  executeSelectedMethods(): void {
+  executeSelectedMethods_RESPALDO_7abril(): void {
 
     if (!this.dqModelVersionId) 
       return;
@@ -476,9 +548,6 @@ export class DqMeasurementExecutionComponent implements OnInit {
         this.executionResults = results;
         this.isLoadingResults = false;
 
-        //console.log("this.executionResults", this.executionResults);
-
-        // Merge execution results with applied methods
         this.mergeExecutionResultsWithMethods();
       },
       error: (err) => {
@@ -618,7 +687,7 @@ export class DqMeasurementExecutionComponent implements OnInit {
   }
 
   // Agrega este método para filtrar los métodos
-  filterMethods(): void {
+  filterMethods_anterior(): void {
     if (!this.appliedDQMethods) return;
     
     switch (this.selectedStatus) {
@@ -635,6 +704,40 @@ export class DqMeasurementExecutionComponent implements OnInit {
       default:
         this.filteredMethods = [...this.appliedDQMethods];
     }
+  }
+
+  filterMethods0(): void {
+    if (!this.appliedDQMethods) return;
+    
+    switch (this.selectedStatus) {
+      case 'completed':
+        this.filteredMethods = this.appliedDQMethods.filter(m => 
+          m.executionStatus === 'completed'  // Cambio aquí
+        );
+        break;
+      case 'pending':
+        this.filteredMethods = this.appliedDQMethods.filter(m => 
+          m.executionStatus === 'pending'    // Cambio aquí
+        );
+        break;
+      default: // 'all'
+        this.filteredMethods = [...this.appliedDQMethods];
+    }
+  }
+
+  filterMethods(): void {
+    if (!this.appliedDQMethods) return;
+    
+    this.filteredMethods = this.appliedDQMethods.filter(m => {
+      switch (this.selectedStatus) {
+        case 'completed': 
+          return m.executionStatus === 'completed';
+        case 'pending':
+          return m.executionStatus === 'pending';
+        default: // 'all'
+          return true;
+      }
+    });
   }
 
 
@@ -737,5 +840,96 @@ saveAlgorithm(): void {
 cancelEditingAlgorithm(): void {
   this.isEditingAlgorithm = false;
 }
+
+  measurementExecutions: any[] = [];
+  selectedExecution: string | null = null;
+  isLoadingExecutions: boolean = false;
+
+  loadMeasurementExecutions(): void {
+    if (!this.dqModelVersionId) return;
+    
+    this.isLoadingExecutions = true;
+    this.modelService.getAllDQModelExecutions(this.dqModelVersionId).subscribe({
+      next: (response: any) => { 
+        this.measurementExecutions = response.executions || [];
+        this.isLoadingExecutions = false;
+        /*if(this.dqModelVersionId){
+          this.fetchExpandedDQMethodsData(this.dqModelVersionId);
+        }*/
+        
+      },
+      error: (err) => {
+        console.error('Error loading executions:', err);
+        this.isLoadingExecutions = false;
+      }
+    });
+  }
+
+
+  
+  private executedIds: number[] = [];
+  private pendingIds: number[] = [];
+
+
+  onExecutionChange(): void {
+    if (!this.selectedExecution || !this.dqModelVersionId) return;
+    console.log('Selected execution:', this.selectedExecution);
+
+    this.isLoading = true;
+    this.modelService.getSpecificDQModelExecution(
+      this.dqModelVersionId, 
+      this.selectedExecution
+    ).subscribe({
+      next: (executionDetails) => {
+        console.log('Detalles de ejecución:', executionDetails);
+
+        // 1. Guardar los IDs importantes
+        this.executedIds = executionDetails.applied_methods_executed || [];
+        this.pendingIds = executionDetails.applied_methods_pending || [];
+        console.log('executedIds:', this.executedIds);
+        console.log('pendingIds:', this.pendingIds);
+        
+        // 2. Actualizar solo los estados (sin recargar métodos)
+        this.updateMethodsStatus();
+        
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.errorMessage = 'Error al cargar la ejecución';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  // Nuevo método eficiente para actualizar estados
+  private updateMethodsStatus(): void {
+    if (!this.appliedDQMethods) return;
+    console.log("appliedDQMethods", this.appliedDQMethods);
+    
+    this.appliedDQMethods.forEach(method => {
+      method.executionStatus = this.executedIds.includes(method.id) 
+        ? 'completed' 
+        : this.pendingIds.includes(method.id) 
+          ? 'pending' 
+          : 'pending'; // Default
+    });
+    
+    this.filterMethods(); // Re-aplica los filtros actuales
+  }
+
+  // Filtro optimizado (sin cambios)
+  filterMethodsByExecutionStatus(): void {
+    if (!this.appliedDQMethods) return;
+    
+    this.filteredMethods = this.appliedDQMethods.filter(m => {
+      switch (this.selectedStatus) {
+        case 'completed': return m.executionStatus === 'completed';
+        case 'pending': return m.executionStatus === 'pending';
+        default: return true; // 'all'
+      }
+    });
+  }
+
+ 
 
 }

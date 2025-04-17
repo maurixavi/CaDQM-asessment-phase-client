@@ -1,0 +1,166 @@
+<div class="container">
+  <app-step-navigator
+    [pageStepTitle]="pageStepTitle"
+    [phaseTitle]="phaseTitle"
+    [stageTitle]="stageTitle"
+    [steps]="steps"
+    [currentStep]="currentStep">
+  </app-step-navigator>
+
+  <div class="mb-5">
+    <p class="subtitle-description mt-4">Each DQ value obtained in the DQ measurement is stored in the DQ metadata database</p>
+    <div class="flex-container">
+      <div class="section-container">
+
+        <!-- Spinner de carga -->
+        <div *ngIf="isLoading" class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="sr-only"></span>
+          </div>
+        </div>
+
+        <!-- Mensaje de error -->
+        <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+          {{ errorMessage }}
+        </div>
+
+        <!-- Filtro de estado -->
+        <!--<div class="row mb-3">
+          <div class="col-md-3">
+            <label for="statusFilter" class="form-label">Filter by Execution Status</label>
+            <select id="statusFilter" class="form-select" [(ngModel)]="selectedStatus" (change)="filterMethods()">
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+              <option value="all">All Methods</option>
+              
+            </select>
+          </div>
+        </div>-->
+
+        <!-- LIST APPLIED METHODS -->
+        <div class="table-container">
+          <table class="table table-hover">
+            <thead class="thead-dark custom-thead">
+              <tr>
+                <!-- Encabezados con eventos de clic para ordenar -->
+                <th scope="col" class="sortable-header" (click)="sortTable('dqMethod')">
+                  DQ Method
+                  <i class="bi" [ngClass]="{
+                    'bi-caret-up-fill': sortColumn === 'dqMethod' && sortDirection === 'asc',
+                    'bi-caret-down-fill': sortColumn === 'dqMethod' && sortDirection === 'desc',
+                    'bi-filter': sortColumn !== 'dqMethod'
+                  }"></i>
+                </th>
+                <th scope="col" class="sortable-header" (click)="sortTable('name')">
+                  Applied DQ Method
+                  <i class="bi" [ngClass]="{
+                    'bi-caret-up-fill': sortColumn === 'name' && sortDirection === 'asc',
+                    'bi-caret-down-fill': sortColumn === 'name' && sortDirection === 'desc',
+                    'bi-filter': sortColumn !== 'name'
+                  }"></i>
+                </th>
+    
+                <th scope="col" class="sortable-header" (click)="sortTable('appliedTo')">
+                  Applied to
+                  <i class="bi" [ngClass]="{
+                    'bi-caret-up-fill': sortColumn === 'appliedTo' && sortDirection === 'asc',
+                    'bi-caret-down-fill': sortColumn === 'appliedTo' && sortDirection === 'desc',
+                    'bi-filter': sortColumn !== 'appliedTo'
+                  }"></i>
+                </th>
+
+                <th scope="col">DQ Value</th>
+
+                <th scope="col" class="sortable-header" (click)="sortTable('dqMetric')">
+                  DQ Metric
+                  <i class="bi" [ngClass]="{
+                    'bi-caret-up-fill': sortColumn === 'dqMetric' && sortDirection === 'asc',
+                    'bi-caret-down-fill': sortColumn === 'dqMetric' && sortDirection === 'desc',
+                    'bi-filter': sortColumn !== 'dqMetric'
+                  }"></i>
+                </th>
+                <th scope="col" class="sortable-header" (click)="sortTable('dqFactor')">
+                  DQ Factor
+                  <i class="bi" [ngClass]="{
+                    'bi-caret-up-fill': sortColumn === 'dqFactor' && sortDirection === 'asc',
+                    'bi-caret-down-fill': sortColumn === 'dqFactor' && sortDirection === 'desc',
+                    'bi-filter': sortColumn !== 'dqFactor'
+                  }"></i>
+                </th>
+                <th scope="col" class="sortable-header" (click)="sortTable('dqDimension')">
+                  DQ Dimension
+                  <i class="bi" [ngClass]="{
+                    'bi-caret-up-fill': sortColumn === 'dqDimension' && sortDirection === 'asc',
+                    'bi-caret-down-fill': sortColumn === 'dqDimension' && sortDirection === 'desc',
+                    'bi-filter': sortColumn !== 'dqDimension'
+                  }"></i>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Fila de ejemplo con checkbox -->
+              <!--<tr *ngFor="let item of appliedDQMethods">-->
+              <tr *ngFor="let item of executedMethods">
+      
+                <!-- Celda con el DQ Method clickeable -->
+                <td class="clickable-text" (click)="openMethodDetailsModal(item.methodBase)">
+                  {{ item.dqMethod }}
+                </td>
+                <td>{{ item.name }}</td>
+                <td>
+                  <div 
+                    *ngFor="let table of getAppliedToDisplay(item.appliedTo)" 
+                    class="table-display">
+                    Table: {{ table.tableName }}<br>
+                    Columns: {{ table.columns.join(', ') }}
+                  </div>
+                </td>
+
+                <td>
+                  <span class="badge bg-primary">
+                    {{ item.executionResult?.dq_value || 'N/A' }}
+                  </span>
+                </td>
+                <td>{{ item.dqMetric }}</td>
+                <td>{{ item.dqFactor }}</td>
+                <td>{{ item.dqDimension }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para mostrar los detalles del método -->
+<app-modal
+  [isOpen]="isModalOpen"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  (close)="closeModal()">
+  <div class="modal-body">
+    <div *ngIf="methodDetails">
+      <p><strong>Name:</strong> {{ methodDetails.name }}</p>
+      <p><strong>Input Data Type:</strong> {{ methodDetails.inputDataType }}</p>
+      <p><strong>Output Data Type:</strong> {{ methodDetails.outputDataType }}</p>
+      <p><strong>Algorithm:</strong> {{ methodDetails.algorithm }}</p>
+    </div>
+    <div *ngIf="!methodDetails && !isLoading">
+      <p>No details available for this method.</p>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" (click)="closeModal()">Close</button>
+  </div>
+</app-modal>
+
+
+<app-stepper
+  [currentStep]="currentStep"
+  [totalSteps]="steps.length"
+  [isNextStepEnabled]="isNextStepEnabled"
+  (stepChange)="onStepChange($event)"
+  (completeStage)="onCompleteStage()">
+</app-stepper>

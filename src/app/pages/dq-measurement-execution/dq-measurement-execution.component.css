@@ -4,6 +4,11 @@
   margin-bottom: 80px;
 }
 
+.section-container{
+  padding: 2.6rem;
+}
+
+
 /* Table */
 .table-container {
   width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
@@ -112,4 +117,36 @@ td:nth-child(5), td:nth-child(6) {
 .disabled-checkbox {
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+.label-container {
+  display: flex;
+  flex-direction: column; /* Coloca cada par de label y value en una nueva línea */
+  gap: 4px; /* Espacio entre cada fila */
+  font-size: 16px;  
+  font-weight: 500;
+}
+
+.label {
+  display: flex; /* Permite que el título y el valor estén en línea */
+  align-items: center; /* Centra verticalmente el contenido */
+}
+
+.label-title {
+  width: auto;
+  font-weight: 500;
+  margin-right: 16px;
+}
+
+.select-style {
+  width: 440px;
+  font-size: 0.9rem; 
+  font-weight: 500;  
+  padding-left: 14px;  
+  padding-right: 14px;  
+  border: 1px solid #bbb;  
+  border-radius: 0.25rem;  
+  background-color: #fff; 
+  color: #111;  
+  cursor: pointer;  
 }

@@ -1,0 +1,116 @@
+.section-container{
+  padding: 2.6rem;
+  width: 100%;
+}
+
+/*
+.select-style {
+  width: 440px;
+  font-size: 0.9rem; 
+  font-weight: 500;  
+  padding-left: 14px;  
+  padding-right: 14px;  
+  border: 1px solid #bbb;  
+  border-radius: 0.25rem;  
+  background-color: #fff; 
+  color: #111;  
+  cursor: pointer;  
+}*/
+
+.select-style {
+  /*width: 100%;*/
+  max-width: 100%;
+  font-size: 0.9rem; 
+  font-weight: 500;  
+  padding-left: 14px;  
+  padding-right: 28px;  
+  border: 1px solid #bbb;  
+  border-radius: 0.25rem;  
+  background-color: #fff; 
+  color: #111;  
+  cursor: pointer;  
+}
+
+/* Estilo para el select 
+.select-style {
+  width: 100%;  
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.5rem 2.5rem 0.5rem 1rem; 
+  border: 1px solid #bbb;
+  border-radius: 0.25rem;
+  background-color: #fff;
+  color: #111;
+  cursor: pointer;
+  background-position: right 0.75rem center; 
+  background-size: 1rem;
+}*/
+
+
+.label-container {
+  display: flex;
+  flex-direction: column; /* Coloca cada par de label y value en una nueva línea */
+  gap: 4px; /* Espacio entre cada fila */
+  font-size: 16px;  
+  font-weight: 500;
+}
+
+.label {
+  display: flex; /* Permite que el título y el valor estén en línea */
+  align-items: center; /* Centra verticalmente el contenido */
+}
+
+.label-title {
+  width: 168px;
+  font-weight: 500;
+}
+
+
+.label-container-selected {
+	display: flex;
+	flex-direction: column;  
+	gap: 4px; 
+	font-size: 14px;  
+  }
+  
+.label-selected {
+  display: flex;
+  align-items: flex-start; 
+  padding-bottom: 16px;
+  font-size: 15px;
+  }
+
+.label-name-selected {
+  font-weight: 700;
+  font-size: 17px; 
+}
+
+.label-name-selected {
+  font-weight: 700;
+  font-size: 17px; 
+}
+
+.label-title-selected {
+  width: 140px;
+  margin-right: 8px;
+  font-weight: 500;
+}
+
+
+table {
+  font-size: 14px;
+}
+
+.custom-thead th {
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.custom-thead th:nth-child(1) { width: 20%; }
+.custom-thead th:nth-child(2) { width: 20%; }
+.custom-thead th:nth-child(3) { width: 12%; }
+.custom-thead th:nth-child(4) { width: 15%; }
+.custom-thead th:nth-child(5) { width: 15%; }
+.custom-thead th:nth-child(6) { width: 15%; }
