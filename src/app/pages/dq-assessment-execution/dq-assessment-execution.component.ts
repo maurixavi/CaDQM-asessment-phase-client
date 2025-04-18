@@ -263,6 +263,7 @@ export class DqAssessmentExecutionComponent implements OnInit {
                                 dqMethod: dqMethodName,
                                 methodBase: methodBase,
                                 dqMetric: metric.metric_name,
+                                granularity: dqMetricBase.granularity, 
                                 resultDomain: dqMetricBase.resultDomain, 
                                 dqFactor: factor.factor_name,
                                 dqDimension: dimension.dimension_name,
@@ -283,6 +284,7 @@ export class DqAssessmentExecutionComponent implements OnInit {
                                 dqMethod: dqMethodName,
                                 methodBase: methodBase,
                                 dqMetric: metric.metric_name,
+                                granularity: dqMetricBase.granularity, 
                                 resultDomain: dqMetricBase.resultDomain,  
                                 dqFactor: factor.factor_name,
                                 dqDimension: dimension.dimension_name,
@@ -942,32 +944,6 @@ export class DqAssessmentExecutionComponent implements OnInit {
     this.thresholdType = domain === 'boolean' ? 'boolean' : 'percentage';
   }
 
-  /*determineThresholdType(dqValue: any): string {
-    if (dqValue === undefined || dqValue === null) return 'percentage';
-    
-    if (Number.isInteger(dqValue) && dqValue >= 0) {
-      return 'absolute';
-    }
-    
-    if (dqValue > 0 && dqValue <= 1) {
-      return 'percentage_decimal';
-    }
-    
-    if (typeof dqValue === 'number' && !Number.isInteger(dqValue)) {
-      return dqValue > 100 ? 'absolute' : 'percentage';
-    }
-    
-    return 'percentage';
-  }*/
-
-  getDQValueType(value: any): string {
-    if (value === null || value === undefined) return 'N/A';
-    if (typeof value === 'number') return Number.isInteger(value) ? 'Integer' : 'Float';
-    if (typeof value === 'string') return 'String';
-    if (typeof value === 'boolean') return 'Boolean';
-    return 'Unknown';
-  }
-
 
   executeAssessment(): void {
     if (!this.dqModelVersionId || !this.selectedMethodId) {
@@ -1005,6 +981,65 @@ export class DqAssessmentExecutionComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+  
+
+  getAssessmentScore(value: number): string {
+    if (value === null || value === undefined) return 'N/A';
+    
+    const thresholds = this.selectedMethodDetail?.executionResult?.assessment?.thresholds || [];
+    
+    // Buscar el threshold que corresponde al valor
+    const matchingThreshold = thresholds.find((t: { min: number; max: number; name: string }) => 
+      value >= t.min && value <= t.max
+    );
+    
+    return matchingThreshold?.name || value.toString();
+  }
+
+  getBadgeClass(value: number): string {
+    if (value === null || value === undefined) return 'bg-secondary';
+    
+    // Solo aplicar colores para valores booleanos (1/0)
+    if (this.thresholdType === 'boolean') {
+      return value === 1 ? 'bg-success' : 'bg-danger';
+    }
+    
+    return 'bg-secondary';
+  }
+
+
+  getAssessmentScore0(value: number): string {
+    if (value === null || value === undefined) return 'N/A';
+    
+    const thresholds = this.selectedMethodDetail?.executionResult?.assessment?.thresholds || [];
+    
+    // Para métricas booleanas
+    if (this.thresholdType === 'boolean') {
+      return value === 1 ? 'Passed' : 'Failed';
+    }
+  
+    // Buscar el threshold que corresponde al valor
+    const matchingThreshold = thresholds.find((t: { min: number; max: number; }) => 
+      value >= t.min && value <= t.max
+    );
+    
+    return matchingThreshold?.name || 'Not Assessed';
+  }
+
+  isGoodScore(value: number): boolean {
+    const score = this.getAssessmentScore(value);
+    return ['Excellent', 'Good', 'Passed'].includes(score);
+  }
+
+  isWarningScore(value: number): boolean {
+    const score = this.getAssessmentScore(value);
+    return score === 'Fair' || score === 'Acceptable';
+  }
+
+  isBadScore(value: number): boolean {
+    const score = this.getAssessmentScore(value);
+    return ['Poor', 'Failed', 'Not Assessed'].includes(score);
   }
 
 }

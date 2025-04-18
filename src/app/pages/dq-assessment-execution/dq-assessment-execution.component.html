@@ -16,22 +16,10 @@
       <div class="section-container">
         <!-- Filtro de estado -->
         <div>
-          <!-- Primer select -->
           <div class="label-container">
             <div class="label">
               <label class="label-title">Assessment Status:</label>
               <span class="label-value d-flex align-items-center">
-                <!--<select id="assessmentStatusFilter" class="form-select select-style" 
-                        [(ngModel)]="selectedAssessmentStatus" 
-                        (change)="filterMethodsByAssessmentStatus()"
-                        [disabled]="isLoading">
-                  <option [value]="null"></option>
-                  <option value="pending">Pending (not assessed)</option>
-                  
-                  <option value="completed">Done (assessed)</option>
-
-                </select>-->  <!--option value="all">All Methods</option>-->
-                
                 <div class="btn-group" role="group">
                   <input 
                     type="radio" 
@@ -42,7 +30,7 @@
                     id="pending"
                   >
                   <label class="btn btn-outline-dark" for="pending">
-                  <!--<i class="bi bi-hourglass-split me-1"></i>--> Pending
+                    Pending
                   </label>
                 
                   <input 
@@ -54,25 +42,13 @@
                     id="completed"
                   >
                   <label class="btn btn-outline-dark" for="completed">
-                  <!--<i class="bi bi-check-circle me-1"></i>--> Completed
+                    Completed
                   </label>
                 </div>
-                <!--
-                <div class="btn-group" role="group">
-                  <input type="radio" class="btn-check" [(ngModel)]="selectedAssessmentStatus" value="pending" id="pending">
-                  <label class="btn btn-outline-dark" for="pending">Pending</label>
-                
-                  <input type="radio" class="btn-check" [(ngModel)]="selectedAssessmentStatus" value="completed" id="completed">
-                  <label class="btn btn-outline-dark" for="completed">Completed</label>
-                </div>-->
-
-
-
               </span>
             </div>
           </div>
           
-          <!-- Primer mensaje -->
           <div class="alert alert-light mb-3 mt-4" *ngIf="!selectedAssessmentStatus">
             <i class="bi bi-info-circle me-1"></i>
             Filter Applied DQ Methods by assessment execution status 
@@ -80,7 +56,6 @@
           
           <br>
           
-          <!-- Segundo select -->
           <div class="label-container" *ngIf="selectedAssessmentStatus">
             <div class="label">
               <label class="label-title">Applied DQ Method:</label>
@@ -100,7 +75,6 @@
           </div>
           <br>
           
-          <!-- Segundo mensaje -->
           <div class="alert alert-light mb-3 mt-4" *ngIf="selectedAssessmentStatus && !selectedMethodId">
             <i class="bi bi-info-circle me-1"></i>
             Select an Applied DQ Method to execute the DQ assessment approaches
@@ -109,29 +83,41 @@
 
         <!-- Sección para mostrar el método seleccionado -->
         <div *ngIf="selectedMethodDetail" class="mb-2">
-          <!-- Detalles del método -->
           <div class="label-container-selected mt-3 py-2 px-4">
             <div class="label-selected">
               <span class="label-name-selected">{{ selectedMethodDetail.name }}</span>
             </div>
             <div class="label-selected">
               <label class="label-title-selected">Type:</label>
-              <span class="label-value-selected">{{ selectedMethodDetail.executionResult?.method_type }}</span>
+              <span class="label-value-selected">{{ selectedMethodDetail.method_type }}</span>
             </div>
             <div class="label-selected">
               <label class="label-title-selected">Algorithm applied:</label>
-              <pre class="code-block"><code>{{ selectedMethodDetail.algorithm }}</code></pre>
+              <div class="algorithm-container">
+                <pre class="algorithm-code"><code>{{ selectedMethodDetail.algorithm }}</code></pre>
+              </div>
             </div>
           
             <!-- DQ Measurement Results -->
             <div>
-              <h6 class="mb-0">
+              <h6 class="mb-2 py-2">
                 <i class="bi bi-table me-2"></i>
                 DQ Measurement results:
               </h6> 
     
               <div class="label-selected mt-2">
+                <label class="label-title-selected">Execution date:</label>
                 <span class="label-value-selected">{{ selectedMethodDetail.executionResult?.executed_at | date:'MMM dd HH:mm yyyy' }}</span>
+              </div>
+
+              <div class="label-selected">
+                <label class="label-title-selected">Granularity:</label>
+                <span class="label-value-selected">{{ selectedMethodDetail.granularity }}</span>
+              </div>
+
+              <div class="label-selected">
+                <label class="label-title-selected">Result domain:</label>
+                <span class="label-value-selected">{{ selectedMethodDetail.resultDomain }}</span>
               </div>
 
               <!-- Tabla resumen Execution -->
@@ -161,29 +147,24 @@
                       </td>
                       <td>
                         <ng-container *ngIf="selectedMethodDetail?.executionResult">
-                          <!-- Caso simple -->
                           <div *ngIf="selectedMethodDetail.executionResult.displayType === 'single'">
                             <span class="badge bg-primary">
                               {{ selectedMethodDetail.executionResult.dq_value | number:'1.2-2' }} 
-                            </span><br>
-                            Result domain: <br>{{ selectedMethodDetail.resultDomain }}
+                            </span>
                           </div>
                           
-                          <!-- Caso múltiple -->
                           <div *ngIf="selectedMethodDetail.executionResult.displayType === 'multiple'">
-                            <span class="badge bg-info cursor-pointer" 
+                            <span class="badge bg-primary cursor-pointer" 
                                   (click)="toggleMultipleResults()"
                                   [attr.title]="'Ver detalles de ' + selectedMethodDetail.executionResult.total_rows + ' filas'">
                               {{ selectedMethodDetail.executionResult.total_rows }} values
                               <i class="bi" 
                                 [class.bi-chevron-down]="!showMultipleResults"
                                 [class.bi-chevron-up]="showMultipleResults"></i>
-                            </span><br>
-                            Result domain: <br>{{ selectedMethodDetail.resultDomain }}
+                            </span>
                           </div>
                         </ng-container>
 
-                        <!-- Loading state -->
                         <div *ngIf="isLoadingResults" class="mt-2">
                           <span class="spinner-border spinner-border-sm" role="status"></span>
                           <span class="ms-2">Loading results...</span>
@@ -210,7 +191,7 @@
               
                 <div class="table-responsive-sm">
                   <table class="table table-sm table-bordered">
-                    <thead class="table-light">
+                    <thead class="table-light custom-thead-detailed-results">
                       <tr>
                         <th>#</th>
                         <th>Row ID</th>
@@ -238,48 +219,97 @@
               </div>
             </div>
             
-            <!-- DQ Assessment -->
-            <div class="mt-4 mb-2">
-              <h6 class="mb-2">
-                <i class="bi bi-check2-circle me-2"></i> 
-                DQ Assessment approaches:
-              </h6> 
+            <!-- Assessment Results Section -->
+            <div *ngIf="selectedMethodDetail?.executionResult?.assessment?.assessed_at">
+              <h6 class="py-2">
+                <i class="bi bi-check2-circle me-2"></i>
+               DQ Assessment results
+              </h6>
 
-              <!-- Assessment Thresholds Guidance 
-              <div>
-                <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-                  <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-                  </symbol>
-                  <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
-                  </symbol>
-                  <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-                  </symbol>
-                </svg>
-              
-                <div class="alert-tip-message alert alert-primary" role="alert">
-                  <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
-                  <div>
-                    <strong>Assessment Thresholds Guidance</strong>
-                    <p>Define data quality evaluation criteria by specifying thresholds (value ranges) and corresponding quality ratings (e.g., "Excellent", "Good", "Poor").</p>
-                    <ul class="mb-1">
-                      <li>Thresholds should reflect your DQ requirements and business rules</li>
-                      <li>Consider different user profiles that may require different thresholds</li>
-                      <li>Example: For "Email Completeness", you might set:
-                        <ul>
-                          <li>90-100% → "Excellent" (fully meets requirements)</li>
-                          <li>80-89% → "Good" (acceptable with minor issues)</li>
-                          <li>0-79% → "Poor" (needs improvement)</li>
-                        </ul>
-                      </li>
-                    </ul>
-                    <p class="mb-0">These thresholds will be used to evaluate the DQ measurement results.</p>
+              <div class="label-selected mt-1">
+                <label class="label-title-selected">Assessement date:</label>
+                <span class="label-value-selected">
+                  {{ selectedMethodDetail.executionResult.assessment.assessed_at | date:'medium' }}
+                </span>
+              </div>
+
+              <!-- Single Result Assessment -->
+              <div *ngIf="selectedMethodDetail.executionResult.displayType === 'single'" class="mt-1">
+                <div class="label-selected">
+                  <label class="label-title-selected">Assessement score:</label>
+                  <span class="label-value-selected">
+                    <span class="badge" [ngClass]="getBadgeClass(selectedMethodDetail.executionResult.dq_value)">
+                      {{ getAssessmentScore(selectedMethodDetail.executionResult.dq_value) }}
+                    </span>
+                  </span>
+                </div>
+                <!--
+                <div class="assessment-result-card p-3 border rounded bg-light">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <strong>DQ Value:</strong> 
+                      <span class="badge bg-primary ms-2">
+                        {{ selectedMethodDetail.executionResult.dq_value | number:'1.2-2' }}
+                      </span>
+                    </div>
+                    <div class="col-md-6">
+                      <strong>Assessment Score:</strong>
+                      <span class="badge" 
+                            [ngClass]="{
+                              'bg-success': isGoodScore(selectedMethodDetail.executionResult.dq_value),
+                              'bg-warning': isWarningScore(selectedMethodDetail.executionResult.dq_value),
+                              'bg-danger': isBadScore(selectedMethodDetail.executionResult.dq_value)
+                            }">
+                        {{ getAssessmentScore(selectedMethodDetail.executionResult.dq_value) }}
+                      </span>
+                    </div>
                   </div>
+                </div>-->
+              </div>
+
+              <!-- Multiple Results Assessment -->
+              <div *ngIf="selectedMethodDetail.executionResult.displayType === 'multiple'" class="mt-3">
+                <div class="table-responsive-sm">
+                  <table class="table table-sm table-bordered">
+                    <thead class="table-light custom-thead-detailed-results">
+                      <tr>
+                        <th>#</th>
+                        <th>Row ID</th>
+                        <th>Table</th>
+                        <th>Column(s)</th>
+                        <th>DQ Value</th>
+                        <th>Assessment Score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let row of selectedMethodDetail.executionResult.tableData | slice:0:maxVisibleRows; let i = index">
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ getRowId(row) }}</td>
+                        <td>{{ getTableByRow(row) }}</td>
+                        <td>{{ getColumnByRow(row) }}</td>
+                        <td>{{ getDqValue(row)}}</td>
+                        <td>
+                          <span class="badge" [ngClass]="getBadgeClass(getDqValue(row))">
+                            {{ getAssessmentScore(getDqValue(row)) }}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div *ngIf="selectedMethodDetail.executionResult.tableData.length > maxVisibleRows" 
+                    class="mt-2 text-center text-muted small">
+                  Showing {{ maxVisibleRows }} of {{ selectedMethodDetail.executionResult.tableData.length }} rows
                 </div>
               </div>
-              -->
+            </div>
+
+            <!-- DQ Assessment Configuration -->
+            <div class="mt-4 mb-2">
+              <h6 class="mb-2">
+                <i class="bi bi-sliders me-2"></i>
+                DQ Assessment Configuration:
+              </h6> 
 
               <div class="label-selected">
                 <label class="label-title-selected-ctx">Context components:</label>
@@ -293,8 +323,8 @@
               <div class="threshold-section border rounded p-3">
                 <div *ngFor="let threshold of qualityThresholds; let i = index" class="rating-item mb-2">
                   <div class="row g-3">
-                    <div class="col-md-5">
-                      <label class="form-label" *ngIf="i === 0">Evaluation Description</label>
+                    <div class="col-md-6">
+                      <label class="form-label" *ngIf="i === 0">Assessment score</label>
                       <input 
                         type="text" 
                         class="form-control" 
@@ -337,7 +367,7 @@
                       </button>
                     </div>
                   </div>
-                  <div *ngIf="thresholdType === 'boolean'" class="row mt-2">
+                  <div *ngIf="thresholdType === 'boolean'  && i === 1" class="row mt-2">
                     <div class="col-md-12">
                       <div class="alert alert-info">
                         For boolean metrics, only "Pass test?" is relevant (true/false)
@@ -345,34 +375,39 @@
                     </div>
                   </div>
                 </div>
-  
-              
-                     
               </div>
             </div>
 
-
+            <!-- Execute Assessment Button -->
             <div class="mt-3">
-              <button 
-                class="btn btn-sm btn-dark" 
-                (click)="executeAssessment()"
-                [disabled]="isLoading || !selectedMethodId"
-              >
+              <button *ngIf="!selectedMethodDetail?.executionResult?.assessment?.assessed_at"
+                      class="btn btn-sm btn-dark" 
+                      (click)="executeAssessment()"
+                      [disabled]="isLoading || !selectedMethodId">
                 <span *ngIf="!isLoading">Execute Assessment</span>
-                <span *ngIf="isLoading" class="spinner-border spinner-border-sm" role="status">Loading...</span>
+                <span *ngIf="isLoading" class="spinner-border spinner-border-sm" role="status"></span>
               </button>
+              
+              <div *ngIf="selectedMethodDetail?.executionResult?.assessment?.assessed_at" 
+                   class="alert alert-success">
+                <i class="bi bi-check-circle me-2"></i>
+                Assessment completed on {{ selectedMethodDetail.executionResult.assessment.assessed_at | date:'medium' }}
+                <button class="btn btn-sm btn-outline-dark ms-3" 
+                        (click)="executeAssessment()"
+                        [disabled]="isLoading">
+                  <span *ngIf="!isLoading">Re-run Assessment</span>
+                  <span *ngIf="isLoading" class="spinner-border spinner-border-sm" role="status"></span>
+                </button>
+              </div>
             </div>
-
           </div>
 
-          <!-- Spinner de carga -->
           <div *ngIf="isLoading" class="text-center">
             <div class="spinner-border" role="status">
               <span class="sr-only"></span>
             </div>
           </div>
 
-          <!-- Mensaje de error -->
           <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
             {{ errorMessage }}
           </div>
@@ -382,7 +417,6 @@
   </div>
 </div>
 
-<!-- Modal para mostrar los detalles del método -->
 <app-modal
   [isOpen]="isModalOpen"
   [title]="modalTitle"
@@ -403,6 +437,8 @@
     <button class="btn btn-secondary" (click)="closeModal()">Close</button>
   </div>
 </app-modal>
+
+
 
 <app-stepper
   [currentStep]="currentStep"
