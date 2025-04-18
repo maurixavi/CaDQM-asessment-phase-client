@@ -234,3 +234,13 @@ table {
     max-width: 100%; /* En móviles ocupa todo el ancho disponible */
   }
 }
+
+.btn-outline-dark {
+  border-color: #b6b5b5;
+}
+
+.btn-check:checked + .btn-outline-dark {
+  background-color: #212529;
+  color: white;
+}
+

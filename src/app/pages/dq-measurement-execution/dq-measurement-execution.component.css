@@ -150,3 +150,15 @@ td:nth-child(5), td:nth-child(6) {
   color: #111;  
   cursor: pointer;  
 }
+
+
+
+.btn-outline-dark {
+  border-color: #b6b5b5;
+}
+
+.btn-check:checked + .btn-outline-dark {
+  background-color: #212529;
+  color: white;
+}
+

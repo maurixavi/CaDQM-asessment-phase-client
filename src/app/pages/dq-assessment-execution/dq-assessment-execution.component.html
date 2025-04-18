@@ -100,7 +100,7 @@
           
             <!-- DQ Measurement Results -->
             <div>
-              <h6 class="mb-2 py-2">
+              <h6 class="mt-3 mb-2 py-2">
                 <i class="bi bi-table me-2"></i>
                 DQ Measurement results:
               </h6> 
@@ -185,7 +185,7 @@
                   <h6 class="mb-0">Detailed Sample Results ({{ selectedMethodDetail.executionResult.total_rows }} rows)</h6>
                   <button class="btn btn-sm btn-outline-secondary" 
                           (click)="showMultipleResults = false">
-                    <i class="bi bi-x-lg"></i> Close
+                    <i class="bi bi-x-lg"></i>
                   </button>
                 </div>
               
@@ -221,7 +221,7 @@
             
             <!-- Assessment Results Section -->
             <div *ngIf="selectedMethodDetail?.executionResult?.assessment?.assessed_at">
-              <h6 class="py-2">
+              <h6 class="mt-3 mb-2 py-2">
                 <i class="bi bi-check2-circle me-2"></i>
                DQ Assessment results
               </h6>
