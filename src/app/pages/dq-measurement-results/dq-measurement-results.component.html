@@ -14,8 +14,7 @@
       </p>
   
       <div class="flex-container">
-        <div class="section-container">
-          
+        <div class="section-container">          
           <!-- Selectores -->
           <div class="selectors">
             <!-- Execution Selector
@@ -36,10 +35,95 @@
                 </span>
               </div>
             </div>  -->
+            <!-- Filtro por granularidad -->
+            <div class="label-container mb-3">
+              <div class="label">
+                <label class="label-title">DQ Measurement Results:</label>
+                <span class="label-value d-flex align-items-center">
+                  <div class="btn-group" role="group">
+                    <input 
+                      type="radio" 
+                      class="btn-check" 
+                      [(ngModel)]="selectedGranularity" 
+                      (ngModelChange)="filterMethodsByGranularity()" 
+                      value="table" 
+                      id="granularityTable"
+                    >
+                    <label class="btn btn-outline-dark" for="granularityTable">
+                      Table
+                    </label>
+                  
+                    <input 
+                      type="radio" 
+                      class="btn-check" 
+                      [(ngModel)]="selectedGranularity" 
+                      (ngModelChange)="filterMethodsByGranularity()" 
+                      value="column" 
+                      id="granularityColumn"
+                    >
+                    <label class="btn btn-outline-dark" for="granularityColumn">
+                      Column
+                    </label>
+                    
+                    <input 
+                      type="radio" 
+                      class="btn-check" 
+                      [(ngModel)]="selectedGranularity" 
+                      (ngModelChange)="filterMethodsByGranularity()" 
+                      value="cell" 
+                      id="granularityCell"
+                    >
+                    <label class="btn btn-outline-dark" for="granularityCell">
+                      Cell
+                    </label>
+                    
+                    <input 
+                      type="radio" 
+                      class="btn-check" 
+                      [(ngModel)]="selectedGranularity" 
+                      (ngModelChange)="filterMethodsByGranularity()" 
+                      value="tuple" 
+                      id="granularityTuple"
+                    >
+                    <label class="btn btn-outline-dark" for="granularityTuple">
+                      Tuple
+                    </label>
+                  </div>
+                </span>
+              </div>
+            </div>
+            <div *ngIf="!selectedGranularity" class="alert alert-light mt-4">
+              <i class="bi bi-info-circle me-1"></i>
+              Filter DQ measurement results by granularity
+            </div>
   
             <!-- Method Selector -->
+            <!-- Method Selector -->
+            <div class="label-container" *ngIf="selectedGranularity && filteredMethods.length !== 0">
+              <div class="label mt-2">
+                <label class="label-title">Applied DQ Method:</label>
+                <span class="label-value d-flex align-items-center">
+                  <select
+                    id="methodSelector"
+                    class="form-select select-style"
+                    [(ngModel)]="selectedMethodId"
+                    (change)="onMethodSelected()">
+                    <option [value]="null"></option>
+                    <option *ngFor="let method of filteredMethods" [value]="method.id">
+                      {{ method.name }} ({{ method.dqMethod }} - {{ method.granularity }})
+                    </option>
+                  </select>
+                </span>
+              </div>
+            </div>
+            <!-- Mensaje -->
+            <div *ngIf="selectedGranularity && filteredMethods.length === 0" class="alert alert-warning mt-4">
+              <i class="bi bi-info-circle me-2"></i>
+              No executed Applied DQ Methods found with {{ selectedGranularity }} granularity
+            </div>
+            <!-- Method Selector 
             <div class="label-container">
-              <div class="label">
+              <div class="label mt-2">
                 <label class="label-title">Applied DQ Method:</label>
                 <span class="label-value d-flex align-items-center">
                   <select
@@ -54,13 +138,14 @@
                   </select>
                 </span>
               </div>
-            </div>
+            </div>-->
   
             <!-- Aviso si no hay método seleccionado -->
-            <div *ngIf="!selectedMethodId" class="alert alert-info mb-3 mt-4">
+            <div *ngIf="selectedGranularity && !selectedMethodId && filteredMethods.length !== 0" class="alert alert-light mb-3 mt-4">
               <i class="bi bi-info-circle me-1"></i>
-              Select an Applied DQ Method to view execution results
+              Select an Applied DQ Method to view its execution results
             </div>
+
           </div>
   
           <!-- Detalles del método seleccionado -->
@@ -81,19 +166,36 @@
               <!-- Algoritmo -->
               <div class="label-selected">
                 <label class="label-title-selected">Algorithm applied:</label>
-                <pre class="code-block"><code>{{ selectedMethodDetail.algorithm }}</code></pre>
+                <div class="algorithm-container">
+                  <pre class="algorithm-code"><code>{{ selectedMethodDetail.algorithm }}</code></pre>
+                </div>
               </div>
   
-              <!-- Resultados de ejecución -->
-              <h6 class="mb-0">
+              <!-- DQ Measurement Results -->
+              <h6 class="mt-3 mb-2 py-2">
                 <i class="bi bi-table me-2"></i>
-                DQ Measurement Results:
+                DQ Measurement results:
               </h6>
-  
-              <div class="label-selected mt-2" *ngIf="selectedMethodResult?.results?.length > 0">
+              
+              <div class="label-selected mt-0">
+                <label class="label-title-selected">Execution date:</label>
                 <span class="label-value-selected">
                   {{ selectedMethodResult.results[0].executed_at | date:'MMM dd HH:mm yyyy' }}
                 </span>
+              </div>
+              <!--<div class="label-selected mt-2" *ngIf="selectedMethodResult?.results?.length > 0">
+                <span class="label-value-selected">
+                  {{ selectedMethodResult.results[0].executed_at | date:'MMM dd HH:mm yyyy' }}
+                </span>
+              </div>-->
+              <div class="label-selected">
+                <label class="label-title-selected">Granularity:</label>
+                <span class="label-value-selected">{{ selectedMethodDetail.granularity }}</span>
+              </div>
+
+              <div class="label-selected">
+                <label class="label-title-selected">Result domain:</label>
+                <span class="label-value-selected">{{ selectedMethodDetail.resultDomain }}</span>
               </div>
   
               <!-- Tabla resumen -->
@@ -124,7 +226,7 @@
                         <ng-container *ngIf="selectedMethodDetail?.executionResult">
                           <!-- Valor único -->
                           <div *ngIf="selectedMethodDetail.executionResult.displayType === 'single'">
-                            <span class="badge bg-info">
+                            <span class="badge bg-primary">
                               {{ selectedMethodDetail.executionResult.dq_value }}
                             </span>
                             <!--<div *ngIf="selectedMethodDetail.executionResult.columnDetails" class="mt-2 small text-muted">
@@ -141,7 +243,7 @@
   
                           <!-- Valores múltiples -->
                           <div *ngIf="selectedMethodDetail.executionResult.displayType === 'multiple'">
-                            <span class="badge bg-info cursor-pointer"
+                            <span class="badge bg-primary cursor-pointer"
                                   (click)="toggleMultipleResults()"
                                   [attr.title]="'Ver detalles de ' + selectedMethodDetail.executionResult.dq_values.total_rows + ' filas'">
                               {{ selectedMethodDetail.executionResult.totalRows }} values
@@ -178,7 +280,7 @@
                 <!-- Tabla con resultados -->
                 <div class="table-responsive-sm">
                   <table class="table table-sm table-bordered">
-                    <thead class="table-light">
+                    <thead class="table-light custom-thead-detailed-results">
                       <tr>
                         <th>#</th>
                         <th>Row ID</th>
@@ -253,3 +355,4 @@
     (completeStage)="onCompleteStage()">
   </app-stepper>
   
+  <app-context-components></app-context-components>

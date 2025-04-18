@@ -123,9 +123,10 @@ export class DqMeasurementResultsComponent implements OnInit {
     });
   }
 
+  
   // ========== DQ METHODS DATA METHODS ==========
   // Obtener los métodos de un DQModel y aplanar los applied_methods
-  fetchExpandedDQMethodsData(dqmodelId: number): void {
+  /*fetchExpandedDQMethodsData(dqmodelId: number): void {
     this.isLoading = true; // Activa el spinner de carga
     this.errorMessage = null; // Limpia cualquier mensaje de error previo
   
@@ -190,57 +191,8 @@ export class DqMeasurementResultsComponent implements OnInit {
         console.error('Error fetching DQ Methods:', error);
       },
     });
-  }
-  
-  fetchExpandedDQMethodsData2(dqmodelId: number): void {
-    this.isLoading = true; // Activa el spinner de carga
-    this.errorMessage = null; // Limpia cualquier mensaje de error previo
-
-    this.modelService.getMethodsByDQModel(dqmodelId).subscribe({
-      next: (methods: any[]) => {
-        // Aplanar la lista de applied_methods
-        this.appliedDQMethods = methods.flatMap((method) => {
-          const dqMethodName = method.method_name; // Nombre del DQ Method
-          const methodBase = method.method_base; // Id del DQ Method Base
-          const appliedTo = method.appliedTo;
-          const dqMetric = method.metric; // ID de la métrica
-          const dqFactor = method.metric; // ID del factor (ajusta según tu estructura)
-          const dqDimension = method.metric; // ID de la dimensión (ajusta según tu estructura)
-
-          // Mapear los applied_methods (measurements y aggregations)
-          const appliedMethods = [
-            ...method.applied_methods.measurements.map((measurement: any) => ({
-              ...measurement,
-              dqMethod: dqMethodName,
-              methodBase: methodBase,
-              dqMetric: dqMetric,
-              dqFactor: dqFactor,
-              dqDimension: dqDimension,
-              selected: false, // Inicializar el checkbox como no seleccionado
-            })),
-            ...method.applied_methods.aggregations.map((aggregation: any) => ({
-              ...aggregation,
-              dqMethod: dqMethodName,
-              methodBase: methodBase,
-              dqMetric: dqMetric,
-              dqFactor: dqFactor,
-              dqDimension: dqDimension,
-              selected: false, // Inicializar el checkbox como no seleccionado
-            })),
-          ];
-
-          return appliedMethods;
-        });
-
-        this.isLoading = false; // Desactiva el spinner de carga
-      },
-      error: (error: any) => {
-        this.errorMessage = 'Error al cargar los métodos. Inténtalo de nuevo.'; // Muestra un mensaje de error
-        this.isLoading = false; // Desactiva el spinner de carga
-        console.error('Error fetching DQ Methods:', error);
-      },
-    });
-  }
+  }*/
+ 
 
   // ========== MODAL METHODS ==========
   // Método para abrir el modal y cargar los detalles del método
@@ -464,65 +416,75 @@ export class DqMeasurementResultsComponent implements OnInit {
   
     this.modelService.getMethodsByDQModel(dqmodelId).subscribe({
       next: (methods: any[]) => {
-        // Aplanar la lista de applied_methods pero filtrando solo los ejecutados
-        this.appliedDQMethods = methods.flatMap((method) => {
+        this.appliedDQMethods = [];
+  
+        methods.flatMap((method) => {
           const dqMethodName = method.method_name;
           const methodBase = method.method_base;
           const metricId = method.metric;
   
-          // Obtener los detalles de la métrica, el factor y la dimensión
           this.modelService.getMetricInDQModel(dqmodelId, metricId).subscribe((metric) => {
             if (metric) {
               const factorId = metric.factor;
-              this.modelService.getFactorInDQModel(dqmodelId, factorId).subscribe((factor) => {
-                if (factor) {
-                  const dimensionId = factor.dimension;
-                  this.modelService.getDimensionInDQModel(dqmodelId, dimensionId).subscribe((dimension) => {
-                    if (dimension) {
-                      // Filtrar y mapear SOLO los métodos ejecutados
-                      const executedMeasurements = method.applied_methods.measurements
-                        .filter((m: any) => executedIds.includes(m.id))
-                        .map((measurement: any) => ({
-                          ...measurement,
-                          dqMethod: dqMethodName,
-                          methodBase: methodBase,
-                          dqMetric: metric.metric_name,
-                          dqFactor: factor.factor_name,
-                          dqDimension: dimension.dimension_name,
-                          method_type: 'Measurement',
-                          executionStatus: 'completed'
-                        }));
+              const metricBaseId = metric.metric_base;
   
-                      const executedAggregations = method.applied_methods.aggregations
-                        .filter((a: any) => executedIds.includes(a.id))
-                        .map((aggregation: any) => ({
-                          ...aggregation,
-                          dqMethod: dqMethodName,
-                          methodBase: methodBase,
-                          dqMetric: metric.metric_name,
-                          dqFactor: factor.factor_name,
-                          dqDimension: dimension.dimension_name,
-                          method_type: 'Aggregation',
-                          executionStatus: 'completed'
-                        }));
+              this.modelService.getMetricBaseDetails(metricBaseId).subscribe((baseMetric) => {
+                this.modelService.getFactorInDQModel(dqmodelId, factorId).subscribe((factor) => {
+                  if (factor) {
+                    const dimensionId = factor.dimension;
   
-                      // Actualizar la lista de métodos
-                      this.appliedDQMethods = [
-                        ...this.appliedDQMethods,
-                        ...executedMeasurements,
-                        ...executedAggregations
-                      ];
-                      console.log("this.appliedDQMethods", this.appliedDQMethods);
-                    }
-                  });
-                }
+                    this.modelService.getDimensionInDQModel(dqmodelId, dimensionId).subscribe((dimension) => {
+                      if (dimension) {
+                        const executedMeasurements = method.applied_methods.measurements
+                          .filter((m: any) => executedIds.includes(m.id))
+                          .map((measurement: any) => ({
+                            ...measurement,
+                            dqMethod: dqMethodName,
+                            methodBase: methodBase,
+                            dqMetric: metric.metric_name,
+                            dqFactor: factor.factor_name,
+                            dqDimension: dimension.dimension_name,
+                            granularity: baseMetric.granularity, 
+                            resultDomain: baseMetric.resultDomain, 
+                            method_type: 'Measurement',
+                            executionStatus: 'completed'
+                          }));
+  
+                        const executedAggregations = method.applied_methods.aggregations
+                          .filter((a: any) => executedIds.includes(a.id))
+                          .map((aggregation: any) => ({
+                            ...aggregation,
+                            dqMethod: dqMethodName,
+                            methodBase: methodBase,
+                            dqMetric: metric.metric_name,
+                            dqFactor: factor.factor_name,
+                            dqDimension: dimension.dimension_name,
+                            granularity: baseMetric.granularity, 
+                            resultDomain: baseMetric.resultDomain, 
+                            method_type: 'Aggregation',
+                            executionStatus: 'completed'
+                          }));
+  
+                        this.appliedDQMethods = [
+                          ...this.appliedDQMethods,
+                          ...executedMeasurements,
+                          ...executedAggregations
+                        ];
+  
+                        console.log("this.appliedDQMethods", this.appliedDQMethods);
+                      }
+                    });
+                  }
+                });
               });
             }
           });
   
-          return []; // Retornar array vacío temporalmente
+          return []; // Se sigue retornando vacío por estructura
         });
   
+        // Después de cargar los métodos, aplicar el filtro inicial
+        this.filterMethodsByGranularity();
         this.isLoading = false;
       },
       error: (error: any) => {
@@ -531,6 +493,7 @@ export class DqMeasurementResultsComponent implements OnInit {
       }
     });
   }
+  
 
   // ========== RESULT FETCHING METHODS ==========
   // Método principal para cargar resultados
@@ -686,4 +649,27 @@ export class DqMeasurementResultsComponent implements OnInit {
   get needsPagination(): boolean {
     return (this.selectedMethodDetail?.executionResult?.totalRows || 0) > this.itemsPerPage;
   }
+
+  // ========== GRANULARITY FILTER PROPERTIES ==========
+selectedGranularity: string | null = null;
+filteredMethods: any[] = [];  // Para almacenar los métodos filtrados
+
+// ========== GRANULARITY FILTER METHODS ==========
+filterMethodsByGranularity(): void {
+  if (!this.selectedGranularity) {
+    this.filteredMethods = this.appliedDQMethods;
+    return;
+  }
+
+  this.filteredMethods = this.appliedDQMethods.filter(method => 
+    method.granularity?.toLowerCase() === this.selectedGranularity?.toLowerCase()
+  );
+
+  // Resetear la selección si el método seleccionado no está en los filtrados
+  if (this.selectedMethodId && !this.filteredMethods.some(m => m.id === this.selectedMethodId)) {
+    this.selectedMethodId = null;
+    this.selectedMethodDetail = null;
+  }
+}
+  
 }
