@@ -199,3 +199,21 @@ table {
   color: white;
 }
 
+
+/* Columns results table by Data Element */
+.dq-method {
+  width: 35%;
+  max-width: 400px;
+}
+
+.dq-measurement {
+  width: 144px;
+  /*min-width: 120px;*/
+}
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+

@@ -8,6 +8,38 @@ import { Router } from '@angular/router';
 
 import { buildContextComponents, formatCtxCompCategoryName, getFirstNonIdAttribute, formatAppliedTo, getAppliedToDisplay } from '../../shared/utils/utils';
 
+interface OrganizedMethods {
+  byGranularity: {
+    [granularity: string]: {
+      byTable: {
+        [tableName: string]: {
+          byColumn: {
+            [columnName: string]: {
+              methods: any[],
+              columnInfo: {
+                data_type: string,
+                column_id: number
+              }
+            }
+          },
+          tableInfo: {
+            table_id: number
+          }
+        }
+      }
+    }
+  }
+}
+
+// interfaz para el estado de filtros
+interface FilterState {
+  selectedGranularity: string | null;
+  selectedTable: string | null;
+  selectedColumn: string | null;
+  selectedColumns: string[]; // Para tuplas
+}
+
+
 declare var bootstrap: any;
 
 // ========== COMPONENT DECORATOR ==========
@@ -19,6 +51,7 @@ declare var bootstrap: any;
 
 // ========== COMPONENT CLASS ==========
 export class DqMeasurementResultsComponent implements OnInit {
+  
 
   // ========== UTILITY METHODS ==========
   //public formatCtxCompCategoryName = formatCtxCompCategoryName;
@@ -55,6 +88,10 @@ export class DqMeasurementResultsComponent implements OnInit {
   dqProblems: any[] = [];
   dqModelVersionId: number | null = null;
   dqModel: any = null;
+
+  dataSchema: any = null;
+  dataAtHandDetails: any = null;
+
 
   // ========== LOADING STATES ==========
   isLoading: boolean = false;
@@ -98,6 +135,11 @@ export class DqMeasurementResultsComponent implements OnInit {
     this.projectDataService.project$.subscribe((data) => {
       this.project = data;
       console.log('Project Data:', data);
+
+      if (this.project.data_at_hand) {
+        this.loadDataAtHandDetails(this.project.data_at_hand);
+      }
+
     });
 
     // Suscribirse a los componentes del contexto
@@ -121,6 +163,24 @@ export class DqMeasurementResultsComponent implements OnInit {
         this.loadMeasurementExecutions();
       }
     });
+
+    // Suscribirse al esquema de datos
+    this.projectDataService.dataSchema$.subscribe((data) => {
+      this.dataSchema = data;
+      console.log('Data Schema:', data); // Ver el esquema de datos en la consola
+    });
+
+  }
+
+  loadDataAtHandDetails(dataAtHandId: number): void {
+    this.projectDataService.getDataAtHandById(dataAtHandId).subscribe(
+      (data) => {
+        this.dataAtHandDetails = data; // Asignar los detalles a la variable del componente
+      },
+      (error) => {
+        console.error('Error loading data at hand details:', error);
+      }
+    );
   }
 
   
@@ -379,11 +439,14 @@ export class DqMeasurementResultsComponent implements OnInit {
   private executedIds: number[] = [];
   private pendingIds: number[] = [];
 
+ 
+
   onExecutionChange(): void {
     if (!this.selectedExecution || !this.dqModelVersionId) return;
   
     this.isLoading = true;
-    this.appliedDQMethods = []; // Limpiar métodos anteriores
+    this.appliedDQMethods = [];
+    this.organizedMethods = null;
   
     this.modelService.getSpecificDQModelExecution(
       this.dqModelVersionId, 
@@ -405,94 +468,96 @@ export class DqMeasurementResultsComponent implements OnInit {
       error: (err) => {
         this.errorMessage = 'Error al cargar la ejecución';
         this.isLoading = false;
+        console.error('Error:', err);
       }
     });
   }
 
+  
   // ========== EXECUTED METHODS DATA ==========
   fetchExecutedMethodsData(dqmodelId: number, executedIds: number[]): void {
     this.isLoading = true;
     this.errorMessage = null;
   
     this.modelService.getMethodsByDQModel(dqmodelId).subscribe({
-      next: (methods: any[]) => {
+      next: async (methods: any[]) => {
         this.appliedDQMethods = [];
+        
+        try {
+          // Usamos async/await para mejor legibilidad y control de errores
+          for (const method of methods) {
+            try {
+              const metric = await this.modelService.getMetricInDQModel(dqmodelId, method.metric).toPromise();
+              if (!metric) continue;
   
-        methods.flatMap((method) => {
-          const dqMethodName = method.method_name;
-          const methodBase = method.method_base;
-          const metricId = method.metric;
+              const baseMetric = await this.modelService.getMetricBaseDetails(metric.metric_base).toPromise();
+              if (!baseMetric) continue;
   
-          this.modelService.getMetricInDQModel(dqmodelId, metricId).subscribe((metric) => {
-            if (metric) {
-              const factorId = metric.factor;
-              const metricBaseId = metric.metric_base;
+              const factor = await this.modelService.getFactorInDQModel(dqmodelId, metric.factor).toPromise();
+              if (!factor) continue;
   
-              this.modelService.getMetricBaseDetails(metricBaseId).subscribe((baseMetric) => {
-                this.modelService.getFactorInDQModel(dqmodelId, factorId).subscribe((factor) => {
-                  if (factor) {
-                    const dimensionId = factor.dimension;
+              const dimension = await this.modelService.getDimensionInDQModel(dqmodelId, factor.dimension).toPromise();
+              if (!dimension) continue;
   
-                    this.modelService.getDimensionInDQModel(dqmodelId, dimensionId).subscribe((dimension) => {
-                      if (dimension) {
-                        const executedMeasurements = method.applied_methods.measurements
-                          .filter((m: any) => executedIds.includes(m.id))
-                          .map((measurement: any) => ({
-                            ...measurement,
-                            dqMethod: dqMethodName,
-                            methodBase: methodBase,
-                            dqMetric: metric.metric_name,
-                            dqFactor: factor.factor_name,
-                            dqDimension: dimension.dimension_name,
-                            granularity: baseMetric.granularity, 
-                            resultDomain: baseMetric.resultDomain, 
-                            method_type: 'Measurement',
-                            executionStatus: 'completed'
-                          }));
+              // Procesar measurements
+              const executedMeasurements = method.applied_methods.measurements
+                .filter((m: any) => executedIds.includes(m.id))
+                .map((measurement: any) => ({
+                  ...measurement,
+                  dqMethod: method.method_name,
+                  methodBase: method.method_base,
+                  dqMetric: metric.metric_name,
+                  dqFactor: factor.factor_name,
+                  dqDimension: dimension.dimension_name,
+                  purpose: baseMetric.purpose,
+                  granularity: baseMetric.granularity,
+                  resultDomain: baseMetric.resultDomain,
+                  method_type: 'Measurement',
+                  executionStatus: 'completed'
+                }));
   
-                        const executedAggregations = method.applied_methods.aggregations
-                          .filter((a: any) => executedIds.includes(a.id))
-                          .map((aggregation: any) => ({
-                            ...aggregation,
-                            dqMethod: dqMethodName,
-                            methodBase: methodBase,
-                            dqMetric: metric.metric_name,
-                            dqFactor: factor.factor_name,
-                            dqDimension: dimension.dimension_name,
-                            granularity: baseMetric.granularity, 
-                            resultDomain: baseMetric.resultDomain, 
-                            method_type: 'Aggregation',
-                            executionStatus: 'completed'
-                          }));
+              // Procesar aggregations
+              const executedAggregations = method.applied_methods.aggregations
+                .filter((a: any) => executedIds.includes(a.id))
+                .map((aggregation: any) => ({
+                  ...aggregation,
+                  dqMethod: method.method_name,
+                  methodBase: method.method_base,
+                  dqMetric: metric.metric_name,
+                  dqFactor: factor.factor_name,
+                  dqDimension: dimension.dimension_name,
+                  purpose: baseMetric.purpose,
+                  granularity: baseMetric.granularity,
+                  resultDomain: baseMetric.resultDomain,
+                  method_type: 'Aggregation',
+                  executionStatus: 'completed'
+                }));
   
-                        this.appliedDQMethods = [
-                          ...this.appliedDQMethods,
-                          ...executedMeasurements,
-                          ...executedAggregations
-                        ];
-  
-                        console.log("this.appliedDQMethods", this.appliedDQMethods);
-                      }
-                    });
-                  }
-                });
-              });
+              this.appliedDQMethods.push(...executedMeasurements, ...executedAggregations);
+            } catch (error) {
+              console.error(`Error procesando método ${method.method_name}:`, error);
             }
-          });
+          }
   
-          return []; // Se sigue retornando vacío por estructura
-        });
-  
-        // Después de cargar los métodos, aplicar el filtro inicial
-        this.filterMethodsByGranularity();
-        this.isLoading = false;
+          console.log('Todos los métodos aplicados cargados:', this.appliedDQMethods);
+          this.organizeMethodsByGranularity();
+          this.extractDataElements();
+          this.filterMethods();
+        } catch (error) {
+          this.errorMessage = 'Error al procesar los métodos ejecutados';
+          console.error('Error general:', error);
+        } finally {
+          this.isLoading = false;
+        }
       },
       error: (error: any) => {
-        this.errorMessage = 'Error al cargar los métodos ejecutados';
+        this.errorMessage = 'Error al cargar los métodos base';
         this.isLoading = false;
+        console.error('Error:', error);
       }
     });
   }
+
   
 
   // ========== RESULT FETCHING METHODS ==========
@@ -651,25 +716,327 @@ export class DqMeasurementResultsComponent implements OnInit {
   }
 
   // ========== GRANULARITY FILTER PROPERTIES ==========
-selectedGranularity: string | null = null;
-filteredMethods: any[] = [];  // Para almacenar los métodos filtrados
+  selectedGranularity: string | null = null;
+  filteredMethods: any[] = [];  // Para almacenar los métodos filtrados
 
-// ========== GRANULARITY FILTER METHODS ==========
-filterMethodsByGranularity(): void {
-  if (!this.selectedGranularity) {
-    this.filteredMethods = this.appliedDQMethods;
-    return;
+  // ========== GRANULARITY FILTER METHODS ==========
+  filterMethodsByGranularity(): void {
+    if (this.selectedGranularity === 'all' || !this.selectedGranularity) {
+      // Caso "All" - mostrar todos los métodos sin filtrar
+      this.filteredMethods = [...this.appliedDQMethods];
+      return;
+    }
+
+    // Filtrar por granularidad seleccionada
+    this.filteredMethods = this.appliedDQMethods.filter(method => 
+      method.granularity?.toLowerCase() === this.selectedGranularity?.toLowerCase()
+    );
+
+    // Resetear la selección si el método seleccionado no está en los filtrados
+    if (this.selectedMethodId && !this.filteredMethods.some(m => m.id === this.selectedMethodId)) {
+      this.selectedMethodId = null;
+      this.selectedMethodDetail = null;
+    }
+  }
+  
+  // ========== FILTER MODE PROPERTIES ==========
+filterMode: 'by_granularity' | 'by_data_element' = 'by_granularity'; // Default
+
+resultsView: 'by_method' | 'by_data_element' = 'by_method';
+//availableTables: string[] = [];
+availableTables: {table_name: string}[] = [];
+availableColumns: {table: string, columns: string[]}[] = [];
+filteredColumns: string[] = [];
+selectedTable: string | null = null;
+selectedColumn: string | null = null;
+
+
+
+extractDataElements(): void {
+  // Usa el dataSchema para obtener las tablas y columnas disponibles
+  this.availableTables = this.dataSchema?.map((schema: any) => ({
+    table_name: schema.table_name,
+    // otras propiedades si son necesarias
+  })) || [];
+  
+  this.availableColumns = this.dataSchema?.map((schema: any) => ({
+    table: schema.table_name,
+    columns: schema.columns.map((col: any) => col.column_name)
+  })) || [];
+}
+
+
+
+
+resetDataElementFilters(): void {
+  this.selectedTable = null;
+  this.selectedColumn = null;
+  this.filterMethods();
+}
+
+getColumnsForSelectedTable(): string[] {
+  if (!this.selectedTable) return [];
+  const tableData = this.availableColumns.find(t => t.table === this.selectedTable);
+  return tableData ? tableData.columns : [];
+}
+
+
+
+// función para manejar cambios en la tabla
+onTableChange(): void {
+  this.selectedColumn = null; // Resetear la columna al cambiar de tabla
+  this.filterMethods();
+}
+
+
+// Modificación de la función onResultsViewChange
+onResultsViewChange(): void {
+  // Solo resetear los filtros específicos sin tocar resultsView
+  this.selectedGranularity = null;
+  this.selectedTable = null;
+  this.selectedColumn = null;
+  this.selectedMethodId = null;
+  this.selectedMethodDetail = null;
+  this.filteredMethods = [];
+  
+  // Extraer elementos de datos si es necesario
+  if (this.resultsView === 'by_data_element') {
+    this.extractDataElements();
+  }
+}
+
+// Asegurar que filterMethods() combine todos los filtros correctamente
+filterMethods(): void {
+  if (!this.resultsView) return;
+
+  // Filtro base por granularidad
+  this.filteredMethods = this.selectedGranularity === 'all' 
+    ? [...this.appliedDQMethods] 
+    : this.appliedDQMethods.filter(m => m.granularity?.toLowerCase() === this.selectedGranularity?.toLowerCase());
+
+  // Filtro adicional por elemento de datos si corresponde
+  if (this.resultsView === 'by_data_element') {
+    this.filteredMethods = this.filteredMethods.filter(method => {
+      return method.appliedTo.some((applied: any) => {
+        console.log("this.filteredMethods by Granularity", this.filteredMethods);
+        
+        const tableMatch = !this.selectedTable || applied.tableName === this.selectedTable;
+        const columnMatch = !this.selectedColumn || applied.columns.includes(this.selectedColumn);
+        return tableMatch && columnMatch;
+      });
+    });
   }
 
-  this.filteredMethods = this.appliedDQMethods.filter(method => 
-    method.granularity?.toLowerCase() === this.selectedGranularity?.toLowerCase()
-  );
-
-  // Resetear la selección si el método seleccionado no está en los filtrados
+  // Resetear selección si el método actual no está en los filtrados
   if (this.selectedMethodId && !this.filteredMethods.some(m => m.id === this.selectedMethodId)) {
     this.selectedMethodId = null;
     this.selectedMethodDetail = null;
   }
 }
+
+
+// Nuevas propiedades
+tableMethods: any[] = [];
+
+// Método para cargar métodos al seleccionar tabla
+loadTableMethods(): void {
+  this.selectedColumn = null;
+  this.tableMethods = [];
+
+  if (!this.selectedTable || !this.selectedGranularity) return;
+
+  // 1. Filtrar métodos por granularidad y tabla
+  this.tableMethods = this.appliedDQMethods.filter(method => 
+    method.granularity === this.selectedGranularity &&
+    method.appliedTo.some((applied: { table_name: string | null; }) => applied.table_name === this.selectedTable)
+  );
+}
+
+// Obtener columnas con sus métodos
+getTableColumnsWithMethods(): any[] {
+  if (!this.selectedTable || !this.selectedGranularity || !this.organizedMethods) {
+    return [];
+  }
+
+  const granularityKey = this.selectedGranularity.toLowerCase();
+  const tableData = this.organizedMethods.byGranularity[granularityKey]?.byTable[this.selectedTable];
+
+  if (!tableData) {
+    console.log(`No data found for granularity ${granularityKey} and table ${this.selectedTable}`);
+    return [];
+  }
+
+  // Get schema info for the table
+  const tableSchema = this.dataSchema?.find((t: any) => t.table_name === this.selectedTable);
+  if (!tableSchema) {
+    console.log(`No schema found for table ${this.selectedTable}`);
+    return [];
+  }
+
+  return tableSchema.columns.map((column: any) => {
+    const columnMethods = tableData.byColumn[column.column_name]?.methods || [];
+    console.log(`Found ${columnMethods.length} methods for column ${column.column_name}`);
+    
+    return {
+      column_name: column.column_name,
+      data_type: column.data_type,
+      methods: columnMethods
+    };
+  });
+}
+
+
+
+// Obtener valor de resultado para un método
+getMethodResultValue(methodId: number): number {
+  if (!this.executionResults) return 0; // Return 0 or some default value if results not loaded
   
+  const result = this.executionResults.find((r: { method_id: number; }) => r.method_id === methodId);
+  return result?.dq_value || 0;
+}
+
+// Seleccionar método para ver detalles
+selectMethod(method: any): void {
+  this.selectedMethodId = method.id;
+  this.selectedMethodDetail = method;
+  this.fetchMethodExecutionResult(method.id);
+  
+  // Espera un breve momento para que Angular actualice la vista
+  setTimeout(() => {
+    const element = document.querySelector('.method-detail');
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+      
+      // Opcional: añade una clase de highlight temporal
+      element.classList.add('highlight-method');
+      setTimeout(() => {
+        element.classList.remove('highlight-method');
+      }, 1000);
+    }
+  }, 100);
+}
+
+
+organizedMethods: OrganizedMethods | null = null;
+
+
+
+organizeMethodsByGranularity(): void {
+  // Inicialización segura
+  this.organizedMethods = { byGranularity: {} };
+
+  if (!this.appliedDQMethods?.length) {
+    console.error('No hay métodos para organizar');
+    return;
+  }
+
+  console.log(`Organizando ${this.appliedDQMethods.length} métodos...`);
+
+  for (const method of this.appliedDQMethods) {
+    if (!method?.granularity || !Array.isArray(method.appliedTo)) {
+      console.warn('Método inválido omitido:', method);
+      continue;
+    }
+
+    const granularity = method.granularity.toLowerCase();
+
+    // Verificación e inicialización segura de granularity
+    if (!this.organizedMethods.byGranularity[granularity]) {
+      this.organizedMethods.byGranularity[granularity] = { byTable: {} };
+    }
+    const currentGranularity = this.organizedMethods.byGranularity[granularity];
+
+    for (const applied of method.appliedTo) {
+      if (!applied?.table_name || !applied?.column_name) {
+        console.warn('Entrada appliedTo inválida:', applied);
+        continue;
+      }
+
+      const tableName = applied.table_name;
+      const columnName = applied.column_name;
+
+      // Verificación e inicialización segura de tabla
+      if (!currentGranularity.byTable[tableName]) {
+        currentGranularity.byTable[tableName] = {
+          byColumn: {},
+          tableInfo: {
+            table_id: applied.table_id || 0
+          }
+        };
+      }
+      const currentTable = currentGranularity.byTable[tableName];
+
+      // Verificación e inicialización segura de columna
+      if (!currentTable.byColumn[columnName]) {
+        currentTable.byColumn[columnName] = {
+          methods: [],
+          columnInfo: {
+            data_type: applied.data_type || 'unknown',
+            column_id: applied.column_id || 0
+          }
+        };
+      }
+
+      // Agregar método (100% seguro que todo existe)
+      currentTable.byColumn[columnName].methods.push(method);
+    }
+  }
+
+  console.log('Organización completada con éxito', this.organizedMethods);
+}
+
+
+// Get unique DQ Method names from an array of methods
+getUniqueDQMethods(methods: any[]): string[] {
+  const uniqueMethods = new Set<string>();
+  methods.forEach(method => uniqueMethods.add(method.dqMethod));
+  return Array.from(uniqueMethods);
+}
+
+// Filter methods by DQ Method name
+getMethodsByDQMethod(methods: any[], dqMethod: string): any[] {
+  return methods.filter(method => method.dqMethod === dqMethod);
+}
+
+
+getColumnGroups(): any[] {
+  if (this.selectedGranularity !== 'tuple') {
+    // Para granularidad no-tuple, devolver cada columna individualmente
+    return this.getTableColumnsWithMethods().map(column => ({
+      columns: [column],
+      methods: column.methods
+    }));
+  }
+
+  // Para tuple, agrupar por conjuntos de métodos idénticos
+  const columnGroups: any[] = [];
+  const methodGroups = new Map<string, {columns: any[], methods: any[]}>();
+
+  this.getTableColumnsWithMethods().forEach(column => {
+    const methodKey = JSON.stringify(column.methods.map((m: { id: any; }) => m.id).sort());
+    
+    if (!methodGroups.has(methodKey)) {
+      methodGroups.set(methodKey, {
+        columns: [],
+        methods: column.methods
+      });
+    }
+    
+    // Versión segura con verificación de undefined
+    const group = methodGroups.get(methodKey);
+    if (group) {
+      group.columns.push(column);
+    }
+  });
+
+  methodGroups.forEach(group => {
+    columnGroups.push(group);
+  });
+
+  return columnGroups;
+}
+
 }
