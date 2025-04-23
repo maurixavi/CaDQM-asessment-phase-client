@@ -206,7 +206,11 @@ body{
 	margin-bottom: 0.5rem;
   }
   
-  
+  .form-modal-select-style{
+		font-size: 0.9rem; 
+		color: #222;  
+
+	}
   
   .select-style {
 	width: 340px;

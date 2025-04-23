@@ -9,16 +9,53 @@
 
 
   <div>
-    <p class="subtitle-description mt-4">Define DQ Metrics given the DQ Factors added to the DQ Model</p>
+    <p class="subtitle-description mt-4">Define DQ Metrics that measures each DQ Factor added to the DQ Model</p>
 
     <div class="flex-container">
       <div class="suggested-section-container">
         <div class="dim-factor-selection-container">
           <div class="label-container">
-            <!-- DQ Factor -->
+            <!-- DQ Dimension -->
+            <div class="label mb-2">
+              <label class="label-title">DQ Dimension:</label>
+              <!-- Select para elegir el factor -->
+              <span class="label-value d-flex align-items-center">
+                <select 
+                  class="form-select select-style"
+                  id="dqModelDimension"
+                  [(ngModel)]="selectedDQModelDimension" 
+                  (change)="onDQModelDimensionChange()"
+                  aria-label="Select DQ Model dimension"
+                >
+                  <option value="" disabled>Select a DQ Dimension from the DQ Model</option>
+                  <option *ngFor="let dimension of availableDQModelDimensions" [ngValue]="dimension.id">
+                    {{ dimension.dimension_name }}
+                  </option>
+                </select>
+              </span>
+            </div>
+
+            <!-- Select Factor Base -->
             <div class="label">
               <label class="label-title">DQ Factor:</label>
-              <!-- Select para elegir el factor -->
+              <span class="label-value d-flex align-items-center">
+                <select 
+                  id="dqFactor" 
+                  class="form-select select-style"
+                  [(ngModel)]="selectedFactor"
+                  (ngModelChange)="onFactorChange_()" 
+                  [disabled]="!selectedDQModelDimension || availableFactors.length === 0">
+                  <option value="" disabled>Select a DQ Factor from the DQ Model</option>
+                  <option *ngFor="let factor of availableFactors" [ngValue]="factor">
+                    {{ factor.factor_name }} <!-- (ID: {{ factor.id }}) -->
+                  </option>
+                </select>
+              </span>
+            </div>
+
+            <!-- DQ Factor (seleccion anterior) 
+            <div class="label">
+              <label class="label-title">DQ Factor:</label>
               <span class="label-value d-flex align-items-center">
                 <select 
                   class="form-select select-style" 
@@ -31,7 +68,7 @@
                   </option>
                 </select>
               </span>
-            </div>
+            </div> -->
     
             <!-- Show Selected Factor -->
             <div *ngIf="selectedFactor !== null">
@@ -43,20 +80,22 @@
                   <label class="label-title-selected">Semantic:</label>
                   <span class="label-value-selected">{{ selectedFactor.baseAttributes.semantic }}</span>
                 </div>
+                <!--
                 <div class="label-selected">
                   <label class="label-title-selected">Facet of (DQ Dimension):</label>
                   <span class="label-value-selected">{{ dqDimension_facetOf }}</span>
-                </div>
+                </div>-->
                 <div class="label-selected">
                   <label class="label-title-selected">Arises from (Ctx. Components):</label>
                   <span class="label-value-selected">
                     <ul>
                       <li *ngFor="let category of getContextComponentCategories(selectedFactor.context_components)">
-                        {{ formatCtxCompCategoryName(category) }}:
+                        <div  class="fw-medium">{{ formatCtxCompCategoryName(category) }}:</div>
                         <ul>
                           <li *ngFor="let componentId of selectedFactor.context_components[category]">
-                            <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
-                              {{ getFirstAttribute(category, componentId) }}
+                            {{ getFirstAttribute(category, componentId) }}
+                            <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)" style="text-decoration: none;">
+                              <i class="bi bi-zoom-in"></i> 
                             </a>
                           </li>
                         </ul>
@@ -112,14 +151,19 @@
                   [(ngModel)]="selectedBaseMetric"
                   (change)="onBaseMetricSelected()"
                 >
-                  <option value="" disabled>Select existing</option>
+                  <option value="" disabled>Select an existing DQ Metric</option>
                   <option *ngFor="let metric of selectedFactor?.baseMetrics" [ngValue]="metric">
                     {{ metric.name }}
                   </option>
                 </select>
     
                 <!-- Botón para crear una nueva métrica -->
-                <button class="btn btn-light mx-2" (click)="openModalBase(selectedFactor)">Create</button>
+                <button 
+                  class="btn btn-light mx-2" 
+                  (click)="openModalBase(selectedFactor)"
+                  [disabled]="!selectedFactor"
+                >
+                  <i class="bi bi-plus-lg"></i> New DQ Metric</button>
               </span>
             </div>
     
@@ -149,11 +193,14 @@
                   <div >
                     <ul>
                       <li *ngFor="let category of getContextComponentCategories(selectionCheckboxCtxComponents)">
-                        {{ formatCtxCompCategoryName(category) }}:
+                        <div class="fw-medium">{{ formatCtxCompCategoryName(category) }}:</div>
+                        
                         <ul>
                           <li *ngFor="let component of getComponentsByCategory(selectionCheckboxCtxComponents, category)">
-                            <a href="javascript:void(0)" (click)="openContextComponentModal(category, component.id)">
-                              {{ component.value }}
+                            {{ component.value }}
+                            <a href="javascript:void(0)" (click)="openContextComponentModal(category, component.id)" style="text-decoration: none;">
+                              <i class="bi bi-zoom-in"></i> 
+                              
                             </a>
                           </li>
                         </ul>
@@ -213,19 +260,33 @@
 
             </div>
 
-            <!-- Botón para agregar la métrica al modelo -->
-            <div class="label mt-2">
-              <button 
-                class="btn btn-dark" 
-                (click)="addMetricToModel(selectedFactor, selectedBaseMetric)"
-                [disabled]="!selectedBaseMetric"
-              >
-                Add to DQ Model
-              </button>
-            </div>
+            
     
 
           </div>
+        
+          <!-- Botón para agregar la métrica al modelo -->
+          <div *ngIf="selectedBaseMetric" class="label mt-2">
+            <button 
+              class="btn btn-dark" 
+              (click)="addMetricToModel(selectedFactor, selectedBaseMetric)"
+              [disabled]="!selectedBaseMetric"
+            >
+              Add to DQ Model
+            </button>
+          </div>
+
+
+          <!-- INFO MESSAGES -->
+          <div>
+            <div *ngIf="!selectedBaseMetric" class="alert alert-light mb-3 mt-4 px-4">
+              <i class="bi bi-info-circle me-1"></i>
+              Select an existing DQ Metric (that measures of a given DQ Factor, facet of a given DQ Dimension) or create a new one to add it to the DQ Model.
+            </div> 
+          </div>
+          
+
+
         </div>
       </div>
     
@@ -251,11 +312,11 @@
                 </div>
                 <div class="form-group">
                   <label for="MetPurpose">Granularity</label>
-                <select name="MetGranularity" [(ngModel)]="newBaseMetric.granularity" class="form-control" [ngModelOptions]="{standalone: true}">
-                  <option value="">Select granularity...</option>
-                  <option value="Database">Database (all tables/columns)</option>
+                <select name="MetGranularity" [(ngModel)]="newBaseMetric.granularity" class="form-control form-modal-select-style" [ngModelOptions]="{standalone: true}">
+                  <option value="">Select a Granularity...</option>
+                  <option value="Database">Database</option>
                   <!--<option value="Schema">Schema (all tables/columns in a schema)</option>-->
-                  <option value="Table">Table (all columns in a table)</option>
+                  <option value="Table">Table</option>
                   <option value="Column">Column (a specific attribute)</option>
                   <option value="Tuple">Tuple (set of specific attributes)</option>
                   <option value="Cell">Cell (a specific value in a column)</option>
@@ -271,17 +332,16 @@
                 </div>-->
                 <div class="form-group">
                   <label for="MetPurpose">Result Domain</label>
-                <select name="MetDomain" [(ngModel)]="newBaseMetric.domain" class="form-control" [ngModelOptions]="{standalone: true}">
-                  <option value="">Select domain...</option>
-                  <option value="Boolean">Boolean (e.g. Is the element quality acceptable?)</option>
-                  <option value="Integer">Integer (e.g. Number of defects)</option>
-                  <option value="Float">Float (Proportion, Range, e.g. 0.85 or score between 0 and 10)</option>
+                <select name="MetDomain" [(ngModel)]="newBaseMetric.domain" class="form-control form-modal-select-style" [ngModelOptions]="{standalone: true}">
+                  <option value="">Select a Result domain...</option>
+                  <option value="Boolean">Boolean "{{ '{0, 1}' }}"</option>
+                  <option value="Float">Float [0,1]</option>
                   <!--<option value="Percentage">Percentage (0 to 100, e.g. 90% compliance rate)</option>
                   <option value="String">String (Category, e.g. Quality status: "Excellent", "Good", "Poor")</option>
                   <option value="Date">Date/Time (Date or timestamp, e.g. Last validation date)</option>
                   <option value="Enum">Enum (Predefined categories, e.g. Status: "Passed", "Failed")</option>
                   <option value="Ratio">Ratio (Proportion of two numbers, e.g. number of defects / total items)</option>-->
-                  <option value="Other">Other (please specify)</option>
+                  <!--<option value="Other">Other (please specify)</option>-->
                 </select>
                 <!-- Campo para especificar tipo personalizado si se selecciona "Other" -->
                   <div *ngIf="newBaseMetric.domain === 'Other'" class="form-group">
@@ -337,7 +397,7 @@
             </div>
 
             <div class="dimensions-factors-selected-accordion-container">
-              <div class="accordion mx-3" id="accordionMetrics">
+              <div class="accordion mx-1" id="accordionMetrics">
                 <div class="accordion-item mb-2" *ngFor="let factor of factorsByDim; let i = index" style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
                   <h2 class="accordion-header" [id]="'factorHeading' + i">
                     <button
@@ -391,7 +451,7 @@
                       <!-- Verificar si hay métricas definidas -->
                       <div *ngIf="factor.definedMetrics && factor.definedMetrics.length > 0; else noMetrics">
                         <!-- Accordion METRICS -->
-                        <div class="accordion mx-3 mb-2" [id]="'metricAccordion' + i">
+                        <div class="accordion mx-1 mb-2" [id]="'metricAccordion' + i">
                           <div 
                             class="accordion-item" 
                             *ngFor="let metric of factor.definedMetrics; let j = index" >
