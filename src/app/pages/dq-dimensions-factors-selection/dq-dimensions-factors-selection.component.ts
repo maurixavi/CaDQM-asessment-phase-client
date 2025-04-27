@@ -1153,6 +1153,8 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
           const contextComponents = buildContextComponents(selectedComponents);
           console.log("***DIM: buildContextComponents()", buildContextComponents(selectedComponents))
 
+          console.log("AGREGANDO DIMENSION.... ", selectedProblemIds);
+
           // Crear una nueva dimensión con los context_components
           const dimensionToAdd = {
             dq_model: this.dqModelId,
@@ -2227,31 +2229,12 @@ toggleFromScratchSectionVisibility_addFactors(): void {
   confirmationModalMessage: string = '';
   confirmedAction: (() => void) | null = null;
 
-  // Método para abrir el modal de confirmación
-  openConfirmationModal2(
-    title: string,
-    message: string,
-    selectedDimension: any,
-    selectedFactor: any,
-    ctxComponents: any[],
-    selectedProblems: any[]
-  ): void {
-    this.confirmationModalTitle = title;
-    this.confirmationModalMessage = message;
-
-    // Guardar la acción confirmada con los parámetros necesarios
-    this.confirmedAction = () => {
-      this.addToDQModel(selectedDimension, selectedFactor, ctxComponents, selectedProblems);
-    };
-
-    // Abrir el modal
-    this.isConfirmationModalOpen = true;
-  }
+  
 
   openConfirmationModal(
     title: string,
     message: string,
-    actionType: 'addToDQModel' | 'deleteDimension' | 'deleteFactor' | 'addDimensionToDQModel' | 'addFactorDQModel',  // Identificador de acción
+    actionType: 'addToDQModel' | 'deleteDimension' | 'deleteFactor' | 'addDimensionToDQModel' | 'addFactorDQModel' | 'addDimAndFactorRecommendedToDQModel',  // Identificador de acción
     ...params: any[] // Parámetros para la acción
   ): void {
     this.confirmationModalTitle = title;
@@ -2288,11 +2271,58 @@ toggleFromScratchSectionVisibility_addFactors(): void {
           selectedProblemsFromScratch
         );
       };
+    } else if (actionType === 'addDimAndFactorRecommendedToDQModel') {
+      const [ctxComponentsChecked_suggestion, selectedProblemsSuggestions] = params;
+      this.confirmedAction = () => {
+        this.addDQDimAndFactorToDQModel(
+          ctxComponentsChecked_suggestion,
+          selectedProblemsSuggestions
+        );
+      };
     }
 
     // Abrir el modal
     this.isConfirmationModalOpen = true;
   }
+
+
+  addDQDimAndFactorToDQModel(selectedComponents: { id: number; category: string; value: string }[], selectedDQProblems: number[]) {
+
+    // Manejar la lógica aquí con los parámetros recibidos
+    console.log("--selected_Components in addDimAndFactorRecommendedToDQModel--", selectedComponents);
+    console.log("--DQ PROBLEMS in addDimAndFactorRecommendedToDQModel--", selectedDQProblems);
+
+    const selectedProblemIds = this.selectedProblemsSuggestions.map(problem => problem.dq_problem_id); //agrega id problema original
+    console.log("--selected_Problem IDs in addDimAndFactorRecommendedToDQModel--", selectedProblemIds);
+
+
+    const suggestedDimensionBaseId = this.suggestedDQDimensionBase.id;
+    const suggestedFactorBaseId = this.suggestedDQFactorBase.id;
+
+    console.log("Dimension ID sugerida:", this.suggestedDQDimensionBase.id);
+    console.log("Factor ID sugerido:", this.suggestedDQFactorBase.id);
+
+    this.submitNewDimension(suggestedDimensionBaseId, suggestedFactorBaseId, selectedComponents, selectedProblemIds);
+    this.loadDQModelDimensionsAndFactors();
+    
+    /*
+    this.addToDQModel(suggestedDimensionBaseId,
+      suggestedFactorBaseId,
+      selectedComponents, 
+      selectedDQProblems);
+      */
+    /*this.addDimToDQModel(suggestedDimensionBaseId, selectedComponents, selectedDQProblems);
+    this.addDQFactorToDQModel(
+      suggestedDimensionBaseId,
+      suggestedFactorBaseId,
+      selectedComponents, 
+      selectedDQProblems
+    );*/
+
+
+  }
+  
+
 
   addDQFactorToDQModel(
     selectedDQModelDimensionId: number,
@@ -2788,20 +2818,21 @@ toggleFromScratchSectionVisibility_addFactors(): void {
 
         if (response.supported_by_context) {
 
-          response.supported_by_context = this.renameContextKeys(response.supported_by_context);
+          //response.supported_by_context = this.renameContextKeys(response.supported_by_context);
           
 
           const supported_by_ctxComponents_abbr = response.supported_by_context
           //response.supported_by_context = this.expandAbbreviatedContext(response.supported_by_context);
           const supported_by_ctxComponents = this.renameContextKeys(supported_by_ctxComponents_abbr);
-          console.log("supported_by_ctxComponents", supported_by_ctxComponents_abbr)
+
+          console.log("supported_by_ctxComponents", supported_by_ctxComponents)
 
           //SETEAR CTX COMPONENTS en el SELECT CHECkbox
           //this.ctxComponentsChecked_suggestion = this.selectRandomComponents();
           console.log("Componentes de contexto sugerencia:", this.ctxComponentsChecked_suggestion);
 
           // 👇 Marcar los checkboxes correspondientes
-          this.markCtxComponentsFromSuggestion(response.supported_by_context);
+          this.markCtxComponentsFromSuggestion(supported_by_ctxComponents);
           this.markDQProblemsFromSuggestion(response.supported_by_problems);
 
 

@@ -265,19 +265,20 @@
             Add to DQ Model
           </button>-->
           <button
-          type="button"
-          class="btn btn-sm btn-dark mt-4"
-          (click)="openConfirmationModal(
-            'Add to DQ Model',
-            'Are you sure you want to add this dimension and factor to the DQ Model?',
-            'addDimensionToDQModel',
-            selectedDimension,
-            ctxComponentsChecked_fromScratch,
-            selectedProblemsFromScratch
-          )"
-          [disabled]="!selectedDimension">
-          Add to DQ Model
-        </button>
+            type="button"
+            class="btn btn-sm btn-dark mt-4"
+            (click)="openConfirmationModal(
+              'Add to DQ Model',
+              'Are you sure you want to add this dimension and factor to the DQ Model?',
+              'addDimensionToDQModel',
+              selectedDimension,
+              ctxComponentsChecked_fromScratch,
+              selectedProblemsFromScratch
+            )"
+            [disabled]="!selectedDimension"
+          >
+            Add to DQ Model
+          </button>
 
          <!-- <div *ngIf="duplicateFactor" class="alert alert-warning mt-2">
             Este par de dimensión y factor ya ha sido agregado.
@@ -782,7 +783,7 @@
 
           <!-- INFO MESSAGES -->
           <div>
-            <div class="alert alert-info mb-3 mt-2 d-flex align-items-start">
+            <div class="alert alert-info  mt-2 d-flex align-items-start">
               <i class="bi bi-info-circle me-2 mt-1"></i>
               <div>
                 Context components and prioritized data quality problems can suggest and guide the selection of relevant DQ dimensions and factors, helping you focus on key aspects of data quality and associate them with your choices, which in turn helps track and trace your decisions during the creation or development of the Data Quality Model.
@@ -844,150 +845,136 @@
           </button>-->
         
 
-          
-
-
-        <!--Context Components-->
-   
-        <div *ngIf="getSuggestedFactor()" class="d-flex justify-content-between px-4" style="gap: 20px;">
-          <div class="from-ctx-components  flex-fill ">
-
-            <!-- Título colapsable -->
-            <div class="label-selected">
-              <label class="label-title-selected-ctx" (click)="toggleCtxSuggestionVisibility()" style="cursor: pointer;">
-                Context Components: <i class="bi" [ngClass]="isCtxSuggestionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-              </label>
-            </div>
-            
-            <!-- CTX COMPONENTS SELECTION (CHECKBOX BY TYPE) -->
-            <div *ngIf="isCtxSuggestionVisible" class="ctx-selection-accordion-container">
-              <div class="accordion" id="accordionPanelsStayOpenExample">
-                <div *ngFor="let category of categories; let i = index" class="accordion-item">
-                  <h2 class="accordion-header" [id]="'panelsStayOpen-heading' + i">
-                    <button
-                      class="accordion-button"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      [attr.data-bs-target]="'#panelsStayOpen-collapse' + i"
-                      [attr.aria-controls]="'panelsStayOpen-collapse' + i"
-                      [attr.aria-expanded]="hasSelectedComponents(category) ? 'true' : 'false'"
-                      [class.collapsed]="!hasSelectedComponents(category)"
-                      style="padding: 0.6rem 0.9rem;"
-                    >
-                      {{ formatCtxCompCategoryName(category) }}
-                    </button>
-                  </h2>
-                  <div
-                    [id]="'panelsStayOpen-collapse' + i"
-                    class="accordion-collapse collapse"
-                    [class.show]="hasSelectedComponents(category)"
-                    [attr.aria-labelledby]="'panelsStayOpen-heading' + i"
-                  >
-                    <div class="accordion-body">
-                      <div *ngFor="let item of allContextComponents[category]" class="ms-2 form-check">
-                        <input
-                        class="form-check-input"
-                        type="checkbox"
-                        [id]="'checkbox-' + category + '-' + item.id"
-                        [checked]="isComponentSelectedInSuggestions(category, getFirstNonIdAttribute(item))"
-                        (change)="onCtxComponentsCheckboxChange_suggestion(item.id, category, getFirstNonIdAttribute(item), $event)"
-                        />
-                        <label class="form-check-label" [for]="'checkbox-' + category + '-' + item.id">
-                          {{ getFirstNonIdAttribute(item) }} <i class="bi bi-info-circle"></i>
-                        </label>
+          <!-- SECCION CTX COMPONENTS and DQ PROBLEMS (supported by)-->
+          <!-- CTX COMPONENTES & DQ PROBLEMS SELECTION-->
+          <div *ngIf="getSuggestedFactor()" class="ctx-and-problems-main-container">
+            <!-- From Context Components selection -->
+            <div class="ctx-components-selection-container">
+              <div class="d-flex justify-content-between px-2" style="gap: 2px;">
+                <div class="from-ctx-components  flex-fill ">
+                  <!--<label class="label-title-selection-ctx mb-2 mt-2">From Context Components:</label>-->
+                  <!-- Título colapsable -->
+                  <div class="label-selected">
+                    <label class="label-title-selected-ctx" (click)="toggleCtxSuggestionVisibility()" style="cursor: pointer;">
+                      Context Components: <i class="bi" [ngClass]="isCtxSuggestionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                    </label>
+                  </div>
+    
+                  <!-- Components select values -->
+                  <div  *ngIf="isCtxSuggestionVisible" class="ctx-selection-accordion-container">
+                    <div class="accordion" id="accordionPanelsStayOpenExample">
+                      <div *ngFor="let category of categories; let i = index" class="accordion-item">
+                        <h2 class="accordion-header" [id]="'panelsStayOpen-heading' + i">
+                          <button
+                            class="accordion-button"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            [attr.data-bs-target]="'#panelsStayOpen-collapse' + i"
+                            [attr.aria-controls]="'panelsStayOpen-collapse' + i"
+                            [attr.aria-expanded]="hasSelectedComponents(category) ? 'true' : 'false'"
+                            [class.collapsed]="!hasSelectedComponents(category)"
+                            style="padding: 0.6rem 0.9rem;"
+                          >
+                            {{ formatCtxCompCategoryName(category) }}
+                          </button>
+                        </h2>
+                        <div
+                          [id]="'panelsStayOpen-collapse' + i"
+                          class="accordion-collapse collapse"
+                          [class.show]="hasSelectedComponents(category)"
+                          [attr.aria-labelledby]="'panelsStayOpen-heading' + i"
+                        >
+                          <div class="accordion-body">
+                            <div *ngFor="let item of allContextComponents[category]" class="ms-2 form-check">
+                              <input
+                              class="form-check-input"
+                              type="checkbox"
+                              [id]="'checkbox-' + category + '-' + item.id"
+                              [checked]="isComponentSelectedInSuggestions(category, getFirstNonIdAttribute(item))"
+                              (change)="onCtxComponentsCheckboxChange_suggestion(item.id, category, getFirstNonIdAttribute(item), $event)"
+                              />
+                              <label class="form-check-label" [for]="'checkbox-' + category + '-' + item.id">
+                                {{ getFirstNonIdAttribute(item) }} <i class="bi bi-info-circle"></i>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> 
               </div>
             </div>
 
-            <!--<button class="btn btn-light btn-sm mb-4" (click)="toggleSuggestedItemsVisibility('context')">
-              <i *ngIf="!isEditSuggestedContextVisible"></i>
-              <i *ngIf="isEditSuggestedContextVisible" class="bi bi-eye-slash"></i>
-              {{ isEditSuggestedContextVisible ? 'Hide' : 'Edit' }}
-            </button>-->
+            <!-- From DQ Problems selection -->
+            <div class="dq-problems-selection-container">
+              <div class="d-flex justify-content-between px-2 " style="gap: 2px;">
+                <div class="from-ctx-components  flex-fill ">
+        
+                  <div class="label-selected">
+                    <label class="label-title-selected-ctx">From DQ Problems:</label>
+                  </div>
 
-          </div> <!--end context selecion div-->
-        </div>
-
-          <!--DQ Problems-->
-        <div *ngIf="getSuggestedFactor()" class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
-          <div class="from-ctx-components  flex-fill ">
-
-            
-            <div class="label-selected">
-              <label class="label-title-selected-ctx">DQ Problems:</label>
-             
-            </div>
-            <!--
-            <div *ngFor="let problem of selectedProblemsSuggestions" class="label-selected">
-              <span class="label-value-selected">
-                {{ problem.description }} 
-                <i *ngIf="isEditSuggestedDQProblemsVisible" class="bi bi-x-lg"></i>
-              </span>
-            </div>-->
-            
-   
-
-            <span class="label-value d-flex align-items-center">
-              <div class="context-selection">
-                <div class="selected-components mt-3" *ngIf="selectedComponents.length > 0">
-                  <ul class="list-group">
-                    <li *ngFor="let component of selectedComponents" class="list-group-item">
-                      {{component.displayText}}
-                      <button class="btn btn-danger btn-sm float-end" 
-                              >
-                        X
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </span>
-
-      
-            <!-- DQ PROBLEMS SELECTION (CHECKBOX) -->
-            <div class="ctx-selection-accordion-container">
-              <div class="checkbox-container">
-                <div *ngFor="let problem of selectedPrioritizedProblems; let i = index" class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    [id]="'checkbox' + i"
-                    [value]="problem"
-                    [checked]="isProblemSelectedInSuggestions(problem.dq_problem_id)"
-                    (change)="onCheckboxSuggestionsProblemsChange(problem, $event)"
-                  />
-
-                  <label class="form-check-label" [for]="'checkbox' + i">
-                    {{ problem.description }}
-                  </label>
-                </div>
+                  <!-- DQ Problems select values -->
+                  <div class="dq-problems-accordion-container">
+                    <div class="ctx-selection-accordion-container">
+                      <div class="checkbox-container">
+                        <div *ngFor="let problem of selectedPrioritizedProblems; let i = index" class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            [id]="'checkbox' + i"
+                            [value]="problem"
+                            [checked]="isProblemSelectedInSuggestions(problem.dq_problem_id)"
+                            (change)="onCheckboxSuggestionsProblemsChange(problem, $event)"
+                          />
+        
+                          <label class="form-check-label" [for]="'checkbox' + i">
+                            {{ problem.description }}
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div> 
               </div>
             </div>
-
-
-          </div> <!--end context selecion div-->
-        </div>
+          </div>
+          
 
 
         <button *ngIf="getSuggestedFactor()" class="btn btn-dark btn-sm mt-4" style="width: auto;">Add to DQ Model</button>
 
-        <button 
-            type="button" 
-            class="btn btn-sm btn-info mt-4 mx-2" 
-            (click)="generateDimensionFactorSuggestion()" style="width: auto;" [disabled]="isLoading">
-            <i class="bi bi-lightning"></i>
-            <span *ngIf="!isLoading">Generate</span>
-            <span *ngIf="isLoading">
-              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              Generating...
-            </span>
+        <!-- BUTTONS -->
+        <div>
+          <button
+            type="button"
+            class="btn btn-sm btn-dark mt-4"
+            (click)="openConfirmationModal(
+              'Add to DQ Model',
+              'Are you sure you want to add this dimension and factor to the DQ Model?',
+              'addDimAndFactorRecommendedToDQModel',
+              ctxComponentsChecked_suggestion,
+              selectedProblemsSuggestions
+            )"
+        
+          >
+            Add to DQ Model
           </button>
-<!--
-        <button *ngIf="getSuggestedFactor()" type="button"  class="btn btn-info btn-sm mt-4 mx-2"  (click)="generateDimensionFactorSuggestion()" style="width: auto;"><i class="bi bi-lightning"></i> Generate</button>
-        <button *ngIf="getSuggestedFactor()" class="btn btn-light btn-sm mt-4">Ignore</button>-->
+
+          <button 
+              type="button" 
+              class="btn btn-sm btn-info mt-4 mx-2" 
+              (click)="generateDimensionFactorSuggestion()" style="width: auto;" [disabled]="isLoading">
+              <i class="bi bi-lightning"></i>
+              <span *ngIf="!isLoading">Generate</span>
+              <span *ngIf="isLoading">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Generating...
+              </span>
+          </button>
+        </div>
+
         </div>
 
       </div>
