@@ -35,6 +35,13 @@ interface Dimension {
   dq_model_version_id: number;  
 }
 
+type DimensionsMap = {
+    [key: string]: {
+      semantic: string;
+      factors: { [key: string]: string };
+    };
+  };
+
 @Component({
   selector: 'app-dq-dimensions-factors-selection',
   templateUrl: './dq-dimensions-factors-selection.component.html',
@@ -104,6 +111,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
   /* Other variables */
   errorMessage: string | null = null;
+  isLoading: boolean = false;
 
  
 
@@ -122,9 +130,55 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
 
   dataSchema: any = null;
 
+
   //Utils.py
   public formatCtxCompCategoryName = formatCtxCompCategoryName;
   public getFirstNonIdAttribute = getFirstNonIdAttribute
+
+
+  //Datos para Generate AI Dimension-Factor suggestion
+  dimensionsAndFactors: DimensionsMap = {
+    "Accuracy": {
+        "semantic": "Indicates that the data is correct and precise.",
+        "factors": {
+            "Semantic Accuracy": "The data correctly represents entities or states of the real world.",
+            "Syntactic Accuracy": "The data is free from syntactic errors.",
+            "Precision": "The data has an adequate level of detail."
+        }
+    },
+    "Completeness": {
+        "semantic": "Refers to the availability of all necessary data, ensuring that no important data is missing for analysis or decision-making.",
+        "factors": {
+            "Density": "The proportion of actual data entries compared to the total possible entries.",
+            "Coverage": "The extent to which the data covers the required scope or domain."
+        }
+    },
+    "Freshness": {
+        "semantic": "Refers to the recency and update status of the data, indicating whether the data is current and up-to-date.",
+        "factors": {
+            "Currency": "Indicates how up-to-date the data is.",
+            "Timeliness": "The data is available when needed.",
+            "Volatility": "The rate at which the data changes over time."
+        }
+    },
+    "Consistency": {
+        "semantic": "Ensures that the data is coherent across different sources and over time, maintaining integrity and reliability.",
+        "factors": {
+            "Domain Integrity": "Data values conform to defined domain rules.",
+            "Intra-relationship Integrity": "Ensures that data within a single dataset is consistent.",
+            "Inter-relationship Integrity": "Ensures that data across multiple datasets is consistent."
+        }
+    },
+    "Uniqueness": {
+        "semantic": "Indicates that each data entry must be unique, with no duplicates present in the dataset.",
+        "factors": {
+            "No-duplication": "Ensures that there are no duplicate entries in the dataset.",
+            "No-contradiction": "Ensures that there are no conflicting entries within the dataset."
+        }
+    }
+  }
+
+
 
   constructor(
     private router: Router,
@@ -564,6 +618,9 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     console.log("CHECQUEADO: ", this.selectedProblemsSuggestions)
   }
 
+  isProblemSelectedInSuggestions(dqProblemId: number): boolean {
+    return this.selectedProblemsSuggestions.some(p => p.dq_problem_id === dqProblemId);
+  }
 
 
   //GET CURRENT DQ MODEL IN PROJECT
@@ -597,7 +654,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     this.modelService.getAllDQDimensionsBase().subscribe({
       next: (data) => {
         this.dqDimensionsBase = data;
-        //console.log('*All DIMENSIONS BASE loaded:', data);
+        console.log('*All DIMENSIONS BASE loaded:', data);
         this.loadFactorsForAllDimensions(data); // Cargar factores para todas las dimension
       },
       error: (err) => console.error("Error loading Dimensions Base:", err)
@@ -1785,20 +1842,85 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   }
 
 
-  isFromScratchSectionVisible: boolean = false;  
-
+  // SECTIONS VISIBILITY
+  /*isFromScratchSectionVisible: boolean = false;  
   toggleFromScratchSectionVisibility() {
     this.isFromScratchSectionVisible = !this.isFromScratchSectionVisible;  
   }
 
-  isFromProblemsSectionVisible: boolean = false;  
+  isFromScratchSectionVisible_addDimensions: boolean = false;  
+  toggleFromScratchSectionVisibility_addDimensions() {
+    this.isFromScratchSectionVisible_addDimensions = !this.isFromScratchSectionVisible_addDimensions;  
+  }
 
+  isFromScratchSectionVisible_addFactors: boolean = false;  
+  toggleFromScratchSectionVisibility_addFactors() {
+    this.isFromScratchSectionVisible_addFactors = !this.isFromScratchSectionVisible_addFactors;  
+  }*/
+
+  isFromScratchSectionVisible: boolean = false;  
+  isFromScratchSectionVisible_addDimensions: boolean = false; 
+  isFromScratchSectionVisible_addFactors: boolean = false;  
+
+  // Controlador principal para mostrar/ocultar toda la sección
+toggleFromScratchSectionVisibility(): void {
+  this.isFromScratchSectionVisible = !this.isFromScratchSectionVisible;
+  
+  // Al abrir la sección, mostrar Dimensions por defecto
+  if (this.isFromScratchSectionVisible) {
+    this.showDimensionsSection();
+  } else {
+    // Al cerrar la sección, ocultar todo
+    this.hideAllSections();
+  }
+}
+
+// Mostrar solo la sección de Dimensions
+showDimensionsSection(): void {
+  this.isFromScratchSectionVisible_addDimensions = true;
+  this.isFromScratchSectionVisible_addFactors = false;
+}
+
+// Mostrar solo la sección de Factors
+showFactorsSection(): void {
+  this.isFromScratchSectionVisible_addDimensions = false;
+  this.isFromScratchSectionVisible_addFactors = true;
+}
+
+// Ocultar todas las subsecciones
+hideAllSections(): void {
+  this.isFromScratchSectionVisible_addDimensions = false;
+  this.isFromScratchSectionVisible_addFactors = false;
+}
+
+// Toggle para Dimensions
+toggleFromScratchSectionVisibility_addDimensions(): void {
+  if (this.isFromScratchSectionVisible_addDimensions) {
+    // Si ya está abierto, lo cerramos
+    this.isFromScratchSectionVisible_addDimensions = false;
+  } else {
+    // Si está cerrado, lo abrimos y cerramos Factors
+    this.showDimensionsSection();
+  }
+}
+
+// Toggle para Factors
+toggleFromScratchSectionVisibility_addFactors(): void {
+  if (this.isFromScratchSectionVisible_addFactors) {
+    // Si ya está abierto, lo cerramos
+    this.isFromScratchSectionVisible_addFactors = false;
+  } else {
+    // Si está cerrado, lo abrimos y cerramos Dimensions
+    this.showFactorsSection();
+  }
+}
+
+  isFromProblemsSectionVisible: boolean = false;  
   toggleFromProblemsSectionVisibility() {
     this.isFromProblemsSectionVisible = !this.isFromProblemsSectionVisible;  
   }
 
   isSuggestionsSectionVisible: boolean = false;  
-
   toggleSuggestionsSectionVisibility() {
     this.isSuggestionsSectionVisible = !this.isSuggestionsSectionVisible;  
   }
@@ -2378,5 +2500,347 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
       }
     });
   }
+
+
+  //AI SUGGESTIONS -----------------
+  
+  
+  removeFactorByName(factorName: string): void {
+    for (const dimension in this.dimensionsAndFactors) {
+      const factors = this.dimensionsAndFactors[dimension].factors;
+      if (factors && factorName in factors) {
+        delete factors[factorName];
+        console.log(`Factor '${factorName}' eliminado de la dimensión '${dimension}'.`);
+        break;
+      }
+    }
+  }
+
+  // PAYLOAD
+  convertContextComponents(contextComponents: any): any {
+    const abbreviated: any = {};
+
+    if (contextComponents.applicationDomain) {
+      abbreviated.appDomain = contextComponents.applicationDomain.map((item: any) => ({
+        n: item.name,
+        id: item.id
+      }));
+    }
+
+    if (contextComponents.businessRule) {
+      abbreviated.bizRule = contextComponents.businessRule.map((item: any) => ({
+        s: item.statement,
+        id: item.id,
+        sem: item.semantic
+      }));
+    }
+
+    if (contextComponents.dataFiltering) {
+      abbreviated.dataFilter = contextComponents.dataFiltering.map((item: any) => ({
+        s: item.statement,
+        id: item.id,
+        desc: item.description,
+        task: item.taskAtHandId
+      }));
+    }
+
+    if (contextComponents.dqMetadata) {
+      abbreviated.dqMeta = contextComponents.dqMetadata.map((item: any) => ({
+        p: item.path,
+        id: item.id,
+        desc: item.description,
+        meas: item.measuredMetrics
+      }));
+    }
+
+    if (contextComponents.dqRequirement) {
+      abbreviated.dqReq = contextComponents.dqRequirement.map((item: any) => ({
+        s: item.statement,
+        id: item.id,
+        desc: item.description,
+        dataFilterIds: item.dataFilterIds,
+        userTypeId: item.userTypeId
+      }));
+    }
+
+    if (contextComponents.otherData) {
+      abbreviated.otherData = contextComponents.otherData.map((item: any) => ({
+        p: item.path,
+        id: item.id,
+        desc: item.description,
+        own: item.owner
+      }));
+    }
+
+    if (contextComponents.otherMetadata) {
+      abbreviated.otherMeta = contextComponents.otherMetadata.map((item: any) => ({
+        p: item.path,
+        id: item.id,
+        desc: item.description,
+        auth: item.author,
+        lastUpd: item.lastUpdated
+      }));
+    }
+
+    if (contextComponents.systemRequirement) {
+      abbreviated.sysReq = contextComponents.systemRequirement.map((item: any) => ({
+        s: item.statement,
+        id: item.id,
+        desc: item.description
+      }));
+    }
+
+    if (contextComponents.taskAtHand) {
+      abbreviated.task = contextComponents.taskAtHand.map((item: any) => ({
+        n: item.name,
+        id: item.id,
+        purp: item.purpose
+      }));
+    }
+
+    if (contextComponents.userType) {
+      abbreviated.userType = contextComponents.userType.map((item: any) => ({
+        n: item.name,
+        id: item.id,
+        char: item.characteristics
+      }));
+    }
+
+    return abbreviated;
+  }
+
+  convertProblemsToMap(problemsArray: any[]): { [key: number]: string } {
+    const problemMap: { [key: number]: string } = {};
+    for (const problem of problemsArray) {
+      problemMap[problem.dq_problem_id] = problem.description;
+    }
+    return problemMap;
+  }
+
+  // RESPONSE
+  expandAbbreviatedContext(context: any): any {
+    const expanded: any = {};
+  
+    if (context.appDomain) {
+      expanded.applicationDomain = context.appDomain.map((item: any) => ({
+        id: item.id,
+        name: item.n
+      }));
+    }
+  
+    if (context.bizRule) {
+      expanded.businessRule = context.bizRule.map((item: any) => ({
+        id: item.id,
+        statement: item.s,
+        semantic: item.sem
+      }));
+    }
+  
+    if (context.dataFilter) {
+      expanded.dataFiltering = context.dataFilter.map((item: any) => ({
+        id: item.id,
+        statement: item.s,
+        description: item.desc,
+        taskAtHandId: item.task
+      }));
+    }
+  
+    if (context.dqMeta) {
+      expanded.dqMetadata = context.dqMeta.map((item: any) => ({
+        id: item.id,
+        path: item.p,
+        description: item.desc,
+        measuredMetrics: item.meas
+      }));
+    }
+  
+    if (context.dqReq) {
+      expanded.dqRequirement = context.dqReq.map((item: any) => ({
+        id: item.id,
+        statement: item.s,
+        description: item.desc,
+        dataFilterIds: item.dataFilterIds,
+        userTypeId: item.userTypeId
+      }));
+    }
+  
+    if (context.otherData) {
+      expanded.otherData = context.otherData.map((item: any) => ({
+        id: item.id,
+        path: item.p,
+        description: item.desc,
+        owner: item.own
+      }));
+    }
+  
+    if (context.otherMeta) {
+      expanded.otherMetadata = context.otherMeta.map((item: any) => ({
+        id: item.id,
+        path: item.p,
+        description: item.desc,
+        author: item.auth,
+        lastUpdated: item.lastUpd
+      }));
+    }
+  
+    if (context.sysReq) {
+      expanded.systemRequirement = context.sysReq.map((item: any) => ({
+        id: item.id,
+        statement: item.s,
+        description: item.desc
+      }));
+    }
+  
+    if (context.task) {
+      expanded.taskAtHand = context.task.map((item: any) => ({
+        id: item.id,
+        name: item.n,
+        purpose: item.purp
+      }));
+    }
+  
+    if (context.userType) {
+      expanded.userType = context.userType.map((item: any) => ({
+        id: item.id,
+        name: item.n,
+        characteristics: item.char
+      }));
+    }
+  
+    return expanded;
+  }
+
+  renameContextKeys(supportedByContext: any): any {
+    const keyMap: { [key: string]: string } = {
+      appDomain: 'applicationDomain',
+      bizRule: 'businessRule',
+      dataFilter: 'dataFiltering',
+      dqMeta: 'dqMetadata',
+      dqReq: 'dqRequirement',
+      otherData: 'otherData',
+      otherMeta: 'otherMetadata',
+      sysReq: 'systemRequirement',
+      task: 'taskAtHand',
+      userType: 'userType'
+    };
+  
+    const renamed: any = {};
+  
+    for (const shortKey in supportedByContext) {
+      const fullKey = keyMap[shortKey] || shortKey;
+      renamed[fullKey] = supportedByContext[shortKey];
+    }
+  
+    return renamed;
+  }
+  
+
+  markCtxComponentsFromSuggestion(supportedByContext: any): void {
+    this.ctxComponentsChecked_suggestion = [];
+  
+    for (const category in supportedByContext) {
+      const ids: number[] = supportedByContext[category];
+  
+      if (!this.allContextComponents[category]) continue;
+  
+      ids.forEach(id => {
+        const component = this.allContextComponents[category].find((item: any) => item.id === id);
+        if (component) {
+          this.ctxComponentsChecked_suggestion.push({
+            id: component.id,
+            category,
+            value: this.getFirstNonIdAttribute(component)
+          });
+        }
+      });
+    }
+  }
+  
+  markDQProblemsFromSuggestion(supportedByProblems: number[]): void {
+    this.selectedProblemsSuggestions = [];
+
+    supportedByProblems.forEach(problemId => {
+      const matched = this.selectedPrioritizedProblems.find(p => p.dq_problem_id === problemId);
+      if (matched) {
+        this.selectedProblemsSuggestions.push(matched);
+      }
+    });
+  }
+
+
+  dimAndFactorSuggested: any;
+  generatedSuggestion: any;
+
+  generateDimensionFactorSuggestion(): void {
+    this.isLoading = true;
+
+    const payload = {
+      dimensions_and_factors: this.dimensionsAndFactors,
+      dq_problems: this.convertProblemsToMap(this.selectedPrioritizedProblems),
+      context_components: this.convertContextComponents(this.allContextComponents)
+    };
+
+    console.log("payload: ", payload)
+  
+    this.modelService.generateDQDimensionFactorSuggestion(payload).subscribe({
+      next: (response) => {
+        console.log('✅ Sugerencia recibida:', response);
+
+        if (response.supported_by_context) {
+
+          response.supported_by_context = this.renameContextKeys(response.supported_by_context);
+          
+
+          const supported_by_ctxComponents_abbr = response.supported_by_context
+          //response.supported_by_context = this.expandAbbreviatedContext(response.supported_by_context);
+          const supported_by_ctxComponents = this.renameContextKeys(supported_by_ctxComponents_abbr);
+          console.log("supported_by_ctxComponents", supported_by_ctxComponents_abbr)
+
+          //SETEAR CTX COMPONENTS en el SELECT CHECkbox
+          //this.ctxComponentsChecked_suggestion = this.selectRandomComponents();
+          console.log("Componentes de contexto sugerencia:", this.ctxComponentsChecked_suggestion);
+
+          // 👇 Marcar los checkboxes correspondientes
+          this.markCtxComponentsFromSuggestion(response.supported_by_context);
+          this.markDQProblemsFromSuggestion(response.supported_by_problems);
+
+
+          //this.ctxComponentsChecked_suggestion = response.supported_by_context;
+          //console.log("this.ctxComponentsChecked_suggestion", this.ctxComponentsChecked_suggestion);
+        }
+
+        this.dimAndFactorSuggested = response;
+
+        const suggestedDQDimensionName = response.recommended_dimension;
+        const suggestedDQFactorName = response.recommended_factor;
+
+        const suggestedDimensionObj = this.dqDimensionsBase.find(dim => dim.name === suggestedDQDimensionName);
+        const suggestedFactorObj = this.dqFactorsBase.find(factor => factor.name === suggestedDQFactorName);
+
+        //response.recommended_dimension = suggestedDimensionObj
+        //response.recommended_factor = suggestedFactorObj
+
+        this.suggestedDQDimensionBase = suggestedDimensionObj;
+        this.suggestedDQFactorBase = suggestedFactorObj;
+
+        console.log("Dimension sugerida:", this.suggestedDQDimensionBase);
+        console.log("Factor sugerido:", this.suggestedDQFactorBase);
+
+        this.generatedSuggestion = response;
+        console.log("this.generatedSuggestion:", this.generatedSuggestion);
+
+        this.isLoading = false;
+
+      },
+      error: (err) => {
+        console.error('❌ Error al generar sugerencia:', err);
+        this.isLoading = false;
+      }
+    });
+  }
+  
+  
+
+
 
 }

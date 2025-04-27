@@ -11,19 +11,61 @@
   <!-- SECTION #1: Add Dimensions and Factors from scratch -->
   <!-- SECTION #1.a: Add Dimensions -->
   <div>
+
+    <button 
+      type="button" class="btn btn-info" 
+      (click)="generateDimensionFactorSuggestion()" 
+      style="width: auto;"
+    >
+      <i class="bi bi-lightning"></i> Generate Suggestion
+    </button>
+
+
+
+    <!-- 1. Add Dimensions and Factors from scratch -->
+    <div>
     <p 
       class="subtitle-description mt-4" 
       *ngIf="this.currentDQModel?.status !== 'finished'" 
       (click)="toggleFromScratchSectionVisibility()" style="cursor: pointer;"
+      [attr.data-tooltip]="!isFromScratchSectionVisible ? 
+    'In this section, you can define DQ Dimensions and DQ Factors from scratch, or select and add existing or new ones to the DQ Model. This process is informed by context components and aligned with prioritized data quality problems to focus on key improvement areas.' : null"
     >
       Define DQ Dimensions and DQ Factors from scratch
       <i class="bi" [ngClass]="isFromScratchSectionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
     </p>
 
+    <div class="subtitle-description mb-2 mx-2" *ngIf="isFromScratchSectionVisible">
+      <!-- 1. Add Dimensions -->
+      <span 
+        (click)="toggleFromScratchSectionVisibility_addDimensions()" 
+        style="cursor: pointer;"
+        [class.active-section]="isFromScratchSectionVisible_addDimensions">
+        Add DQ Dimension 
+        <i class="bi" [ngClass]="{
+          'bi-chevron-up': isFromScratchSectionVisible_addDimensions,
+          'bi-chevron-down': !isFromScratchSectionVisible_addDimensions
+        }"></i>
+      </span>
+      
+      <!-- 2. Add Factors -->
+      <span 
+        class="px-4"
+        (click)="toggleFromScratchSectionVisibility_addFactors()" 
+        style="cursor: pointer;"
+        [class.active-section]="isFromScratchSectionVisible_addFactors">
+        Add DQ Factor 
+        <i class="bi" [ngClass]="{
+          'bi-chevron-up': isFromScratchSectionVisible_addFactors,
+          'bi-chevron-down': !isFromScratchSectionVisible_addFactors
+        }"></i>
+      </span>
+    </div>
+
     <div 
       class="flex-container" 
       id="dimension-factor-selection" 
-      *ngIf="isFromScratchSectionVisible && this.currentDQModel?.status !== 'finished'"
+      *ngIf="this.currentDQModel?.status !== 'finished' && isFromScratchSectionVisible_addDimensions"
     >
       <div class="section-container">
         <div class="dim-factor-selection-container">
@@ -45,7 +87,7 @@
                   </option>
                 </select>
             
-                <button class="btn btn-light  mx-2" (click)="openDimensionModal()"><i class="bi bi-plus-lg"></i> New dimension</button>
+                <button class="btn btn-light  mx-2" (click)="openDimensionModal()"><i class="bi bi-plus-lg"></i> New DQ Dimension</button>
               </span>
             </div>
 
@@ -251,7 +293,7 @@
     <div 
       class="flex-container" 
       id="dimension-factor-selection" 
-      *ngIf="isFromScratchSectionVisible && this.currentDQModel?.status !== 'finished'"
+      *ngIf="isFromScratchSectionVisible_addFactors && this.currentDQModel?.status !== 'finished'"
     >
       <div class="section-container">
         <div class="dim-factor-selection-container">
@@ -305,7 +347,7 @@
                     </option>
                   </ng-container>
                 </select> -->
-                <button class="btn btn-light  mx-2" (click)="openFactorModal()"><i class="bi bi-plus-lg"></i> New factor</button>
+                <button class="btn btn-light  mx-2" (click)="openFactorModal()"><i class="bi bi-plus-lg"></i> New DQ Factor</button>
               </span>
             </div>
 
@@ -573,6 +615,8 @@
       *ngIf="currentDQModel?.status !== 'finished'" 
       (click)="toggleFromProblemsSectionVisibility()" 
       style="cursor: pointer;"
+      [attr.data-tooltip]="!isFromProblemsSectionVisible ? 
+    'This section allows you to select relevant DQ Dimensions and Factors based on previously prioritized DQ Problems. The most critical problems will guide suggestions. If a Dimension or Factor is already in the DQ Model, the selected problem will be associated with it.' : null"
     >
       Select DQ Dimensions and DQ Factors based on the selected prioritized DQ Problems
       <i class="bi" [ngClass]="isFromProblemsSectionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
@@ -634,35 +678,24 @@
               <div class="px-4">
                 <div class="alert alert-info mb-4 mt-4 d-flex align-items-start">
                   <i class="bi bi-info-circle me-2 mt-1"></i>
-                  <div>
-                    Prioritized data quality problems can guide your selection of relevant data quality dimensions and factors, helping you focus on the most critical areas for improvement.
+                  <div> The most relevant data quality problems, according to the prioritization before carried out, can suggest certain DQ dimensions and factors, helping you focus on the most critical areas for improvement.
                   </div>
                 </div>
+
+                <div class="alert alert-light mb-4 mt-4 d-flex align-items-start" *ngIf="selectedProblem">
+                  <i class="bi bi-info-circle me-2 mt-1"></i>
+                  <div>
+                    Select existing DQ Dimensions and DQ Factors to add to the DQ Model, based on a given prioritized DQ Problem. <br> 
+                    If the dimension or factor has already been added to the DQ Model, the DQ Problem will be associated with that existing element.
+                  </div>
+                  
+                </div>
+
               </div>
 
               <div class="d-flex justify-content-between px-4">
                 <div>
-                  <!--
-                  <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
-                    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-                      <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-                      </symbol>
-                      <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
-                      </symbol>
-                      <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-                      </symbol>
-                    </svg>
-                    <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
-                    <div>
-                    Prioritized data quality problems can guide your selection of relevant data quality dimensions and factors, helping you focus on the most critical areas for improvement.
-                    </div>
-                    <div>
-                      Select the data quality dimensions and factors that best match your prioritized data quality problems, focusing on the most critical areas to improve.
-                    </div>
-                  </div> -->
+            
         
                   <!-- Dimensions and Factors selection -->
                   <div *ngIf="selectedProblem !== null" class="label-container container-dim-factors">
@@ -729,50 +762,36 @@
 
   <!-- SECTION: Suggested Dimensions and Factors -->
   <div>
-    <p class="subtitle-description mt-4" *ngIf="this.currentDQModel?.status !== 'finished'" (click)="toggleSuggestionsSectionVisibility()" style="cursor: pointer;">
-      Suggested Dimensions and Factors
+    <p 
+      class="subtitle-description mt-4" 
+      *ngIf="this.currentDQModel?.status !== 'finished'" (click)="toggleSuggestionsSectionVisibility()" style="cursor: pointer;"
+      [attr.data-tooltip]="!isSuggestionsSectionVisible ? 
+    'In this section, you can get an AI-powered suggestion for a DQ Dimension and Factor. This suggestion is based on context components and existing Data Quality Problems to help you get started.' : null"
+    >
+      Suggested DQ Dimensions and DQ Factors
       <i class="bi" [ngClass]="isSuggestionsSectionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
     </p>
 
     <div class="flex-container" *ngIf="isSuggestionsSectionVisible && this.currentDQModel?.status !== 'finished'">
       <div class="suggested-section-container">
         <div class="suggested-section-div">
+          <div *ngIf="!getSuggestedFactor()">
           <div class="label-selected">
             <label class="label-title-selected-ctx">Suggested DQ Dimension & DQ Factor:</label>
           </div>
 
           <!-- INFO MESSAGES -->
           <div>
-            <div class="alert alert-info mb-3 mt-3 d-flex align-items-start">
+            <div class="alert alert-info mb-3 mt-2 d-flex align-items-start">
               <i class="bi bi-info-circle me-2 mt-1"></i>
               <div>
-                Context Components and Data Quality Problems can suggest and guide the selection of relevant data quality dimensions and factors, helping you focus on key aspects of data quality and associate them with your choices, which in turn helps track and trace your decisions during the creation or development of the Data Quality Model.
+                Context components and prioritized data quality problems can suggest and guide the selection of relevant DQ dimensions and factors, helping you focus on key aspects of data quality and associate them with your choices, which in turn helps track and trace your decisions during the creation or development of the Data Quality Model.
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- mensaje informativo para la generacion de sugerencias 
-          <div *ngIf="!getSuggestedFactor()">
-            <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-              <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-              </symbol>
-              <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
-              </symbol>
-              <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-              </symbol>
-            </svg>
-            
-            <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
-              <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
-              <div>
-                Context Components and Data Quality Problems can suggest and guide the selection of relevant data quality dimensions and factors, helping you focus on key aspects of data quality and associate them with your choices, which in turn helps track and trace your decisions during the creation or development of the Data Quality Model 
-              </div>
-            </div>
-          </div> -->
-
+   
 
           <div *ngIf="getSuggestedFactor()" class="label-container">
             <div class="label">
@@ -800,20 +819,43 @@
               </span>
             </div>
           </div>
+
           <br>
-          <button  *ngIf="!getSuggestedFactor()"  type="button" class="btn btn-info" (click)="generateSuggestion()" style="width: auto;">
-            <i class="bi bi-lightning"></i> Generate
-          </button>
         
+          <div  *ngIf="getSuggestedFactor()" class="px-4">
+            <div class="label-selected">
+              <label class="label-title-selected-ctx">Based on:</label>
+            </div>
+            <div *ngIf="getSuggestedFactor()" class="alert alert-primary mb-1  d-flex align-items-start">
+              <i class="bi bi-lightbulb me-2 mt-1"></i>
+              <div>
+                {{ generatedSuggestion?.rationale }}
+              </div>
+            </div>
+
+          </div>
+          
+
+
+          <br>
+          <!--
+          <button  *ngIf="!getSuggestedFactor()"  type="button" class="btn btn-info" (click)="generateDimensionFactorSuggestion()" style="width: auto;">
+            <i class="bi bi-lightning"></i> Generate
+          </button>-->
+        
+
+          
+
+
         <!--Context Components-->
    
-        <div *ngIf="getSuggestedFactor()" class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
+        <div *ngIf="getSuggestedFactor()" class="d-flex justify-content-between px-4" style="gap: 20px;">
           <div class="from-ctx-components  flex-fill ">
 
             <!-- Título colapsable -->
             <div class="label-selected">
               <label class="label-title-selected-ctx" (click)="toggleCtxSuggestionVisibility()" style="cursor: pointer;">
-                Based on the following Context Components <i class="bi" [ngClass]="isCtxSuggestionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                Context Components: <i class="bi" [ngClass]="isCtxSuggestionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
               </label>
             </div>
             
@@ -860,30 +902,6 @@
               </div>
             </div>
 
-
-            
-            <!-- mensaje para que empiece agregar componentes de contexto 
-            <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
-
-              <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-                <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
-                  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-                </symbol>
-                <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
-                  <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
-                </symbol>
-                <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-                  <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-                </symbol>
-              </svg>
-            
-            
-              <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
-              <div>
-                Context components can suggest and guide the selection of relevant data quality dimensions and factors, ensuring focus on key quality aspects.
-              </div>
-            </div> -->
-
             <!--<button class="btn btn-light btn-sm mb-4" (click)="toggleSuggestedItemsVisibility('context')">
               <i *ngIf="!isEditSuggestedContextVisible"></i>
               <i *ngIf="isEditSuggestedContextVisible" class="bi bi-eye-slash"></i>
@@ -897,31 +915,20 @@
         <div *ngIf="getSuggestedFactor()" class="d-flex justify-content-between px-4 py-3" style="gap: 20px;">
           <div class="from-ctx-components  flex-fill ">
 
-            <!--<label class="label-title-selection-ctx mb-2 mt-2">From Context Components:</label>-->
+            
             <div class="label-selected">
-              <label class="label-title-selected-ctx">Based on the following DQ Problems:</label>
-              <!--<span class="label-value-selected">{{ getSelectedDimension()?.semantic }}</span>-->
+              <label class="label-title-selected-ctx">DQ Problems:</label>
+             
             </div>
+            <!--
             <div *ngFor="let problem of selectedProblemsSuggestions" class="label-selected">
               <span class="label-value-selected">
                 {{ problem.description }} 
                 <i *ngIf="isEditSuggestedDQProblemsVisible" class="bi bi-x-lg"></i>
               </span>
-            </div>
+            </div>-->
             
-            <!--
-            <div class="add-ctx-alert-tip alert alert-primary d-flex align-items-center" role="alert">
-              <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
-              <div>
-                Data quality problems can guide your selection of relevant data quality dimensions and factors, helping you focus on the most critical areas for improvement, and associate them with your selection.
-              </div>
-            </div> -->
-            <!--<button class="btn btn-light btn-sm  mb-4" (click)="openDimensionModal()">Add</button>-->
-            <button class="btn btn-light btn-sm mb-4" (click)="toggleSuggestedItemsVisibility('dqproblems')">
-              <i *ngIf="!isEditSuggestedDQProblemsVisible"></i>
-              <i *ngIf="isEditSuggestedDQProblemsVisible" class="bi bi-eye-slash"></i>
-              {{ isEditSuggestedDQProblemsVisible ? 'Hide' : 'Edit' }}
-            </button>
+   
 
             <span class="label-value d-flex align-items-center">
               <div class="context-selection">
@@ -939,9 +946,9 @@
               </div>
             </span>
 
+      
             <!-- DQ PROBLEMS SELECTION (CHECKBOX) -->
-            <!-- DQ PROBLEMS SELECTION (CHECKBOX) -->
-            <div *ngIf="isEditSuggestedDQProblemsVisible" class="ctx-selection-accordion-container">
+            <div class="ctx-selection-accordion-container">
               <div class="checkbox-container">
                 <div *ngFor="let problem of selectedPrioritizedProblems; let i = index" class="form-check">
                   <input
@@ -949,8 +956,10 @@
                     type="checkbox"
                     [id]="'checkbox' + i"
                     [value]="problem"
+                    [checked]="isProblemSelectedInSuggestions(problem.dq_problem_id)"
                     (change)="onCheckboxSuggestionsProblemsChange(problem, $event)"
                   />
+
                   <label class="form-check-label" [for]="'checkbox' + i">
                     {{ problem.description }}
                   </label>
@@ -964,8 +973,21 @@
 
 
         <button *ngIf="getSuggestedFactor()" class="btn btn-dark btn-sm mt-4" style="width: auto;">Add to DQ Model</button>
-        <button *ngIf="getSuggestedFactor()" type="button"  class="btn btn-info btn-sm mt-4 mx-2"  (click)="generateSuggestion()" style="width: auto;"><i class="bi bi-lightning"></i> Generate</button>
-        <!--<button *ngIf="getSuggestedFactor()" class="btn btn-light btn-sm mt-4">Ignore</button>-->
+
+        <button 
+            type="button" 
+            class="btn btn-sm btn-info mt-4 mx-2" 
+            (click)="generateDimensionFactorSuggestion()" style="width: auto;" [disabled]="isLoading">
+            <i class="bi bi-lightning"></i>
+            <span *ngIf="!isLoading">Generate</span>
+            <span *ngIf="isLoading">
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              Generating...
+            </span>
+          </button>
+<!--
+        <button *ngIf="getSuggestedFactor()" type="button"  class="btn btn-info btn-sm mt-4 mx-2"  (click)="generateDimensionFactorSuggestion()" style="width: auto;"><i class="bi bi-lightning"></i> Generate</button>
+        <button *ngIf="getSuggestedFactor()" class="btn btn-light btn-sm mt-4">Ignore</button>-->
         </div>
 
       </div>

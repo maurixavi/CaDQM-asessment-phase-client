@@ -23,12 +23,14 @@ export class ProjectDataService {
   //private dqModel: any = null;
 
   private projectSubject = new BehaviorSubject<any>(null);
+  private contextVersionSubject = new BehaviorSubject<any>(null);
   private contextComponentsSubject = new BehaviorSubject<any>(null);
   private dqProblemsSubject = new BehaviorSubject<any[]>([]);
   private dqModelVersionSubject = new BehaviorSubject<number | null>(null); 
   //private dqModelSubject = new BehaviorSubject<any>(null);
 
   public project$ = this.projectSubject.asObservable();
+  public contextVersion$ = this.contextVersionSubject.asObservable();
   public contextComponents$ = this.contextComponentsSubject.asObservable();
   public dqProblems$ = this.dqProblemsSubject.asObservable();
   public dqModelVersion$ = this.dqModelVersionSubject.asObservable(); 
@@ -101,7 +103,12 @@ export class ProjectDataService {
         //console.log('Project Data:', project);
         
         if (this.contextVersionId) {
-          this.loadAdditionalData(); // Cargar los otros datos solo si hay context_version
+          // Cargar el objeto context_version primero
+          this.getContextVersionById(this.contextVersionId).subscribe(contextVersion => {
+          this.contextVersionSubject.next(contextVersion);
+          // Luego cargar los demás datos
+          this.loadAdditionalData();
+        });
         }
 
         // Obtener el esquema de datos usando el data_at_hand del proyecto
@@ -178,6 +185,13 @@ export class ProjectDataService {
     return this.http.get<any>(url).pipe(
       tap((data) => console.log(`Fetched Project with ID=${projectId}:`, data)),
       catchError(this.handleError<any>(`getProjectById id=${projectId}`))
+    );
+  }
+
+  private getContextVersionById(contextVersionId: number): Observable<any> {
+    const url = `${this.API_URL_CONTEXT_VERSIONS}${contextVersionId}/`;
+    return this.http.get<any>(url).pipe(
+      catchError(this.handleError<any>(`getContextVersionById id=${contextVersionId}`))
     );
   }
 

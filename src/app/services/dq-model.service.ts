@@ -95,7 +95,7 @@ export class DqModelService {
 
 
   readonly API_URL_METHODS_BASE_GENERATION = `${this.baseUrl}/generate-dqmethod-suggestion/`;
-  
+  readonly API_URL_DIM_FACTOR_GENERATION = `${this.baseUrl}/generate-dq-dimension-factor-suggestion/`;
 
   //API ENDPOINT PROJECTS
   readonly API_URL_PROJECTS = `${this.baseUrl}/projects/`;
@@ -163,6 +163,23 @@ export class DqModelService {
       })
     );
   }
+
+  // Método para generar la sugerencia de dimensión y factor de calidad
+  generateDQDimensionFactorSuggestion(data: {
+    dimensions_and_factors: any;
+    dq_problems: any;
+    context_components: any;
+  }): Observable<any> {
+    const url = `${this.API_URL_DIM_FACTOR_GENERATION}`;
+
+    return this.http.post<any>(url, data).pipe(
+      catchError(err => {
+        console.error('Error al generar la sugerencia de dimension y factor:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
 
 
   //Manejo de errores
@@ -1077,10 +1094,70 @@ export class DqModelService {
    * @returns Observable with the method execution result
    */
   getMethodExecutionResult(dqModelId: number, appliedMethodId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/applied-dq-methods/${appliedMethodId}/execution-method-results/`;
+    return this.http.get<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error fetching execution result for method ${appliedMethodId} in DQ Model ${dqModelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Get execution row results for a specific applied DQ method
+   * @param dqModelId The ID of the DQ Model
+   * @param appliedMethodId The ID of the applied method (measurement or aggregation)
+   * @returns Observable with the row-level execution results
+   */
+  getMethodExecutionRowResults(dqModelId: number, appliedMethodId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/applied-dq-methods/${appliedMethodId}/execution-row-results/`;
+    return this.http.get<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error fetching execution row results for method ${appliedMethodId} in DQ Model ${dqModelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Get execution column results for a specific applied DQ method
+   * @param dqModelId The ID of the DQ Model
+   * @param appliedMethodId The ID of the applied method (measurement or aggregation)
+   * @returns Observable with the column-level execution results
+   */
+   getMethodExecutionColumnResults(dqModelId: number, appliedMethodId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/applied-dq-methods/${appliedMethodId}/execution-column-results/`;
+    return this.http.get<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error fetching execution column results for method ${appliedMethodId} in DQ Model ${dqModelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+
+  getMethodExecutionResult0(dqModelId: number, appliedMethodId: number): Observable<any> {
     const url = `${this.API_URL_DQMODELS}${dqModelId}/applied-dq-methods/${appliedMethodId}/execution-result/`;
     return this.http.get<any>(url).pipe(
       catchError(err => {
         console.error(`Error fetching execution result for method ${appliedMethodId} in DQ Model ${dqModelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+
+  /**
+   * Ejecuta el assessment para un método aplicado de un DQ Model
+   * @param dqModelId El ID del DQ Model
+   * @param appliedMethodId El ID del método aplicado
+   * @returns Observable con el resultado del assessment
+   */
+  assessAppliedMethod(dqModelId: number, appliedMethodId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/applied-dq-methods/${appliedMethodId}/assess/`;
+    return this.http.post<any>(url, {}).pipe(
+      catchError(err => {
+        console.error(`Error al ejecutar assessment para el método ${appliedMethodId} en DQ Model ${dqModelId}:`, err);
         throw err;
       })
     );
@@ -1131,7 +1208,25 @@ export class DqModelService {
    * @param thresholds Array of threshold definitions
    * @returns Observable with the response
    */
-  updateAssessmentThresholds(dqModelId: number, methodId: number,  resultId: number, thresholds: any[]
+  updateAssessmentThresholds(
+    dqModelId: number,
+    methodId: number,
+    resultId: number,
+    thresholds: any[]
+  ): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/applied-dq-methods/${methodId}/execution-method-results/${resultId}/thresholds/`;
+    
+    return this.http.patch(url, { thresholds }).pipe(
+      catchError(err => {
+        console.error(`Error updating thresholds for result ${resultId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+
+
+  updateAssessmentThresholds0(dqModelId: number, methodId: number,  resultId: number, thresholds: any[]
   ): Observable<any> {
     const url = `${this.API_URL_DQMODELS}${dqModelId}/applied-dq-methods/${methodId}/execution-result/${resultId}/thresholds/`;
     
@@ -1142,5 +1237,42 @@ export class DqModelService {
       })
     );
   }
+
+
+  /**
+   * Get all measurement executions for a specific DQ Model
+   * @param dqModelId The ID of the DQ Model
+   * @returns Observable with the list of executions
+   */
+  getAllDQModelExecutions(dqModelId: number): Observable<any[]> {
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/measurement-executions/`;
+
+    return this.http.get<any[]>(url).pipe(
+      catchError(err => {
+        console.error(`Error fetching executions for DQ Model ${dqModelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  /**
+   * Get a specific measurement execution for a DQ Model
+   * @param dqModelId The ID of the DQ Model
+   * @param executionId The UUID of the execution
+   * @returns Observable with execution details
+   */
+  getSpecificDQModelExecution(dqModelId: number, executionId: string): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqModelId}/measurement-executions/${executionId}/`;
+
+    return this.http.get<any>(url).pipe(
+      catchError(err => {
+        console.error(`Error fetching execution ${executionId} for DQ Model ${dqModelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+
+
 
 }

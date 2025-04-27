@@ -887,3 +887,52 @@ hr.my-4 {
     min-width: 100%; /* Ocupan el 100% del ancho en pantallas pequeñas */
   }
 }
+
+
+.active-section {
+  font-weight: 500;
+}
+
+/* Estilos para el tooltip */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 120%;
+  left: 18%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 12px;
+  width: 300px;
+  max-width: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 1000;
+  pointer-events: none;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+  visibility: visible;
+  margin-bottom: 10px;
+}
+
+/* Estilo específico para el tooltip del subtítulo */
+.subtitle-description[data-tooltip]::after {
+  width: 400px;  
+  white-space: normal;
+  line-height: 1.4;
+}
+
+[data-tooltip]::after {
+  max-width: 400px;  
+}
