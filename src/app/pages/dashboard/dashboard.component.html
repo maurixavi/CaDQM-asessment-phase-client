@@ -24,14 +24,6 @@
             <span class="label-value-selected">{{ project.created_at | date:'medium' }}</span>
           </div>
           <div class="label-selected">
-            <label class="label-title-selected">Context version: </label>
-            <span class="label-value-selected">Ctx Id: {{ project.context_version }}</span>
-          </div>
-          <div class="label-selected" *ngIf="project.dqmodel_version !== null">
-            <label class="label-title-selected">DQ Model version: </label>
-            <span class="label-value-selected">{{dqModelVersionName}} (Id: {{ project.dqmodel_version }})</span>
-          </div>
-          <div class="label-selected">
             <label class="label-title-selected">Data at hand:</label>
             <span class="label-value-selected">
 							{{ dataAtHandDetails.description }} ({{ dataAtHandDetails.dbname }})
@@ -40,6 +32,17 @@
 							</a>
 						</span>
           </div>
+          
+          <div class="label-selected">
+            <label class="label-title-selected">Context version: </label>
+            <span class="label-value-selected">{{ contextVersion.name }} {{ contextVersion.version }} </span>
+          </div>
+          <div class="label-selected" *ngIf="project.dqmodel_version !== null">
+            <label class="label-title-selected">DQ Model version: </label>
+            <span class="label-value-selected">{{dqModelVersionName}} {{dqModelVersion}} (Id: {{ project.dqmodel_version }}) | Previous version: {{dqModel.previous_version}}</span>
+          </div>
+
+          
           <div class="label-selected">
             <label class="label-title-selected">Stage:</label>
               <span class="label-value-selected" *ngIf="project.current_stage?.stage === 'ST1'">ST1: Elicitation</span>
@@ -58,7 +61,7 @@
 
           <!-- Botón "Close Project" reutilizable -->
           <ng-template #closeProjectButton>
-            <button class="btn btn-light btn-sm mt-2 mx-2" (click)="closeProject()">
+            <button class="btn btn-light btn-sm mt-2 mx-0" (click)="closeProject()">
               Close Project
             </button>
           </ng-template>
@@ -73,14 +76,17 @@
 
           <div *ngIf="project.dqmodel_version !== null && project.status !== 'done'">
             <button class="btn btn-dark btn-sm mt-2" (click)="navigateToResumeDQModel()">
-              Resume DQ Model
+              Resume
             </button>
             <ng-container *ngTemplateOutlet="closeProjectButton"></ng-container>
           </div>
 
           <div *ngIf="project.dqmodel_version !== null && project.status === 'done'">
-            <button class="btn btn-dark btn-sm mt-2" (click)="navigateToViewDQModel()">
+            <!--<button class="btn btn-dark btn-sm mt-2" (click)="navigateToViewDQModel()">
               View DQ Model
+            </button>-->
+            <button class="btn btn-dark btn-sm mt-2" (click)="navigateToViewDQModel()">
+              Resume
             </button>
             <button class="btn btn-light btn-sm mt-2 mx-3" (click)="openFirstModal()">
               New DQ Model
@@ -159,3 +165,5 @@
   [dataAtHandDetails]="dataAtHandDetails"
   [dataSchema]="dataSchema">
 </app-data-at-hand-view-modal>
+
+<app-context-components></app-context-components>
