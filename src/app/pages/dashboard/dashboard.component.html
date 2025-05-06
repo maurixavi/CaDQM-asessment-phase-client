@@ -132,6 +132,76 @@
 </div>
 
 
+
+<!-- Modal PROYECTO NUEVO -->
+<div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isProjectModalOpen}" [style.display]="isProjectModalOpen ? 'block' : 'none'">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New Project</h5>
+        <button type="button" class="close" aria-label="Close" (click)="closeProjectModal()">
+          <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="projectName">Project Name</label>
+          <input type="text" class="form-control" id="projectName" 
+                 [(ngModel)]="newProject.name" name="projectName" 
+                 placeholder="Enter project name" required>
+        </div>
+        <div class="form-group">
+          <label for="projectDescription">Description</label>
+          <textarea class="form-control" id="projectDescription" 
+                    [(ngModel)]="newProject.description" name="projectDescription"
+                    placeholder="Enter project description"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-light" (click)="closeProjectModal()">Cancel</button>
+        <button type="button" class="btn btn-sm btn-dark" 
+                (click)="createProjectWithDetails()"
+                [disabled]="!newProject.name">
+          Create Project
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop" [ngClass]="{'show': isProjectModalOpen}" 
+     [style.display]="isProjectModalOpen ? 'block' : 'none'"></div>
+     
+<!-- Modal para datos del proyecto -->
+<div class="modal fade" id="projectDetailsModal" tabindex="-1" aria-hidden="true" *ngIf="showProjectModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New Project Details</h5>
+        <button type="button" class="btn-close" (click)="closeProjectModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Project Name</label>
+          <input type="text" class="form-control" [(ngModel)]="newProject.name" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" rows="3" [(ngModel)]="newProject.description"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeProjectModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" 
+                (click)="createProjectWithDetails()"
+                [disabled]="!newProject.name">
+          Create Project
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <!-- Primer modal (opciones) -->
 <app-modal
   [isOpen]="isFirstModalOpen"

@@ -5,6 +5,8 @@ import { ProjectService } from '../../services/project.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ProjectDataService } from '../../services/project-data.service';
 
+declare var bootstrap: any; 
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -241,6 +243,8 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+
+  //Nueva version DQ Model desde cero
   createDQModel_fromScratch() {
 
     const currentVersion = this.dqModel?.version;
@@ -268,7 +272,18 @@ export class DashboardComponent implements OnInit {
         console.log('Id nuevo DQ Model creado:', newDQModelId);
   
         // Llamar a la función para crear un nuevo proyecto y asignar el DQModel
-        this.createNewProject_withDQModel(newDQModelId);
+        //this.createNewProject_withDQModel(newDQModelId);
+        this.openProjectModal(newDQModelId); // Abre modal para detalles del proyecto
+
+        this.pendingDQModelId = newDQModelId;
+      
+          // Actualizar el nombre sugerido para el proyecto
+          //this.newProject.name = `New Project based on ${this.dqModelVersionName} v${newDQModel.version}`;
+          
+        //this.showProjectModal = true;  
+        //this.isProjectModalOpen = true;
+
+
       },
       error: err => {
         console.error('Error al crear el modelo DQ:', err);
@@ -277,7 +292,116 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+
+  //MODAL NEW PROJECT
+  newProject: any = {
+    name: 'New Project',
+    description: ''
+  };
+
+  pendingDQModelId: number | null = null;
+
+  showProjectModal: boolean = false;
+  isProjectModalOpen: boolean = false;
+
+  openProjectModal(dqmodelId: number): void {
+    //this.pendingDQModelId = dqmodelId;
+    this.newProject.name = `New Project based on ${this.dqModelVersionName || 'DQ Model'}`;
+    this.isProjectModalOpen = true;
+  }
+
+  closeProjectModal(): void {
+    this.isProjectModalOpen = false;
+    this.pendingDQModelId = null;
+    this.resetProjectForm();
+  }
+
+  // Método para crear el proyecto con los detalles
+  createProjectWithDetails(): void {
+    if (!this.pendingDQModelId) {
+      alert('Error: No DQModel ID available');
+      return;
+    }
+  
+    this.projectService.createProject(
+      this.newProject.name,
+      this.newProject.description,
+      this.pendingDQModelId,
+      this.project?.context_version,
+      this.project?.data_at_hand
+    ).subscribe({
+      next: (newProject) => {
+        this.projectDataService.setProjectId(newProject.id);
+        this.closeProjectModal();
+        this.navigateToResumeDQModel();
+      },
+      error: (err) => {
+        console.error('Error creating project:', err);
+        alert('Error creating project: ' + err.message);
+      }
+    });
+  }
+
+
+  // Método para abrir el modal de proyecto
+  openProjectFormModal() {
+    this.showProjectModal = true;
+  }
+
+  // Método para confirmar con los datos ingresados
+  confirmWithProjectDetails() {
+    if (!this.newProject.name) {
+      alert('Project name is required');
+      return;
+    }
+
+    this.showProjectModal = false;
+    
+    /*if (this.selectedAction === 'create') {
+      this.createDQModelFromScratch();
+    } else if (this.selectedAction === 'edit') {
+      this.createNewVersionDQModel(this.dqModelVersionId);
+    }*/
+  }
+
+
+  // -------------
+  // Nuevo método para crear proyecto con detalles
+  createNewProjectWithDetails(dqmodelId: number) {
+
+    
+
+    this.projectService.createProject(
+      this.newProject.name || 'New Project',
+      this.newProject.description || '',
+      dqmodelId,
+      this.project?.context_version,
+      this.project?.data_at_hand
+    ).subscribe({
+      next: (newProject) => {
+        this.projectDataService.setProjectId(newProject.id);
+        //this.navigateToResumeDQModel();
+        this.resetProjectForm();
+      },
+      error: (err) => {
+        console.error('Error:', err);
+        alert('Error creating project');
+      }
+    });
+  }
+
+  // Resetear el formulario
+  resetProjectForm() {
+    this.newProject = {
+      name: '',
+      description: ''
+    };
+  }
+
   createNewProject_withDQModel(dqmodelId: number): void {
+
+    //this.showProjectModal = true;
+
     const name = 'Nuevo Proyecto al crear nueva version DQ Model';
     const description = 'Descripción del nuevo proyecto';
     const dqmodel_version = dqmodelId; 
@@ -327,9 +451,10 @@ export class DashboardComponent implements OnInit {
 
   // CREAR NUEVA VERSION DQ MODEL (nuevo proyecto y nuevo dq model con copia version anterior)
   createNewVersionDQModel(dqmodelId: number): void {
-    //const updatedAttributes = { version: "New version" }; 
+
+    // Al intentar actualizar un DQ Model finalizado se crea uno nuevo copiando su contenido
     const updatedAttributes = {
-      name: this.dqModelVersionName, //mantiene nombre DQ Model
+      name: this.dqModelVersionName, // Se mantiene DQ Model name
     };
     
   
@@ -338,9 +463,23 @@ export class DashboardComponent implements OnInit {
         console.log('DQ Model actualizado o nueva versión creada:', newDQModel);
         this.newDQModelVersionId = newDQModel.id;
         console.log("this.newDQModelId", this.newDQModelVersionId);
+        alert('DQ Model creado correctamente.');
         if (this.newDQModelVersionId){
-          this.createNewProject_withDQModel(this.newDQModelVersionId);
-          alert('Operación exitosa en el DQ Model.');
+          //this.createNewProject_withDQModel(this.newDQModelVersionId);
+
+          //this.createNewProjectWithDetails(this.newDQModelVersionId);
+          this.pendingDQModelId = this.newDQModelVersionId;
+      
+          // Actualizar el nombre sugerido para el proyecto
+          //this.newProject.name = `New Project based on ${this.dqModelVersionName} v${newDQModel.version}`;
+          
+          //this.showProjectModal = true;  
+          //this.isProjectModalOpen = true;
+
+
+          this.openProjectModal(this.newDQModelVersionId); // Abre modal para detalles del proyecto
+
+          
           //this.navigateToResumeDQModel();
         }
         
@@ -514,14 +653,17 @@ export class DashboardComponent implements OnInit {
     this.isSecondModalOpen = false;
   }
 
+  // ------------------------------------------
   // Confirma la acción en el segundo modal
   onSecondModalConfirm() {
     this.isSecondModalOpen = false;
     if (this.selectedAction === 'create') {
       this.createDQModel_fromScratch();
+
       console.log('DQ Model from Scratch confirmado');
     } else if (this.selectedAction === 'edit') {
         if(this.dqModelVersionId) {
+          this.showProjectModal = true;  
           this.createNewVersionDQModel(this.dqModelVersionId);
           console.log('New DQ Model Version confirmado');
         }
