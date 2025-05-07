@@ -78,30 +78,31 @@ export class HomeComponent implements OnInit {
 
     // Suscribirse a los componentes del contexto
     this.projectDataService.contextComponents$.subscribe((data) => {
-      this.contextComponents = data;
+      //this.contextComponents = data;
       //console.log('Context Components:', data);
     });
 
     // Suscribirse a los problemas de calidad de datos (DQ Problems)
     this.projectDataService.dqProblems$.subscribe((data) => {
-      this.dqProblems = data;
+      //this.dqProblems = data;
       //console.log('DQ Problems:', data);
     });
 
     // Suscribirse a la versión del modelo de calidad de datos (DQ Model Version)
     this.projectDataService.dqModelVersion$.subscribe((dqModelVersionId) => {
       this.dqModelVersionId = dqModelVersionId;
-      //console.log('DQ Model Version ID:', this.dqModelVersionId);
+
     });
 
     // Suscribirse al esquema de datos
     this.projectDataService.dataSchema$.subscribe((data) => {
-      this.dataSchema = data;
-      console.log('Data Schema:', data); // Ver el esquema de datos en la consola
+      //this.dataSchema = data;
+      //console.log('Data Schema:', data); // Ver el esquema de datos en la consola
     });
   
   
   }
+
 
   
 
@@ -112,6 +113,17 @@ export class HomeComponent implements OnInit {
         this.projects = data;
         this.totalPages = Math.ceil(this.projects.length / this.itemsPerPage);
         this.updatePaginatedProjects();
+
+        // Cargar información de contextos y modelos
+        this.projects.forEach((project, index) => {
+          if (project.context_version) {
+            this.loadContextInfo(project.context_version, index);
+          }
+          if (project.dqmodel_version) {
+            this.loadDQModelInfo(project.dqmodel_version, index);
+          }
+        });
+
       },
       error: (err) => {
         console.error('Error al obtener proyectos:', err);
@@ -186,6 +198,95 @@ export class HomeComponent implements OnInit {
         console.error('Error al cargar el proyecto en el componente:', err);
       }
     });
+  }
+
+  contextInfo: { [key: number]: string } = {}; // Almacenará "Context name vX.X.X"
+  dqModelInfo: { [key: number]: string } = {}; // Almacenará "DQ Model name vX.X.X"
+
+  // Función para cargar información del contexto (nombre + versión)
+  loadContextInfo(contextVersionId: number, projectIndex: number): void {
+    if (!contextVersionId) return;
+
+    this.projectDataService.getContextVersionById(contextVersionId).subscribe(
+      (contextVersion) => {
+        if (contextVersion) {
+          const info = `${contextVersion.name} v${contextVersion.version}`;
+          this.contextInfo[contextVersionId] = info;
+          this.projects[projectIndex].contextInfo = info; // Opcional: asignar directamente al proyecto
+        }
+      },
+      (error) => {
+        console.error('Error al obtener Context Version:', error);
+      }
+    );
+  }
+
+  // Función para cargar información del DQ Model (nombre + versión)
+  loadDQModelInfo(dqmodelId: number, projectIndex: number): void {
+    if (!dqmodelId) return;
+
+    this.modelService.getDQModel(dqmodelId).subscribe(
+      (dqModel) => {
+        if (dqModel) {
+          const info = `${dqModel.name} v${dqModel.version}`;
+          this.dqModelInfo[dqmodelId] = info;
+          this.projects[projectIndex].dqModelInfo = info; // Opcional: asignar directamente al proyecto
+        }
+      },
+      (error) => {
+        console.error('Error al obtener DQ Model:', error);
+      }
+    );
+  }
+
+
+
+  dqModelNames: { [key: number]: string } = {}; // Diccionario para almacenar nombres de modelos por ID
+
+  // cargar los detalles del modelo
+  loadDQModelDetails(dqmodelId: number, projectIndex: number): void {
+    if (!dqmodelId) {
+      return; // No hacer nada si no hay ID
+    }
+
+    this.modelService.getDQModel(dqmodelId).subscribe(
+      (dqModel) => {
+        if (dqModel) {
+          // Almacena el nombre en el diccionario usando el ID como clave
+          this.dqModelNames[dqmodelId] = dqModel.name;
+          
+          // También puedes actualizar directamente el proyecto si lo prefieres
+          this.projects[projectIndex].dqModelName = dqModel.name;
+        }
+      },
+      (error) => {
+        console.error('Error al obtener DQ Model:', error);
+      }
+    );
+  }
+
+  contextNames: { [key: number]: string } = {}; // Diccionario para almacenar nombres de contextos por ID
+
+  // cargar los detalles del contexto
+  loadContextDetails(contextVersionId: number, projectIndex: number): void {
+    if (!contextVersionId) {
+      return; // No hacer nada si no hay ID
+    }
+
+    this.projectDataService.getContextVersionById(contextVersionId).subscribe(
+      (contextVersion) => {
+        if (contextVersion) {
+          // Almacena el nombre en el diccionario usando el ID como clave
+          this.contextNames[contextVersionId] = contextVersion.name;
+          
+          // También puedes actualizar directamente el proyecto si lo prefieres
+          this.projects[projectIndex].contextName = contextVersion.name;
+        }
+      },
+      (error) => {
+        console.error('Error al obtener Context Version:', error);
+      }
+    );
   }
 
   allContextComponents: any = null;

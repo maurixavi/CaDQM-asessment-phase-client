@@ -6,12 +6,12 @@
 
   <div class="flex-container">
     <div class="section-container">
-      <div class="dashboard-container">
+      <div class="dashboard-container p-3">
         <table class="table table-hover">
           <thead class="thead-dark custom-thead">
             <tr>
               <th scope="col">Project</th>
-              <th scope="col">Creation Date</th>
+              <th scope="col">Creation date</th>
               <th scope="col">Context version</th>
               <th scope="col">DQ Model version</th>
               <th scope="col">Stage</th>
@@ -28,8 +28,27 @@
             >
               <td class="project-name" [attr.data-tooltip]="project.description">{{ project.name }}</td>
               <td>{{ project.created_at | date:'MMM d, y' }}</td>
-              <td>{{ project.context_version }}</td>
-              <td>{{ project.dqmodel_version }}</td>
+              <td>
+                <span *ngIf="contextInfo[project.context_version]">
+                  {{ contextInfo[project.context_version] }}
+                </span>
+                <span *ngIf="!contextInfo[project.context_version] && project.context_version">
+                  {{ project.context_version }} <!-- Mostrar ID como fallback -->
+                </span>
+                <span *ngIf="!project.context_version">
+                  -
+                </span>
+              </td>
+              <td>
+                <span *ngIf="dqModelInfo[project.dqmodel_version]">
+                  {{ dqModelInfo[project.dqmodel_version] }} (id: {{ project.dqmodel_version }})
+                </span>
+                <span *ngIf="!dqModelInfo[project.dqmodel_version] && project.dqmodel_version">
+                  {{ project.dqmodel_version }} <!-- Mostrar ID como fallback -->
+                </span>
+                <span *ngIf="!project.dqmodel_version">
+                  -
+                </span>
               <td>
                 <!-- Condicional para mostrar el texto descriptivo según el stage -->
                 <span *ngIf="project.current_stage?.stage === 'ST1'">ST1: Elicitation</span>
@@ -61,7 +80,7 @@
         </table>
   
         <!-- Paginación -->
-        <nav aria-label="Page navigation">
+        <nav aria-label="Page navigation" class="py-1">
           <ul class="pagination pagination-sm justify-content-end">
             <li class="page-item" [class.disabled]="currentPage === 1">
               <a class="page-link" (click)="changePage(currentPage - 1)" aria-label="Previous">

@@ -94,11 +94,11 @@
 }
 
 table {
-  font-size: 15px;
+  font-size: 14.5px;
 }
 
 .custom-thead th {
-  
+  font-size: 14px;
   font-weight: 500;
   /*color: #444;*//*
   padding: 8px 10px;*/
@@ -106,12 +106,12 @@ table {
   white-space: nowrap;
 }
 
-.custom-thead th:nth-child(1) { width: 35%; }
-.custom-thead th:nth-child(2) { width: 15%; }
+.custom-thead th:nth-child(1) { width: 25%; }
+.custom-thead th:nth-child(2) { width: 10%; }
 .custom-thead th:nth-child(3) { width: 15%; }
-.custom-thead th:nth-child(4) { width: 15%; }
+.custom-thead th:nth-child(4) { width: 19%; }
 .custom-thead th:nth-child(5) { width: 15%; }
-.custom-thead th:nth-child(6) { width: 10%; }
+.custom-thead th:nth-child(6) { width: 8%; }
 
 
 /* Estilo base para el tooltip */
