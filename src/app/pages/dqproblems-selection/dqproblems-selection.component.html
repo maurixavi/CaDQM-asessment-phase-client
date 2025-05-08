@@ -14,13 +14,32 @@
       
       <div class="container-section">
 
-        <!-- MAIN CONTAINER -->
-      <div class="problems-main-container">
+        <!-- INFO MESSAGES -->
+        <div class="px-4">
+          <div *ngIf="selectedPrioritizedDQProblems.length === 0" class="alert alert-light mb-4 mt-4 d-flex align-items-start">
+            <i class="bi bi-info-circle me-2 mt-1"></i>
+            <div>
+              Select prioritized data quality problems to use them for the definition of the DQ Model. <br>
+              (*) In the selection section indicates that the DQ problem was already added. 
+            </div>
+          </div>
+        
+          <div class="alert alert-info mb-4 mt-4 d-flex align-items-start">
+            <i class="bi bi-info-circle me-2 mt-1"></i>
+            <div>Prioritization must be very careful, as wrong prioritization of DQ problems can result in a DQ model
+              not representative of the relevant DQ problems of the organization. Proper prioritization helps identify key DQ dimensions and factors.
+            </div>
+          </div>
+
+        </div>
+
+      <!-- MAIN CONTAINER -->
+      <div class="problems-main-container py-3">
 
         <!-- SELECCION DE PROBLEMAS -->
         <div class="dq-problems-selection-container">
           <!--<div class="subsection-title"><p>Prioritized DQ Problems</p></div>-->
-          
+          <h6 class="mb-3">Available prioritized DQ Problems</h6>
           <div class="d-flex justify-content-between">
             <div class="from-ctx-components  flex-fill ">
               <!-- DQ Problems checkbox (all values) -->
@@ -28,8 +47,10 @@
                 <div >
                   <div class="checkbox-container">
                     <div>
+                      
                       <div class="row">
                         <div>
+                          
                           <!-- Seleccion Problemas de Alta Prioridad -->
                           <table class="table">
                             <thead>
@@ -59,10 +80,10 @@
                                 </td>
                                 <td style="text-align: right;">
                                   <button 
-                                    class="btn btn-add-added btn-light btn-sm" 
+                                    class="btn btn-light-add btn-sm" 
                                     (click)="addProblemToSelection(problem)"
                                   > 
-                                    Add 
+                                  <i class="bi bi-plus-lg"></i>
                                   </button>
                                 </td>
                               </tr>
@@ -107,8 +128,8 @@
                                   </div>
                                 </td>
                                 <td style="text-align: right;">
-                                  <button class="btn btn-add-added btn-light btn-sm" (click)="addProblemToSelection(problem)">
-                                    Add
+                                  <button class="btn btn-light-add btn-sm" (click)="addProblemToSelection(problem)">
+                                    <i class="bi bi-plus-lg"></i>
                                   </button>
                                 </td>
                               </tr>
@@ -155,8 +176,8 @@
                                   </div>
                                 </td>
                                 <td style="text-align: right;">
-                                  <button class="btn btn-add-added btn-light btn-sm" (click)="addProblemToSelection(problem)">
-                                    Add
+                                  <button class="btn btn-light-add btn-sm" (click)="addProblemToSelection(problem)">
+                                    <i class="bi bi-plus-lg"></i>
                                   </button>
                                 </td>
                               </tr>
@@ -191,6 +212,7 @@
 
         <div class="dq-problems-selection-container">
           <!--<div class="subsection-title"><p>DQ Problems Selection</p></div>-->
+          <h6 class="mb-3">DQ Problems selection</h6>
           <div class="d-flex justify-content-between">
             <div class="from-ctx-components  flex-fill ">
               <!-- DQ Problems SELECTED -->
@@ -228,8 +250,8 @@
                                   </div>
                                 </td>
                                 <td style="text-align: right;">
-                                  <button class="btn btn-add-added btn-light btn-sm"  (click)="removeSelectedProblem(problem)">
-                                    Remove  
+                                  <button class="btn btn-outline-danger btn-sm"  (click)="removeSelectedProblem(problem)">
+                                    <i class="bi bi-trash3"></i> 
                                   </button>
                                 </td>
                               </tr>
@@ -246,8 +268,9 @@
                                   </div>
                                 </td>
                                 <td style="text-align: right;">
-                                  <button class="btn btn-add-added btn-light btn-sm" (click)="deleteDQProblemFromSelection(problem)">
-                                    <span [innerHTML]="isProblemSelected(problem) ? 'Remove <i class=&quot;bi bi-check-lg&quot;></i>' : 'Remove'"></span>  
+                                  
+                                  <button class="btn btn-outline-danger btn-sm"  (click)="openConfirmationModal('remove', problem)">
+                                    <i class="bi bi-trash3"></i> 
                                   </button>
                                 </td>
                               </tr>
@@ -293,8 +316,8 @@
                                   </div>
                                 </td>
                                 <td style="text-align: right;">
-                                  <button class="btn btn-add-added btn-light btn-sm" (click)="removeSelectedProblem(problem)">
-                                    Remove 
+                                  <button class="btn btn-outline-danger btn-sm" (click)="removeSelectedProblem(problem)">
+                                    <i class="bi bi-trash3"></i> 
                                   </button>
                                 </td>
                               </tr>
@@ -311,8 +334,9 @@
                                   </div>
                                 </td>
                                 <td style="text-align: right;">
-                                  <button class="btn btn-add-added btn-sm btn-light" (click)="deleteDQProblemFromSelection(problem)">
-                                    <span [innerHTML]="isProblemSelected(problem) ? 'Remove <i class=&quot;bi bi-check-lg&quot;></i>' : 'Remove'"></span>  
+                          
+                                  <button class="btn btn-outline-danger btn-sm"  (click)="openConfirmationModal('remove', problem)">
+                                    <i class="bi bi-trash3"></i> 
                                   </button>
                                 </td>
                               </tr>
@@ -358,8 +382,8 @@
                                   </div>
                                 </td>
                                 <td style="text-align: right;">
-                                  <button class="btn btn-add-added btn-light btn-sm" (click)="removeSelectedProblem(problem)">
-                                    Remove  
+                                  <button class="btn btn-outline-danger btn-sm"  (click)="removeSelectedProblem(problem)">
+                                    <i class="bi bi-trash3"></i> 
                                   </button>
                                 </td>
                               </tr>
@@ -376,9 +400,11 @@
                                   </div>
                                 </td>
                                 <td style="text-align: right;">
-                                  <button class="btn btn-add-added btn-sm btn-light" (click)="deleteDQProblemFromSelection(problem)">
-                                    <span [innerHTML]="isProblemSelected(problem) ? 'Remove <i class=&quot;bi bi-check-lg&quot;></i>' : 'Remove'"></span>  
+                                  
+                                  <button class="btn btn-outline-danger btn-sm"  (click)="openConfirmationModal('remove', problem)">
+                                    <i class="bi bi-trash3"></i> 
                                   </button>
+
                                 </td>
                               </tr>
                             
@@ -396,9 +422,9 @@
                           </table>
 
               
-                          <div class="added-problems-message">
+                          <!--<div class="added-problems-message">
                             (*) Data quality problems previously added.
-                          </div>
+                          </div> -->
   
                         </div>
                       </div>
@@ -424,19 +450,20 @@
         </div>
 
         <!-- Botón para guardar la selección-->
-          <div>
-            <button 
-            class="btn btn-dark btn-sm mx-3 mt-3" 
-            (click)="saveSelection()"
-            [disabled]="selectedPrioritizedDQProblems.length === 0"
-            >
-              Save Selection
-            </button>
-          </div> 
+          
 
     
       </div>
 
+      <div class="px-4 py-3 mb-3">
+        <button 
+        class="btn btn-dark btn-sm" 
+        (click)="openConfirmationModal('save')"
+        [disabled]="selectedPrioritizedDQProblems.length === 0"
+        >
+          Save Selection
+        </button>
+      </div> 
 
 
       </div>
@@ -451,6 +478,18 @@
   
 </div>
 
+
+ <!-- Modal de confirmación -->
+ <app-confirmation-modal
+ [isOpen]="isConfirmationModalOpen"
+ [title]="confirmationModalTitle"
+ [message]="confirmationModalMessage"
+ (confirm)="handleConfirm()"
+ (cancel)="handleCancel()">
+</app-confirmation-modal>
+
+
+<app-context-components></app-context-components>
 
 <app-stepper
   [currentStep]="currentStep"

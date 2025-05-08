@@ -108,6 +108,21 @@
 	padding-left: 14px;
 	padding-right: 14px;
 }
+
+.btn-light-add {
+  background-color: #fff; 
+  color: #000; 
+  border: 1px solid #bbb; 
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.btn-light-add:hover {
+  background-color: #222; 
+  color: #fff; 
+  border: 1px solid  #222; 
+}
+
 .btn-light:hover {
   background-color: #222; 
   color: #fff; 
@@ -137,7 +152,7 @@
 
 
 .dq-problems-accordion-container {
-  max-width: 640px;
+  /*max-width: 640px;*/
   border: 1px solid #dee2e6;
   border-radius: 8px;
   /*background-color: #f9f9f9;*/
@@ -145,23 +160,32 @@
   min-height: 200px;
   overflow-y: auto; /* Solo scroll vertical */
   overflow-x: hidden; /* Evita el scroll horizontal */
-  height: 580px;
+  height: 640px;
   box-sizing: border-box; /* Incluye padding y borde en el ancho total */
 }
 
+/*
+.problems-main-container {
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 8px; 
+  margin: 24px 0; 
+  margin-left: 14px;
+  margin-right: 14px;
+}*/
 
 .problems-main-container {
   display: flex;
-  flex-wrap: wrap; /* Permite que las secciones se ajusten en pantallas pequeñas */
-  gap: 8px; /* Espacio entre las secciones */
-  margin: 24px 0; /* Margen superior e inferior */
-  margin-left: 14px;
-  margin-right: 14px;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 0 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .dq-problems-selection-container {
   flex: 1; /* Ambas secciones ocupan el mismo espacio */
-  min-width: 45%; /* Ancho mínimo para cada sección */
+  min-width: 40%; /* Ancho mínimo para cada sección */
   /*border: 1px solid #dee2e6; 
   border-radius: 8px;  */
   padding: 0 1rem; 
@@ -170,7 +194,7 @@
 
 
 
-@media (max-width: 1200px) {
+@media (max-width: 1020px) {
   .main-container {
     flex-direction: column; /* Las secciones se apilan verticalmente */
   }

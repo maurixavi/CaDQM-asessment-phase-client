@@ -5,9 +5,8 @@ import { Router } from '@angular/router';
 import { DqModelService } from '../../services/dq-model.service';
 import { ProjectService } from '../../services/project.service';
 import { ProjectDataService } from '../../services/project-data.service';
+import { NotificationService } from '../../services/notification.service';
 
-import dataQualityProblemsJson from '../../../assets/data-quality-problems.json';
-import contextComponentsJson from '../../../assets/context-components.json';
 
 // Interfaces
 export interface DataQualityProblem {
@@ -69,7 +68,7 @@ export class DQProblemsPriorizationComponent implements OnInit {
   phaseTitle: string = 'Phase 2: DQ Assessment';
   stageTitle: string = 'Stage 4: DQ Model Definition';
 
-  isNextStepEnabled: boolean = true;
+  isNextStepEnabled: boolean = false;
 
   // Variables de UI
   selectedProblem: DataQualityProblem | null = null;
@@ -108,6 +107,7 @@ export class DQProblemsPriorizationComponent implements OnInit {
     public modelService: DqModelService,
     private projectService: ProjectService,
     private projectDataService: ProjectDataService,
+    private notificationService: NotificationService,
   ) { }
 
   ngOnInit() {
@@ -182,11 +182,21 @@ export class DQProblemsPriorizationComponent implements OnInit {
           console.error('Los problemas de calidad aún no están cargados.');
         }
 
+
+        if (!this.hasEmptyInitialPrioritization()) {
+          //Actity completed at least once, enable next step
+          this.isNextStepEnabled = true;
+          console.log("this.isNextStepEnabled", this.isNextStepEnabled)
+        }
+
         console.log('Problemas priorizados:', {
           high: this.highPriorityProblems,
           medium: this.mediumPriorityProblems,
           low: this.lowPriorityProblems,
         });
+
+        
+
       },
       error: (err) => {
         console.error('Error al obtener los problemas priorizados:', err);
@@ -288,49 +298,78 @@ export class DQProblemsPriorizationComponent implements OnInit {
       this.projectService.updatePrioritizedDQProblem(this.projectId, allProblems).subscribe({
         next: (response) => {
           console.log("Priorities updated successfully:", response);
-          alert("DQ Problems prioritization was saved successfully!");
+          // Marcar como completado solo si había cambios desde el estado inicial
+          if (this.isInitialPrioritization()) {
+            this.hasCompletedInitialPrioritization = true;
+          }
+          this.notificationService.showSuccess('DQ Problems prioritization was successfully saved');
         },
         error: (error) => {
           console.error("Error updating priorities:", error);
-          alert("Error updating priorities. Please try again.");
+          this.notificationService.showError('Failed to save DQ Problems prioritization.');
         }
       });
     }
   }
 
-  saveOrder(): void {
-    this.confirmPriorities();
-    this.isOrderConfirmed = true;
-    console.log(this.problems);
-    alert("DQ Problems prioritization was saved");
-  }
-
-  confirmPriorities(): void {
-    this.problems.forEach((problem, index) => {
-      const newPriorityType = problem.priority_type;
-      const updatedData = {
-        priority: index + 1,
-        description: problem.description,
-        dq_model: problem.dq_model,
-        priority_type: newPriorityType
-      };
-
-      if (!problem.dq_model) {
-        console.error(`El problema con ID ${problem.id} no tiene asociado un dq_model.`);
-        return;
-      }
-
-      this.modelService.updatePrioritizedProblem(problem.dq_model, problem.id, updatedData)
-        .subscribe({
-          next: () => console.log(`Prioridad del problema ${problem.id} actualizada correctamente.`),
-          error: (err) => console.error(`Error al actualizar el problema ${problem.id}:`, err),
-        });
-    });
-  }
+  
 
   // Navegación
-  nextStep(): void {
+  // Controlar que haya realizado la priorizacion
+  hasCompletedInitialPrioritization: boolean = false;
+
+  isInitialPrioritization(): boolean {
+    // Considerar que no hay priorización
+    // Si no hay problemas
+    if (!this.highPriorityProblems.length && 
+        !this.mediumPriorityProblems.length && 
+        !this.lowPriorityProblems.length) {
+      return true;
+    }
+  
+    // Si todos están en Medium 
+    if (this.mediumPriorityProblems.length > 0 && 
+        this.highPriorityProblems.length === 0 && 
+        this.lowPriorityProblems.length === 0) {
+      return true;
+    }
+  
+    return false;
+  }
+
+  hasEmptyInitialPrioritization(): boolean {
+    // Considerar que no hay priorización
+    // Si no hay problemas
+    if (!this.highPriorityProblems.length && 
+        !this.mediumPriorityProblems.length && 
+        !this.lowPriorityProblems.length) {
+      return true;
+    }
+  
+    // Si todos están en Medium 
+    if (this.mediumPriorityProblems.length > 0 && 
+        this.highPriorityProblems.length === 0 && 
+        this.lowPriorityProblems.length === 0) {
+      return true;
+    }
+  
+    return false;
+  }
+
+  /*nextStep(): void {
     this.router.navigate(['/st4/a09-2']);
+  }*/
+  nextStep(): void {
+    console.log("HOLA")
+    //Permitir avanzar si realizo priorizacion al menos una vez
+    if (this.hasCompletedInitialPrioritization || !this.isInitialPrioritization()) {
+      this.router.navigate(['/st4/a09-2']);
+      //isNextStepEnabled: true;
+    } else {
+      this.confirmationModalTitle = 'Priorización Requerida';
+      this.confirmationModalMessage = 'Debes realizar y guardar una priorización inicial antes de continuar';
+      this.isConfirmationModalOpen = true;
+    }
   }
 
   onStepChange(step: number) {
@@ -342,4 +381,32 @@ export class DQProblemsPriorizationComponent implements OnInit {
     const route = this.steps[stepIndex].route;
     this.router.navigate([route]);
   }
+
+
+  // Propiedades para el modal de confirmación
+  isConfirmationModalOpen: boolean = false;
+  confirmationModalTitle: string = '';
+  confirmationModalMessage: string = '';
+
+
+  // Método que se ejecuta al hacer clic en el botón Save
+  openSaveConfirmationModal(): void {
+    this.isConfirmationModalOpen = true;
+    this.confirmationModalTitle = 'DQ Problems Prioritization';
+    this.confirmationModalMessage = 'Are you sure you want to save these priority changes? This will update the prioritization of your data quality problems.';
+  }
+
+  // Método que se ejecuta al confirmar el modal
+  handleConfirm(): void {
+    this.isConfirmationModalOpen = false;
+    this.savePrioritization(); // Llamamos al método que hace el guardado real
+  }
+
+  // Método que se ejecuta al cancelar el modal
+  handleCancel(): void {
+    this.isConfirmationModalOpen = false;
+  }
+
+  
+  
 }

@@ -7,21 +7,37 @@
 		[currentStep]="currentStep">
 	</app-step-navigator>
 
-  <p class="subtitle-activity">Order the quality problems by desired priority, with the first being the highest priority</p>
+  <p class="subtitle-activity">Classify Data Quality Problems by assigning each one a priority level</p>
 
   <div class="flex-container"> 
     <div class="container-section ">
-      <div class="py-4 px-4 me-3 d-flex justify-content-center">
+
+      <!-- INFO MESSAGES -->
+      <div class="px-4">
+        <div class="alert alert-light mb-4 mt-4 d-flex align-items-start">
+          <i class="bi bi-info-circle me-2 mt-1"></i>
+          <div>
+            Drag and drop data quality problems into High, Medium, or Low priority columns.
+          </div>
+        </div>
+       
+        <div class="alert alert-info mb-4 mt-4 d-flex align-items-start">
+          <i class="bi bi-info-circle me-2 mt-1"></i>
+          <div>Prioritization must be very careful, as wrong prioritization of DQ problems can result in a DQ model
+            not representative of the relevant DQ problems of the organization. Proper prioritization helps identify key DQ dimensions and factors.
+          </div>
+        </div>
+
+      </div>
+        
+
+      <div class="py-3 px-4 me-3 d-flex justify-content-center">
         <div class="w-100">
           <ng-container cdkDropListGroup>
           <div class="row">
             <!-- High priority -->
             <div class="col-md-4">
               <h6 class="mb-3">High Priority</h6>
-              <!--<p class="priority-group-title">High Priority</p>-->
-              <!--<p class="priority-group-title">
-                High Priority <span class="badge bg-danger rounded-pill">High</span>
-              </p>-->
               <div
                 cdkDropList
                 id="high-priority"
@@ -54,9 +70,6 @@
             <!-- Medium priority -->
             <div class="col-md-4">
               <h6 class="mb-3">Medium Priority</h6>
-              <!--<p class="priority-group-title">
-                Medium Priority <span class="badge bg-warning rounded-pill">Medium</span>
-              </p>-->
               <div
                 cdkDropList
                 id="medium-priority"
@@ -90,9 +103,6 @@
             <!-- Low priority -->
             <div class="col-md-4">
               <h6 class="mb-3">Low Priority</h6>
-              <!--<p class="priority-group-title">
-                Low Priority <span class="badge bg-success rounded-pill">Low</span>
-              </p>-->
               <div
                 cdkDropList
                 id="low-priority"
@@ -122,8 +132,8 @@
               </div>
             </div>
 
-            <div class="text-start mb-3">
-              <button (click)="savePrioritization()" class="btn btn-dark btn-sm">Save Prioritization</button>
+            <div class="text-start mt-2 mb-2">
+              <button (click)="openSaveConfirmationModal()" class="btn btn-dark btn-sm">Save Prioritization</button>
             </div>
 
           </div>
@@ -131,42 +141,6 @@
         </div>
       </div>
     
-
-      <!-- Problemas en tabla
-        <div class="py-2 px-4 d-flex justify-content-center">
-        <div class="w-100">
-          <div cdkDropList (cdkDropListDropped)="drop($event)">
-            <table class="table ">
-              <thead>
-                <tr>
-                  <th scope="col" class="col-description">Data Quality Problem</th>
-                  <th scope="col" class="col-date">Date</th>
-                  <th scope="col" class="col-tipoprioridad">Priority</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let problem of prioritizedDQProblems; let i = index" cdkDrag>
-                  <td class="col-description"><i class="bi bi-grip-vertical"></i> {{ problem.description }}</td>
-                  <td >{{ problem.date | date:'MMM dd HH:mm yyyy'}}</td>
-                  <td>
-                    <select [(ngModel)]="problem.priority" class="select-short">
-                      <option value="High">High</option>
-                      <option value="Medium">Medium</option>
-                      <option value="Low">Low</option>
-                    </select>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div>
-            <button (click)="saveChanges()" class="btn btn-dark btn-sm">Save order</button>
-          </div>
-        </div>
-
-      
-      </div>-->
     </div>
   </div>
 
@@ -177,9 +151,23 @@
 
 </div>
 
+ <!-- Modal de confirmación -->
+ <app-confirmation-modal
+ [isOpen]="isConfirmationModalOpen"
+ [title]="confirmationModalTitle"
+ [message]="confirmationModalMessage"
+ (confirm)="handleConfirm()"
+ (cancel)="handleCancel()">
+</app-confirmation-modal>
+
+
+
+<app-context-components></app-context-components>
+
 <app-stepper
   [currentStep]="currentStep"
   [totalSteps]="steps.length"
   [isNextStepEnabled]="isNextStepEnabled"
   (stepChange)="onStepChange($event)">
 </app-stepper>
+
