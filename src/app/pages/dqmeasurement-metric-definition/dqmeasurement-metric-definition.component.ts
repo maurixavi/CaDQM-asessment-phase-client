@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import { DqModelService } from '../../services/dq-model.service';
 import { ProjectService } from '../../services/project.service';
@@ -135,7 +134,7 @@ export class DQMetricDefinitionComponent implements OnInit {
   dqDimension_facetOf: string = '';
 
   // Método para cargar los detalles de la dimensión
-  fetchDQDimensionDetails(dimensionId: number): void {
+  getDQDimensionDetails(dimensionId: number): void {
     if (this.dqModelId && dimensionId) {
       this.modelService.getDQDimensionDetails(this.dqModelId, dimensionId).subscribe({
         next: (data) => {
@@ -275,7 +274,7 @@ export class DQMetricDefinitionComponent implements OnInit {
       this.selectionCheckboxCtxComponents = [];
 
       //Obtener Dimension del factor
-      this.fetchDQDimensionDetails(this.selectedFactor.dimension);
+      //this.getDQDimensionDetails(this.selectedFactor.dimension);
   
       // Cargar los componentes de contexto asociados al factor seleccionado
       const contextComponents = this.selectedFactor.context_components;
@@ -290,7 +289,7 @@ export class DQMetricDefinitionComponent implements OnInit {
               category: category,
               value: this.getFirstNonIdAttribute(component),
             });
-            console.log("selectionCheckboxCtxComponents:", this.selectionCheckboxCtxComponents)
+            //console.log("selectionCheckboxCtxComponents:", this.selectionCheckboxCtxComponents)
           }
         });
       });
@@ -299,48 +298,10 @@ export class DQMetricDefinitionComponent implements OnInit {
     }
   }
 
-  onFactorChangeNew(): void {
-    if (this.selectedFactor) {
-      console.log("Selected Factor:", this.selectedFactor);
-      // Limpiar la selección actual
-      //this.selectionCheckboxCtxComponents = [];
-
-      //Obtener Dimension del factor
-      this.fetchDQDimensionDetails(this.selectedFactor.dimension);
-  
-      // Cargar los componentes de contexto asociados al factor seleccionado
-      /*const contextComponents = this.selectedFactor.context_components;
-      Object.keys(contextComponents).forEach((category) => {
-        contextComponents[category].forEach((componentId: number) => {
-          const component = this.allContextComponents[category].find(
-            (comp: any) => comp.id === componentId
-          );
-          if (component) {
-            this.selectionCheckboxCtxComponents.push({
-              id: componentId,
-              category: category,
-              value: this.getFirstNonIdAttribute(component),
-            });
-            console.log("selectionCheckboxCtxComponents:", this.selectionCheckboxCtxComponents)
-          }
-        });
-      });*/
-
-      
-    }
-  }
 
   selectedFactorDetails: any | null = null;
 
-  onFactorChange(): void {
-    if (this.selectedFactor) {
-      console.log('Selected factor:', this.selectedFactor);
-      this.selectedFactorDetails = this.availableFactors.find(f => f.id === this.selectedFactor);
-      console.log('Selected factor details:', this.selectedFactorDetails);
-    } else {
-      this.selectedFactorDetails = null;
-    }
-  }
+ 
 
   //----------------
 
@@ -738,16 +699,7 @@ export class DQMetricDefinitionComponent implements OnInit {
     });
   }
 
-  drop(event: CdkDragDrop<string[]>) {
-    moveItemInArray(this.problems, event.previousIndex, event.currentIndex);
-    this.updatePriority();
-  }
-
-  updatePriority() {
-    this.problems.forEach((problem, index) => {
-      problem.priority = index + 1;
-    });
-  }
+ 
 
 
   addMetricToModel(factor: any, metric: any): void {
@@ -790,12 +742,11 @@ export class DQMetricDefinitionComponent implements OnInit {
   }
 
 
-
+/*
   addMetric(factor: QualityFactor): void {
     if (this.newMetric.name) {
       var newFactor = this.metricFactor!;
       let dqFactor = this.factorsByDim.find(item => item.id == newFactor.id)
-      //newFactor.definedMetrics.push({ ...this.newMetric });
       const metricToAdd = {
         dq_model: parseInt(dqFactor.dq_model),
         metric_base: parseInt(this.newMetric.name),
@@ -819,9 +770,9 @@ export class DQMetricDefinitionComponent implements OnInit {
     else {
       alert("Missing fields. Please complete all.")
     }
-  }
+  }*/
 
-  deleteMetric(factor: any, metric: any): void {
+  removeMetricFromDQModel(factor: any, metric: any): void {
     const index = factor.definedMetrics.indexOf(metric);
     if (index > -1) {
       const userConfirmed = confirm(
@@ -852,7 +803,7 @@ export class DQMetricDefinitionComponent implements OnInit {
   }
 
 
-  addBaseMetric(factor: any): void {
+  createMetricBase(factor: any): void {
     // Comprobamos que los campos requeridos no estén vacíos
     if (
       this.newBaseMetric.name && 
@@ -924,62 +875,25 @@ export class DQMetricDefinitionComponent implements OnInit {
   }
 
 
-  addBaseMetric000(factor: any): void {
-    // Comprobamos que los campos requeridos no estén vacíos
-    if (
-      this.newBaseMetric.name && 
-      this.newBaseMetric.purpose && 
-      this.newBaseMetric.granularity && 
-      (this.newBaseMetric.domain !== 'Other' || this.newBaseMetric.customResultDomain)
-    ) {
-      
-      // Si el resultDomain es 'Other', usamos el valor del campo customResultDomain
-      let resultDomainValue = this.newBaseMetric.domain;
-      if (resultDomainValue === 'Other' && this.newBaseMetric.customResultDomain) {
-        resultDomainValue = this.newBaseMetric.customResultDomain;
-      }
-  
-      var newFactor = this.metricFactor!;
-      let dqFactor = this.factorsByDim.find(item => item.id == newFactor.id);
-  
-      // Construimos el objeto baseMetricToAdd con los valores obtenidos
-      const baseMetricToAdd = {
-        name: this.newBaseMetric.name, 
-        purpose: this.newBaseMetric.purpose,
-        granularity: this.newBaseMetric.granularity,
-        resultDomain: resultDomainValue, // Usamos el resultDomain ajustado
-        measures: dqFactor.factor_base
-      };
-  
-      // Limpiamos los campos del formulario
-      this.newBaseMetric = { 
-        name: '', 
-        purpose: '', 
-        granularity: '', 
-        domain: '', 
-        customResultDomain: '' 
-      };
-  
-      // Llamamos al servicio para crear la métrica
-      this.modelService.createDQMetric(baseMetricToAdd).subscribe({
-        next: (data) => {
-          console.log("Base Metric created:", data);
-          this.loadDQModelDimensionsAndFactors(); 
-          alert('The DQ Metric was successfully created. You can now select it to add it to the DQ Model.');
+  //Delete Dimension base (disabled from DQ Dimensions selection)
+  deleteMetricBase(metricId: number): void {
+    if (metricId) {
+      console.log(`Metric seleccionada para eliminar: ${this.selectedBaseMetric}`);
+      this.modelService.updateDQMetricBaseDisabledStatus(metricId, true).subscribe({
+        next: (response) => {
+          //this.notificationService.showSuccess('DQ Dimension was successfully deleted.');
+          alert('DQ Metric was successfully deleted.')
+          //this.getDQDimensionsBase(); // Recargar lista de dimensiones activas
+          this.selectedBaseMetric = null;
+
         },
         error: (err) => {
-          console.error("Error creating the metric:", err);
-          alert("An error occurred while trying to create the metric.");
+          //this.notificationService.showError('Failed to delete DQ Dimension.');
         }
       });
-  
-      this.closeModalBase();
-    }
-    else {
-      alert("Missing fields. Please complete all.");
     }
   }
-  
+
 
 
   saveMetrics(){
@@ -1001,7 +915,7 @@ export class DQMetricDefinitionComponent implements OnInit {
     this.isModalOpen = true;
   }
 
-  openModalBase(factor:any) {
+  openCreateMetricModal(factor:any) {
     console.log("CLICKED")
     this.metricFactor = factor;
     this.isModalBaseOpen = true;
@@ -1049,51 +963,21 @@ export class DQMetricDefinitionComponent implements OnInit {
     }
   }
   
+
+  //Select DQ Dimension (in DQ Model)
   onDQModelDimensionChange(): void {
-    /*this.clearSelectedComponents();
-    this.clearDQProblemsSelection();*/
-    
+
     if (this.selectedDQModelDimension) {
       this.loadFactorsForSelectedDimension(this.selectedDQModelDimension);
     }
     
     this.selectedFactor = null;
+    this.selectedBaseMetric = null;
   }
 
-  availableFactors: any[] = []; //base factors given dimension selected
 
-  /**
-   * Carga los factores base para una dimensión específica del DQ Model seleccionada
-   * @param selectedDQModelDimensionId ID de la dimensión del DQ Model seleccionada
-   */
-   loadFactorsForSelectedDimension0(selectedDQModelDimensionId: number): void {
-    // Limpiar factores previos
-    this.availableFactors = [];
-    this.selectedFactor = null;
+  availableFactors: any[] = []; //Factors base given Dimension selected
 
-    // Encontrar la dimensión seleccionada en las disponibles
-    const selectedDimension = this.availableDQModelDimensions.find(
-      dim => dim.id === selectedDQModelDimensionId
-    );
-
-    if (!selectedDimension) {
-      console.warn('No se encontró la dimensión seleccionada');
-      return;
-    }
-
-    console.log(`Cargando factores base para dimensión base ID: ${selectedDimension.dimension_base}`);
-
-    this.modelService.getFactorsBaseByDimensionId(selectedDimension.dimension_base).subscribe({
-      next: (factors) => {
-        this.availableFactors = factors;
-        console.log(`Factores base cargados para dimensión ${selectedDimension.dimension_name}:`, factors);
-      },
-      error: (err) => {
-        console.error(`Error cargando factores para dimensión base ${selectedDimension.dimension_base}:`, err);
-        this.availableFactors = [];
-      }
-    });
-  }
 
   loadFactorsForSelectedDimension(selectedDQModelDimensionId: number): void {
     // Limpiar factores previos
@@ -1110,13 +994,18 @@ export class DQMetricDefinitionComponent implements OnInit {
       return;
     }
   
-    // Obtener los factores del DQ Model para esta dimensión
+    // Obtener los factores del DQ Model para esta dimensión, y las metricas de cada factor
     this.modelService.getFactorsByDQModelAndDimension(this.dqModelId, selectedDimension.id).subscribe({
       next: (factors) => {
         // Para cada factor, obtener sus atributos base y métricas base
         Promise.all(factors.map(async (factor) => {
           const factorBaseAttributes = await this.modelService.getFactorBaseById(factor.factor_base).toPromise();
-          const baseMetrics = await this.modelService.getMetricsBaseByDimensionAndFactorId(selectedDimension.dimension_base, factor.factor_base).toPromise();
+          //const baseMetrics = await this.modelService.getMetricsBaseByDimensionAndFactorId(selectedDimension.dimension_base, factor.factor_base).toPromise();
+
+          //Filtrar las metricas base eliminadas (borrado logico)
+          const rawBaseMetrics = await this.modelService.getMetricsBaseByDimensionAndFactorId(selectedDimension.dimension_base, factor.factor_base).toPromise();
+          const baseMetrics = rawBaseMetrics?.filter(metric => !metric.is_disabled);
+
           const definedMetrics = await this.modelService.getMetricsByDQModelDimensionAndFactor(factor.dq_model, factor.dimension, factor.id).toPromise();
           
           return { 
@@ -1137,18 +1026,7 @@ export class DQMetricDefinitionComponent implements OnInit {
     });
   }
 
-  onFactorChange_(): void {
-    if (this.selectedFactor) {
-      console.log('Selected factor:', this.selectedFactor);
-      this.selectedFactorDetails = this.selectedFactor;
-      console.log('Selected factor details:', this.selectedFactorDetails);
-      
-      // Llamar a onFactorSelected para cargar los componentes de contexto
-      this.onFactorSelected();
-    } else {
-      this.selectedFactorDetails = null;
-    }
-  }
+
 
   
 
