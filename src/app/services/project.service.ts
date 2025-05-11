@@ -41,7 +41,7 @@ export class ProjectService {
   getDQProblemsByProjectId(projectId: number): Observable<any> {
     const url = `${this.API_URL_PROJECTS}${projectId}/dq-problems/`;
     return this.http.get<any>(url).pipe(
-      tap((data) => console.log(`Fetched DQ Problems for Project ID=${projectId}:`, data)),
+      //tap((data) => console.log(`Fetched DQ Problems for Project ID=${projectId}:`, data)),
       catchError(this.handleError<any[]>(`getDQProblemsByProjectId id=${projectId}`, []))
     );
   }
@@ -50,12 +50,12 @@ export class ProjectService {
   getPrioritizedDQProblemsByProjectId(projectId: number): Observable<any> {
     const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
     return this.http.get<any>(url).pipe(
-      tap((data) => console.log(`Fetched Prioritized DQ Problems for Project ID=${projectId}:`, data)),
+      //tap((data) => console.log(`Fetched Prioritized DQ Problems for Project ID=${projectId}:`, data)),
       catchError(this.handleError<any[]>(`getPrioritizedDQProblemsByProjectId id=${projectId}`, []))
     );
   }
 
-  // Método para actualizar problemas priorizados usando PATCH
+  // UPDATE DQ PROBLEM PRIORITY
   updatePrioritizedDQProblem(projectId: number, problems: any[]): Observable<any> {
     const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
     
@@ -73,6 +73,8 @@ export class ProjectService {
     return forkJoin(patchRequests);
   }
 
+
+  // UPDATE DQ PROBLEM SELECTION STATUS
   updateIsSelectedFieldPrioritizedDQProblem(projectId: number, problems: any[]): Observable<any> {
     const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
     
@@ -89,6 +91,27 @@ export class ProjectService {
     // Ejecutar todas las solicitudes PATCH en paralelo
     return forkJoin(patchRequests);
   }
+
+  // UPDATE PRIORITY AND SELECTION STATUS (for copy priorized problems on new versions Projects)
+  syncPrioritizedDQProblems(projectId: number, problems: any[]): Observable<any> {
+    const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
+  
+    const patchRequests = problems.map(problem => {
+      const problemUrl = `${url}${problem.id}/`;
+      const patchBody = {
+        priority: problem.priority,
+        is_selected: problem.is_selected
+      };
+  
+      return this.http.patch(problemUrl, patchBody).pipe(
+        //tap(response => console.log('Synced Prioritized DQ Problem:', response)),
+        catchError(this.handleError<any>('syncPrioritizedDQProblems'))
+      );
+    });
+  
+    return forkJoin(patchRequests);
+  }
+  
 
   removeSelectedPrioritizedDQProblem(projectId: number, problems: any[]): Observable<any> {
     const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
@@ -120,15 +143,6 @@ export class ProjectService {
     );
   }
 
-  // Método para obtener los detalles de un problema de calidad (sin priorización) por su ID
-  /*getDQProblemById(dqProblemId: number): Observable<any> {
-    const url = `${this.API_URL_DQ_PROBLEMS}${dqProblemId}/`;
-    return this.http.get<any>(url).pipe(
-      tap((data) => console.log(`Fetched DQ Problem with ID=${dqProblemId}:`, data)),
-      catchError(this.handleError<any>(`getDQProblemById id=${dqProblemId}`))
-    );
-  }*/
-
 
 
   // API endpoint para context versions
@@ -137,7 +151,6 @@ export class ProjectService {
   // Método para obtener los context versions desde el endpoint
   getContextVersions(): Observable<any> {
     return this.http.get<any>(this.API_URL_CONTEXT_VERSIONS).pipe(
-      tap(data => console.log('Fetched Context Versions:', data)), // Imprime los datos de la respuesta
       catchError(this.handleError<any[]>('getContextVersions', [])) // Maneja errores si ocurren
     );
   }
@@ -145,7 +158,6 @@ export class ProjectService {
   getContextByVersion(contextVersionId: number): Observable<any> {
     const url = `${this.API_URL_CONTEXT_VERSIONS}${contextVersionId}/`; // URL para obtener el contexto por ID
     return this.http.get<any>(url).pipe(
-      tap((data) => console.log(`Fetched Context Version with ID=${contextVersionId}:`, data)),
       catchError(this.handleError<any>(`getContextByVersion id=${contextVersionId}`))
     );
   }
@@ -154,7 +166,6 @@ export class ProjectService {
   getContextComponents(contextVersionId: number): Observable<any> {
     const url = `${this.API_URL_CONTEXT_VERSIONS}${contextVersionId}/context-components/`;
     return this.http.get<any>(url).pipe(
-      tap((data) => console.log(`Fetched Context Components for Version ID=${contextVersionId}:`, data)),
       catchError(this.handleError<any>(`getContextComponents id=${contextVersionId}`))
     );
   }

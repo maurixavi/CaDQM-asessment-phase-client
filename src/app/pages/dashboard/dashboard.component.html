@@ -59,36 +59,43 @@
             <span class="label-value-selected text-capitalize" *ngIf="project.current_stage?.status === 'DONE'" >Done</span>
           </div>
 
+          <!-- Mensaje NO DQ Model -->
+          <div *ngIf="project.dqmodel_version == null" class="py-2">
+            <div class="alert alert-warning mt-2">
+              <i class="bi bi-exclamation-circle me-2"></i>
+              No DQ Model found for this Project.
+            </div>
+          </div>
+         
+
+
           <!-- Botón "Close Project" reutilizable -->
           <ng-template #closeProjectButton>
-            <button class="btn btn-light btn-sm mt-2 mx-0" (click)="closeProject()">
-              Close Project
+            <button class="btn btn-light btn-sm" (click)="closeProject()">
+              <i class="bi bi-door-closed"></i> Close Project
             </button>
           </ng-template>
 
           <!-- Buttons according to Project and DQ Model Status -->
-          <div *ngIf="project.dqmodel_version === null">
-            <button class="btn btn-dark btn-sm mt-2" (click)="createDQModel()">
+          <div *ngIf="project.dqmodel_version === null"  class="d-flex gap-2 mt-2">
+            <button class="btn btn-dark btn-sm" (click)="createDQModel()">
               Create DQ Model
             </button>
             <ng-container *ngTemplateOutlet="closeProjectButton"></ng-container>
           </div>
 
-          <div *ngIf="project.dqmodel_version !== null && project.status !== 'done'">
-            <button class="btn btn-dark btn-sm mt-2" (click)="navigateToResumeDQModel()">
+          <div *ngIf="project.dqmodel_version !== null && project.status !== 'done'" class="d-flex gap-2 mt-2">
+            <button class="btn btn-dark btn-sm" (click)="navigateToResumeDQModel()">
               Resume
             </button>
             <ng-container *ngTemplateOutlet="closeProjectButton"></ng-container>
           </div>
 
-          <div *ngIf="project.dqmodel_version !== null && project.status === 'done'">
-            <!--<button class="btn btn-dark btn-sm mt-2" (click)="navigateToViewDQModel()">
-              View DQ Model
-            </button>-->
-            <button class="btn btn-dark btn-sm mt-2" (click)="navigateToViewDQModel()">
+          <div *ngIf="project.dqmodel_version !== null && project.status === 'done'"  class="d-flex gap-2 mt-2">
+            <button class="btn btn-dark btn-sm" (click)="navigateToViewDQModel()">
               Resume
             </button>
-            <button class="btn btn-light btn-sm mt-2 mx-3" (click)="openFirstModal()">
+            <button class="btn btn-light btn-sm" (click)="openFirstModal()">
               New DQ Model
             </button>
             <ng-container *ngTemplateOutlet="closeProjectButton"></ng-container>
@@ -157,11 +164,11 @@
                     placeholder="Enter project description"></textarea>
         </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer border-top-0">
         <button type="button" class="btn btn-sm btn-light" (click)="closeProjectModal()">Cancel</button>
         <button type="button" class="btn btn-sm btn-dark" 
                 (click)="createProjectWithDetails()"
-                [disabled]="!newProject.name">
+                [disabled]="!newProject.name || !newProject.description">
           Create Project
         </button>
       </div>
@@ -171,35 +178,8 @@
 <div class="modal-backdrop" [ngClass]="{'show': isProjectModalOpen}" 
      [style.display]="isProjectModalOpen ? 'block' : 'none'"></div>
      
-<!-- Modal para datos del proyecto -->
-<div class="modal fade" id="projectDetailsModal" tabindex="-1" aria-hidden="true" *ngIf="showProjectModal">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">New Project Details</h5>
-        <button type="button" class="btn-close" (click)="closeProjectModal()"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label">Project Name</label>
-          <input type="text" class="form-control" [(ngModel)]="newProject.name" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Description</label>
-          <textarea class="form-control" rows="3" [(ngModel)]="newProject.description"></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeProjectModal()">Cancel</button>
-        <button type="button" class="btn btn-primary" 
-                (click)="createProjectWithDetails()"
-                [disabled]="!newProject.name">
-          Create Project
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+
+     
 
 
 <!-- Primer modal (opciones) -->
