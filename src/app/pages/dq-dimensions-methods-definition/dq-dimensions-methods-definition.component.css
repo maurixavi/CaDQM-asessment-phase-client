@@ -12,20 +12,25 @@ body{
 	/*font-family: 'Roboto', sans-serif;*/
   }
   
-  .table {
-	font-size: 0.875rem; 
-  }
-  
-  .table tbody tr td {
-	color: #222; 
-  }
-  
-  .table th {
-	font-size: 0.78rem;  
-	color: #444; 
-	font-weight: bold;  
-  }
-  
+.table {
+	font-size: 14px; 
+}
+
+.custom-thead th {
+	font-size: 13px;
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.custom-thead th:nth-child(1) { width: 15%; }
+.custom-thead th:nth-child(2) { width: 15%; }
+.custom-thead th:nth-child(3) { width: 15%; }
+.custom-thead th:nth-child(5) { width: auto; }
+
+
+	
+
+
   .title {
 	font-size: 1.2rem;
 	font-weight: black;

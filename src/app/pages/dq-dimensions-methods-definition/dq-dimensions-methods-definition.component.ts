@@ -53,6 +53,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   public getFirstNonIdAttribute = getFirstNonIdAttribute;
   public formatAppliedTo = formatAppliedTo;
   public getAppliedToDisplay = getAppliedToDisplay;
+  public JSON = JSON;
 
   // Estado y Navegación
   isNextStepEnabled: boolean = true;
@@ -249,6 +250,10 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
       if (this.dqModelVersionId !== null) {
         this.loadCompleteCurrentDQModel();
         this.loadDQModelMetrics();
+
+        this.loadDQModelDimensionsForSelection();
+
+        this.fetchExpandedDQMethodsData(this.dqModelVersionId);
       }
     });
 
@@ -371,123 +376,218 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
       this.allMethods = [];
     }
   }
-  
-  async loadDQModelMetrics_0(): Promise<void> {
-    try {
-      if (!this.dqModelId) {
-        console.error('dqModelId is not defined');
-        return;
-      }
-  
-      const metrics = await this.modelService.getMetricsByDQModel(this.dqModelId).toPromise();
-      
-      if (!metrics || metrics.length === 0) {
-        console.log('No metrics found for this DQ Model.'); 
-        this.allMetrics = [];
-        this.allMethods = [];
-        return;
-      }
-    
-      this.allMetrics = await Promise.all(metrics.map(async metric => {
-        try {
-          const baseMetric = await this.modelService.getMetricBaseDetails(metric.metric_base).toPromise();
-          metric.baseAttr = baseMetric;
-  
-          if (metric.methods && metric.methods.length > 0) {
-            // Procesar métodos y asignar a ambas propiedades
-            metric.definedMethods = await Promise.all(metric.methods.map(async (method: any) => {
-              const baseMethod = await this.modelService.getMethodBaseDetails(method.method_base).toPromise();
-              method.baseAttr = baseMethod;
-              return method;
-            }));
-            
-            // Asegurar que methods también tenga los datos actualizados
-            metric.methods = metric.definedMethods;
-          } else {
-            metric.definedMethods = [];
-            metric.methods = [];
-          }
-  
-          return metric;
-        } catch (error) {
-          console.error(`Error processing metric ${metric.metric_name}:`, error);
-          return null;
+
+  availableDQModelDimensions: any[] = []; // Dimensiones ya en el DQ Model
+  selectedDQModelDimension: number | null = null; // Dimensión seleccionada del DQ Model
+
+  // Método para cargar las dimensiones del DQ Model
+  loadDQModelDimensionsForSelection(): void {
+    console.log('Loading dimensions for DQ Model ID:', this.dqModelId); // Agrega esto
+    if (this.dqModelId > 0) {
+      this.modelService.getDimensionsByDQModel(this.dqModelId).subscribe({
+        next: (dimensions) => {
+          this.availableDQModelDimensions = dimensions;
+          console.log('Dimensiones del DQ Model cargadas:', dimensions);
+        },
+        error: (err) => {
+          console.error('Error loading DQ Model dimensions:', err);
+          this.availableDQModelDimensions = [];
         }
-      }));
-    
-      this.allMetrics = this.allMetrics.filter(metric => metric !== null);
-      this.allMethods = this.allMetrics.flatMap(metric => metric.definedMethods || []);
-  
-      console.log("Final allMetrics:", this.allMetrics);
-      console.log("Final allMethods:", this.allMethods);
-    
-    } catch (error) {
-      console.error('Error in loadDQModelMetrics:', error);
-      this.errorMessage = 'Failed to load DQ Model metrics.';
+      });
+    } else {
+      console.warn('dqModelId no está definido o es inválido');
     }
   }
 
-  async loadDQModelMetrics___(): Promise<void> {
-    
-    try {
-      
-      if (!this.dqModelId) {
-        console.error('dqModelId is not defined');
-        return;
-      }
+  availableDQModelFactors: any[] = []; //base factors given dimension selected
+  selectedDQModelFactor: number | null = null; // Factor seleccionado
 
-      const metrics = await this.modelService.getMetricsByDQModel(this.dqModelId).toPromise();
-      
-      if (!metrics || metrics.length === 0) {
-        console.log('No metrics found for this DQ Model.'); 
-        this.allMetrics = [];
-        this.allMethods = [];
-        return;
-      }
+  onDQModelDimensionChange(): void {
+    /*this.clearSelectedComponents();
+    this.clearDQProblemsSelection();*/
     
-      this.allMetrics = await Promise.all(metrics.map(async metric => {
-        //console.log('Processing metric:', metric.metric_name); 
-        
-        try {
-          const baseMetric = await this.modelService.getMetricBaseDetails(metric.metric_base).toPromise();
-          //console.log('Base metric loaded:', baseMetric); 
-          metric.baseAttr = baseMetric;
+    if (this.selectedDQModelDimension) {
+      this.loadDQModelFactorsForSelection(this.selectedDQModelDimension);
+    }
     
-          if (metric.methods && metric.methods.length > 0) {
-            //console.log(`Processing ${metric.methods.length} methods...`); 
-            metric.definedMethods = await Promise.all(metric.methods.map(async (method: any) => {
-              const baseMethod = await this.modelService.getMethodBaseDetails(method.method_base).toPromise();
-              method.baseAttr = baseMethod;
-              return method;
-            }));
-          } else {
-            metric.definedMethods = [];
-          }
+    this.selectedDQModelFactor = null;
+    this.availableDQModelFactors = []; // Limpiar factores anteriores
+  }
+
+
+  selectedDQModelDimension_appliedMethods: number | null = null; // Factor seleccionado
+
+  onDQModelDimensionChange2(): void {
+    /*this.clearSelectedComponents();
+    this.clearDQProblemsSelection();*/
+    console.log("Dimension selected for define Applied Methods", this.selectedDQModelDimension_appliedMethods);
+    this.filterMethods();
+
+    if (this.selectedDQModelDimension_appliedMethods) {
+      //this.loadDQModelFactorsForSelection(this.selectedDQModelDimension_appliedMethods);
+      //this.fetchExpandedDQMethodsData(this.dqModelId);
+    }
     
-          return metric;
-        } catch (error) {
-          console.error(`Error processing metric ${metric.metric_name}:`, error);
-          return null;
-        }
-      }));
-    
-      // Filtrar métricas nulas (por si hubo errores)
-      this.allMetrics = this.allMetrics.filter(metric => metric !== null);
-      
-      this.allMethods = this.allMetrics.flatMap(metric => 
-        metric.definedMethods || []
+   
+  }
+
+  filteredMethods: any[] = []; //base factors given dimension selected
+
+  private filterMethods(): void {
+    if (!this.selectedDQModelDimension_appliedMethods) {
+      this.filteredMethods = [...this.dqMethods];
+      console.log("this.filteredMethods", this.filteredMethods);
+    } else {
+      this.filteredMethods = this.dqMethods.filter(
+        method => method.dimensionId === this.selectedDQModelDimension_appliedMethods
       );
-
-      console.log("Final allMetricsNew:", this.allMetrics);
-      console.log("Final allMethodsNew:", this.allMethods);
-    
-    } catch (error) {
-      console.error('Error in loadDQModelMetrics:', error);
-      this.errorMessage = 'Failed to load DQ Model metrics.';
+      console.log("this.filteredMethods", this.filteredMethods);
     }
+
   }
 
 
+
+  loadDQModelFactorsForSelection(dimensionId: number): void {
+      console.log('Loading factors for DQ Model ID:', this.dqModelId, 'and Dimension ID:', dimensionId);
+      
+      if (this.dqModelId > 0 && dimensionId > 0) {
+        this.modelService.getFactorsByDQModelAndDimension(this.dqModelId, dimensionId).subscribe({
+          next: (factors) => {
+            this.availableDQModelFactors = factors;
+            console.log('Factores de la dimensión cargados:', factors);
+          },
+          error: (err) => {
+            console.error('Error loading DQ Model factors:', err);
+            this.availableDQModelFactors = [];
+          }
+        });
+      } else {
+        console.warn('dqModelId o dimensionId no están definidos o son inválidos');
+      }
+  }
+
+  onDQModelFactorChange(): void {
+    /*this.clearSelectedComponents();
+    this.clearDQProblemsSelection();*/
+    console.log("selectedDQModelFactor", this.selectedDQModelFactor);
+    
+    if (this.selectedDQModelDimension && this.selectedDQModelFactor) {
+      this.loadDQModelMetricsForSelection(this.selectedDQModelDimension, this.selectedDQModelFactor);
+    }
+    
+    this.selectedMetric = null;
+    this.availableDQModelMetrics = []; // Limpiar métricas anteriores
+  }
+
+  // Variables para métricas
+  availableDQModelMetrics: any[] = []; // Métricas del factor seleccionado
+  //selectedMetric: number | null = null; // Métrica seleccionada
+
+  
+  loadDQModelMetricsForSelection0(dimensionId: number, factorId: number): void {
+    console.log('Loading metrics for DQ Model ID:', this.dqModelId, 
+                'Dimension ID:', dimensionId, 
+                'and Factor ID:', factorId);
+    
+    if (this.dqModelId > 0 && dimensionId > 0 && factorId > 0) {
+      this.modelService.getMetricsByDQModelDimensionAndFactor(
+        this.dqModelId, 
+        dimensionId, 
+        factorId
+      ).subscribe({
+        next: (metrics) => {
+          this.availableDQModelMetrics = metrics;
+          console.log('Métricas del factor cargadas:', metrics);
+        },
+        error: (err) => {
+          console.error('Error loading DQ Model metrics:', err);
+          this.availableDQModelMetrics = [];
+        }
+      });
+    } else {
+      console.warn('dqModelId, dimensionId o factorId no están definidos o son inválidos');
+    }
+  }
+
+  async loadDQModelMetricsForSelection(dimensionId: number, factorId: number): Promise<void> {
+    console.log('Loading metrics for DQ Model ID:', this.dqModelId, 
+                'Dimension ID:', dimensionId, 
+                'and Factor ID:', factorId);
+    
+    try {
+        if (!this.dqModelId || !dimensionId || !factorId) {
+            throw new Error('Missing required IDs');
+        }
+
+        // 1. Obtener métricas básicas
+        const metrics = await this.modelService.getMetricsByDQModelDimensionAndFactor(
+            this.dqModelId, 
+            dimensionId, 
+            factorId
+        ).toPromise();
+
+        if (!metrics || !Array.isArray(metrics)) {
+            console.warn('No metrics received or invalid response');
+            this.availableDQModelMetrics = [];
+            return;
+        }
+
+        // 2. Enriquecer cada métrica
+        this.availableDQModelMetrics = await Promise.all(metrics.map(async metric => {
+            try {
+                // 2.1. Cargar atributos base de la métrica
+                const baseMetric = await this.modelService.getMetricBaseDetails(metric.metric_base).toPromise();
+                metric.baseAttr = baseMetric;
+
+                // 2.2. Cargar métodos base (disponibles)
+                //const baseMethodsResponse = await this.modelService.getMethodsBaseByMetricBase(metric.metric_base).toPromise();
+                //metric.baseMethods = baseMethodsResponse || [];
+
+                //Filtrar los metodos base eliminados (borrado logico)
+                const rawBaseMethods = await this.modelService.getMethodsBaseByMetricBase(metric.metric_base).toPromise();
+                const baseMethods = rawBaseMethods?.filter(method => !method.is_disabled);
+
+                console.log("---baseMethodsResponse", baseMethods)
+
+                metric.baseMethods = baseMethods || [];
+
+                // 2.3. Procesar métodos definidos en el modelo (si existen)
+                if (metric.methods && Array.isArray(metric.methods)) {
+                    metric.definedMethods = await Promise.all(
+                        metric.methods.map(async (method: any) => {
+                            try {
+                                const baseMethod = await this.modelService.getMethodBaseDetails(method.method_base).toPromise();
+                                return { ...method, baseAttr: baseMethod };
+                            } catch (error) {
+                                console.error(`Error loading base method ${method.method_base}:`, error);
+                                return null;
+                            }
+                        })
+                    );
+                    // Filtrar métodos nulos (fallidos)
+                    metric.definedMethods = metric.definedMethods.filter((m: null) => m !== null);
+                } else {
+                    metric.definedMethods = [];
+                }
+
+                return metric;
+            } catch (error) {
+                console.error(`Error processing metric ${metric.metric_name}:`, error);
+                return null;
+            }
+        }));
+
+        // Filtrar métricas nulas (por errores)
+        this.availableDQModelMetrics = this.availableDQModelMetrics.filter(metric => metric !== null);
+
+        console.log('Metrics loaded successfully:', this.availableDQModelMetrics);
+        
+    } catch (error) {
+        console.error('Error loading metrics:', error);
+        this.availableDQModelMetrics = [];
+    }
+  }
 
   // ----------------------------
   // Métodos de Contexto
@@ -586,7 +686,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   // ----------------------------
   onMetricSelected(): void {
     if (this.selectedMetric) {
-      console.log("Selected Factor:", this.selectedMetric);
+      console.log("Selected Metric:", this.selectedMetric);
       this.selectionCheckboxCtxComponents = [];
       this.fetchDQFactorDetails(this.selectedMetric.factor);
 
@@ -630,6 +730,9 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     const selectedId = Number(this.selectedMethodDQModel);
     console.log("Selected DQ Method DQ Model id for Applied Method(converted to number):", selectedId);
     this.getDQMethodDetails(selectedId);
+
+    /*if(this.dqModelVersionId)
+      this.fetchExpandedDQMethodsData(this.dqModelVersionId);*/
   }
 
   getDQMethodDetails(methodId: number): void {
@@ -760,8 +863,9 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     this.selectedMethodObject = this.allMethods.find(elem => elem.id == event?.target.value);
   }
 
-  openCreateAppliedMethodModal(method: any) {
-    this.selectedMethodObject = this.allMethods.find(elem => elem.id == method);
+  openCreateAppliedMethodModal(dqMethodId: any) {
+    
+    this.selectedMethodObject = this.allMethods.find(elem => elem.id == dqMethodId);
     console.log("SELECT METHOD for APPLIED METHODS", this.selectedMethodObject);
 
     this.getDQMethodDetails(this.selectedMethodObject.id);
@@ -832,7 +936,30 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
 
  
 
-  public JSON = JSON;
+  
+
+  //Delete Method base (disabled from DQ Method selection)
+  deleteMethodBase(methodId: number): void {
+    if (methodId) {
+      console.log(`Metric seleccionada para eliminar: ${this.selectedBaseDQMethod}`);
+      this.modelService.updateDQMethodBaseDisabledStatus(methodId, true).subscribe({
+        next: (response) => {
+          this.notificationService.showSuccess('DQ Method was successfully deleted.')
+
+          // Recargar lista de metricas disponibles
+          if (this.selectedDQModelDimension && this.selectedDQModelFactor)
+            this.loadDQModelMetricsForSelection(this.selectedDQModelDimension, this.selectedDQModelFactor);
+
+          this.selectedMetric = null;
+          this.selectedBaseDQMethod = null;
+
+        },
+        error: (err) => {
+          this.notificationService.showError('Failed to delete DQ Method.');
+        }
+      });
+    }
+  }
 
   createAppliedMethod() {
     if (this.appliedMethodForm.valid) {
@@ -864,6 +991,9 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
             console.log("Applied Method created:", data);
 
             alert("Applied Method successfully created");
+
+            this.loadDQModelMetrics(); //Actualizar DQ Model
+
           },
           error: (err) => {
             console.error("Error creating the Applied Method:", err);
@@ -876,6 +1006,9 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
             console.log("Applied Method created:", data);
    
             alert("Applied Method successfully created");
+
+            this.loadDQModelMetrics(); //Actualizar DQ Model
+
           },
           error: (err) => {
             console.error("Error creating the Applied Method:", err);
@@ -1034,20 +1167,31 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   }
 
   
-  addBaseMethod(factor: any): void {
+  createMethodBase(metric: any): void {
+
     if (this.dqMethodForm.valid) {
       var methodData = this.dqMethodForm.value;
       methodData.implements = this.currentMetric.metric_base;
 
       this.modelService.createDQMethodBase(methodData).subscribe({
         next: (data) => {
-          console.log('Nuevo DQ Method Base creado:', data);
+          const newDQMethod = data;
+          console.log('Nuevo DQ Method Base creado:', newDQMethod);
           //alert('The DQ Method was successfully created. You can now select it to add it to the DQ Model.');
           //this.notificationService.showSuccess('The DQ Method was successfully created. You can now select it to add it to the DQ Model.');
           this.notificationService.showSuccess(`DQ Method "${methodData.name}" was successfully created. Now can be selected to add it to the DQ Model.`);
-          this.loadDQModelMetrics();
+
+
+          //this.loadDQModelMetrics(); 
+          if (this.selectedDQModelDimension && this.selectedDQModelFactor)
+            this.loadDQModelMetricsForSelection(this.selectedDQModelDimension, this.selectedDQModelFactor); //Recargar metrics con nuevo metodo
+          this.selectedBaseDQMethod = newDQMethod;
+          console.log("selectedBaseDQMethod", this.selectedBaseDQMethod);
+       
+
           this.dqMethodForm.reset();
           this.closeModalBase();
+          
         },
         error: (error) => {
           console.error('Error al crear el DQ Method Base:', error);
@@ -1157,7 +1301,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   openConfirmationModal(
     title: string,
     message: string,
-    actionType: 'addMethodToDQModel' | 'createDQMethod', 
+    actionType: 'addMethodToDQModel' | 'createDQMethod' | 'deleteMethodBase', 
     ...params: any[]
   ): void {
     this.confirmationModalTitle = title;
@@ -1168,7 +1312,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
       case 'createDQMethod':
         const [metric] = params;
         this.confirmedAction = () => {
-          this.addBaseMethod(metric);
+          this.createMethodBase(metric);
         };
         break;
 
@@ -1176,6 +1320,13 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
         const [metricForMethod, method] = params;
         this.confirmedAction = () => {
           this.addMethodToDQModel(metricForMethod, method);
+        };
+        break;
+
+      case 'deleteMethodBase':
+        const [selectedBaseDQMethodId] = params;
+        this.confirmedAction = () => {
+          this.deleteMethodBase(selectedBaseDQMethodId);
         };
         break;
     }
@@ -1248,4 +1399,313 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   }
 
   */
+
+  // DQ Methods
+  dqMethods: any[] = [];
+  appliedDQMethods: any[] = []; // Lista de applied_methods aplanados
+
+  // Obtener los métodos de un DQModel y aplanar los applied_methods
+  // Versión simplificada que enriquece los métodos con información adicional
+  fetchExpandedDQMethodsData(dqmodelId: number): void {
+    this.isLoading = true;
+    this.errorMessage = null;
+    
+    this.modelService.getMethodsByDQModel(dqmodelId).subscribe({
+      next: async (methods: any[]) => {
+        try {
+          // Procesar cada método para enriquecerlo
+          this.dqMethods = await Promise.all(methods.map(async method => {
+            try {
+              const metric = await this.modelService.getMetricInDQModel(dqmodelId, method.metric).toPromise();
+              if (!metric) return method;
+              
+              const factor = await this.modelService.getFactorInDQModel(dqmodelId, metric.factor).toPromise();
+              if (!factor) return method;
+              
+              const dimension = await this.modelService.getDimensionInDQModel(dqmodelId, factor.dimension).toPromise();
+              if (!dimension) return method;
+              
+              // Retornar el método original con los campos adicionales
+              return {
+                ...method, // Mantiene todas las propiedades originales
+                dqMethod: method.method_name,
+                methodBase: method.method_base,
+                dqMetric: metric.metric_name,
+                metricId: metric.id,
+                dqFactor: factor.factor_name,
+                factorId: factor.id,
+                dqDimension: dimension.dimension_name,
+                dimensionId: dimension.id
+              };
+            } catch (error) {
+              console.error(`Error processing method ${method.id}:`, error);
+              return method; // Retorna el método sin enriquecer si hay error
+            }
+          }));
+          
+          console.log('Enriched DQ Methods:', this.dqMethods);
+        } catch (error) {
+          console.error('Error processing methods:', error);
+          this.errorMessage = 'Error loading methods data';
+        } finally {
+          this.isLoading = false;
+        }
+      },
+      error: (error: any) => {
+        this.errorMessage = 'Error fetching DQ Methods';
+        this.isLoading = false;
+        console.error('Error fetching DQ Methods:', error);
+      }
+    });
+  }
+
+  fetchEnrichedDQMethods(dqmodelId: number): void {
+    this.isLoading = true;
+    this.errorMessage = null;
+    
+    this.modelService.getMethodsByDQModel(dqmodelId).subscribe({
+      next: async (methods: any[]) => {
+        try {
+          // Procesar cada método para enriquecerlo con información adicional
+          this.dqMethods = await Promise.all(methods.map(async method => {
+            try {
+              const metric = await this.modelService.getMetricInDQModel(dqmodelId, method.metric).toPromise();
+              if (!metric) return method;
+              
+              const factor = await this.modelService.getFactorInDQModel(dqmodelId, metric.factor).toPromise();
+              if (!factor) return method;
+              
+              const dimension = await this.modelService.getDimensionInDQModel(dqmodelId, factor.dimension).toPromise();
+              if (!dimension) return method;
+              
+              // Retornar el método enriquecido con la información adicional
+              return {
+                ...method,
+                metricDetails: {
+                  id: metric.id,
+                  name: metric.metric_name,
+                  base: metric.metric_base
+                },
+                factorDetails: {
+                  id: factor.id,
+                  name: factor.factor_name,
+                  dimension: factor.dimension
+                },
+                dimensionDetails: {
+                  id: dimension.id,
+                  name: dimension.dimension_name
+                }
+              };
+            } catch (error) {
+              console.error(`Error processing method ${method.id}:`, error);
+              return method; // Retorna el método sin enriquecer si hay error
+            }
+          }));
+          
+          console.log('Enriched DQ Methods:', this.dqMethods);
+        } catch (error) {
+          console.error('Error processing methods:', error);
+          this.errorMessage = 'Error loading methods data';
+        } finally {
+          this.isLoading = false;
+        }
+      },
+      error: (error: any) => {
+        this.errorMessage = 'Error fetching DQ Methods';
+        this.isLoading = false;
+        console.error('Error fetching DQ Methods:', error);
+      }
+    });
+  }
+
+  fetchExpandedDQMethodsData2(dqmodelId: number): void {
+  
+    this.modelService.getMethodsByDQModel(dqmodelId).subscribe({
+      next: (methods: any[]) => {
+        this.dqMethods = methods
+        console.log("this.dqMethods", this.dqMethods);
+        // Aplanar la lista de applied_methods
+        this.appliedDQMethods = methods.flatMap((method) => {
+          const dqMethodName = method.method_name; // Nombre del DQ Method
+          const methodBase = method.method_base; // Id del DQ Method Base
+          const metricId = method.metric; // ID de la métrica
+  
+          // Obtener los detalles de la métrica, el factor y la dimensión
+          this.modelService.getMetricInDQModel(dqmodelId, metricId).subscribe((metric) => {
+            if (metric) {
+              const factorId = metric.factor; // ID del factor
+              this.modelService.getFactorInDQModel(dqmodelId, factorId).subscribe((factor) => {
+                if (factor) {
+                  const dimensionId = factor.dimension; // ID de la dimensión
+                  this.modelService.getDimensionInDQModel(dqmodelId, dimensionId).subscribe((dimension) => {
+                    if (dimension) {
+                      // Mapear los applied_methods (measurements y aggregations)
+                      const appliedMethods = [
+                        ...method.applied_methods.measurements.map((measurement: any) => ({
+                          ...measurement,
+                          dqMethod: dqMethodName,
+                          methodBase: methodBase,
+                          dqMetric: metric.metric_name, 
+                          metricId: metric.id,   
+                          dqFactor: factor.factor_name,  
+                          factorId: factor.id, 
+                          dqDimension: dimension.dimension_name,  
+                          dimensionId: dimension.id,   
+                        })),
+                      ];
+  
+                      this.appliedDQMethods = [...this.appliedDQMethods, ...appliedMethods];
+                      console.log('Applied DQ Methods fecthed:', this.appliedDQMethods);
+
+                    }
+                  });
+                }
+              });
+            }
+          });
+  
+          return []; 
+        });
+
+
+      },
+      error: (error: any) => {
+        console.error('Error fetching DQ Methods:', error);
+      },
+    });
+  }
+
+  fetchExpandedDQMethodsData0(dqmodelId: number): void {
+  
+    this.modelService.getMethodsByDQModel(dqmodelId).subscribe({
+      next: (methods: any[]) => {
+        // Aplanar la lista de applied_methods
+        this.appliedDQMethods = methods.flatMap((method) => {
+          const dqMethodName = method.method_name; // Nombre del DQ Method
+          const methodBase = method.method_base; // Id del DQ Method Base
+          const metricId = method.metric; // ID de la métrica
+  
+          // Obtener los detalles de la métrica, el factor y la dimensión
+          this.modelService.getMetricInDQModel(dqmodelId, metricId).subscribe((metric) => {
+            if (metric) {
+              const factorId = metric.factor; // ID del factor
+              this.modelService.getFactorInDQModel(dqmodelId, factorId).subscribe((factor) => {
+                if (factor) {
+                  const dimensionId = factor.dimension; // ID de la dimensión
+                  this.modelService.getDimensionInDQModel(dqmodelId, dimensionId).subscribe((dimension) => {
+                    if (dimension) {
+                      // Mapear los applied_methods (measurements y aggregations)
+                      const appliedMethods = [
+                        ...method.applied_methods.measurements.map((measurement: any) => ({
+                          ...measurement,
+                          dqMethod: dqMethodName,
+                          methodBase: methodBase,
+                          dqMetric: metric.metric_name, 
+                          metricId: metric.id,   
+                          dqFactor: factor.factor_name,  
+                          factorId: factor.id, 
+                          dqDimension: dimension.dimension_name,  
+                          dimensionId: dimension.id,   
+                          selected: false, // Inicializar el checkbox como no seleccionado
+                        })),
+                        ...method.applied_methods.aggregations.map((aggregation: any) => ({
+                          ...aggregation,
+                          dqMethod: dqMethodName,
+                          methodBase: methodBase,
+                          dqMetric: metric.metric_name, 
+                          metricId: metric.id,   
+                          dqFactor: factor.factor_name,  
+                          factorId: factor.id, 
+                          dqDimension: dimension.dimension_name,  
+                          dimensionId: dimension.id,   
+                          selected: false, // Inicializar el checkbox como no seleccionado
+                        })),
+                      ];
+  
+                      this.appliedDQMethods = [...this.appliedDQMethods, ...appliedMethods];
+                      console.log('Applied DQ Methods fecthed:', this.appliedDQMethods);
+
+                    }
+                  });
+                }
+              });
+            }
+          });
+  
+          return []; 
+        });
+
+
+      },
+      error: (error: any) => {
+        console.error('Error fetching DQ Methods:', error);
+      },
+    });
+  }
+
+// Variables adicionales
+collapsedItems: { [key: string]: boolean } = {};
+
+// Métodos para agrupar datos
+getGroupedDimensions(): any[] {
+  const dimensionsMap = new Map<number, { id: number, name: string }>();
+  this.appliedDQMethods.forEach(method => {
+    if (!dimensionsMap.has(method.dimensionId)) {
+      dimensionsMap.set(method.dimensionId, {
+        id: method.dimensionId,
+        name: method.dqDimension
+      });
+    }
+  });
+  return Array.from(dimensionsMap.values());
+}
+
+getFactorsByDimension(dimensionId: number): any[] {
+  const factorsMap = new Map<number, { id: number, name: string }>();
+  this.appliedDQMethods
+    .filter(method => method.dimensionId === dimensionId)
+    .forEach(method => {
+      if (!factorsMap.has(method.factorId)) {
+        factorsMap.set(method.factorId, {
+          id: method.factorId,
+          name: method.dqFactor
+        });
+      }
+    });
+  return Array.from(factorsMap.values());
+}
+
+getMetricsByFactor(factorId: number): any[] {
+  const metricsMap = new Map<number, { id: number, name: string }>();
+  this.appliedDQMethods
+    .filter(method => method.factorId === factorId)
+    .forEach(method => {
+      if (!metricsMap.has(method.metricId)) {
+        metricsMap.set(method.metricId, {
+          id: method.metricId,
+          name: method.dqMetric
+        });
+      }
+    });
+  return Array.from(metricsMap.values());
+}
+
+getMethodsByMetric(metricId: number): any[] {
+  return this.appliedDQMethods.filter(method => method.metricId === metricId);
+}
+
+getMethodsCountByMetric(metricId: number): number {
+  return this.getMethodsByMetric(metricId).length;
+}
+
+// Control de colapsado
+toggleCollapse(id: string): void {
+  this.collapsedItems[id] = !this.collapsedItems[id];
+}
+
+isCollapsed(id: string): boolean {
+  return !!this.collapsedItems[id];
+}
+
+
 }
