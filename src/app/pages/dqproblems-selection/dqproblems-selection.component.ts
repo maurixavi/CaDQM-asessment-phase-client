@@ -172,6 +172,11 @@ export class DQProblemsSelectionComponent implements OnInit {
     this.projectDataService.dqModelVersion$.subscribe((dqModelVersionId) => {
       this.dqModelVersionId = dqModelVersionId;
       console.log('DQ Model Version ID:', this.dqModelVersionId);
+
+      if (this.dqModelVersionId)
+        this.loadFullDQModel(this.dqModelVersionId);
+
+
     });
   }
 
@@ -182,6 +187,41 @@ export class DQProblemsSelectionComponent implements OnInit {
       return new bootstrap.Tooltip(tooltipTriggerEl);
     });
   }
+
+
+  // Full DQ Model
+  completeDQModel: any; 
+
+  async loadFullDQModel(dqModelId: number): Promise<void> {
+    try {
+      const data = await this.modelService.getFullDQModel(dqModelId).toPromise();
+
+      this.completeDQModel =  data;
+      console.log("COMPLETE DQModel con detalles base:", this.completeDQModel);
+    } catch (err) {
+      console.error('Error al cargar el DQModel.', err);
+
+    }
+  }
+
+  getProblemUsageCount(dqProblemId: number): number {
+    let count = 0;
+
+    this.completeDQModel?.dimensions?.forEach((dimension: { dq_problems: number[]; factors: any[]; }) => {
+      if (dimension.dq_problems?.includes(dqProblemId)) {
+        count++;
+      }
+
+      dimension.factors?.forEach((factor: { dq_problems: number[]; }) => {
+        if (factor.dq_problems?.includes(dqProblemId)) {
+          count++;
+        }
+      });
+    });
+
+    return count;
+  }
+
 
   // Método para cargar los problemas priorizados
   loadPrioritizedDQProblems(projectId: number): void {
@@ -235,6 +275,7 @@ export class DQProblemsSelectionComponent implements OnInit {
 
   // Método para filtrar los problemas seleccionados por prioridad
   loadSelectedPrioritizedDQProblems(allProblems: any[]): void {
+    console.log("----------++allProblems", allProblems)
     // Filtrar problemas seleccionados
     const selectedProblems = allProblems.filter((problem: any) => problem.is_selected === true);
 
@@ -629,6 +670,17 @@ export class DQProblemsSelectionComponent implements OnInit {
     this.problemToRemove = problemId;
     console.log("this.problemToRemove", this.problemToRemove)
 
+
+    const problem = this.problemToRemove;
+    const usageCount = this.getProblemUsageCount(problem.dq_problem_id);
+    this.problemToRemove = {
+      ...problem,
+      count: usageCount
+    };
+    console.log("usageCount", usageCount)
+
+    console.log("this.problemToRemove", this.problemToRemove)
+
     if (actionType === 'save') {
       this.confirmationModalTitle = 'Prioritized DQ Problems selection';
 
@@ -643,8 +695,17 @@ export class DQProblemsSelectionComponent implements OnInit {
     
     
     } else if (actionType === 'remove') {
-      this.confirmationModalTitle = 'Remove DQ Problem ';
-      this.confirmationModalMessage = 'Are you sure you want to remove this data quality problem? It will no longer be available for use in the DQ Model definition.';
+      
+      if (usageCount > 0) {
+        this.isConfirmationModalOpen = false;
+        this.notificationService.showWarning(
+          'This DQ Problem is associated with the DQ Model and cannot be removed. If you wish to delete it, you must first unassign it from all related dimensions and factors.'
+        );
+      } else {
+        
+        this.confirmationModalTitle = 'Remove DQ Problem from selection';
+        this.confirmationModalMessage = 'Are you sure you want to remove this DQ problem? It will no longer be available for use in the DQ Model definition.';
+      }
     }
   }
 

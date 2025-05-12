@@ -8,7 +8,7 @@
   </app-step-navigator>
 
   <div>
-    <p class="subtitle-description">Select the prioritized data quality problems to define the DQ Model</p>
+    <p class="subtitle-description">Select the prioritized DQ problems to define the DQ Model</p>
     <div class="flex-container">
       
       
@@ -19,10 +19,17 @@
           <div *ngIf="selectedPrioritizedDQProblems.length === 0" class="alert alert-light mb-4 mt-4 d-flex align-items-start">
             <i class="bi bi-info-circle me-2 mt-1"></i>
             <div>
-              Select prioritized data quality problems to use them for the definition of the DQ Model. <br>
+              Select prioritized DQ problems to use them for the definition of the DQ Model. <br>
               (*) In the selection section indicates that the DQ problem was already added. 
             </div>
           </div>
+          <!--
+          <div *ngIf="selectedPrioritizedDQProblems.length !== 0" class="alert alert-warning mb-4 mt-4 d-flex align-items-start">
+            <i class="bi bi-info-circle me-2 mt-1"></i>
+            <div>
+              (*) Indicates that the DQ Problem was already selected for this model version. If one of these problems is also associated with a dimension or factor, it cannot be removed unless it is first unassigned from all of them.
+            </div>
+          </div> -->
         
           <div class="alert alert-info mb-4 mt-4 d-flex align-items-start">
             <i class="bi bi-info-circle me-2 mt-1"></i>
@@ -92,7 +99,7 @@
                               <tr *ngIf="highPriorityProblems.length === 0">
                                 <td colspan="2" class="text-center">
                                   <div class="empty-message">
-                                    <i class="bi bi-info-circle"></i> No high priority data quality problems available.
+                                    <i class="bi bi-info-circle"></i> No high priority DQ problems available.
                                   </div>
                                 </td>
                               </tr>
@@ -140,7 +147,7 @@
                               <tr *ngIf="mediumPriorityProblems.length === 0">
                                 <td colspan="2" class="text-center">
                                   <div class="empty-message">
-                                    <i class="bi bi-info-circle"></i> No high priority data quality problems available.
+                                    <i class="bi bi-info-circle"></i> No high priority DQ problems available.
                                   </div>
                                 </td>
                               </tr>
@@ -186,7 +193,7 @@
                               <tr *ngIf="lowPriorityProblems.length === 0">
                                 <td colspan="2" class="text-center">
                                   <div class="empty-message">
-                                    <i class="bi bi-info-circle"></i> No high priority data quality problems available.
+                                    <i class="bi bi-info-circle"></i> No high priority DQ problems available.
                                   </div>
                                 </td>
                               </tr>
@@ -279,7 +286,7 @@
                               <tr *ngIf="highPriorityProblemsSelected.length === 0 && fetchedSelectedHighPriorityProblems.length === 0">
                                 <td colspan="2" class="text-center">
                                   <div class="empty-message">
-                                    <i class="bi bi-info-circle"></i> No high priority data quality problems selected.
+                                    <i class="bi bi-info-circle"></i> No high priority DQ problems selected.
                                   </div>
                                 </td>
                               </tr>
@@ -345,7 +352,7 @@
                               <tr *ngIf="mediumPriorityProblemsSelected.length === 0 && fetchedSelectedMediumPriorityProblems.length === 0">
                                 <td colspan="2" class="text-center">
                                   <div class="empty-message">
-                                    <i class="bi bi-info-circle"></i> No high priority data quality problems selected.
+                                    <i class="bi bi-info-circle"></i> No high priority DQ problems selected.
                                   </div>
                                 </td>
                               </tr>
@@ -412,7 +419,7 @@
                               <tr *ngIf="lowPriorityProblemsSelected.length === 0 && fetchedSelectedLowPriorityProblems.length === 0">
                                 <td colspan="2" class="text-center">
                                   <div class="empty-message">
-                                    <i class="bi bi-info-circle"></i> No high priority data quality problems selected.
+                                    <i class="bi bi-info-circle"></i> No high priority DQ problems selected.
                                   </div>
                                 </td>
                               </tr>
@@ -449,13 +456,21 @@
           </div> -->
         </div>
 
-        <!-- Botón para guardar la selección-->
-          
 
-    
       </div>
 
+      
+
       <div class="px-4 py-3 mb-3">
+
+        <div *ngIf="fetchedSelectedHighPriorityProblems || fetchedSelectedMediumPriorityProblems || fetchedSelectedLowPriorityProblems" class="alert alert-warning mb-4 d-flex align-items-start">
+          <i class="bi bi-exclamation-circle me-2 mt-1"></i>
+          <div>
+            (*) Indicates that the DQ Problem was already selected and is available for use in the DQ Model definition. If one of these problems is also associated with a dimension or factor, it cannot be removed unless it is first unassigned from all of them.
+          </div>
+        </div>
+
+
         <button 
         class="btn btn-dark btn-sm" 
         (click)="openConfirmationModal('save')"
