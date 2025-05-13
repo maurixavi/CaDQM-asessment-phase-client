@@ -55,11 +55,11 @@
                   <label class="label-title">Granularity:</label>
                   <span class="label-value d-flex align-items-center">
                     <div class="btn-group" role="group">
-                      <input 
+                      <input *ngIf="resultsView !== 'by_data_element'"
                         type="radio" 
                         class="btn-check" 
                         [(ngModel)]="selectedGranularity" 
-                        (ngModelChange)="filterMethods()" 
+                        (ngModelChange)="onGranularityChange()"
                         value="all" 
                         id="granularityAll"
                         [checked]="selectedGranularity === 'all'">
@@ -72,7 +72,7 @@
                         type="radio" 
                         class="btn-check" 
                         [(ngModel)]="selectedGranularity" 
-                        (ngModelChange)="filterMethods()" 
+                        (ngModelChange)="onGranularityChange()"
                         value="table" 
                         id="granularityTable"
                         [checked]="selectedGranularity === 'table'">
@@ -85,7 +85,7 @@
                         type="radio" 
                         class="btn-check" 
                         [(ngModel)]="selectedGranularity" 
-                        (ngModelChange)="filterMethods()" 
+                        (ngModelChange)="onGranularityChange()" 
                         value="column" 
                         id="granularityColumn"
                         [checked]="selectedGranularity === 'column'">
@@ -98,7 +98,7 @@
                         type="radio" 
                         class="btn-check" 
                         [(ngModel)]="selectedGranularity" 
-                        (ngModelChange)="filterMethods()" 
+                        (ngModelChange)="onGranularityChange()"
                         value="cell" 
                         id="granularityCell"
                         [checked]="selectedGranularity === 'cell'">
@@ -111,7 +111,7 @@
                         type="radio" 
                         class="btn-check" 
                         [(ngModel)]="selectedGranularity" 
-                        (ngModelChange)="filterMethods()" 
+                        (ngModelChange)="onGranularityChange()"
                         value="tuple" 
                         id="granularityTuple"
                         [checked]="selectedGranularity === 'tuple'">
@@ -149,17 +149,18 @@
               </div>-->
 
               <!-- Vista por Data Element -->
-    <div *ngIf="resultsView === 'by_data_element' && selectedGranularity">
-      <!-- Selector de Tabla -->
-      <div class="row mb-4">
-        <div class="col-md-6">
-          <label class="form-label">Select Table:</label>
-          <select class="form-select select-style" [(ngModel)]="selectedTable" (change)="loadTableMethods()">
-            <option [value]="null">Select a table...</option>
-            <option *ngFor="let table of availableTables" [value]="table.table_name">{{table.table_name}}</option>
-          </select>
-        </div>
-      </div>
+              <!--<div *ngIf="resultsView === 'by_data_element' && selectedGranularity">-->
+              <div *ngIf="resultsView === 'by_data_element' && selectedGranularity && filteredMethods.length > 0" class="row mb-4">
+                <!-- Selector de Tabla -->
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <label class="form-label">Select Table:</label>
+                    <select class="form-select select-style" [(ngModel)]="selectedTable" (change)="loadTableMethods()">
+                      <option [value]="null">Select a table...</option>
+                      <option *ngFor="let table of availableTables" [value]="table.table_name">{{table.table_name}}</option>
+                    </select>
+                  </div>
+                </div>
 
 
     <!-- Tabla de Métodos Aplicados -->
@@ -277,8 +278,11 @@
 </div> 
 
 
-              <!-- Method Selector -->
-              <div class="label-container" *ngIf="selectedGranularity && filteredMethods.length > 0 && !selectedTable">
+              <!-- Method Selector (solo para vista By Applied Method) -->
+              <!--
+              <div class="label-container" *ngIf="selectedGranularity && filteredMethods.length > 0 && !selectedTable"> -->
+              <div class="label-container" 
+              *ngIf="resultsView === 'by_method' && selectedGranularity && filteredMethods.length > 0 && !selectedTable">
                 <div class="label mt-2">
                   <label class="label-title">Applied DQ Method:</label>
                   <span class="label-value d-flex align-items-center">

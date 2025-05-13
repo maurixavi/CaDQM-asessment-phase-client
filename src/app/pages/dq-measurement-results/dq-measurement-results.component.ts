@@ -807,6 +807,63 @@ onResultsViewChange(): void {
 
 // Asegurar que filterMethods() combine todos los filtros correctamente
 filterMethods(): void {
+  if (!this.resultsView) {
+    this.filteredMethods = [];
+    return;
+  }
+
+  // Resetear selección de tabla/columna si cambiamos de vista
+  if (this.resultsView === 'by_method') {
+    this.selectedTable = null;
+    this.selectedColumn = null;
+  }
+
+  // Filtro base por granularidad
+  if (this.selectedGranularity === 'all') {
+    this.filteredMethods = [...this.appliedDQMethods];
+  } else if (this.selectedGranularity) {
+    this.filteredMethods = this.appliedDQMethods.filter(m => 
+      m.granularity?.toLowerCase() === this.selectedGranularity?.toLowerCase()
+    );
+  } else {
+    this.filteredMethods = [];
+  }
+
+  // Filtro adicional para vista "By Data Element"
+  if (this.resultsView === 'by_data_element') {
+    if (this.selectedTable) {
+      this.filteredMethods = this.filteredMethods.filter(method => 
+        method.appliedTo.some((applied: any) => 
+          applied.table_name === this.selectedTable &&
+          (!this.selectedColumn || applied.columns.includes(this.selectedColumn))
+      ));
+    }
+  }
+
+  // Resetear selecciones si no hay coincidencias
+  if (this.filteredMethods.length === 0) {
+    if (this.resultsView === 'by_data_element') {
+      this.selectedTable = null;
+      this.selectedColumn = null;
+    }
+    this.selectedMethodId = null;
+    this.selectedMethodDetail = null;
+  } else if (this.selectedMethodId && !this.filteredMethods.some(m => m.id === this.selectedMethodId)) {
+    this.selectedMethodId = null;
+    this.selectedMethodDetail = null;
+  }
+}
+
+onGranularityChange(): void {
+  // Resetear selecciones al cambiar granularidad
+  if (this.resultsView === 'by_data_element') {
+    this.selectedTable = null;
+    this.selectedColumn = null;
+  }
+  this.filterMethods();
+}
+
+filterMethod_s_RESPALDO(): void {
   if (!this.resultsView) return;
 
   // Filtro base por granularidad
