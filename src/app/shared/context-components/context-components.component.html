@@ -1,147 +1,160 @@
-<!-- <button type="button" class="btn btn-secondary btn-sm" (click)="openModal()">Context</button> -->
-<button type="button" class="btn btn-context" (click)="openModal()"><i class="bi bi-chevron-up"></i></button>
+<button type="button" class="btn btn-context" (click)="openModal()">
+  <i class="bi bi-chevron-up"></i>
+</button>
 
-
-
-
-<!-- Estructura del Modal -->
+<!-- Modal Structure -->
 <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Componentes de Contexto: Versión {{ contextData[0]?.version }}</h5>
+        <ul class="nav nav-tabs card-header-tabs" id="contextTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" [ngClass]="{'active': activeTab === 'context'}" 
+                    (click)="switchTab('context')">Context Components</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" [ngClass]="{'active': activeTab === 'dqProblems'}" 
+                    (click)="switchTab('dqProblems')">DQ Problems</button>
+          </li>
+        </ul>
         <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div *ngFor="let context of contextData">
-
-          <!-- Accordion for Application Domain -->
-          <div class="accordion mb-3" [attr.id]="'accordionAppDomain' + context.id">
-            <div class="accordion-item">
-              <h2 class="accordion-header" [attr.id]="'headingAppDomain' + context.id">
-                <button class="accordion-button" type="button" (click)="toggleAccordion('collapseAppDomain' + context.id)">
-                  Application Domain
+        <!-- Context Components Tab -->
+        <div *ngIf="activeTab === 'context' && allContextComponents">
+          <div class="accordion" id="contextComponentsAccordion">
+            <div *ngFor="let category of categories; let i = index" class="accordion-item">
+              <h2 class="accordion-header" [id]="'heading' + i">
+                <button class="accordion-button" type="button" 
+                        (click)="toggleAccordion('collapse' + i)"
+                        [class.collapsed]="!hasComponents(category)">
+                  {{ formatCtxCompCategoryName(category) }}
+                  <span class="badge bg-secondary ms-2">
+                    {{ allContextComponents[category]?.length || 0 }}
+                  </span>
                 </button>
               </h2>
-              <div [attr.id]="'collapseAppDomain' + context.id" class="accordion-collapse collapse">
+              <div [id]="'collapse' + i" class="accordion-collapse collapse" 
+                  [class.show]="hasComponents(category)">
                 <div class="accordion-body">
-                  <p>appDom: {{ context.application_domains[0]?.name }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Accordion for Business Rules -->
-          <div class="accordion mb-3" [attr.id]="'accordionBusinessRules' + context.id">
-            <div class="accordion-item">
-              <h2 class="accordion-header" [attr.id]="'headingBusinessRules' + context.id">
-                <button class="accordion-button" type="button" (click)="toggleAccordion('collapseBusinessRules' + context.id)">
-                  Business Rules
-                </button>
-              </h2>
-              <div [attr.id]="'collapseBusinessRules' + context.id" class="accordion-collapse collapse">
-                <div class="accordion-body">
-                  <div *ngFor="let rule of context.business_rules">
-
-                    <!-- Accordion for Each Business Rule -->
-                    <div class="accordion mb-2" [attr.id]="'accordionRule' + rule.id">
-                      <div class="accordion-item">
-                        <h2 class="accordion-header" [attr.id]="'headingRule' + rule.id">
-                          <button class="accordion-button" type="button" (click)="toggleAccordion('collapseRule' + rule.id)">
-                            Business Rule #{{ rule.id }}
+                  <div *ngIf="hasComponents(category)">
+                    <div class="accordion" id="componentDetailsAccordion">
+                      <div *ngFor="let component of allContextComponents[category]; let j = index" class="accordion-item">
+                        <h2 class="accordion-header" [id]="'componentHeading' + i + j">
+                          <button class="accordion-button collapsed" type="button" 
+                                  data-bs-toggle="collapse" [attr.data-bs-target]="'#componentCollapse' + i + j">
+                            <strong>{{ getFirstNonIdAttribute(component) }}</strong>
                           </button>
                         </h2>
-                        <div [attr.id]="'collapseRule' + rule.id" class="accordion-collapse collapse">
+                        <div [id]="'componentCollapse' + i + j" class="accordion-collapse collapse">
                           <div class="accordion-body">
-                            <p>Statement: {{ rule.statement }}</p>
-                            <p>Semantic: {{ rule.semantic }}</p>
+                            <ul class="list-group">
+                              <li *ngFor="let key of getComponentKeys(component)" 
+                                  class="list-group-item">
+                                <strong>{{ formatKey(key) }}:</strong> {{ component[key] }}
+                              </li>
+                            </ul>
                           </div>
                         </div>
                       </div>
                     </div>
-                    
+                  </div>
+                  <div *ngIf="!hasComponents(category)" class="alert alert-info">
+                    No components in this category
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- Accordion for User Types -->
-          <div class="accordion mb-3" [attr.id]="'accordionUserTypes' + context.id">
-            <div class="accordion-item">
-              <h2 class="accordion-header" [attr.id]="'headingUserTypes' + context.id">
-                <button class="accordion-button" type="button" (click)="toggleAccordion('collapseUserTypes' + context.id)">
-                  User Types
-                </button>
-              </h2>
-              <div [attr.id]="'collapseUserTypes' + context.id" class="accordion-collapse collapse">
-                <div class="accordion-body">
-                  <div *ngFor="let userType of context.user_types">
-                    <p>User Type: {{ userType.name }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Accordion for DQ Metadata -->
-          <div class="accordion mb-3" [attr.id]="'accordionDQMetadata' + context.id">
-            <div class="accordion-item">
-              <h2 class="accordion-header" [attr.id]="'headingDQMetadata' + context.id">
-                <button class="accordion-button" type="button" (click)="toggleAccordion('collapseDQMetadata' + context.id)">
-                  DQ Metadata
-                </button>
-              </h2>
-              <div [attr.id]="'collapseDQMetadata' + context.id" class="accordion-collapse collapse">
-                <div class="accordion-body">
-                  <div *ngFor="let metadata of context.dq_metadata">
-                    <p>Metadata ID: {{ metadata.id }}</p>
-                    <p>Description: {{ metadata.description }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Accordion for Other Metadata -->
-          <div class="accordion mb-3" [attr.id]="'accordionOtherMetadata' + context.id">
-            <div class="accordion-item">
-              <h2 class="accordion-header" [attr.id]="'headingOtherMetadata' + context.id">
-                <button class="accordion-button" type="button" (click)="toggleAccordion('collapseOtherMetadata' + context.id)">
-                  Other Metadata
-                </button>
-              </h2>
-              <div [attr.id]="'collapseOtherMetadata' + context.id" class="accordion-collapse collapse">
-                <div class="accordion-body">
-                  <div *ngFor="let otherMetadata of context.other_metadata">
-                    <p>Metadata ID: {{ otherMetadata.id }}</p>
-                    <p>Description: {{ otherMetadata.description }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Accordion for Other Data -->
-          <div class="accordion mb-3" [attr.id]="'accordionOtherData' + context.id">
-            <div class="accordion-item">
-              <h2 class="accordion-header" [attr.id]="'headingOtherData' + context.id">
-                <button class="accordion-button" type="button" (click)="toggleAccordion('collapseOtherData' + context.id)">
-                  Other Data
-                </button>
-              </h2>
-              <div [attr.id]="'collapseOtherData' + context.id" class="accordion-collapse collapse">
-                <div class="accordion-body">
-                  <div *ngFor="let otherData of context.other_data">
-                    <p>Data ID: {{ otherData.id }}</p>
-                    <p>Details: {{ otherData.details }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
         </div>
+        <!-- Context Components Tab 
+        <div *ngIf="activeTab === 'context' && allContextComponents">
+          <div class="accordion" id="contextComponentsAccordion">
+            <div *ngFor="let category of categories; let i = index" class="accordion-item">
+              <h2 class="accordion-header" [id]="'heading' + i">
+                <button class="accordion-button" type="button" 
+                        (click)="toggleAccordion('collapse' + i)"
+                        [class.collapsed]="!hasComponents(category)">
+                  {{ formatCtxCompCategoryName(category) }}
+                  <span class="badge bg-secondary ms-2">
+                    {{ allContextComponents[category]?.length || 0 }}
+                  </span>
+                </button>
+              </h2>
+              <div [id]="'collapse' + i" class="accordion-collapse collapse" 
+                   [class.show]="hasComponents(category)">
+                <div class="accordion-body">
+                  <div *ngIf="hasComponents(category)">
+                    <ul class="list-group">
+                      <li *ngFor="let component of allContextComponents[category]" 
+                          class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div>
+                            <strong>{{ getFirstNonIdAttribute(component) }}:</strong> 
+                            {{ getFirstAttribute(component) }}
+                          </div>
+                          <button class="btn btn-sm btn-outline-info" 
+                                  (click)="openComponentDetailsModal(component)">
+                            <i class="bi bi-info-circle"></i> Details
+                          </button>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  <div *ngIf="!hasComponents(category)" class="alert alert-info">
+                    No components in this category
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>-->
+
+        <!-- DQ Problems Tab -->
+        <div *ngIf="activeTab === 'dqProblems'">
+          <div *ngIf="dqProblems.length > 0; else noProblems">
+            <div class="list-group">
+              <div *ngFor="let problem of dqProblems" class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                  <!--<h5 class="mb-1">Problem #{{ problem.id }}</h5>-->
+                  <h6>{{ problem.description }}</h6>
+                  <!--<small>{{ problem.date | date:'mediumDate' }}</small>-->
+                </div>
+                <small>{{ problem.date | date:'mediumDate' }}</small>
+              </div>
+            </div>
+          </div>
+          <ng-template #noProblems>
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle"></i> No DQ problems found for this project.
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Component Details -->
+<div class="modal fade" id="componentDetailsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Component Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="selectedComponent">
+          <ul class="list-group">
+            <li *ngFor="let key of getComponentKeys(selectedComponent)" 
+                class="list-group-item">
+              <strong>{{ formatKey(key) }}:</strong> {{ selectedComponent[key] }}
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>

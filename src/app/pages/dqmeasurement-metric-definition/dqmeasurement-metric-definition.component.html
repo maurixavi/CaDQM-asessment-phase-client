@@ -8,11 +8,11 @@
   </app-step-navigator>
 
 
-  <div>
+  <div *ngIf="this.currentDQModel?.status !== 'finished'" >
     <p class="subtitle-description mt-4">Define DQ Metrics that measures each DQ Factor added to the DQ Model</p>
 
     <div class="flex-container">
-      <div class="suggested-section-container">
+      <div class="section-container">
         <div class="dim-factor-selection-container">
           <div class="label-container">
             <!-- DQ Dimension -->
@@ -147,7 +147,7 @@
                   (click)="openCreateMetricModal(selectedFactor)"
                   [disabled]="!selectedFactor"
                 >
-                  <i class="bi bi-plus-lg"></i> New DQ Metric
+                  <i class="bi bi-plus-lg"></i> Create DQ Metric
                 </button>
 
                 <!-- Delete Metric base 
@@ -368,8 +368,9 @@
   <!-- SECTION: Show DQ Metrics added to DQ Model -->
   <div>
     <p class="subtitle-description mt-4">DQ Metrics added to DQ Model</p>
-    <div class="flex-container">
-      <div class="suggested-section-container">
+    
+    <div class="flex-container" style="margin-bottom: 80px;">
+      <div class="section-container">
         <div *ngIf="factorsByDim && factorsByDim.length">
           <div class="label-container-selected py-2 px-4">
             
@@ -477,7 +478,7 @@
                               [attr.aria-labelledby]="'metricHeading' + i + '-' + j"
                               [attr.data-bs-parent]="'#metricAccordion' + i">
                               <div class="accordion-body">
-                                <ng-container *ngIf="metric.baseAttr; else noData">
+                                <ng-container *ngIf="metric.baseAttr">
                                   <div class="label-selected">
                                     <label class="label-title-selected">Semantic:</label>
                                     <span class="label-value-selected">{{ metric.baseAttr.purpose }}</span>
@@ -491,9 +492,12 @@
                                     <span class="label-value-selected">{{ metric.baseAttr.resultDomain }}</span>
                                   </div>
 
+                                  <!-- Influenced by (Ctx. Components): -->
                                   <div class="label-selected">
                                     <label class="label-title-selected">Influenced by (Ctx. Components):</label>
-                                    <span class="label-value-selected border rounded p-3 w-100 bg-light">
+                                    <span class="label-value-selected"> <!-- border rounded p-3 w-100 bg-light -->
+                                      <!-- Ctx Components - Solo lectura -->
+                                      <div *ngIf="!metric.isEditing">
                                         <ul>
                                             <li *ngFor="let category of getContextComponentCategories(metric.context_components)">
                                                 {{ formatCtxCompCategoryName(category) }}:
@@ -507,20 +511,82 @@
                                                 </ul>
                                             </li>
                                         </ul>
+                                      </div>
+
+                                      <!-- Ctx Components - Edicion -->
+                                      <div *ngIf="metric.isEditing" class="ctx-selection-accordion-container">
+                                        <div class="accordion" id="accordionCtxEditionDQMetric">
+                                          <div *ngFor="let category of categories; let i = index" class="accordion-item">
+                                            <h5 class="accordion-header" [id]="'panelsStayOpen-heading' + i">
+                                              <button
+                                                class="accordion-button"
+                                                type="button"
+                                                data-bs-toggle="collapse"
+                                                [attr.data-bs-target]="'#panelsStayOpen-collapse' + i"
+                                                [attr.aria-controls]="'panelsStayOpen-collapse' + i"
+                                                [attr.aria-expanded]="categoryHasCtxComponents_editing(category, metric.tempContextComponents)"
+                                                [class.collapsed]="!categoryHasCtxComponents_editing(category, metric.tempContextComponents)"
+                                                style="padding: 0.1rem 0.9rem;"
+                                              >
+                                                {{ formatCtxCompCategoryName(category) }}
+                                              </button>
+                                            </h5>
+                                            <div
+                                              [id]="'panelsStayOpen-collapse' + i"
+                                              class="accordion-collapse collapse"
+                                              [class.show]="categoryHasCtxComponents_editing(category, metric.tempContextComponents)"
+                                              [attr.aria-labelledby]="'panelsStayOpen-heading' + i"
+                                            >
+                                              <div class="accordion-body">
+                                                <div *ngFor="let item of allContextComponents[category]" class="form-check">
+                                                  <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    [id]="'checkbox-' + category + '-' + item.id"
+                                                    [checked]="isCtxComponentSelected_editing(category, item.id, metric.tempContextComponents)"
+                                                    (change)="onCtxComponentsCheckboxChange_metricEditing(item.id, category, metric)"
+                                                  />
+                                                  <label class="form-check-label" [for]="'checkbox-' + category + '-' + item.id">
+                                                    {{ getFirstNonIdAttribute(item) }}
+                                                  </label>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                   
                                     </span>
+
                                   </div>
 
                       
-                                  <div class="mt-3">
-                                    <button (click)="removeMetricFromDQModel(factor, metric)" class="btn btn-outline-danger btn-sm">Remove</button>
+                                  <!-- Delete / Edit Metric Buttons -->
+                                  <div *ngIf="currentDQModel.status === 'draft'">
+                                    <div class="d-flex gap-2 mt-3 mb-2">
+                                      <!-- Remove DQ Metric from DQ Model -->
+                                      <button (click)="removeMetricFromDQModel(factor, metric)" class="btn btn-outline-danger btn-sm"> <i class="bi bi-trash3"></i> Remove DQ Metric</button>
+                                    
+                                      <!-- Edit DQ Metric Ctx components -->
+                                      <button class="btn btn-light btn-sm"
+                                      (click)="enableDQMetricEdition(metric)">
+                                        <span *ngIf="!metric.isEditing">
+                                          <i class="bi bi-pencil"></i> Edit
+                                        </span>
+                                        <span *ngIf="metric.isEditing">
+                                          Cancel
+                                        </span>
+                                      </button>
+
+                                      <button *ngIf="metric.isEditing" class="btn btn-dark btn-sm flex-grow-0"
+                                      (click)="saveMetricContextComponents(metric)">
+                                        Save Changes
+                                      </button>
+                                    </div>
                                   </div>
-                                  <div class="mt-3">
-                                    <button  class="btn btn-light btn-sm">Edit</button>
-                                  </div>
+
                                 </ng-container>
-                                <ng-template #noData>
-                                  <p>No hay datos disponibles para esta metrica.</p>
-                                </ng-template>
+                              
                               </div>
                             </div>
                           </div>
@@ -555,9 +621,6 @@
   </div>
 
 
-  <div class="next-step-btn-container">
-    <button (click)="saveMetrics()" class="btn btn-dark">Next ></button>
-  </div>
 </div>
 
 <app-stepper

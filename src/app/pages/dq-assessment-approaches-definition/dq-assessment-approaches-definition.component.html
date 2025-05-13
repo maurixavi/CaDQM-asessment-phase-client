@@ -15,37 +15,51 @@
     <div class="flex-container">
       <div class="section-container">
         <!-- Filtro de estado -->
+        <!-- Reemplazar el select actual por este grupo de botones -->
         <div>
-          <!-- Primer select -->
           <div class="label-container">
             <div class="label">
               <label class="label-title">Thresholds definition Status:</label>
               <span class="label-value d-flex align-items-center">
-                <select id="thresholdStatusFilter" class="form-select select-style" 
-                        [(ngModel)]="selectedThresholdStatus" 
-                        (change)="filterMethodsByThresholdsDefined()"
-                        [disabled]="isLoading">
-                  <option [value]="null"></option>
-                  <option value="pending">Pending (without thresholds)</option>
-                  <!--<option value="all">All Methods</option>-->
-                  <option value="defined">Defined (with thresholds)</option>
-                  
-                </select>
+                <div class="btn-group" role="group">
+                  <input 
+                    type="radio" 
+                    class="btn-check" 
+                    [(ngModel)]="selectedThresholdStatus" 
+                    (ngModelChange)="filterMethodsByThresholdsDefined()" 
+                    value="pending" 
+                    id="thresholdsPending"
+                  >
+                  <label class="btn btn-outline-dark" for="thresholdsPending">
+                    Pending
+                  </label>
+                
+                  <input 
+                    type="radio" 
+                    class="btn-check" 
+                    [(ngModel)]="selectedThresholdStatus" 
+                    (ngModelChange)="filterMethodsByThresholdsDefined()" 
+                    value="defined" 
+                    id="thresholdsDefined"
+                  >
+                  <label class="btn btn-outline-dark" for="thresholdsDefined">
+                    Defined
+                  </label>
+                </div>
               </span>
             </div>
           </div>
-          
-          <!-- Primer mensaje -->
+        
+
           <div class="alert alert-light mb-3 mt-4" *ngIf="!selectedThresholdStatus">
             <i class="bi bi-info-circle me-1"></i>
             Filter Applied DQ Methods by Threshold definition status 
           </div> 
           
-          <br>
-          
+        
           <!-- Segundo select -->
           <div class="label-container" *ngIf="selectedThresholdStatus">
-            <div class="label">
+            <div class="label mt-3" *ngIf="selectedThresholdStatus">
               <label class="label-title">Applied DQ Method:</label>
               <span class="label-value d-flex align-items-center">
                 <select id="methodSelector" 
@@ -61,7 +75,7 @@
               </span>
             </div>
           </div>
-          <br>
+          
           
           <!-- Segundo mensaje -->
           <div class="alert alert-light mb-3 mt-4" *ngIf="selectedThresholdStatus && !selectedMethodId">
@@ -79,22 +93,35 @@
             </div>
             <div class="label-selected">
               <label class="label-title-selected">Type:</label>
-              <span class="label-value-selected">{{ selectedMethodDetail.executionResult?.method_type }}</span>
+              <span class="label-value-selected">{{ selectedMethodDetail.method_type }}</span>
             </div>
             <div class="label-selected">
               <label class="label-title-selected">Algorithm applied:</label>
-              <pre class="code-block"><code>{{ selectedMethodDetail.algorithm }}</code></pre>
+              <div class="algorithm-container">
+                <pre class="algorithm-code"><code>{{ selectedMethodDetail.algorithm }}</code></pre>
+              </div>
             </div>
           
             <!-- DQ Measurement Results -->
             <div>
-              <h6 class="mb-0">
+              <h6 class="mb-2 py-2">
                 <i class="bi bi-table me-2"></i>
                 DQ Measurement results:
               </h6> 
     
               <div class="label-selected mt-2">
+                <label class="label-title-selected">Execution date:</label>
                 <span class="label-value-selected">{{ selectedMethodDetail.executionResult?.executed_at | date:'MMM dd HH:mm yyyy' }}</span>
+              </div>
+
+              <div class="label-selected">
+                <label class="label-title-selected">Granularity:</label>
+                <span class="label-value-selected">{{ selectedMethodDetail.granularity }}</span>
+              </div>
+
+              <div class="label-selected">
+                <label class="label-title-selected">Result domain:</label>
+                <span class="label-value-selected">{{ selectedMethodDetail.resultDomain }}</span>
               </div>
 
               <!-- Tabla resumen Execution -->
@@ -128,21 +155,19 @@
                           <div *ngIf="selectedMethodDetail.executionResult.displayType === 'single'">
                             <span class="badge bg-primary">
                               {{ selectedMethodDetail.executionResult.dq_value | number:'1.2-2' }} 
-                            </span><br>
-                            Result domain: <br>{{ selectedMethodDetail.resultDomain }}
+                            </span>
                           </div>
                           
                           <!-- Caso múltiple -->
                           <div *ngIf="selectedMethodDetail.executionResult.displayType === 'multiple'">
-                            <span class="badge bg-info cursor-pointer" 
+                            <span class="badge bg-primary cursor-pointer" 
                                   (click)="toggleMultipleResults()"
                                   [attr.title]="'Ver detalles de ' + selectedMethodDetail.executionResult.total_rows + ' filas'">
                               {{ selectedMethodDetail.executionResult.total_rows }} values
                               <i class="bi" 
                                 [class.bi-chevron-down]="!showMultipleResults"
                                 [class.bi-chevron-up]="showMultipleResults"></i>
-                            </span><br>
-                            Result domain: <br>{{ selectedMethodDetail.resultDomain }}
+                            </span>
                           </div>
                         </ng-container>
 
@@ -173,7 +198,7 @@
               
                 <div class="table-responsive-sm">
                   <table class="table table-sm table-bordered">
-                    <thead class="table-light">
+                    <thead class="table-light custom-thead-detailed-results">
                       <tr>
                         <th>#</th>
                         <th>Row ID</th>
@@ -242,10 +267,26 @@
                   </div>
                 </div>
               </div>
-
+ 
               <div class="label-selected">
                 <label class="label-title-selected-ctx">Context components:</label>
-                <span class="label-value-selected"></span>
+              </div>
+              <div class="label-selected">
+                <span class="label-value-selected">
+                  <ul>
+                    <li *ngFor="let category of getContextComponentCategories(selectedMethodDetail.context_components)">
+                      {{ formatCtxCompCategoryName(category) }}:
+                      <ul>
+                        <li *ngFor="let componentId of selectedMethodDetail.context_components[category]">
+                          {{ getFirstAttribute(category, componentId) }}
+                          <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)" style="text-decoration: none;">
+                            <i class="bi bi-zoom-in"></i> 
+                          </a>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </span>
               </div>
 
               <div class="label-selected">
@@ -310,7 +351,7 @@
   
                 <div *ngIf="thresholdType !== 'boolean'" class="d-flex justify-content-end">
                   <button class="btn btn-light btn-sm" (click)="addThreshold()" *ngIf="areThresholdsEditable">
-                    <i class="bi bi-plus"></i> New threshold
+                    <i class="bi bi-plus-lg"></i> New threshold
                   </button>
                 </div>
               
@@ -368,6 +409,14 @@
     <button class="btn btn-secondary" (click)="closeModal()">Close</button>
   </div>
 </app-modal>
+
+
+<app-context-component-view-modal
+  #contextComponentModal
+  [selectedComponentKeys]="selectedComponentKeys"
+  [selectedComponentDetails]="selectedComponentDetails">
+</app-context-component-view-modal>
+
 
 <app-stepper
   [currentStep]="currentStep"

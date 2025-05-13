@@ -1051,33 +1051,35 @@
     <div class="flex-container">
       <div class="section-container">
         <!-- DQ DIMENSIONS and DQ FACTORS ADDED to DQ MODEL -->
-        <div *ngIf="dimensionsWithFactorsInDQModel && dimensionsWithFactorsInDQModel.length">
+        <div>
           <div class="label-container-selected py-2 px-4">
-            <div class="dqmodel-title">
-              <span class="label-name-dqmodel">{{ currentDQModel.name }} {{ currentDQModel.version }} (id: {{ project.dqmodel_version }})</span>
-              <span *ngIf="currentDQModel.status === 'finished'" class="badge rounded-pill bg-dark">Finished</span>
-              <span *ngIf="currentDQModel.status === 'draft'" class="badge rounded-pill bg-warning">Draft</span>
-            </div>
-            <div class="dqmodel-preview-details-container">
-              <div class="label-selected">
-                <label class="label-title-selected">Creation date:</label>
-                <span class="label-value-selected">{{ currentDQModel.created_at | date:'MMM dd HH:mm yyyy' }}</span>
-              </div> 
-              <div class="label-selected">
-                <label class="label-title-selected">Context version:</label>
-                <span class="label-value-selected">CtxA v1.0 (id: {{ project.context_version }})</span>
-              </div>  
-              <div class="label-selected">
-                <label class="label-title-selected">Data at hand:</label>
-                <span class="label-value-selected">Data at Hand Id: {{ project.data_at_hand }}</span>
-              </div> 
-              <div class="label-selected">
-                <label class="label-title-selected">DQ Dimensions:</label>
+            <div  *ngIf="currentDQModel && project" >
+              <div class="dqmodel-title">
+                <span class="label-name-dqmodel">{{ currentDQModel.name }} {{ currentDQModel.version }} (id: {{ project.dqmodel_version }})</span>
+                <span *ngIf="currentDQModel.status === 'finished'" class="badge rounded-pill bg-dark">Finished</span>
+                <span *ngIf="currentDQModel.status === 'draft'" class="badge rounded-pill bg-warning">Draft</span>
+              </div>
+              <div class="dqmodel-preview-details-container">
+                <div class="label-selected">
+                  <label class="label-title-selected">Creation date:</label>
+                  <span class="label-value-selected">{{ currentDQModel.created_at | date:'MMM dd HH:mm yyyy' }}</span>
+                </div> 
+                <div class="label-selected">
+                  <label class="label-title-selected">Context version:</label>
+                  <span class="label-value-selected">CtxA v1.0 (id: {{ project.context_version }})</span>
+                </div>  
+                <div class="label-selected">
+                  <label class="label-title-selected">Data at hand:</label>
+                  <span class="label-value-selected">Data at Hand Id: {{ project.data_at_hand }}</span>
+                </div> 
+                <div class="label-selected">
+                  <label class="label-title-selected">DQ Dimensions:</label>
+                </div>
               </div>
             </div>
 
             <!-- Accordion DIMENSIONS DQMODEL -->
-            <div class="dimensions-factors-selected-accordion-container">
+            <div  *ngIf="dimensionsWithFactorsInDQModel" class="dimensions-factors-selected-accordion-container">
               <div class="accordion mx-1 mt-1" id="accordionDimensions">
                 <div class="accordion-item mb-2" *ngFor="let dim of dimensionsWithFactorsInDQModel; let i = index"
                 style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
@@ -1157,7 +1159,7 @@
                                         type="checkbox"
                                         [id]="'checkbox-' + category + '-' + item.id"
                                         [checked]="isComponentSelected_editing(category, item.id, dim.dimension.tempContextComponents)"
-                                        (change)="onCtxComponentsCheckboxChange(item.id, category, dim.dimension)"/>
+                                        (change)="onCtxComponentsCheckboxChange_editing(item.id, category, dim.dimension)"/>
                                       <label class="form-check-label" [for]="'checkbox-' + category + '-' + item.id">
                                         {{ getFirstNonIdAttribute(item) }}
                                       </label>
@@ -1221,6 +1223,7 @@
                                 </div>
                               </div>
                           </div>
+
                         </span>
                       </div>
 
@@ -1228,7 +1231,9 @@
                         <label class="label-title-selected">DQ Factors:</label>
                       </div>
 
-                      <!-- Accordion FACTORS edit -->
+                      <!-- Si hay Factores definidos para Dimension -->
+                      <div *ngIf="dim.factors.length > 0; else noFactors">
+                      <!-- Accordion FACTORS  -->
                       <div class="accordion mx-3" [id]="'factorAccordion' + i">
                         <div class="accordion-item" *ngFor="let factor of dim.factors; let j = index">
                           <h2 class="accordion-header" [id]="'factorHeading' + i + '-' + j">
@@ -1278,7 +1283,7 @@
                                     </ul>
                                   </div>
 
-                                  <!-- Vista de edición -->
+                                  <!-- Ctx Components - Edicion -->
                                   <div *ngIf="factor.isEditing" class="ctx-selection-accordion-container-edit">
                                     <div class="accordion" id="accordionPanelsStayOpenExample">
                                       <div *ngFor="let category of categories; let k = index" class="accordion-item">
@@ -1307,7 +1312,7 @@
                                                 type="checkbox"
                                                 [id]="'checkbox-' + category + '-' + item.id"
                                                 [checked]="isComponentSelected_editing(category, item.id, factor.tempContextComponents)"
-                                                (change)="onCtxComponentsCheckboxChange(item.id, category, factor)"/>
+                                                (change)="onCtxComponentsCheckboxChange_editing(item.id, category, factor)"/>
                                               <label class="form-check-label" [for]="'checkbox-' + category + '-' + item.id">
                                                 {{ getFirstNonIdAttribute(item) }}
                                               </label>
@@ -1324,49 +1329,87 @@
                               <div class="label-selected">
                                 <label class="label-title-selected">DQ Problems (Used):</label>
                                 <span class="label-value-selected">
-                                  <div *ngIf="factor.dq_problems_details.length > 0">
+
+                                  <!-- DQ Problems - Solo lectura -->
+                                  <div *ngIf="!factor.isEditing">
                                     <ul>
                                       <li *ngFor="let problem of factor.dq_problems_details">
                                         {{ problem.description }}
                                       </li>
                                     </ul>
                                   </div>
+
+                                  <!-- DQ Problems - Edicion -->
+                                  <div *ngIf="factor.isEditing" class="dq-problems-accordion-container-edit">
+                                    <div class="checkbox-container">
+                                      <div *ngFor="let problem of selectedPrioritizedProblems; let i = index" class="form-check">
+                                        <input
+                                          class="form-check-input"
+                                          type="checkbox"
+                                          [id]="'problem-checkbox-' + problem.dq_problem_id"
+                                          [checked]="isProblemSelected(problem.dq_problem_id, factor.dq_problems)"
+                                          (change)="onProblemCheckboxChangeEditFactor(problem.dq_problem_id, factor)"/>
+                                        <label class="form-check-label" [for]="'problem-checkbox-' + problem.id">
+                                          {{ problem.description }}
+                                        </label>
+                                        </div>
+                                      </div>
+                                  </div>
+
+
                                 </span>
                               </div>
 
                               <!-- Botones de edición -->
                               <div *ngIf="currentDQModel.status === 'draft'">
-                                <br>
-                                <button
-                                  (click)="openConfirmationModal(
-                                    'Remove DQ Factor',
-                                    'Are you sure you want to remove this factor from the DQ Model?',
-                                    'deleteFactor',
-                                    factor.id
-                                  )"
-                                  class="btn btn-outline-danger btn-sm">
-                                  Remove DQ Factor
-                                </button>
-                                <button
-                                  class="btn btn-light btn-sm ms-2"
-                                  (click)="toggleEditDQFactorVisibility(factor)">
-                                  {{ factor.isEditing ? 'Cancel' : 'Edit' }}
-                                </button>
-                                <button
-                                  *ngIf="factor.isEditing"
-                                  (click)="saveFactorContextComponents(factor, dim.dimension.id)"
-                                  class="btn btn-dark btn-sm ms-2">
-                                  Save Changes
-                                </button>
+                                <div class="d-flex gap-2 mt-2 mb-2">
+                                  <button
+                                    (click)="openConfirmationModal(
+                                      'Remove DQ Factor',
+                                      'Are you sure you want to remove this factor from the DQ Model?',
+                                      'deleteFactor',
+                                      factor.id
+                                    )"
+                                    class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash3"></i> Remove DQ Factor
+                                  </button>
+                                  <button
+                                    class="btn btn-light btn-sm"
+                                    (click)="toggleEditDQFactorVisibility(factor)">
+                                    {{ factor.isEditing ? 'Cancel' : 'Edit' }}
+                                  </button>
+                                  <button
+                                    *ngIf="factor.isEditing"
+                                    (click)="saveFactorContextComponents(factor, dim.dimension.id)"
+                                    class="btn btn-dark btn-sm">
+                                    Save Changes
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
+                      </div>
+
+                      <!-- Si NO hay Factores definidos para Dimension -->
+                      <ng-template #noFactors>
+                        <!-- MENSAJE INFORMATIVO -->
+                        <div class="px-2">
+                          <div  class="alert alert-warning">
+                            <i class="bi bi-exclamation-circle me-2"></i>
+                            No factors have been defined for this dimension. <br> 
+                            Defining at least one metric for each factor will be necessary to complete the DQ Model.
+                          </div>
+                        </div>
+
+                      </ng-template>
+
+
                       
                       <br>
                       <div *ngIf="currentDQModel.status === 'draft'">
-                        <div class="d-flex gap-3 mt-3">
+                        <div class="d-flex gap-2 mt-3 mb-2">
                           <button
                             (click)="openConfirmationModal(
                               'Remove DQ Dimension',
@@ -1375,12 +1418,18 @@
                               dim.dimension.id
                             )"
                             class="btn btn-outline-danger btn-sm flex-grow-0">
-                            Remove DQ Dimension
+                            <i class="bi bi-trash3"></i> Remove DQ Dimension
                           </button>
-                          <button class="btn btn-light btn-sm flex-grow-0" (click)="toggleEditDQDimensionVisibility(dim.dimension)">
-                            {{ dim.dimension.isEditing ? 'Cancel' : 'Edit' }}
+                          <button class="btn btn-light btn-sm flex-grow-0" (click)="enableDQDimensionEdition(dim.dimension)">
+                            <span *ngIf="!dim.dimension.isEditing ">
+                              <i class="bi bi-pencil"></i> Edit
+                            </span>
+                            <span *ngIf="dim.dimension.isEditing ">
+                               Cancel
+                            </span>
+                            <!-- {{ dim.dimension.isEditing ? 'Cancel' : 'Edit' }} -->
                           </button>
-                          <button *ngIf="dim.dimension.isEditing" (click)="saveContextComponents(dim.dimension)" class="btn btn-dark btn-sm flex-grow-0">
+                          <button *ngIf="dim.dimension.isEditing" (click)="saveDQDimensionChanges(dim.dimension)" class="btn btn-dark btn-sm flex-grow-0">
                             Save Changes
                           </button>
                         </div>
@@ -1398,7 +1447,8 @@
         <div class="px-2 py-2">
             <div *ngIf="noDimensionsMessage" class="alert alert-warning mt-2">
               <i class="bi bi-exclamation-circle me-2"></i>
-              {{ noDimensionsMessage }}
+              No dimensions have been added to the DQ Model.<br>
+              You must add at least one dimension in order to proceed.
             </div>
           </div>
          

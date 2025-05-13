@@ -295,10 +295,12 @@ body{
 	justify-content: flex-end; 
   }
   
-  .flex-container {
-	display: flex;
-	justify-content: center;
-  }
+	.flex-container {
+		display: flex;
+		justify-content: center;
+		/*margin-bottom: 80px;*/
+	}
+	
   /*
   .container-section {
 	width: 98%;
@@ -379,7 +381,7 @@ body{
 	max-width: 400px;
   }
   
-  .suggested-section-container {
+  .section-container {
 	width: 100%;
 	/*border: 1px solid #ddd; */
 	border: 1px solid #eeeeee;

@@ -302,7 +302,12 @@ export class DQProblemsPriorizationComponent implements OnInit {
           if (this.isInitialPrioritization()) {
             this.hasCompletedInitialPrioritization = true;
           }
+          
           this.notificationService.showSuccess('DQ Problems prioritization was successfully saved');
+
+          if (this.projectId)
+            this.loadPrioritizedDQProblems(this.projectId);
+
         },
         error: (error) => {
           console.error("Error updating priorities:", error);

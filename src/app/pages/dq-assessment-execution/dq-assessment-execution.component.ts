@@ -911,7 +911,7 @@ export class DqAssessmentExecutionComponent implements OnInit {
   }
 
   onCompleteStage(): void {
-    this.router.navigate(['/']);
+    this.router.navigate(['phase2/dashboard']);
     this.currentStep = 0;
   }
 

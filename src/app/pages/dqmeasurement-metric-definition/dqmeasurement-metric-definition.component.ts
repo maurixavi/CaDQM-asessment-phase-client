@@ -530,9 +530,12 @@ export class DQMetricDefinitionComponent implements OnInit {
 
   
   
+  
 
-  //seleccion de componentes de contexto
+  //seleccion de componentes de contexto en agregado de metrica
   selectionCheckboxCtxComponents: { id: number; category: string; value: string }[] = [];
+
+ 
 
 
   // Validar si un componente está seleccionado
@@ -742,35 +745,6 @@ export class DQMetricDefinitionComponent implements OnInit {
   }
 
 
-/*
-  addMetric(factor: QualityFactor): void {
-    if (this.newMetric.name) {
-      var newFactor = this.metricFactor!;
-      let dqFactor = this.factorsByDim.find(item => item.id == newFactor.id)
-      const metricToAdd = {
-        dq_model: parseInt(dqFactor.dq_model),
-        metric_base: parseInt(this.newMetric.name),
-        factor: parseInt(dqFactor.id)
-      };
-      
-      this.newMetric = { name: '', purpose: '', granularity: '', domain: '', expanded: false };
-      this.modelService.addMetricToDQModel(metricToAdd).subscribe({
-        next: (data) => {
-          console.log("DQ Metric added:", data);
-          this.loadDQModelDimensionsAndFactors(); 
-          alert("Metric successfully added to DQ Model.");
-        },
-        error: (err) => {
-          console.error("Error adding the metric:", err);
-          alert("An error occurred while trying to add the metric.");
-        }
-      });
-      this.closeModal();
-    }
-    else {
-      alert("Missing fields. Please complete all.")
-    }
-  }*/
 
   removeMetricFromDQModel(factor: any, metric: any): void {
     const index = factor.definedMetrics.indexOf(metric);
@@ -875,7 +849,7 @@ export class DQMetricDefinitionComponent implements OnInit {
   }
 
 
-  //Delete Dimension base (disabled from DQ Dimensions selection)
+  //Delete Metric base (disabled from DQ Metrics selection)
   deleteMetricBase(metricId: number): void {
     if (metricId) {
       console.log(`Metric seleccionada para eliminar: ${this.selectedBaseMetric}`);
@@ -896,15 +870,7 @@ export class DQMetricDefinitionComponent implements OnInit {
 
 
 
-  saveMetrics(){
-    var result: QualityMetric[] = [];
-    // this.qualityFactors.forEach(elem => {
-    //   result = result.concat(elem.definedMetrics);
-    // });
-    this.router.navigate(['/st4/a12']);
-    
-  }
-  
+ 
 
   metricFactor: any = null;
 
@@ -1027,8 +993,74 @@ export class DQMetricDefinitionComponent implements OnInit {
   }
 
 
+  /* DQ METRIC EDITING */
 
+  //Habilitar edicion DQ Metric (ctx components)
+  enableDQMetricEdition(metric: any): void {
+    console.log("enableDQMetricEdition", metric)
+    metric.isEditing = !metric.isEditing;
   
+    // Inicializar tempContextComponents si no está definido
+    if (!metric.tempContextComponents) {
+      metric.tempContextComponents = JSON.parse(JSON.stringify(metric.context_components || {}));
+    }
+  }
 
+  //Presetar ctx components ya existentes en DQ Metric para edicion
+  isCtxComponentSelected_editing(category: string, componentId: number, tempContextComponents: any): boolean {
+    return tempContextComponents[category] && tempContextComponents[category].includes(componentId);
+  }
+
+  //Chequear si categoria Ctx component tiene elementos
+  categoryHasCtxComponents_editing(category: string, tempContextComponents: any): boolean {
+    return tempContextComponents[category] && tempContextComponents[category].length > 0;
+  }
+
+   //Update DQ Metric- Ctx components selection
+   onCtxComponentsCheckboxChange_metricEditing(componentId: number, category: string, metric: any): void {
+    if (!metric.tempContextComponents[category]) {
+      metric.tempContextComponents[category] = [];
+    }
+  
+    const index = metric.tempContextComponents[category].indexOf(componentId);
+    if (index === -1) {
+      metric.tempContextComponents[category].push(componentId);
+    } else {
+      // Eliminar el componente si ya está seleccionado
+      metric.tempContextComponents[category].splice(index, 1);
+    }
+  }
+
+  //Update Metric ctx components
+  saveMetricContextComponents(metric: any): void {
+    const updatedMetric = {
+      context_components: metric.tempContextComponents,
+    };
+
+    console.log("updatedMetric", updatedMetric);
+
+    metric.context_components = JSON.parse(JSON.stringify(metric.tempContextComponents));
+        metric.isEditing = false;
+
+        console.log("Metrics actualizacion ctx components.", metric.context_components);
+
+    this.modelService.updateDQMetricCtx(metric.id, updatedMetric).subscribe({
+      next: () => {
+        //this.notificationService.showSuccess(`DQ Factor was successfully updated.`);
+        alert(`DQ Factor was successfully updated.`);
+        //this.loadDQModelDimensionsAndFactors();
+
+        //Actualizar componentes en vista
+        metric.context_components = JSON.parse(JSON.stringify(metric.tempContextComponents));
+        metric.isEditing = false;
+
+        console.log("Metrics actualizacion ctx components.", metric.context_components);
+      },
+      error: (err) => {
+        console.error("Error al actualizar el factor:", err);
+        alert("Error updating factor context components and problems.");
+      },
+    });
+  }
 
 }

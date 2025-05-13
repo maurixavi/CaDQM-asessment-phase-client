@@ -7,7 +7,7 @@
 		[currentStep]="currentStep">
 	</app-step-navigator>
 
-  <p class="subtitle-activity">Classify Data Quality Problems by assigning each one a priority level</p>
+  <p class="subtitle-activity">Classify DQ problems by assigning each one a priority level</p>
 
   <div class="flex-container"> 
     <div class="container-section ">
@@ -17,7 +17,7 @@
         <div class="alert alert-light mb-4 mt-4 d-flex align-items-start">
           <i class="bi bi-info-circle me-2 mt-1"></i>
           <div>
-            Drag and drop data quality problems into High, Medium, or Low priority columns.
+            Drag and drop DQ problems into High, Medium, or Low priority columns.
           </div>
         </div>
        
@@ -48,7 +48,7 @@
               >
                 <div>
                   <div *ngIf="highPriorityProblems.length === 0" class="empty-message">
-                    <i class="bi bi-info-circle"></i> No high priority data quality problems.
+                    <i class="bi bi-info-circle"></i> No high priority DQ problems.
                   </div>
                   <div *ngFor="let problem of highPriorityProblems" cdkDrag>
                     <div class="card mb-2">
@@ -80,7 +80,7 @@
               >
                 <div>
                   <div *ngIf="mediumPriorityProblems.length === 0" class="empty-message">
-                    <i class="bi bi-info-circle"></i> No medium priority data quality problems.
+                    <i class="bi bi-info-circle"></i> No medium priority DQ problems.
                   </div>
                   <div *ngFor="let problem of mediumPriorityProblems" cdkDrag>
                     <div class="card mb-2">
@@ -113,7 +113,7 @@
               >
                 <div>
                   <div *ngIf="lowPriorityProblems.length === 0" class="empty-message">
-                    <i class="bi bi-info-circle"></i> No low priority data quality problems.
+                    <i class="bi bi-info-circle"></i> No low priority DQ problems.
                   </div>
                   <div *ngFor="let problem of lowPriorityProblems" cdkDrag>
                     <div class="card mb-2">

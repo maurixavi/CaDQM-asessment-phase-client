@@ -69,19 +69,19 @@
   color: #222;
 }
 
-/* shared/components/modal/modal.component.css */
+
 .modal-header {
-  border-bottom: none; /* Elimina el borde inferior del header */
+  /*border-bottom: none; */
 }
 
 .modal-footer {
-  border-top: none; /* Elimina el borde superior del footer */
-  padding: 1rem; /* Ajusta el padding si es necesario */
+  border-top: none;
+  padding: 1rem;
 }
 
 .modal-content {
-  border: none; /* Elimina el borde del contenido del modal */
-  box-shadow: none; /* Elimina la sombra del modal si es necesario */
+  /*border: none;
+  box-shadow: none;*/
 }
 
 .btn {

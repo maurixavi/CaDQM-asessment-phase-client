@@ -226,7 +226,8 @@
           </ul>
         </div>
 
-        <div class="mt-3"  *ngIf="selectedStatus === 'pending' && filteredMethods.length !== 0">
+        <!--<div class="mt-3"  *ngIf="selectedStatus === 'pending' && filteredMethods.length === 0">-->
+        <div class="mt-3" >
           <button 
             class="btn btn-sm btn-dark" 
             (click)="executeSelectedMethods()"

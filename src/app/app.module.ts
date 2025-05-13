@@ -40,6 +40,7 @@ import { ContextComponentViewModalComponent } from './shared/context-component-v
 import { NotificationComponent } from './components/notification/notification.component';
 import { DqMeasurementResultsComponent } from './pages/dq-measurement-results/dq-measurement-results.component';
 import { DqAssessmentApproachesDefinitionComponent } from './pages/dq-assessment-approaches-definition/dq-assessment-approaches-definition.component';
+import { DqAssessmentExecutionComponent } from './pages/dq-assessment-execution/dq-assessment-execution.component';
 
 
 @NgModule({
@@ -66,7 +67,8 @@ import { DqAssessmentApproachesDefinitionComponent } from './pages/dq-assessment
     ContextComponentViewModalComponent,
     NotificationComponent,
     DqMeasurementResultsComponent,
-    DqAssessmentApproachesDefinitionComponent
+    DqAssessmentApproachesDefinitionComponent,
+    DqAssessmentExecutionComponent
   ],
   imports: [
     BrowserModule,

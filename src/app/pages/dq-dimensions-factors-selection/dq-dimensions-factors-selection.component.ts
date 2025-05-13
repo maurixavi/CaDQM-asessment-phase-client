@@ -1223,9 +1223,14 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
           });
 
           // DQ PROBLEMS:
+          
+
           // Combinar problemas de calidad sin duplicados
           const existingProblems = existingDimension.dq_problems || [];
           const mergedProblems = [...new Set([...existingProblems, ...selectedProblemIds])];
+
+          console.log("existingProblems", existingProblems)
+          console.log("mergedProblems", mergedProblems)
 
           // Verificar si hay cambios en los componentes o problemas
           const hasChanges =
@@ -1237,13 +1242,17 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
                   context_components: mergedComponents,
                   dq_problems: mergedProblems
               };
+
+              console.log("updatedDimension.dq_problems", updatedDimension.dq_problems)
       
-              this.modelService.updateDQDimensionContextComponents(existingDimension.id, updatedDimension).subscribe({
+              this.modelService.updateDQDimensionCtxAndProblems(existingDimension.id, updatedDimension).subscribe({
                   next: () => {
-                      console.log("Componentes actualizados exitosamente en la dimensión.");
+                      console.log("Ctx componentes Y DQ Problems actualizados exitosamente en la dimensión.");
+                  
+                      this.loadDQModelDimensionsAndFactors();
                   },
                   error: (err) => {
-                      this.notificationService.showError("Error updating dimension context components.");
+                      this.notificationService.showError("Failed to update this DQ Dimension.");
                   }
               });
           } 
@@ -1353,7 +1362,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
                   dq_problems: mergedProblems
               };
       
-              this.modelService.updateDQDimensionContextComponents(existingDimension.id, updatedDimension).subscribe({
+              this.modelService.updateDQDimensionCtxAndProblems(existingDimension.id, updatedDimension).subscribe({
                   next: () => {
                       console.log("Componentes actualizados exitosamente en la dimensión.");
                       this.submitNewFactor(selectedFactor, selectedComponents, selectedProblemIds);
@@ -1985,11 +1994,9 @@ toggleFromScratchSectionVisibility_addFactors(): void {
 
   isEditingCtxComponents: boolean = false;
 
-  /*toggleEditDQDimensionVisibility(): void {
-    this.isEditingCtxComponents = !this.isEditingCtxComponents;
-  }*/
+  enableDQDimensionEdition(dimension: any): void {
+    console.log("enableDQDimensionEdition", dimension)
 
-  toggleEditDQDimensionVisibility(dimension: any): void {
     dimension.isEditing = !dimension.isEditing;
   
     // Inicializar tempContextComponents si no está definido
@@ -2006,7 +2013,7 @@ toggleFromScratchSectionVisibility_addFactors(): void {
     return tempContextComponents[category] && tempContextComponents[category].includes(componentId);
   }
 
-  onCtxComponentsCheckboxChange(componentId: number, category: string, dimension: any): void {
+  onCtxComponentsCheckboxChange_editing(componentId: number, category: string, dimension: any): void {
     if (!dimension.tempContextComponents[category]) {
       dimension.tempContextComponents[category] = [];
     }
@@ -2027,30 +2034,48 @@ toggleFromScratchSectionVisibility_addFactors(): void {
       context_components: factor.tempContextComponents,
       dq_problems: factor.dq_problems, // Incluir los problemas seleccionados
     };
-  
-    this.modelService.updateDQFactor(this.dqModelId, dimensionId, factor.id, updatedFactor).subscribe({
+
+    this.modelService.updateDQFactorCtxAndProblems(factor.id, updatedFactor).subscribe({
       next: () => {
+        this.notificationService.showSuccess(`DQ Factor was successfully updated.`);
+        this.loadDQModelDimensionsAndFactors();
+
         console.log("Componentes y problemas actualizados exitosamente en el factor.");
         factor.context_components = JSON.parse(JSON.stringify(factor.tempContextComponents));
-        factor.isEditing = false; // Deshabilitar la edición
+        factor.isEditing = false;
       },
       error: (err) => {
         console.error("Error al actualizar el factor:", err);
         alert("Error updating factor context components and problems.");
       },
     });
+  
+    /*this.modelService.updateDQFactor(this.dqModelId, dimensionId, factor.id, updatedFactor).subscribe({
+      next: () => {
+        console.log("Componentes y problemas actualizados exitosamente en el factor.");
+        factor.context_components = JSON.parse(JSON.stringify(factor.tempContextComponents));
+        factor.isEditing = false;
+      },
+      error: (err) => {
+        console.error("Error al actualizar el factor:", err);
+        alert("Error updating factor context components and problems.");
+      },
+    });*/
   }
 
 
-  saveContextComponents(dimension: any): void {
+  saveDQDimensionChanges(dimension: any): void {
     const updatedDimension = {
       context_components: dimension.tempContextComponents,
       dq_problems: dimension.dq_problems, // Incluir los problemas seleccionados
     };
   
-    this.modelService.updateDQDimensionContextComponents(dimension.id, updatedDimension).subscribe({
+    this.modelService.updateDQDimensionCtxAndProblems(dimension.id, updatedDimension).subscribe({
       next: () => {
-        console.log("Componentes y problemas actualizados exitosamente.");
+        console.log("EDIT DIM: Componentes y problemas actualizados exitosamente.");
+        this.notificationService.showSuccess(`DQ Dimension was successfully updated.`);
+        this.loadDQModelDimensionsAndFactors();
+
         dimension.context_components = JSON.parse(JSON.stringify(dimension.tempContextComponents));
         dimension.isEditing = false; // Deshabilitar la edición
       },
@@ -2079,11 +2104,28 @@ toggleFromScratchSectionVisibility_addFactors(): void {
     if (index === -1) {
       // Agregar el problema si no está seleccionado
       dimension.dq_problems.push(problemId);
+      console.log("dimension.dq_problems", dimension.dq_problems);
     } else {
       // Eliminar el problema si ya está seleccionado
       dimension.dq_problems.splice(index, 1);
+      console.log("dimension.dq_problems", dimension.dq_problems);
     }
   }
+
+  onProblemCheckboxChangeEditFactor(problemId: number, factor: any): void {
+    const index = factor.dq_problems.indexOf(problemId);
+
+    if (index === -1) {
+      // Agregar el problema si no está seleccionado
+      factor.dq_problems.push(problemId);
+      console.log("factor.dq_problems", factor.dq_problems);
+    } else {
+      // Eliminar el problema si ya está seleccionado
+      factor.dq_problems.splice(index, 1);
+      console.log("factor.dq_problems", factor.dq_problems);
+    }
+  }
+
 
 
 

@@ -205,7 +205,7 @@ export class DqModelService {
     }
 
     // Si no está en caché o es un ID diferente, hacemos la petición
-    return this.http.get<DQModel>(`${this.API_URL_DQMODELS}${dqModelId}/`).pipe(
+    return this.http.get<any>(`${this.API_URL_DQMODELS}${dqModelId}/`).pipe(
       map((data) => {
         this.currentDQModel = data; // Actualizamos el caché
         console.log('Fetched DQ Model (from server):', this.currentDQModel);
@@ -282,7 +282,6 @@ export class DqModelService {
   //DIMENSIONS DQ MODEL
   getDimensionsByDQModel(dqmodelId: number): Observable<any[]> {
     const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/`;
-    //console.log("DqModels/Dimensions - Accediendo a la URL:", url);
     return this.http.get<any[]>(url).pipe(
       catchError(err => {
         if (err.status === 404) {
@@ -327,8 +326,7 @@ export class DqModelService {
 
   getMetricsByDQModel(dqmodelId: number): Observable<any[]> {
     const url = `${this.API_URL_DQMODELS}${dqmodelId}/metrics/`;
-    console.log(`Fetching metrics from URL: ${url}`); 
-    
+
     return this.http.get<any[]>(url).pipe(
       tap(response => {
         console.log('DQ Metrics fetched', response); 
@@ -364,7 +362,7 @@ export class DqModelService {
     return this.http.get<any>(url);
   }
 
-  getDimensionsByDQModel2(dqmodelId: number): Observable<any[]> {
+  /*getDimensionsByDQModel2(dqmodelId: number): Observable<any[]> {
     const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/`;
     console.log("DqModels/Dimensions - Accediendo a la URL:", url);
     return this.http.get<any[]>(`${this.API_URL_DQMODELS}${dqmodelId}/dimensions/`).pipe(
@@ -373,10 +371,9 @@ export class DqModelService {
         throw err;
       })
     );
-  }
+  }*/
 
   addDimensionToDQModel(dimensionData: { dimension_base: number; context_components: any[], dq_problems: number[]  }): Observable<any> {
-    console.log("Sending dimensionData to backend:", dimensionData); // Verificar el cuerpo de la solicitud
     return this.http.post<any>(this.API_URL_DIMENSIONS_DQMODEL, dimensionData).pipe(
       catchError(err => {
         console.error('Error al agregar la dimensión:', err);
@@ -390,13 +387,32 @@ export class DqModelService {
   }
 
   //readonly API_URL_DIMENSIONS_DQMODEL = `${this.baseUrl}/dimensions/`; //"http://localhost:8000/api/dimensions/"
-  updateDQDimensionContextComponents(dimensionId: number, updatedData: any): Observable<any> {
+  updateDQDimensionCtxAndProblems(dimensionId: number, updatedData: any): Observable<any> {
+    //Only Ctx componentes and DQ Problems are editable
     const url = `${this.API_URL_DIMENSIONS_DQMODEL}${dimensionId}/`;
     return this.http.patch<any>(url, updatedData);
   }
 
   updateDQFactor(dqmodelId: number, dimensionId: number, factorId: number, updatedData: any): Observable<any> {
     const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/${dimensionId}/factors/${factorId}/`;
+    return this.http.patch<any>(url, updatedData);
+  }
+
+  updateDQFactorCtxAndProblems(factorId: number, updatedData: any): Observable<any> {
+    //Only Ctx componentes and DQ Problems are editable
+    const url = `${this.API_URL_FACTORS_DQMODEL}${factorId}/`;
+    return this.http.patch<any>(url, updatedData);
+  }
+
+  updateDQMetricCtx(metricId: number, updatedData: any): Observable<any> {
+    //Only Ctx componentes are editable
+    const url = `${this.API_URL_METRICS_DQMODEL}${metricId}/`;
+    return this.http.patch<any>(url, updatedData);
+  }
+
+  updateDQMethodCtx(methodId: number, updatedData: any): Observable<any> {
+    //Only Ctx componentes are editable
+    const url = `${this.API_URL_METHODS_DQMODEL}${methodId}/`;
     return this.http.patch<any>(url, updatedData);
   }
   
@@ -406,7 +422,6 @@ export class DqModelService {
   //obtener Factores asociados a una Dimension dada en DQ Model especifico
   getFactorsByDQModelAndDimension(dqmodelId: number, dimensionId: number): Observable<any[]> {
     const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/${dimensionId}/factors/`;
-    //console.log("Obteniendo factores de la dimensión:", url);
     return this.http.get<any[]>(url).pipe(
       catchError(err => {
         console.error(`Error al obtener factores para DQModel ${dqmodelId} y Dimension ${dimensionId}:`, err);
@@ -453,14 +468,38 @@ export class DqModelService {
     );
   }
 
+  updateDQDimensionBaseDisabledStatus(dimensionBaseId: number, isDisabled: boolean): Observable<any> {
+    const url = `${this.API_URL_DIMENSIONS_BASE}${dimensionBaseId}/`;
+    const payload = { is_disabled: isDisabled };
+
+    return this.http.patch<any>(url, payload).pipe(
+      catchError(err => {
+        console.error(`Error updating is_disabled for DQ Dimension Base ${dimensionBaseId}:`, err);
+        throw err;
+      })
+    );
+  }
+  
+
 
   //FACTORS BASE
+  updateDQFactorBaseDisabledStatus(factorBaseId: number, isDisabled: boolean): Observable<any> {
+    const url = `${this.API_URL_FACTORS_BASE}${factorBaseId}/`;
+    const payload = { is_disabled: isDisabled };
+
+    return this.http.patch<any>(url, payload).pipe(
+      catchError(err => {
+        console.error(`Error updating is_disabled for DQ Factor Base ${factorBaseId}:`, err);
+        throw err;
+      })
+    );
+  }
+
   /*getDQFactorsBase(): Observable<any> {
     return this.http.get<any[]>(this.API_URL_FACTORS_BASE);
   }*/
   getAllDQFactorsBase(): Observable<any[]> {
     return this.http.get<any[]>(this.API_URL_FACTORS_BASE).pipe(
-      tap(data => console.log('Fetched DQ Factors Base:', data)),
       catchError(this.handleError<any[]>('getAllDQFactorsBase', []))
     );
   }
@@ -481,8 +520,7 @@ export class DqModelService {
   getFactorsBaseByDimensionId(dimensionId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.API_URL_DIMENSIONS_BASE}${dimensionId}/factors-base/`).pipe(
       catchError(err => {
-        console.warn(`Advertencia: No se encontraron factores para dimensionId ${dimensionId}.`);
-        return of([]); // Devuelve un array vacío
+        return of([]); // No se encontraron factores para la dimension
       })
     );
   }
@@ -497,6 +535,7 @@ export class DqModelService {
   }
 
   //METRICS DQ
+  
 
   getMetricsByDQModelDimensionAndFactor(dqmodelId: number, dimensionId: number, factorId: number): Observable<any[]> {
     const url = `${this.API_URL_DQMODELS}${dqmodelId}/dimensions/${dimensionId}/factors/${factorId}/metrics`;
@@ -549,6 +588,18 @@ export class DqModelService {
   
 
   //METRICS BASE
+  updateDQMetricBaseDisabledStatus(metricBaseId: number, isDisabled: boolean): Observable<any> {
+    const url = `${this.API_URL_METRICS_BASE}${metricBaseId}/`;
+    const payload = { is_disabled: isDisabled };
+
+    return this.http.patch<any>(url, payload).pipe(
+      catchError(err => {
+        console.error(`Error updating is_disabled for DQ Metric Base ${metricBaseId}:`, err);
+        throw err;
+      })
+    );
+  }
+
   getDQMetricsBase(): Observable<any> {
     return this.http.get<any[]>(this.API_URL_METRICS_BASE).pipe(
       tap(data => console.log('Fetched DQ Metrics Base:', data)),
@@ -563,7 +614,7 @@ export class DqModelService {
   getMetricsBaseByDimensionAndFactorId(dimensionId: number, factorId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.API_URL_DIMENSIONS_BASE}${dimensionId}/factors-base/${factorId}/metrics-base/`).pipe(
       catchError(err => {
-        console.error(`Error al obtener metricas para dimension ${dimensionId} y factor ${factorId}:`, err);
+        //console.error(`Error al obtener metricas para dimension ${dimensionId} y factor ${factorId}:`, err);
         throw err;
       })
     );
@@ -582,6 +633,19 @@ export class DqModelService {
 
 
   //METHODS BASE
+  updateDQMethodBaseDisabledStatus(methodBaseId: number, isDisabled: boolean): Observable<any> {
+    const url = `${this.API_URL_METHODS_BASE}${methodBaseId}/`;
+    const payload = { is_disabled: isDisabled };
+
+    return this.http.patch<any>(url, payload).pipe(
+      catchError(err => {
+        console.error(`Error updating is_disabled for DQ Method Base ${methodBaseId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+
   getDQMethodsBase(): Observable<any> {
     return this.http.get<any[]>(this.API_URL_METHODS_BASE);
   }

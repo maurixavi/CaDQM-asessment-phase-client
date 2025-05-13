@@ -123,3 +123,55 @@
   background-color: #f8f9fa; 
   cursor: pointer;
 }
+
+/* context-components.component.css */
+.nav-tabs {
+  border-bottom: none;
+  margin-bottom: 0px;
+}
+
+.nav-link {
+  color: #495057;
+  border: 1px solid transparent;
+  /*border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;*/
+  /*padding: 0.5rem 1rem;*/
+  font-size: 16px;
+}
+
+.nav-link.active {
+  color: #222;
+  /*background-color: #fff;*/
+  border-color: #dee2e6 #dee2e6 #fff;
+  font-weight: 500;
+
+}
+
+.dq-problems-content {
+  padding: 1rem;
+}
+
+/* Agregar estos estilos para mejorar la apariencia del acordeón anidado */
+.accordion .accordion {
+  margin-top: 0.5rem;
+}
+
+.accordion .accordion-item {
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.accordion .accordion-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.accordion .accordion-body {
+  padding: 0.75rem;
+}
+
+.list-group-item {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}

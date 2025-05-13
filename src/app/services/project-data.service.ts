@@ -188,7 +188,7 @@ export class ProjectDataService {
     );
   }
 
-  private getContextVersionById(contextVersionId: number): Observable<any> {
+  getContextVersionById(contextVersionId: number): Observable<any> {
     const url = `${this.API_URL_CONTEXT_VERSIONS}${contextVersionId}/`;
     return this.http.get<any>(url).pipe(
       catchError(this.handleError<any>(`getContextVersionById id=${contextVersionId}`))

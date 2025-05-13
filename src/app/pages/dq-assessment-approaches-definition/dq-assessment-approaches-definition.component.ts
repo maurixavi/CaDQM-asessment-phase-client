@@ -21,8 +21,9 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
   // =============================================
   public formatAppliedTo = formatAppliedTo;
   public getAppliedToDisplay = getAppliedToDisplay;
-  
-  pageStepTitle = 'Definition of assessment approaches';
+  public formatCtxCompCategoryName = formatCtxCompCategoryName;
+
+  pageStepTitle = 'Definition of DQ assessment approaches';
   phaseTitle = 'Phase 2: DQ Assessment';
   stageTitle = 'Stage 6: DQ Assessment';
 
@@ -93,22 +94,6 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
           { name: 'Poor', minValue: 0, maxValue: 0.59  }
         ];
   }
-  
-  /*getDefaultThresholds(resultDomain: string): any[] {
-    switch(resultDomain?.toLowerCase()) {
-      case 'boolean':
-        return [
-          { name: 'Acceptable', minValue: 1, maxValue: 1, isPassing: true },
-          { name: 'Unacceptable', minValue: 0, maxValue: 0, isPassing: false }
-        ];
-      default:
-        return [
-          { name: 'Excellent', minValue: 0.80, maxValue: 1, isPassing: true },
-          { name: 'Good', minValue: 0.60, maxValue: 0.79, isPassing: true },
-          { name: 'Poor', minValue: 0, maxValue: 0.59, isPassing: false }
-        ];
-    }
-  }*/
 
   qualityThresholds = [...this.defaultThresholds];
   areThresholdsEditable = true;
@@ -228,6 +213,39 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
   }
 
   // ========== EXECUTED METHODS DATA ==========
+  getContextComponentCategories(contextComponents: any): string[] {
+    return Object.keys(contextComponents).filter(category => contextComponents[category].length > 0);
+  }
+
+  getFirstAttribute(category: string, componentId: number): string {
+    const component = this.contextComponents[category]?.find((comp: any) => comp.id === componentId);
+    if (component) {
+      const keys = Object.keys(component).filter(key => key !== 'id' && key !== 'type');
+      if (keys.length > 0) {
+        return `${component[keys[0]]}`;
+      }
+    }
+    return 'No details available';
+  }
+
+  // Variables para el modal
+  selectedComponentKeys: string[] = []; // Claves del componente seleccionado
+  selectedComponentDetails: any = {}; // Detalles del componente seleccionado
+
+  openContextComponentModal(category: string, componentId: number): void {
+    const component = this.contextComponents[category]?.find((comp: any) => comp.id === componentId);
+    if (component) {
+      this.selectedComponentKeys = Object.keys(component).filter(key => key !== 'id');
+      this.selectedComponentDetails = component;
+      // Abrir el modal
+      const modalElement = document.getElementById('contextComponentModal');
+      if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+      }
+    }
+  }
+
   fetchExecutedMethodsData(dqmodelId: number, executedIds: number[]): void {
     this.isLoading = true;
     this.errorMessage = null;
@@ -263,12 +281,14 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
                                 dqMethod: dqMethodName,
                                 methodBase: methodBase,
                                 dqMetric: metric.metric_name,
+                                granularity: dqMetricBase.granularity, 
                                 resultDomain: dqMetricBase.resultDomain, 
                                 dqFactor: factor.factor_name,
                                 dqDimension: dimension.dimension_name,
                                 method_type: 'Measurement',
                                 executionStatus: 'completed',
-                                executionResult: null
+                                executionResult: null,
+                                context_components: method.context_components
                               };
   
                               updateObservables.push(this.getExecutionResultObservable(methodData));
@@ -283,12 +303,14 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
                                 dqMethod: dqMethodName,
                                 methodBase: methodBase,
                                 dqMetric: metric.metric_name,
+                                granularity: dqMetricBase.granularity, 
                                 resultDomain: dqMetricBase.resultDomain,  
                                 dqFactor: factor.factor_name,
                                 dqDimension: dimension.dimension_name,
                                 method_type: 'Aggregation',
                                 executionStatus: 'completed',
-                                executionResult: null
+                                executionResult: null,
+                                context_components: method.context_components
                               };
   
                               updateObservables.push(this.getExecutionResultObservable(methodData));
@@ -467,7 +489,9 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
     }));
   }
 
-  saveThresholds() {
+  saveThresholds_backup() {
+    console.log("this.thresholdType", this.thresholdType)
+
     const thresholdsToSave = this.qualityThresholds.map(t => {
       if (t.minValue === null || t.maxValue === null || !t.name) {
         throw new Error('All thresholds must have name, min and max values');
@@ -528,6 +552,107 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
       }
     }
   }
+
+
+  saveThresholds() {
+    console.log("this.thresholdType", this.thresholdType)
+
+    const thresholdsToSave = this.qualityThresholds.map(t => {
+      if (t.minValue === null || t.maxValue === null || !t.name) {
+        throw new Error('All thresholds must have name, min and max values');
+      }
+
+      /*const convertToDecimal = (value: number) => {
+        if (this.thresholdType === 'boolean') {
+          return value; 
+        }
+        return value / 100;
+      };*/
+
+      return {
+        name: t.name,
+        min: t.minValue, // Asegurarse que es número
+        max: t.maxValue // Asegurarse que es número
+      };
+    });
+
+    // Validar que haya al menos 2 thresholds
+    if (thresholdsToSave.length < 2) {
+      this.notificationService.showError('At least two thresholds must be defined to perform a proper assessment.');
+      return;
+    }
+
+    if (this.thresholdType !== 'boolean') {
+      // Validación de consistencia de rangos
+      const sortedThresholds = [...thresholdsToSave].sort((a, b) => b.max - a.max); // Orden descendente por max
+      for (let i = 0; i < sortedThresholds.length; i++) {
+        const current = sortedThresholds[i];
+
+        if (current.min > current.max) {
+          this.notificationService.showError(`In threshold "${current.name}", min cannot be greater than max.`);
+          return;
+        }
+
+        if (i > 0) {
+          const previous = sortedThresholds[i - 1];
+          
+          // Validar continuidad: el max del actual debe ser exactamente 0.01 menos que el min del anterior
+          if (current.max < previous.min - 0.01) {
+            this.notificationService.showError(`Gap detected between "${previous.name}" and "${current.name}". Thresholds must be continuous.`);
+            return;
+          }
+
+          // Validar que no se solapen
+          if (current.max >= previous.min) {
+            this.notificationService.showError(`Overlap detected between "${previous.name}" and "${current.name}". Ranges must not overlap.`);
+            return;
+          }
+        }
+      }
+    }
+
+    console.log("thresholdsToSave before sending:", thresholdsToSave); // Debug
+
+    if (this.selectedMethodDetail && this.dqModelVersionId) {
+      const resultId = this.selectedMethodDetail.executionResult?.result_id;
+      
+      if (resultId) {
+        this.isLoading = true;
+        
+        this.modelService.updateAssessmentThresholds(
+          this.dqModelVersionId,
+          this.selectedMethodDetail.id,
+          resultId,
+          thresholdsToSave
+        ).subscribe({
+          next: (response) => {
+            console.log("thresholdsToSave", thresholdsToSave)
+            // Actualizar la estructura con el nuevo assessment
+            this.selectedMethodDetail.executionResult = {
+              ...this.selectedMethodDetail.executionResult,
+              assessment: {
+                thresholds: thresholdsToSave,
+                //assessed_at: new Date().toISOString()
+              }
+            };
+            /*if (!this.selectedMethodDetail.executionResult.assessment_details) {
+              this.selectedMethodDetail.executionResult.assessment_details = {};
+            }
+            this.selectedMethodDetail.executionResult.assessment_details.thresholds = thresholdsToSave;*/
+            this.isLoading = false;
+            this.notificationService.showSuccess('Thresholds saved successfully');
+          },
+          error: (err) => {
+            console.error('Error saving thresholds:', err);
+            this.notificationService.showError('Failed to save thresholds');
+            this.isLoading = false;
+            this.errorMessage = 'Error saving thresholds';
+          }
+        });
+      }
+    }
+  }
+
 
   addThreshold() {
     const newThreshold = {

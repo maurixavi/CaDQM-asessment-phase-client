@@ -19,27 +19,30 @@
 						<span *ngIf="completeDQModel.model.status === 'finished'" class="badge rounded-pill bg-dark">Finished</span>
 						<span *ngIf="completeDQModel.model.status === 'draft'" class="badge rounded-pill bg-warning">Draft</span>
 					</div>
-					<div class="label-selected">
-						<label class="label-title-selected">Creation date:</label>
-						<span class="label-value-selected">{{ completeDQModel.model.created_at | date:'MMM dd HH:mm yyyy' }}</span>
-					</div>
-					<div class="label-selected">
-						<label class="label-title-selected">Context version:</label>
-						<span class="label-value-selected">CtxA v1.0 (id: {{ project.context_version }})</span>
-					</div>
-					<div class="label-selected">
-						<label class="label-title-selected">Data at hand:</label>
-						<span class="label-value-selected"> {{ dataAtHandDetails.description }} ({{ dataAtHandDetails.dbname }}) <a href="javascript:void(0)" (click)="dataAtHandModal.openModal()" style="text-decoration: none;">
-								<i class="bi bi-zoom-in"></i>
-							</a>
-						</span>
-						<!--<span class="label-value-selected" (click)="openDataSchemaModal()" style="cursor: pointer;">
-							Data at Hand Id: {{ project?.data_at_hand }} <i class="bi bi-zoom-in"></i>
-						</span>-->
-						<!--<span class="label-value-selected">Data at Hand Id: {{ project.data_at_hand }}</span>-->
-					</div>
-					<div class="label-selected">
-						<label class="label-title-selected">DQ Dimensions:</label>
+					
+					<div class="dqmodel-preview-details-container">
+						<div class="label-selected">
+							<label class="label-title-selected">Creation date:</label>
+							<span class="label-value-selected">{{ completeDQModel.model.created_at | date:'MMM dd HH:mm yyyy' }}</span>
+						</div>
+						<div class="label-selected">
+							<label class="label-title-selected">Context version:</label>
+							<span class="label-value-selected">CtxA v1.0 (id: {{ project.context_version }})</span>
+						</div>
+						<div class="label-selected">
+							<label class="label-title-selected">Data at hand:</label>
+							<span class="label-value-selected"> {{ dataAtHandDetails.description }} ({{ dataAtHandDetails.dbname }}) <a href="javascript:void(0)" (click)="dataAtHandModal.openModal()" style="text-decoration: none;">
+									<i class="bi bi-zoom-in"></i>
+								</a>
+							</span>
+							<!--<span class="label-value-selected" (click)="openDataSchemaModal()" style="cursor: pointer;">
+								Data at Hand Id: {{ project?.data_at_hand }} <i class="bi bi-zoom-in"></i>
+							</span>-->
+							<!--<span class="label-value-selected">Data at Hand Id: {{ project.data_at_hand }}</span>-->
+						</div>
+						<div class="label-selected">
+							<label class="label-title-selected">DQ Dimensions:</label>
+						</div>
 					</div>
 	
 					<!-- Accordion DIMENSIONS -->
@@ -75,7 +78,7 @@
 										</div>
 
 										<div class="label-selected">
-											<label class="label-title-selected">Ctx (Suggested by):</label>
+											<label class="label-title-selected">Suggested by (Ctx. Components):</label>
 											<span class="label-value-selected">
 												<ul>
 													<li *ngFor="let category of getContextComponentCategories(dimension.context_components)">
@@ -128,7 +131,7 @@
 														</div>
 
 														<div class="label-selected">
-															<label class="label-title-selected">Ctx (Arises from):</label>
+															<label class="label-title-selected">Arises from (Ctx. Components):</label>
 															<span class="label-value-selected">
 																<ul>
 																	<li *ngFor="let category of getContextComponentCategories(factor.context_components)">
@@ -187,6 +190,25 @@
 																			<label class="label-title-selected">Result domain:</label>
 																			<span class="label-value-selected">{{ metric.attributesBase?.resultDomain }}</span>
 																		</div>
+
+																		<div class="label-selected">
+																			<label class="label-title-selected">Influenced by (Ctx. Components):</label>
+																			<span class="label-value-selected">
+																				<ul>
+																					<li *ngFor="let category of getContextComponentCategories(metric.context_components)">
+																						{{ formatCategoryName(category) }}:
+																						<ul>
+																							<li *ngFor="let componentId of metric.context_components[category]">
+																								{{ getFirstAttribute(category, componentId) }}
+																								<a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)" style="text-decoration: none;">
+																									<i class="bi bi-zoom-in"></i> 
+																								</a>
+																							</li>
+																						</ul>
+																					</li>
+																				</ul>
+																			</span>
+																		</div>
 																		<div class="label-selected">
 																			<label class="label-title-selected">DQ Methods:</label>
 																		</div>
@@ -228,6 +250,25 @@
 																							<label class="label-title-selected">Algorithm:</label>
 																							<span class="code-block">
 																								<pre><code>{{ method.attributesBase?.algorithm }}</code></pre>
+																							</span>
+																						</div>
+
+																						<div class="label-selected">
+																							<label class="label-title-selected">Uses (Ctx. Components)::</label>
+																							<span class="label-value-selected">
+																								<ul>
+																									<li *ngFor="let category of getContextComponentCategories(method.context_components)">
+																										{{ formatCategoryName(category) }}:
+																										<ul>
+																											<li *ngFor="let componentId of method.context_components[category]">
+																												{{ getFirstAttribute(category, componentId) }}
+																												<a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)" style="text-decoration: none;">
+																													<i class="bi bi-zoom-in"></i> 
+																												</a>
+																											</li>
+																										</ul>
+																									</li>
+																								</ul>
 																							</span>
 																						</div>
 																						<div class="label-selected">
@@ -339,10 +380,14 @@
 						</div>
 
 					</div>
+				
 
-					<div class="d-flex gap-2 mt-2">
+					<div class="d-flex gap-3 mt-2 mb-3">
 						<button class="btn btn-dark btn-sm mt-3" (click)="openConfirmDQModelModal()">Confirm DQ Model</button>
-						<button class="btn btn-info btn-sm mt-3" (click)="generatePdf()">DQ Model Report PDF</button>
+						<button class="btn btn-info btn-sm mt-3" (click)="generatePdf()">
+							<i class="bi bi-file-earmark-pdf me-1"></i> Download DQ Model 
+						</button>
+						
 					</div>
 
 				</div>
@@ -366,16 +411,11 @@
   [selectedComponentDetails]="selectedComponentDetails">
 </app-context-component-view-modal>
 	
-<app-modal
-  [isOpen]="isConfirmDQModelModalOpen"
-  [title]="'Confirm DQ Model Finalization'"
-  [message]="confirmDQModelMessage"
-  (close)="onConfirmDQModelModalClose()">
-</app-modal>
+
 
 <app-modal
   [isOpen]="isConfirmDQModelModalOpen"
-  [title]="'Confirm DQ Model Finalization'"
+  [title]="'Confirm DQ Model'"
   [message]="confirmDQModelMessage"
   (close)="onConfirmDQModelModalClose()">
   
@@ -386,11 +426,6 @@
   </div>
 </app-modal>
 
-<!-- Botones personalizados para el modal de confirmación -->
-<div class="d-flex gap-2 mt-2">
-	<button type="button" class="btn btn-sm btn-light" (click)="onConfirmDQModelModalClose()">Cancel</button>
-	<button type="button" class="btn btn-sm btn-dark" (click)="confirmationFinishedDQModel()">Confirm</button>
-</div>
 
 
 <app-stepper
