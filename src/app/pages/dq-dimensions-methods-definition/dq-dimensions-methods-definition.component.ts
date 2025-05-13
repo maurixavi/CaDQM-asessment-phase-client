@@ -185,7 +185,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
       name: ['', Validators.required],
       appliedTo: ['', Validators.required],
       algorithm: ['', Validators.required],
-      type: ['Aggregated', Validators.required]
+      type: ['Measurement', Validators.required]
     });
   }
 
@@ -636,6 +636,8 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     );
   }
 
+ 
+
   getComponentById(category: string, id: number): any {
     const components = this.allContextComponents[category];
     if (!components || components.length === 0) {
@@ -877,7 +879,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
       name: implementationName,
       appliedTo: '',
       algorithm: appliedAlgorithm,
-      type: 'Aggregated'
+      type: 'Measurement'
     });
 
     this.isCreateAppliedMethodModalOpen = true;
@@ -886,7 +888,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
 
   closeCreateAppliedMethodModal() {
     this.isCreateAppliedMethodModalOpen = false;
-    this.appliedMethodForm.reset({ type: 'Aggregated' });
+    this.appliedMethodForm.reset({ type: 'Measurement' });
   }
 
   deleteAppliedMethod(appMethod: any) {
@@ -990,29 +992,27 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
           next: (data) => {
             console.log("Applied Method created:", data);
 
-            alert("Applied Method successfully created");
+            this.notificationService.showSuccess('Applied DQ Method was successfully created and added to the DQ Model.');
 
             this.loadDQModelMetrics(); //Actualizar DQ Model
-
           },
           error: (err) => {
             console.error("Error creating the Applied Method:", err);
-            alert("Error creating the Applied Method.");
+            this.notificationService.showError('Failed to add the Applied DQ Method to DQ Model');
           }
         });
       } else {
         this.modelService.createMeasurementMethod(newAppMeth).subscribe({
           next: (data) => {
             console.log("Applied Method created:", data);
-   
-            alert("Applied Method successfully created");
+
+            this.notificationService.showSuccess('Applied DQ Method was successfully created and added to the DQ Model.');
 
             this.loadDQModelMetrics(); //Actualizar DQ Model
-
           },
           error: (err) => {
             console.error("Error creating the Applied Method:", err);
-            alert("Error creating the Applied Method.");
+            this.notificationService.showError('Failed to add the Applied DQ Method to DQ Model');
           }
         });
       }
@@ -1023,7 +1023,35 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     }
   }
 
-  async deleteMethod(metric: any, method: any): Promise<void> {
+
+  //Delete DQ Method (remove from DQ Model)
+  async removeDQMethodFromDQModel(metric: any, method: any): Promise<void> {
+
+    console.log("DELETE metric", metric);
+    console.log("DELETE method", method);
+  
+    try {
+      const response = await this.modelService.deletMethodFromDQModel(method.id).toPromise();
+      
+      this.notificationService.showSuccess(`"${method.method_name}" was successfully removed from the DQ Model.`);
+      
+      // Actualizar la lista local sin el método eliminado
+      metric.definedMethods = metric.definedMethods.filter(
+        (item: any) => item.id !== method.id
+      );
+      
+      // Si el método eliminado estaba seleccionado, limpiar la selección
+      if (this.selectedMethodDQModel?.id === method.id) {
+        this.selectedMethodDQModel = null;
+      }
+      
+    } catch (error) {
+      console.error('Error deleting method:', error);
+      this.notificationService.showError(`Failed to delete "${method.method_name}".`);
+    }
+  }
+
+  async deleteMethod0(metric: any, method: any): Promise<void> {
     const confirmation = await this.confirmAction(
       `Are you sure you want to delete "${method.method_name}" from the DQ Model?\nThis will also delete all its applied methods.`
     );
@@ -1049,34 +1077,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
     }
   }
 
-  deleteMethod1(metric: any, method: any): void {
-    const index = metric.definedMethods.indexOf(method);
-    if (index > -1) {
-      const userConfirmed = confirm(
-        "¿Está seguro que desea eliminar esta metrica del DQ Model? Esto también eliminará los metodos asociados."
-      );
-
-      if (userConfirmed) {
-        console.log(`Eliminando la dimensión con ID: ${method.id}`);
-        this.modelService.deletMethodFromDQModel(method.id).subscribe(
-          response => {
-            //alert(response?.message || "Metrica y metodos asociados eliminados exitosamente.");
-            this.notificationService.showSuccess(`DQ Method was successfully removed from the DQ Model.`);
-            metric.definedMethods = metric.definedMethods.filter(
-              (item: any) => item.id !== method.id
-            );
-          },
-          error => {
-            alert("Error al eliminar la metrica.");
-            console.error("Error al eliminar la metrica:", error);
-          }
-        );
-      } else {
-        console.log("Eliminación de la dimensión cancelada por el usuario.");
-      }
-    }
-  }
-
+ 
 
   async addMethodToDQModel(metric: any, method: any) {
     /*const confirmation = await this.confirmAction(`Are you sure you want to add the DQ Method "${method.name}" to DQ Model?`);
@@ -1301,7 +1302,7 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   openConfirmationModal(
     title: string,
     message: string,
-    actionType: 'addMethodToDQModel' | 'createDQMethod' | 'deleteMethodBase', 
+    actionType: 'addMethodToDQModel' | 'createDQMethodBase' | 'deleteMethodBase' | 'removeDQMethodFromDQModel' | 'defineAppliedMethod', 
     ...params: any[]
   ): void {
     this.confirmationModalTitle = title;
@@ -1309,10 +1310,10 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
   
     // Configuramos la acción según el tipo
     switch (actionType) {
-      case 'createDQMethod':
-        const [metric] = params;
+      case 'createDQMethodBase':
+        const [metricBase] = params;
         this.confirmedAction = () => {
-          this.createMethodBase(metric);
+          this.createMethodBase(metricBase);
         };
         break;
 
@@ -1329,6 +1330,20 @@ export class DqDimensionsMethodsDefinitionComponent implements OnInit {
           this.deleteMethodBase(selectedBaseDQMethodId);
         };
         break;
+
+      case 'removeDQMethodFromDQModel':
+        const [metricIn, methodToRemove] = params;
+        this.confirmedAction = () => {
+          this.removeDQMethodFromDQModel(metricIn, methodToRemove);
+        };
+        break;
+
+        case 'defineAppliedMethod':
+          this.confirmedAction = () => {
+            this.createAppliedMethod();
+  
+          };
+          break;
     }
   
     this.isConfirmationModalOpen = true;
@@ -1707,5 +1722,77 @@ isCollapsed(id: string): boolean {
   return !!this.collapsedItems[id];
 }
 
+
+  /* DQ METHOD EDITING */
+
+  //Habilitar edicion DQ Method (ctx components)
+  enableDQMethodEdition(method: any): void {
+    console.log("enableDQMethodEdition", method)
+    method.isEditing = !method.isEditing;
+  
+    // Inicializar tempContextComponents si no está definido
+    if (!method.tempContextComponents) {
+      method.tempContextComponents = JSON.parse(JSON.stringify(method.context_components || {}));
+    }
+  }
+
+  //Presetar ctx components ya existentes en DQ Method para edicion
+  isCtxComponentSelected_editing(category: string, componentId: number, tempContextComponents: any): boolean {
+    return tempContextComponents[category] && tempContextComponents[category].includes(componentId);
+  }
+
+
+  //Chequear si categoria Ctx component tiene elementos
+  categoryHasCtxComponents_editing(category: string, tempContextComponents: any): boolean {
+    return tempContextComponents[category] && tempContextComponents[category].length > 0;
+  }
+
+  //Update DQ Method - Ctx components selection
+  onCtxComponentsCheckboxChange_methodEditing(componentId: number, category: string, method: any): void {
+    if (!method.tempContextComponents[category]) {
+      method.tempContextComponents[category] = [];
+    }
+
+    console.log("method.tempContextComponents", method.tempContextComponents)
+  
+    const index = method.tempContextComponents[category].indexOf(componentId);
+    if (index === -1) {
+      method.tempContextComponents[category].push(componentId);
+    } else {
+      // Eliminar el componente si ya está seleccionado
+      method.tempContextComponents[category].splice(index, 1);
+    }
+  }
+
+  //Update Metric ctx components
+  saveMethodContextComponents(method: any): void {
+    const updatedMethod = {
+      context_components: method.tempContextComponents,
+    };
+
+    console.log("updatedMethod", updatedMethod);
+
+    method.context_components = JSON.parse(JSON.stringify(method.tempContextComponents));
+    method.isEditing = false;
+
+        console.log("Method  actualizacion ctx components.", method.context_components);
+
+    this.modelService.updateDQMethodCtx(method.id, updatedMethod).subscribe({
+      next: () => {
+        this.notificationService.showSuccess(`DQ Method was successfully updated.`);
+        //this.loadDQModelDimensionsAndFactors();
+
+        //Actualizar componentes en vista
+        method.context_components = JSON.parse(JSON.stringify(method.tempContextComponents));
+        method.isEditing = false;
+
+        console.log("Metrics actualizacion ctx components.", method.context_components);
+      },
+      error: (err) => {
+        console.error("Error al actualizar el factor:", err);
+        alert("Error updating factor context components and problems.");
+      },
+    });
+  }
 
 }

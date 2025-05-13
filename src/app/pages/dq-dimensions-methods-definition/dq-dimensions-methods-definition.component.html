@@ -8,10 +8,10 @@
   </app-step-navigator>
 
   <!-- SECTION: Select DQ Methods -->
-  <div>
+  <div *ngIf="this.currentDQModel?.status !== 'finished'" >
     <p class="subtitle-description mt-4">Define DQ Methods for each DQ Metric</p>
     <div class="flex-container">
-      <div class="suggested-section-container">
+      <div class="section-container">
         <div class="dim-factor-selection-container">
           <div class="label-container">
             <!-- DQ Dimension -->
@@ -96,8 +96,10 @@
                         {{ formatCtxCompCategoryName(category) }}:
                         <ul>
                           <li *ngFor="let componentId of selectedMetric.context_components[category]">
+                            {{ getFirstAttribute(category, componentId) }}
                             <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
-                              {{ getFirstAttribute(category, componentId) }}
+                              
+                              <i class="bi bi-zoom-in"></i> 
                             </a>
                           </li>
                         </ul>
@@ -132,7 +134,7 @@
                     selectedBaseDQMethod.id
                   )">
                     <i class="bi bi-trash3"></i> 
-                  </button> 
+                </button> 
               </span>
             </div>
 
@@ -164,8 +166,10 @@
                         {{ formatCtxCompCategoryName(category) }}:
                         <ul>
                           <li *ngFor="let component of getComponentsByCategory(selectionCheckboxCtxComponents, category)">
+                            {{ component.value }}
                             <a href="javascript:void(0)" (click)="openContextComponentModal(category, component.id)">
-                              {{ component.value }}
+                              
+                              <i class="bi bi-zoom-in"></i> 
                             </a>
                           </li>
                         </ul>
@@ -287,14 +291,14 @@
                 </div>
                 <div [formGroup]="dqMethodForm" class="form-group">
                   <label for="algorithm">Algorithm</label>
-                  <textarea id="algorithm" name="algorithm" formControlName="algorithm" rows="4" class="form-control" placeholder="Write your code!" [value]="suggestion?.algorithm || ''"></textarea>
+                  <textarea id="algorithm" name="algorithm" formControlName="algorithm" rows="4" class="form-control" placeholder="Define the SQL query logic used by this DQ Method to implement the DQ Metric..." [value]="suggestion?.algorithm || ''"></textarea>
                 </div>
               </form>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer border-top-0">
               <button type="button" class="btn btn-sm btn-info" (click)="generateNewSuggestion()" style="width: auto;" [disabled]="isLoading">
                 <i class="bi bi-lightning"></i>
-                <span *ngIf="!isLoading">Generate New</span>
+                <span *ngIf="!isLoading">AI Suggestion</span>
                 <span *ngIf="isLoading">
                   <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                   Generating...
@@ -303,17 +307,17 @@
               <button type="button" class="btn btn-sm btn-light" (click)="closeModalBase()">Cancel</button>
               <!--<button type="button" class="btn btn-sm btn-dark" (click)="addBaseMethod(selectedMetric)">Confirm</button>-->
               <button 
-              type="button" 
-              class="btn btn-sm btn-dark" 
-              (click)="openConfirmationModal(
-                'Create DQ Method',
-                'Are you sure you want to create this DQ Method?',
-                'createDQMethod',
-                selectedMetric
-              )"
-              [disabled]="!dqMethodForm.valid">
-              Confirm
-            </button>
+                type="button" 
+                class="btn btn-sm btn-dark" 
+                (click)="openConfirmationModal(
+                  'Create DQ Method',
+                  'Are you sure you want to create this DQ Method? Once created, it will be available for selection and addition to the DQ Model.',
+                  'createDQMethodBase',
+                  selectedMetric
+                )"
+                [disabled]="!dqMethodForm.valid">
+                Confirm
+              </button>
             </div>
           </div>
         </div>
@@ -322,10 +326,10 @@
   </div>
 
   <!-- SECTION: Define Applied DQ Methods -->
-  <div>
+  <div *ngIf="this.currentDQModel?.status !== 'finished'" >
     <p class="subtitle-description mt-4">Define Applied DQ Methods for each DQ Methods</p>
     <div class="flex-container">
-      <div class="suggested-section-container">
+      <div class="section-container">
         <div class="dim-factor-selection-container">
 
           <div class="label-container">
@@ -406,62 +410,7 @@
     </div>
   </div>
 
-  <!-- previous SECTION: Define Applied DQ Methods 
-  <div>
-    <p class="subtitle-description mt-4">Define Applied DQ Methods for each DQ Method in the DQ Model</p>
-    <div class="flex-container">
-      <div class="suggested-section-container">
-        <div class="dim-factor-selection-container">
-          <div class="label-container">
-
-            <div class="label mt-2">
-              <label class="label-title">DQ Method:</label>
-              <span class="label-value d-flex align-items-center">
-                <select 
-                  id="methodSelect" 
-                  class="form-select select-style"
-                  [(ngModel)]="selectedMethodDQModel" 
-                  (change)="onMethodDQModelSelected()"
-                >
-                  <option value="" disabled>Select existing</option>
-                  <option *ngFor="let method of allMethods" [value]="method.id">{{ method.method_name }}</option>
-                </select>
-              </span>
-            </div>
-
-            <div *ngIf="selectedMethodDQModel" class="label-container-selected py-2 px-4">
-              <div class="label-selected">
-                <span class="label-name-selected">{{ selectedMethodDetails?.name }}</span>
-              </div>
-              <div class="label-selected">
-                <label class="label-title-selected">Input data type:</label>
-                <span class="label-value-selected">{{ selectedMethodDetails?.inputDataType }}</span>
-              </div>
-              <div class="label-selected">
-                <label class="label-title-selected">Output data type:</label>
-                <span class="label-value-selected">{{ selectedMethodDetails?.outputDataType }}</span>
-              </div>
-              <div class="label-selected">
-                <label class="label-title-selected">Algorithm:</label>
-                <span class="code-block">
-                  <pre><code>{{ selectedMethodDetails?.algorithm }}</code></pre>
-                </span>
-              </div>
-              <div class="label mt-2">
-                <button 
-                  class="btn btn-dark" 
-                  [disabled]="!selectedMethodDQModel" 
-                  (click)="openCreateAppliedMethodModal(selectedMethodDQModel)">
-                  Define Applied Method
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div> -->
-  
+ 
   <!-- Modal for Creating Applied DQ Method -->
   <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isCreateAppliedMethodModalOpen}" [style.display]="isCreateAppliedMethodModalOpen ? 'block' : 'none'">
     <div class="modal-dialog" role="document">
@@ -493,8 +442,9 @@
                 class="form-select"
                 (change)="onTypeChange()"
               >
-                <option value="Aggregated">Aggregated</option>
                 <option value="Measurement">Measurement</option>
+                <option value="Aggregated">Aggregated</option>
+            
               </select>
             </div>
             
@@ -531,14 +481,25 @@
                 formControlName="algorithm"
                 rows="4"
                 class="form-control"
-                [placeholder]="selectedMethodObject ? selectedMethodObject.algorithm + '...' : 'Enter the algorithm implementation to execute the metric'"
+                [placeholder]="selectedMethodObject ? selectedMethodObject.algorithm + '...' : 'Enter the algorithm implementation to execute the DQ Metric'"
               ></textarea>
             </div>
           </form>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer border-top-0">
           <button type="button" class="btn btn-sm btn-light" (click)="closeCreateAppliedMethodModal()">Cancel</button>
-          <button type="button" class="btn btn-sm btn-dark" (click)="createAppliedMethod()" [disabled]="appliedMethodForm.invalid">Create</button>
+          <!--<button type="button" class="btn btn-sm btn-dark" (click)="createAppliedMethod()" [disabled]="appliedMethodForm.invalid">Create</button>-->
+          <button 
+                type="button" 
+                class="btn btn-sm btn-dark" 
+                (click)="openConfirmationModal(
+                  'Define Applied DQ Method',
+                  'Are you sure you want to define and add this Applied DQ Method to the DQ Model?',
+                  'defineAppliedMethod'
+                )"
+                [disabled]="!appliedMethodForm.valid">
+                Create
+              </button>
         </div>
       </div>
     </div>
@@ -547,9 +508,11 @@
   <!-- SECTION: Show DQ Methods added to DQ Model -->
   <div>
     <p class="subtitle-description mt-4">DQ Methods added to DQ Model</p>
-    <div class="flex-container">
-      <div class="suggested-section-container">
-        <div *ngIf="allMetrics && allMetrics.length">
+
+    <div class="flex-container" style="margin-bottom: 80px;">
+      <div class="section-container">
+        <!--<div *ngIf="allMetrics && allMetrics.length">-->
+        <div>
           <div class="label-container-selected py-2 px-4">
             <div class="dqmodel-title">
               <span class="label-name-dqmodel">{{ currentDQModel.version }} (id: {{ project.dqmodel_version }})</span>
@@ -621,8 +584,9 @@
                                     {{ formatCtxCompCategoryName(category) }}:
                                     <ul>
                                         <li *ngFor="let componentId of metric.context_components[category]">
+                                          {{ getFirstAttribute(category, componentId) }}
                                             <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
-                                                {{ getFirstAttribute(category, componentId) }}
+                                                <i class="bi bi-zoom-in"></i> 
                                             </a>
                                         </li>
                                     </ul>
@@ -678,20 +642,74 @@
                               </div>
 
                               <div class="label-selected">
-                                <label class="label-title-selected">Influenced by (Ctx. Components):</label>
+                                <label class="label-title-selected">Uses (Ctx. Components):</label>
                                 <span class="label-value-selected">
+                                  <!-- Ctx components - Solo lectura -->
+                                  <div *ngIf="!item.isEditing">
                                     <ul>
                                         <li *ngFor="let category of getContextComponentCategories(item.context_components)">
                                             {{ formatCtxCompCategoryName(category) }}:
                                             <ul>
                                                 <li *ngFor="let componentId of item.context_components[category]">
+                                                  {{ getFirstAttribute(category, componentId) }}
                                                     <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
-                                                        {{ getFirstAttribute(category, componentId) }}
+                                                        
+                                                        <i class="bi bi-zoom-in"></i> 
                                                     </a>
                                                 </li>
                                             </ul>
                                         </li>
                                     </ul>
+                                  </div>
+
+                                  <!-- Edicion - Solo lectura -->
+                                    <div *ngIf="item.isEditing"  class="ctx-selection-accordion-container">
+                                      <div class="accordion" id="accordionPanelsStayOpenExample">
+                                        <div *ngFor="let category of getContextComponentCategories(metric.context_components); let i = index" class="accordion-item">
+                                          <h5 class="accordion-header" [id]="'panelsStayOpen-heading' + i">
+                                            <button
+                                              class="accordion-button"
+                                              type="button"
+                                              data-bs-toggle="collapse"
+                                              [attr.data-bs-target]="'#panelsStayOpen-collapse' + i"
+                                              [attr.aria-controls]="'panelsStayOpen-collapse' + i"
+
+                                              [attr.aria-expanded]="categoryHasCtxComponents_editing(category, item.tempContextComponents)"
+                                              [class.collapsed]="!categoryHasCtxComponents_editing(category, item.tempContextComponents)"
+                                              
+                                              style="padding: 0.1rem 0.9rem;"
+                                            >
+                                              {{ formatCtxCompCategoryName(category) }}
+                                            </button>
+                                          </h5>
+                                          <div
+                                            [id]="'panelsStayOpen-collapse' + i"
+                                            class="accordion-collapse collapse"
+                                            [class.show]="categoryHasCtxComponents_editing(category, item.tempContextComponents)"
+                                            [attr.aria-labelledby]="'panelsStayOpen-heading' + i"
+                                          >
+                                            <div class="accordion-body">
+                                              <div *ngFor="let componentId of metric.context_components[category]" class="form-check">
+                                                <ng-container *ngIf="getComponentById(category, componentId) as component">
+                                                  <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    [id]="'checkbox-' + category + '-' + component.id"
+                                                    [checked]="isCtxComponentSelected_editing(category, component.id, item.tempContextComponents)"
+                                                    (change)="onCtxComponentsCheckboxChange_methodEditing(component.id, category, item)"
+                                                  />
+                                                  <label class="form-check-label" [for]="'checkbox-' + category + '-' + component.id">
+                                                    {{ getFirstNonIdAttribute(component) }}
+                                                  </label>
+                                                </ng-container>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+
                                 </span>
                               </div>
                               
@@ -699,7 +717,21 @@
                                 <label class="label-title-selected">Applied Methods:</label>
                               </div>
 
+                              <!-- Mensaje cuando no hay Metodos Aplicados definidos -->
+                              <div *ngIf="!item.applied_methods.aggregations.length && !item.applied_methods.measurements.length">
+                                <!-- MENSAJE INFORMATIVO -->
+                                <div class="px-2 py-2">
+                                  <div  class="alert alert-warning ">
+                                    <i class="bi bi-exclamation-circle me-2"></i>
+                                    No Applied Methods have been defined for this method. <br> 
+                                    Defining at least one for each method will be necessary to complete the DQ Model and perform the DQ measurement.
+                                  </div>
+                                </div>
+
+                              </div>
+                              
                               <div *ngIf="item && (item.applied_methods?.aggregations?.length > 0 || item.applied_methods?.measurements?.length > 0)">  
+
                                 <!-- Accordion for Aggregated Applied Methods -->
                                 <div *ngIf="item.applied_methods.aggregations.length > 0">
                                   <div class="accordion  mx-3 mb-2" id="accordionAggregatedMethods">
@@ -791,11 +823,48 @@
                                     </div>
                                   </div>
                                 </div>
+
+
+                               
+
                               </div>
                               
-                              <div class="mt-4">
-                                <button (click)="deleteMethod(metric, item)" class="btn btn-outline-danger btn-sm">Remove DQ Method</button>
+
+                              <!-- Delete / Edit Metric Buttons -->
+                              <div *ngIf="currentDQModel.status === 'draft'">
+                                <div class="d-flex gap-2 mt-3 mb-2">
+                                  <!-- Remove DQ Method from DQ Model -->
+                                  <button 
+                                    class="btn btn-outline-danger btn-sm" 
+                                    (click)="openConfirmationModal(
+                                      'Remove DQ Method from DQ Model',
+                                      'Are you sure you want to remove this method from the DQ Model? This will also delete all its applied methods.',
+                                      'removeDQMethodFromDQModel',
+                                      metric, item
+                                    )">
+                                    <i class="bi bi-trash3"></i> Remove DQ Method
+                                  </button> 
+                                 
+                                  <!-- Edit DQ Metric Ctx components -->
+                                  <button class="btn btn-light btn-sm"
+                                    (click)="enableDQMethodEdition(item)">
+                                    <span *ngIf="!item.isEditing">
+                                      <i class="bi bi-pencil"></i> Edit
+                                    </span>
+                                    <span *ngIf="item.isEditing">
+                                      Cancel
+                                    </span>
+                                  </button>
+
+                                  <button *ngIf="item.isEditing" class="btn btn-dark btn-sm flex-grow-0"
+                                      (click)="saveMethodContextComponents(item)">
+                                        Save Changes
+                                  </button>
+
+                                </div>
                               </div>
+
+
                             </div>
                           </div>
                         </div>
