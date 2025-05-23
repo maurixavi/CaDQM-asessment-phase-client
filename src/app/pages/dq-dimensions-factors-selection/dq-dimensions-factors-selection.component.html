@@ -744,12 +744,12 @@
             </div>-->
             
             <div class="form-group">
-              <label class="mb-2">Avoid suggesting Dimension-Factor pairs related to:</label>
+              <label class="mb-2">Avoid suggesting any factor that belongs to the following dimensions:</label>
               <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="focusAccuracy" 
                       [(ngModel)]="suggestionConfig.excludeAccuracy" name="excludeAccuracy" value="accuracy">
                 <label class="form-check-label" for="focusAccuracy">
-                  Accuracy-oriented <i 
+                  Accuracy <i 
                     class="bi bi-info-circle" 
                     data-bs-toggle="tooltip" 
                     data-bs-placement="top" 
@@ -761,7 +761,7 @@
                 <input class="form-check-input" type="checkbox" id="focusCompleteness" 
                       [(ngModel)]="suggestionConfig.excludeCompleteness" name="excludeCompleteness" value="completeness">
                 <label class="form-check-label" for="focusCompleteness">
-                  Completeness-oriented <i 
+                  Completeness <i 
                   class="bi bi-info-circle" 
                   data-bs-toggle="tooltip" 
                   data-bs-placement="top" 
@@ -773,7 +773,7 @@
                 <input class="form-check-input" type="checkbox" id="focusConsistency" 
                       [(ngModel)]="suggestionConfig.excludeConsistency" name="excludeConsistency" value="consistency" checked>
                 <label class="form-check-label" for="focusConsistency">
-                  Consistency-oriented <i 
+                  Consistency <i 
                   class="bi bi-info-circle" 
                   data-bs-toggle="tooltip" 
                   data-bs-placement="top" 
@@ -785,7 +785,7 @@
                 <input class="form-check-input" type="checkbox" id="focusUniqueness" 
                       [(ngModel)]="suggestionConfig.excludeUniqueness" name="excludeUniqueness" value="uniqueness" checked>
                 <label class="form-check-label" for="focusUniqueness">
-                  Uniqueness-oriented <i 
+                  Uniqueness <i 
                   class="bi bi-info-circle" 
                   data-bs-toggle="tooltip" 
                   data-bs-placement="top" 
@@ -797,7 +797,7 @@
                 <input class="form-check-input" type="checkbox" id="foucsFreshness" 
                       [(ngModel)]="suggestionConfig.excludeFreshness" name="excludeFreshness" value="freshness" checked>
                 <label class="form-check-label" for="foucsFreshness">
-                  Freshness-oriented <i 
+                  Freshness <i 
                   class="bi bi-info-circle" 
                   data-bs-toggle="tooltip" 
                   data-bs-placement="top" 

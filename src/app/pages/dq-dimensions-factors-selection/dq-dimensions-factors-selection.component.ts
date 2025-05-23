@@ -2792,6 +2792,18 @@ toggleFromScratchSectionVisibility_addFactors(): void {
     this.modelService.generateDQDimensionFactorSuggestion(payload).subscribe({
       next: (response) => {
         console.log('✅ Sugerencia recibida:', response);
+        
+        // Convertir solo los strings a números en supported_by_problems
+        if (response.supported_by_problems && Array.isArray(response.supported_by_problems)) {
+          response.supported_by_problems = response.supported_by_problems.map((problem: any) => {
+            if (typeof problem === 'string' && !isNaN(Number(problem))) {
+              return Number(problem);
+            }
+            return problem; // Deja el valor como está si ya es número o no es convertible
+          });
+          console.log('✅ supported_by_problems procesado:', response.supported_by_problems);
+        }
+
 
         if (response.supported_by_context) {
 
