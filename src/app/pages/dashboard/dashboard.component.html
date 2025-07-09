@@ -1,101 +1,134 @@
 <div class="container my-4">
+  <!-- Header Section -->
   <h2 class="title">Phase 2: DQ Assessment</h2>
   <p class="subtitle-description">
-    In this phase, the DQ model is defined and, based on it, the quality of the data at hand is measured and assessed.
+    In this phase, the DQ model is defined and, based on it, the quality of the data at hand is measured and assessed
   </p>
 
+  <!-- Main Content Container -->
   <div class="flex-container">
     <div class="suggested-section-container">
-      <!-- CURRENT PROJECT DETAILS -->
+      
+      <!-- Project Details Section -->
       <ng-container *ngIf="project; else noProject">
         <div class="label-container-selected py-2 px-4">
+          
+          <!-- Project Header -->
           <div class="project-title">
-            <span class="label-name-project">{{ project.name }}</span>
+            <span class="label-name-project">{{ project?.name }}</span>
             <span *ngIf="project.current_stage?.status === 'TO_DO'" class="badge bg-secondary">{{ project.current_stage?.stage }}: To Do</span>
-            <span *ngIf="project.current_stage?.status === 'IN_PROGRESS'" class="badge bg-secondary">{{ project.stage }}: In Progress</span>
-            <span *ngIf="project.current_stage?.status === 'DONE'" class="badge bg-secondary">{{ project.stage }}: Done</span>
+            <span *ngIf="project.current_stage?.status === 'IN_PROGRESS'" class="badge bg-secondary">{{ project.current_stage?.stage }}: In Progress</span>
+            <span *ngIf="project.current_stage?.status === 'DONE'" class="badge bg-secondary">{{ project.current_stage?.stage }}: Done</span>
           </div>
+          
+          <!-- Project Metadata -->
           <div class="label-selected">
-            <label class="label-title-selected">Description: </label>
-            <span class="label-value-selected">{{ project.description }}</span>
+            <label class="label-title-selected ">Description: </label>
+            <span class="label-value ">{{ project?.description }}</span>
           </div>
+          
           <div class="label-selected">
             <label class="label-title-selected">Creation date: </label>
-            <span class="label-value-selected">{{ project.created_at | date:'medium' }}</span>
+            <span class="label-value">{{ project.created_at | date:'d MMM yyyy, HH:mm' }}</span>
           </div>
+          
+          <!-- Data at Hand Info -->
           <div class="label-selected">
             <label class="label-title-selected">Data at hand:</label>
-            <span class="label-value-selected">
-							{{ dataAtHandDetails.description }} ({{ dataAtHandDetails.dbname }})
-							<a href="javascript:void(0)" (click)="dataAtHandModal.openModal()" style="text-decoration: none;">
-								<i class="bi bi-zoom-in"></i>
-							</a>
-						</span>
+            <span class="label-value">
+              {{ dataAtHandDetails?.dbname }} - {{ dataAtHandDetails?.description }}
+              <a href="javascript:void(0)" (click)="dataAtHandModal.openModal()" style="text-decoration: none;">
+                <i class="bi bi-zoom-in"></i>
+              </a>
+            </span>
           </div>
           
+          <!-- Context Info -->
           <div class="label-selected">
             <label class="label-title-selected">Context version: </label>
-            <span class="label-value-selected">{{ contextVersion.name }} {{ contextVersion.version }} </span>
+            <span class="label-value">{{ contextVersion?.name }} v{{ contextVersion?.version }} </span>
           </div>
+          
+          <!-- DQ Model Info -->
           <div class="label-selected" *ngIf="project.dqmodel_version !== null">
             <label class="label-title-selected">DQ Model version: </label>
-            <span class="label-value-selected">{{dqModelVersionName}} {{dqModelVersion}} (Id: {{ project.dqmodel_version }}) | Previous version: {{dqModel.previous_version}}</span>
+            <span *ngIf="dqModel?.version" class="label-value">
+              {{ dqModel?.name }} v{{ dqModel?.version }} <a *ngIf="dqModel?.status === 'finished'" href="javascript:void(0)" (click)="navigateToDQModelView()" style="text-decoration: none;">
+                <i class="bi bi-zoom-in"></i>
+              </a> <br>
+              <div *ngIf="dqModel?.previous_version" class="d-flex gap-2 align-items-center">
+                <!-- Previous DQ Model Version -->
+                <a href="/phase2/dashboard" (click)="selectProjectWithDQModelVersion('previous')" class="link-secondary text-decoration-underline cursor-pointer d-flex align-items-center">
+                  <i class="bi bi-arrow-left-short"></i>
+                  Previous version: v{{ dqModelPreviousVersionNumber }}
+                </a>
+
+                <span *ngIf="dqModelNextVersion">|</span>
+              
+                <!--Next DQ Model Version-->
+                <a href="/phase2/dashboard" (click)="selectProjectWithDQModelVersion('next')" *ngIf="dqModelNextVersion" class="link-secondary text-decoration-underline cursor-pointer d-flex align-items-center">
+                  Next version: v{{ dqModelNextVersion?.version }}
+                  <i class="bi bi-arrow-right-short"></i>
+                </a>
+              </div> 
+            </span>
           </div>
 
-          
+          <!-- Stage and Status -->
           <div class="label-selected">
             <label class="label-title-selected">Stage:</label>
-              <span class="label-value-selected" *ngIf="project.current_stage?.stage === 'ST1'">ST1: Elicitation</span>
-              <span class="label-value-selected" *ngIf="project.current_stage?.stage === 'ST2'">ST2: Data Analysis</span>
-              <span class="label-value-selected" *ngIf="project.current_stage?.stage === 'ST3'">ST3: User Requirements Analysis</span>
-              <span class="label-value-selected" *ngIf="project.current_stage?.stage === 'ST4'">ST4: DQ Model Definition</span>
-              <span class="label-value-selected" *ngIf="project.current_stage?.stage === 'ST5'">ST5: DQ Measurement</span>
-              <span class="label-value-selected" *ngIf="project.current_stage?.stage === 'ST6'">ST6: DQ Assessment</span>
-            </div>
+            <span class="label-value" *ngIf="project.current_stage?.stage === 'ST1'">ST1: Elicitation</span>
+            <span class="label-value" *ngIf="project.current_stage?.stage === 'ST2'">ST2: Data Analysis</span>
+            <span class="label-value" *ngIf="project.current_stage?.stage === 'ST3'">ST3: User Requirements Analysis</span>
+            <span class="label-value" *ngIf="project.current_stage?.stage === 'ST4'">ST4: DQ Model Definition</span>
+            <span class="label-value" *ngIf="project.current_stage?.stage === 'ST5'">ST5: DQ Measurement</span>
+            <span class="label-value" *ngIf="project.current_stage?.stage === 'ST6'">ST6: DQ Assessment</span>
+          </div>
+          
           <div class="label-selected">
             <label class="label-title-selected">Status:</label>
-            <span class="label-value-selected text-capitalize"  *ngIf="project.current_stage?.status === 'TO_DO'">To Do</span>
-            <span class="label-value-selected text-capitalize" *ngIf="project.current_stage?.status === 'IN_PROGRESS'" >In Progress</span>
-            <span class="label-value-selected text-capitalize" *ngIf="project.current_stage?.status === 'DONE'" >Done</span>
+            <span class="label-value text-capitalize"  *ngIf="project.current_stage?.status === 'TO_DO'">To Do</span>
+            <span class="label-value text-capitalize" *ngIf="project.current_stage?.status === 'IN_PROGRESS'" >In Progress</span>
+            <span class="label-value text-capitalize" *ngIf="project.current_stage?.status === 'DONE'" >Done</span>
           </div>
 
-          <!-- Mensaje NO DQ Model -->
+          <!-- DQ Model Warning -->
           <div *ngIf="project.dqmodel_version == null" class="py-2">
             <div class="alert alert-warning mt-2">
               <i class="bi bi-exclamation-circle me-2"></i>
               No DQ Model found for this Project.
             </div>
           </div>
-         
 
-
-          <!-- Botón "Close Project" reutilizable -->
+          <!-- Action Buttons Section -->
           <ng-template #closeProjectButton>
             <button class="btn btn-light btn-sm" (click)="closeProject()">
               <i class="bi bi-door-closed"></i> Close Project
             </button>
           </ng-template>
 
-          <!-- Buttons according to Project and DQ Model Status -->
-          <div *ngIf="project.dqmodel_version === null"  class="d-flex gap-2 mt-2">
-            <button class="btn btn-dark btn-sm" (click)="createDQModel()">
+          <!-- Buttons based on Project State -->
+          <div *ngIf="project.dqmodel_version === null" class="d-flex gap-2 mt-2">
+            <button class="btn btn-dark btn-sm" (click)="openDQModelModal()">
+              <i class="bi bi-plus-lg"></i>
               Create DQ Model
             </button>
+            
             <ng-container *ngTemplateOutlet="closeProjectButton"></ng-container>
           </div>
 
-          <div *ngIf="project.dqmodel_version !== null && project.status !== 'done'" class="d-flex gap-2 mt-2">
-            <button class="btn btn-dark btn-sm" (click)="navigateToResumeDQModel()">
+          <div *ngIf="project.dqmodel_version !== null && (project.current_stage?.stage === 'ST4' && project.current_stage?.status === 'IN_PROGRESS')" class="d-flex gap-2 mt-2">
+            <button class="btn btn-dark btn-sm" (click)="navigateToResume()">
               Resume
             </button>
             <ng-container *ngTemplateOutlet="closeProjectButton"></ng-container>
           </div>
 
-          <div *ngIf="project.dqmodel_version !== null && project.status === 'done'"  class="d-flex gap-2 mt-2">
-            <button class="btn btn-dark btn-sm" (click)="navigateToViewDQModel()">
+          <div *ngIf="project.dqmodel_version !== null && (project.current_stage?.stage === 'ST5' || project.current_stage?.stage === 'ST6')" class="d-flex gap-2 mt-2">
+            <button class="btn btn-dark btn-sm" (click)="navigateToResume()">
               Resume
             </button>
-            <button class="btn btn-light btn-sm" (click)="openFirstModal()">
+            <button class="btn btn-light btn-sm" (click)="openFirstNewDQModelVersionModal()">
               New DQ Model
             </button>
             <ng-container *ngTemplateOutlet="closeProjectButton"></ng-container>
@@ -103,50 +136,58 @@
         </div>
       </ng-container>
 
-      <!-- Mensaje si no se encuentra el proyecto -->
+      <!-- No Project Template -->
       <ng-template #noProject>
         <p class="card-text">{{ noProjectMessage }}</p>
       </ng-template>
-
-      <!-- Modal -->
-      <div id="confirmationModal" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog custom-modal" role="document">
-          <div class="modal-content">
-            <div class="modal-header d-flex align-items-center">
-              <h5 class="modal-title mb-0">{{ modalTitle }}</h5>
-              <button type="button" class="close" (click)="closeConfirmationModal()" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <p [innerHTML]="modalMessage"></p>
-            </div>
-            <div class="modal-footer">
-              <div *ngIf="showNewProjectButtons" class="d-flex gap-3 mt-2">
-                <button type="button" class="btn btn-sm btn-dark" (click)="openConfirmationModal('create')">DQ Model from Scratch</button>
-                <button type="button" class="btn btn-sm btn-dark" (click)="openConfirmationModal('edit')">New DQ Model Version</button>
-              </div>
-              <div *ngIf="!showNewProjectButtons" class="d-flex gap-3 mt-2">
-                <button type="button" class="btn btn-sm btn-light" (click)="closeConfirmationModal()">Cancel</button>
-                <button type="button" class="btn btn-sm btn-dark" (click)="confirmAction()">Confirm</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
 
+<!-- ========== MODALS SECTION ========== -->
+<!-- DQ Model Creation Modal -->
+<div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isDQModelModalOpen}" [style.display]="isDQModelModalOpen ? 'block' : 'none'">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New DQ Model</h5>
+        <button type="button" class="close" aria-label="Close" (click)="closeDQModelModal()">
+          <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="dqModelName">DQ Model Name</label>
+          <input type="text" class="form-control" id="dqModelName" 
+                 [(ngModel)]="newDQModelName" name="dqModelName" 
+                 placeholder="Enter DQ Model name" required>
+        </div>
+      </div>
+      <div class="modal-footer border-top-0">
+        <button type="button" class="btn btn-sm btn-light" (click)="closeDQModelModal()">Cancel</button>
+        <button type="button" class="btn btn-sm btn-dark" 
+                (click)="createDQModel()"
+                [disabled]="!newDQModelName">
+                <span *ngIf="!isLoading"><i class="bi bi-plus-lg"></i>Create DQ Model</span>
+                <span *ngIf="isLoading">
+                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  Creating...
+                </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop" [ngClass]="{'show': isDQModelModalOpen}" 
+     [style.display]="isDQModelModalOpen ? 'block' : 'none'"></div>
 
-
-<!-- Modal PROYECTO NUEVO -->
+<!-- New Project Creation Modal -->
 <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isProjectModalOpen}" [style.display]="isProjectModalOpen ? 'block' : 'none'">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">New Project</h5>
-        <button type="button" class="close" aria-label="Close" (click)="closeProjectModal()">
+        <button type="button" class="close" aria-label="Close" (click)="closeNewProjectModal()">
           <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
         </button>
       </div>
@@ -165,11 +206,16 @@
         </div>
       </div>
       <div class="modal-footer border-top-0">
-        <button type="button" class="btn btn-sm btn-light" (click)="closeProjectModal()">Cancel</button>
-        <button type="button" class="btn btn-sm btn-dark" 
-                (click)="createProjectWithDetails()"
-                [disabled]="!newProject.name || !newProject.description">
-          Create Project
+        <button type="button" class="btn btn-sm btn-light" (click)="closeNewProjectModal()">Cancel</button>
+        <button 
+          type="button" class="btn btn-sm btn-dark" 
+          (click)="createProjectWithDQModel()"
+          [disabled]="!newProject.name || !newProject.description">
+          <span *ngIf="!isLoading">Create Project</span>
+          <span *ngIf="isLoading">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            
+          </span>
         </button>
       </div>
     </div>
@@ -177,39 +223,34 @@
 </div>
 <div class="modal-backdrop" [ngClass]="{'show': isProjectModalOpen}" 
      [style.display]="isProjectModalOpen ? 'block' : 'none'"></div>
-     
 
-     
-
-
-<!-- Primer modal (opciones) -->
+<!-- DQ Model Version Options Modal -->
 <app-modal
-  [isOpen]="isFirstModalOpen"
-  [title]="firstModalTitle"
-  [message]="firstModalMessage"
-  (close)="onFirstModalClose()"
+  [isOpen]="isNewDQModelVersionModalOpen"
+  [title]="newDQModelVersionOptionsModalTitle"
+  [message]="newDQModelVersionOptionsModalMessage"
+  (close)="openFirstNewDQModelVersionModal()"
 >
-  <!-- Botones personalizados para el primer modal -->
   <div class="d-flex gap-2 mt-2">
-    <button type="button" class="btn btn-sm btn-dark" (click)="onOption1Click()">DQ Model from Scratch</button>
-    <button type="button" class="btn btn-sm btn-dark" (click)="onOption2Click()">New DQ Model Version</button>
+    <button type="button" class="btn btn-sm btn-dark" (click)="handleFirstNewDQModelVersionModalAction('create')">DQ Model from Scratch</button>
+    <button type="button" class="btn btn-sm btn-dark" (click)="handleFirstNewDQModelVersionModalAction('edit')">New DQ Model Version</button>
   </div>
 </app-modal>
 
-<!-- Segundo modal (confirmación) -->
+<!-- DQ Model Version Confirmation Modal -->
 <app-modal
-  [isOpen]="isSecondModalOpen"
-  [title]="secondModalTitle"
-  [message]="secondModalMessage"
-  (close)="onSecondModalClose()"
+  [isOpen]="isConfirmationDQModelVersionModalOpen"
+  [title]="confirmationNewDQModelVersionModalTitle"
+  [message]="confirmationNewDQModelVersionModalMessage"
+  (close)="closeConfirmationNewDQModelVersionModal()"
 >
-  <!-- Botones personalizados para el segundo modal -->
   <div class="d-flex gap-2 mt-2">
-    <button type="button" class="btn btn-sm btn-light" (click)="onSecondModalClose()">Cancel</button>
-    <button type="button" class="btn btn-sm btn-dark" (click)="onSecondModalConfirm()">Confirm</button>
+    <button type="button" class="btn btn-sm btn-light" (click)="closeConfirmationNewDQModelVersionModal()">Cancel</button>
+    <button type="button" class="btn btn-sm btn-dark" (click)="onDQModelNewVersionOptionConfirm()">Confirm</button>
   </div>
 </app-modal>
 
+<!-- ========== COMPONENT REFERENCES ========== -->
 <app-data-at-hand-view-modal
   #dataAtHandModal
   [dataAtHandDetails]="dataAtHandDetails"

@@ -1,7 +1,4 @@
-/*body {
-  font-family: 'Open Sans', sans-serif;  
-  background-color: #3d773d;
-}*/
+/*
 body{
   background-color: #fdfdfd;
 }
@@ -9,18 +6,88 @@ body{
 .full-width{
   max-width: none;
   max-height: none;
-  /*background-color: #fdfdfd;*/
   background-color: #fafafa;
-  /*font-family: 'Open Sans', sans-serif;*/
 }
 
 .container {
-  /*max-width: 86%;*/
   margin: auto;
   color: #222; 
-  /*font-family: 'Open Sans', sans-serif;*/
-  /*font-family: 'Roboto', sans-serif;*/
   
+}*/
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+  color: #222;
+}
+
+.section-container {
+  width: 100%;
+  border: 1px solid #eeeeee;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 86%; 
+
+  }
+}
+
+@media (max-width: 850px) {
+  .section-container {
+    padding-inline: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 10px; 
+  }
+
+  .section-container {
+    padding-inline: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 0 8px; /* Mínimo padding en pantallas muy pequeñas */
+  }
+
+  .section-container {
+    padding-inline: 0;
+    /*padding-block: 14px;*/
+  }
+  
+  .title {
+    font-size: 1.4rem; /* Reduce tamaño de título en móviles */
+  }
+  
+  .subtitle-description {
+    font-size: 14px; /* Reduce tamaño de subtítulo en móviles */
+  }
+}
+
+@media (max-width: 768px) {
+  .label-selected {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .label-title-selected,
+  .label-value-selected {
+    width: 100%;
+  }
+
+  .label-title-selected {
+    margin-bottom: 2px; 
+  }
 }
 
 .container-section {
@@ -285,11 +352,8 @@ hr.my-4 {
 }
 
 .label-title-applied-methods {
-  width: 220px; 
+  width: auto; 
   font-weight: 500;
-  white-space: nowrap; /* Evita que el texto se divida en varias líneas */
-  overflow: hidden; /* Oculta el texto que se desborda */
-  /*text-overflow: ellipsis;*/ /* Añade puntos suspensivos si el texto es demasiado largo */
 }
 
 
@@ -311,11 +375,7 @@ hr.my-4 {
   font-size: 14px;  
 }
 
-/*.label-selected {
-  display: flex;
-  align-items: flex-start; 
-  padding: 4px;
-}*/
+
 
 
 /* Estilo con mayor especificidad */
@@ -326,19 +386,26 @@ hr.my-4 {
   font-size: 15px;
 }
 
+
+.label-selected.label-dq-item {
+  padding-bottom: 8px; 
+}
+
 .label-name-selected {
   font-weight: 700;
   font-size: 16px; 
 }
 
 .label-title-selected {
-  width: 150px;
-  margin-right: 10px;
+  width: 18%;
+  /*width: 150px;
+  margin-right: 10px;*/
   /*margin-left: 10px;*/
 }
 
 .label-value-selected {
-  max-width: 76%;
+  width: 82%;/*
+  max-width: 76%;*/
   font-weight: 400;
 }
 
@@ -853,16 +920,7 @@ hr.my-4 {
   font-size: 0.875rem;
 }
 
-.section-container {
-  width: 100%;
-  border: 1px solid #eeeeee;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-  background-color: #fff;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;
-}
+
 
 .label-container {
   display: flex;
@@ -882,7 +940,7 @@ hr.my-4 {
   font-weight: 500;
 }
 
-.dimension-name {
+.label-title-name {
   font-weight: 700;
 }
 
@@ -905,9 +963,7 @@ hr.my-4 {
   margin-right: 8px;
 }
 
-.label-title-selection-ctx {
-  font-size: 1rem;
-}
+
 
 .label-container-selected {
   display: flex;
@@ -941,11 +997,12 @@ hr.my-4 {
   font-size: 17px;
 }
 
+/*
 .label-problem-selected {
   font-weight: 700;
   font-size: 17px;
   margin-right: 8px;
-}
+}*/
 
 .label-name-dqmodel {
   font-weight: 700;
@@ -964,11 +1021,11 @@ hr.my-4 {
   font-weight: 500;
   font-style: italic;
 }
-
+/*
 .label-value-selected {
   max-width: 70%;
   font-weight: 400;
-}
+}*/
 
 .label-problem-description {
   font-weight: 400;
@@ -1134,3 +1191,38 @@ hr.my-4 {
   border: 1px solid #dee2e6;
   padding: 8px;
 }*/
+
+
+.algorithm-container {
+  background-color: #fafafa; 
+  border-radius: 4px;
+  padding: 12px;
+  margin-left: 22px; /* Aseguramos que no tenga margen izquierdo */
+  width: calc(100% - 32px); /* 100% menos el padding */
+  max-width: 85%; 
+  overflow: visible; /* Elimina la barra de desplazamiento */
+  white-space: pre-wrap; /* Permite que el texto se ajuste manteniendo la indentación */
+  word-wrap: break-word; /* Rompe palabras largas si es necesario */
+  border: 1px solid #dee2e6; 
+}
+
+/* Estilos para el código del algoritmo */
+.algorithm-code {
+  margin: 0;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  color: #212529;
+  line-height: 1.4;
+  white-space: pre-wrap; /* Mantiene la indentación pero permite saltos de línea */
+  word-break: break-all; /* Asegura que el contenido largo se rompa adecuadamente */
+}
+
+@media (max-width: 768px) {
+  .algorithm-container {
+    max-width: 100%; 
+  }
+}
+
+code {
+  color: #212529;
+}

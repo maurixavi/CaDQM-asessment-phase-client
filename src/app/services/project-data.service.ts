@@ -10,8 +10,10 @@ export class ProjectDataService {
   private readonly baseUrl = 'http://localhost:8000/api';
 
   readonly API_URL_PROJECTS = `${this.baseUrl}/projects/`;
-  readonly API_URL_CONTEXT_VERSIONS = `${this.baseUrl}/context-versions/`;
+  //readonly API_URL_CONTEXT_VERSIONS = `${this.baseUrl}/context-versions/`;
+  readonly API_URL_CONTEXT_VERSIONS = `${this.baseUrl}/contexts/`;
   readonly API_URL_DQ_PROBLEMS = `${this.baseUrl}/dq-problems/`;
+  
 
   private projectId: number | null = null;
   private contextVersionId: number | null = null; // Nuevo atributo para almacenar el context_version
@@ -21,6 +23,7 @@ export class ProjectDataService {
   private contextComponents: any = null;
   private dqProblems: any[] = [];
   //private dqModel: any = null;
+  private dataAtHand: any = null;
 
   private projectSubject = new BehaviorSubject<any>(null);
   private contextVersionSubject = new BehaviorSubject<any>(null);
@@ -28,6 +31,7 @@ export class ProjectDataService {
   private dqProblemsSubject = new BehaviorSubject<any[]>([]);
   private dqModelVersionSubject = new BehaviorSubject<number | null>(null); 
   //private dqModelSubject = new BehaviorSubject<any>(null);
+  private dataAtHandSubject = new BehaviorSubject<any>(null);
 
   public project$ = this.projectSubject.asObservable();
   public contextVersion$ = this.contextVersionSubject.asObservable();
@@ -35,12 +39,17 @@ export class ProjectDataService {
   public dqProblems$ = this.dqProblemsSubject.asObservable();
   public dqModelVersion$ = this.dqModelVersionSubject.asObservable(); 
   //public dqModel$ = this.dqModelSubject.asObservable();
+  public dataAtHand$ = this.dataAtHandSubject.asObservable();
+  
 
   private dataSchema: any = null;
   private dataSchemaSubject = new BehaviorSubject<any>(null);
   public dataSchema$ = this.dataSchemaSubject.asObservable();
-  //constructor(private http: HttpClient) {}
+  
+  
+  
 
+  
   constructor(private http: HttpClient) {
     this.loadFromStorage(); // cargar datos almacenados al iniciar el servicio
   }
@@ -52,7 +61,35 @@ export class ProjectDataService {
     };
   }
 
-  setProjectId(projectId: number): void {
+  setProjectId(projectId: number | null): void {
+    this.projectId = projectId;
+  
+    if (projectId === null) {
+      localStorage.removeItem('projectId');
+    } else {
+      localStorage.setItem('projectId', projectId.toString());
+    }
+  
+    // Resetear el estado relacionado al proyecto
+    this.project = null;
+    this.contextComponents = null;
+    this.dqProblems = [];
+    this.contextVersionId = null;
+    this.dqModelVersionId = null;
+  
+    this.projectSubject.next(null);
+    this.contextComponentsSubject.next(null);
+    this.dqProblemsSubject.next([]);
+    this.dqModelVersionSubject.next(null);
+  
+    // Solo cargar datos si hay projectId válido
+    if (projectId !== null) {
+      this.loadProjectAndComponents().subscribe();
+    }
+  }
+
+  
+  setProjectId__(projectId: number): void {
     this.projectId = projectId;
     localStorage.setItem('projectId', projectId.toString()); // Guardar en localStorage
 
@@ -77,11 +114,25 @@ export class ProjectDataService {
   }
 
   /** Recuperar el Project ID almacenado en localStorage **/
-  private loadFromStorage(): void {
+  private loadFromStorage_(): void {
     const storedProjectId = localStorage.getItem('projectId');
     if (storedProjectId) {
       this.projectId = +storedProjectId; // Convertir a número
       this.loadProjectAndComponents().subscribe(); //  Cargar datos nuevamente
+    }
+  }
+
+  private loadFromStorage(): void {
+    try {
+      const storedProjectId = localStorage.getItem('projectId');
+      if (storedProjectId) {
+        this.projectId = +storedProjectId;
+        this.loadProjectAndComponents().subscribe({
+          error: (err) => console.error('Error loading project:', err)
+        });
+      }
+    } catch (error) {
+      console.error('Error loading from storage:', error);
     }
   }
 
@@ -94,7 +145,8 @@ export class ProjectDataService {
     return this.getProjectById(this.projectId).pipe(
       tap((project) => {
         this.project = project;
-        this.contextVersionId = project.context_version; // Extraer context_version
+        //this.contextVersionId = project.context_version; // Extraer context_version de project
+        this.contextVersionId = project.context; // Extraer context id asociacion real (nueva definicion models)
         this.dqModelVersionId = project.dqmodel_version; // Extraer dqmodel_version
         
         this.projectSubject.next(project);
@@ -127,14 +179,21 @@ export class ProjectDataService {
     forkJoin({
       contextComponents: this.getContextComponentsByContextVersion(this.contextVersionId),
       dqProblems: this.getDQProblemsByProjectId(this.projectId),
-    }).subscribe(({ contextComponents, dqProblems }) => {
+      dataAtHand: this.getDataAtHandById_(this.project.data_at_hand),
+      dataSchema: this.getDataSchemaByDataAtHandId_(this.project.data_at_hand),
+    }).subscribe(({ contextComponents, dqProblems, dataAtHand, dataSchema  }) => {
       this.contextComponents = contextComponents;
       this.dqProblems = dqProblems;
       //this.dqModel = dqModel;
+      //this.dataSchema = data;
+       
 
       this.contextComponentsSubject.next(contextComponents);
       this.dqProblemsSubject.next(dqProblems);
       //this.dqModelSubject.next(dqModel);
+      this.dataAtHandSubject.next(dataAtHand); 
+
+      this.dataSchemaSubject.next(dataSchema);
 
       /* console.log('Context Components:', contextComponents);
       console.log('DQ Problems:', dqProblems); */
@@ -164,8 +223,33 @@ export class ProjectDataService {
         const { user, password, host, port, ...safeData } = data;
         return safeData;
       }),
-      tap((safeData) => console.log('Fetched Data at Hand Details:', safeData)),
+      //tap((safeData) => console.log('Fetched Data at Hand Details:', safeData)),
       catchError(this.handleError<any>('getDataAtHandDetails'))
+    );
+  }
+
+  private getDataAtHandById_(dataAtHandId: number): Observable<any> {
+    const url = `${this.baseUrl}/data-at-hand/${dataAtHandId}/`;
+    return this.http.get<any>(url).pipe(
+      map((data) => {
+        // Eliminar campos confidenciales
+        const { user, password, host, port, ...safeData } = data;  
+        console.log("Data at Hand (safe data)", safeData)
+        return safeData;
+      }),
+      catchError(this.handleError<any>('getDataAtHandDetails'))
+    );
+  }
+
+  private getDataSchemaByDataAtHandId_(dataAtHandId: number): Observable<any> {
+    const url = `${this.baseUrl}/data-at-hand/${dataAtHandId}/data-schema/`;
+    return this.http.get<any>(url).pipe(
+      tap((data) => {
+        /*this.dataSchema = data;
+        this.dataSchemaSubject.next(data);*/
+        console.log(`Data schema with Data at Hand ID=${dataAtHandId}:`, data);
+      }),
+      catchError(this.handleError<any>('getDataSchemaByDataAtHandId'))
     );
   }
 
@@ -204,7 +288,8 @@ export class ProjectDataService {
   }
 
   private getDQProblemsByProjectId(projectId: number): Observable<any[]> {
-    const url = `${this.API_URL_PROJECTS}${projectId}/dq-problems/`;
+    //const url = `${this.API_URL_PROJECTS}${projectId}/dq-problems/`;
+    const url = `${this.API_URL_PROJECTS}${projectId}/quality-problems/`;
     return this.http.get<any[]>(url).pipe(
       //tap((data) => console.log(`Fetched DQ Problems for Project ID=${projectId}:`, data)),
       catchError(this.handleError<any[]>(`getDQProblemsByProjectId id=${projectId}`, []))

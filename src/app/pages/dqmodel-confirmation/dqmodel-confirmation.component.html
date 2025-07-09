@@ -1,7 +1,7 @@
 
 <div class="container my-4">
 	<app-step-navigator 
-		[pageStepTitle]="pageStepTitle" 
+		[pageStepTitle]="completeDQModel?.model.status === 'draft' ? 'DQ Model confirmation' : 'DQ Model view'"
 		[phaseTitle]="phaseTitle" 
 		[stageTitle]="stageTitle" 
 		[steps]="steps"
@@ -10,44 +10,54 @@
 
 	<!--<div *ngIf="completeDQModel && !isLoading">-->
 	<div>
-		<p class="subtitle-description mt-4">Defined DQ Model preview. Confirm or edit it by returning to a previous step</p>
+		<p 
+			*ngIf="completeDQModel?.model.status === 'draft'"
+			class="subtitle-description mt-4">
+			Defined DQ Model preview. Confirm or edit it by returning to a previous step
+		</p>
+		<p 
+			*ngIf="completeDQModel?.model.status === 'finished'" 
+			class="subtitle-description mt-4"
+			>Defined DQ Model complete details
+		</p>
 		<div class="flex-container">
 			<div class="section-container" >
 				<div *ngIf="completeDQModel && !isLoading" class="label-container-selected py-2 px-4">
 					<div class="dqmodel-title">
-						<span class="label-name-dqmodel">{{ completeDQModel.model.version }} (id: {{ project.dqmodel_version }})</span>
+						<span *ngIf="completeDQModel?.model.name" class="label-name-dqmodel">{{ completeDQModel?.model.name }} v{{ completeDQModel?.model.version }}</span>
 						<span *ngIf="completeDQModel.model.status === 'finished'" class="badge rounded-pill bg-dark">Finished</span>
 						<span *ngIf="completeDQModel.model.status === 'draft'" class="badge rounded-pill bg-warning">Draft</span>
 					</div>
 					
 					<div class="dqmodel-preview-details-container">
 						<div class="label-selected">
-							<label class="label-title-selected">Creation date:</label>
-							<span class="label-value-selected">{{ completeDQModel.model.created_at | date:'MMM dd HH:mm yyyy' }}</span>
+							<label class="label-title-selected">Created:</label>
+							<span class="label-value-selected">{{ completeDQModel?.model.created_at | date:'d MMM yyyy, HH:mm' }}</span>
+						</div>
+						<div *ngIf="completeDQModel.model.status === 'finished'" class="label-selected">
+							<label class="label-title-selected">Finished:</label>
+							<span class="label-value-selected">{{ completeDQModel?.model.finished_at | date:'d MMM yyyy, HH:mm' }}</span>
 						</div>
 						<div class="label-selected">
 							<label class="label-title-selected">Context version:</label>
-							<span class="label-value-selected">CtxA v1.0 (id: {{ project.context_version }})</span>
+							<span class="label-value-selected">{{ contextVersion?.name }} {{ contextVersion?.version }}</span>
 						</div>
 						<div class="label-selected">
 							<label class="label-title-selected">Data at hand:</label>
-							<span class="label-value-selected"> {{ dataAtHandDetails.description }} ({{ dataAtHandDetails.dbname }}) <a href="javascript:void(0)" (click)="dataAtHandModal.openModal()" style="text-decoration: none;">
+							<span class="label-value-selected">{{ dataAtHandDetails?.dbname }} - {{ dataAtHandDetails?.description }} <a href="javascript:void(0)" (click)="dataAtHandModal.openModal()" style="text-decoration: none;">
 									<i class="bi bi-zoom-in"></i>
 								</a>
 							</span>
-							<!--<span class="label-value-selected" (click)="openDataSchemaModal()" style="cursor: pointer;">
-								Data at Hand Id: {{ project?.data_at_hand }} <i class="bi bi-zoom-in"></i>
-							</span>-->
-							<!--<span class="label-value-selected">Data at Hand Id: {{ project.data_at_hand }}</span>-->
 						</div>
-						<div class="label-selected">
+
+						<div class="label-selected label-dq-item mt-3">
 							<label class="label-title-selected">DQ Dimensions:</label>
 						</div>
 					</div>
 	
 					<!-- Accordion DIMENSIONS -->
 					<div class="dimensions-factors-selected-accordion-container">
-						<div class="accordion mx-3" id="accordionDimensions">
+						<div class="accordion mx-1" id="accordionDimensions">
 							<div class="accordion-item mb-2" *ngFor="let dimension of completeDQModel.dimensions; let i = index"
 							style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
 								<h2 class="accordion-header" [id]="'heading' + i">
@@ -61,8 +71,8 @@
 											style="padding: 0.6rem 0.9rem;"
 										>
 										<span>
-											<label class="label-title">DQ Dimension:</label>
-											<span class="dimension-name">{{ dimension.dimension_name }}</span>
+											<label class="label-title w-auto">DQ Dimension:</label>
+											<span class="label-title-name px-2">{{ dimension.dimension_name }}</span>
 										</span>
 									</button>
 								</h2>
@@ -113,13 +123,13 @@
 										</div>
 		
 										<!-- Accordion FACTORS -->
-										<div class="accordion mx-3 mb-2" [id]="'factorAccordion' + i">
+										<div class="accordion mx-1 mb-2" [id]="'factorAccordion' + i">
 											<div class="accordion-item" *ngFor="let factor of dimension.factors; let j = index">
 												<h2 class="accordion-header" [id]="'factorHeading' + i + '-' + j">
-													<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#factorCollapse' + i + '-' + j" aria-expanded="false" [attr.aria-controls]="'factorCollapse' + i + '-' + j">
+													<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#factorCollapse' + i + '-' + j" aria-expanded="false" [attr.aria-controls]="'factorCollapse' + i + '-' + j" style="padding: 0.6rem 0.9rem;">
 														<span>
-															<label class="label-title">DQ Factor:</label>
-															<span class="dimension-name">{{ factor.factor_name }}</span>
+															<label class="label-title w-auto">DQ Factor:</label>
+															<span class="label-title-name px-2">{{ factor.factor_name }}</span>
 														</span>
 													</button>
 												</h2>
@@ -162,17 +172,17 @@
 														</div>
 
 														<div class="label-selected">
-															<label class="label-title-selected">DQ Metrics:</label>
+															<label class="label-title-selected label-dq-item">DQ Metrics:</label>
 														</div>
 		
 														<!-- Accordion METRICS -->
-														<div class="accordion mx-3 mb-2" [id]="'metricAccordion' + i + '-' + j">
+														<div class="accordion mx-1 mb-2" [id]="'metricAccordion' + i + '-' + j">
 															<div class="accordion-item" *ngFor="let metric of factor.metrics; let k = index">
 																<h2 class="accordion-header" [id]="'metricHeading' + i + '-' + j + '-' + k">
-																	<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#metricCollapse' + i + '-' + j + '-' + k" aria-expanded="false" [attr.aria-controls]="'metricCollapse' + i + '-' + j + '-' + k">
+																	<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#metricCollapse' + i + '-' + j + '-' + k" aria-expanded="false" [attr.aria-controls]="'metricCollapse' + i + '-' + j + '-' + k" style="padding: 0.6rem 0.9rem;">
 																		<span>
-																			<label class="label-title">DQ Metric:</label>
-																			<span class="dimension-name">{{ metric.metric_name }}</span>
+																			<label class="label-title w-auto">DQ Metric:</label>
+																			<span class="label-title-name px-2">{{ metric.metric_name }}</span>
 																		</span>
 																	</button>
 																</h2>
@@ -210,11 +220,11 @@
 																			</span>
 																		</div>
 																		<div class="label-selected">
-																			<label class="label-title-selected">DQ Methods:</label>
+																			<label class="label-title-selected label-dq-item">DQ Methods:</label>
 																		</div>
 
 																		<!-- Accordion METHODS -->
-																		<div class="accordion mx-3 mb-2" [id]="'methodAccordion' + i + '-' + j + '-' + k">
+																		<div class="accordion mx-1 mb-2" [id]="'methodAccordion' + i + '-' + j + '-' + k">
 																			<div class="accordion-item" *ngFor="let method of metric.methods; let l = index">
 																				<h2 class="accordion-header" [id]="'methodHeading' + i + '-' + j + '-' + k + '-' + l">
 																					<button
@@ -224,10 +234,10 @@
 																						[attr.data-bs-target]="'#methodCollapse' + i + '-' + j + '-' + k + '-' + l"
 																						aria-expanded="false"
 																						[attr.aria-controls]="'methodCollapse' + i + '-' + j + '-' + k + '-' + l"
-																					>
+																						style="padding: 0.6rem 0.9rem;">
 																						<span>
-																							<label class="label-title">DQ Method:</label>
-																							<span class="dimension-name">{{ method.method_name }}</span>
+																							<label class="label-title w-auto">DQ Method:</label>
+																							<span class="label-title-name px-2">{{ method.method_name }}</span>
 																						</span>
 																					</button>
 																				</h2>
@@ -248,13 +258,13 @@
 																						</div>
 																						<div class="label-selected">
 																							<label class="label-title-selected">Algorithm:</label>
-																							<span class="code-block">
-																								<pre><code>{{ method.attributesBase?.algorithm }}</code></pre>
-																							</span>
+																							<div class="algorithm-container">
+																								<pre class="algorithm-code"><code>{{ method.attributesBase?.algorithm }}</code></pre>
+																							</div>
 																						</div>
 
 																						<div class="label-selected">
-																							<label class="label-title-selected">Uses (Ctx. Components)::</label>
+																							<label class="label-title-selected">Uses (Ctx. Components):</label>
 																							<span class="label-value-selected">
 																								<ul>
 																									<li *ngFor="let category of getContextComponentCategories(method.context_components)">
@@ -271,13 +281,14 @@
 																								</ul>
 																							</span>
 																						</div>
-																						<div class="label-selected">
-																							<label class="label-title-selected">Applied DQ Methods:</label>
+
+																						<div class="label-selected label-dq-item">
+																							<label class="label-title-selected">Applied Methods:</label>
 																						</div>
 
 																						<!-- Applied Methods: Measurements -->
 																						<div *ngIf="method.applied_methods[0]?.measurements?.length > 0">
-																							<div class="accordion mt-2 mx-3" [id]="'measurementAccordion' + i + '-' + j + '-' + k + '-' + l">
+																							<div class="accordion mt-2 mx-1" [id]="'measurementAccordion' + i + '-' + j + '-' + k + '-' + l">
 																								<div class="accordion-item" *ngFor="let measurement of method.applied_methods[0].measurements; let m = index">
 																									<h2 class="accordion-header" [id]="'measurementHeading' + i + '-' + j + '-' + k + '-' + l + '-' + m">
 																										<button
@@ -287,10 +298,10 @@
 																											[attr.data-bs-target]="'#measurementCollapse' + i + '-' + j + '-' + k + '-' + l + '-' + m"
 																											aria-expanded="false"
 																											[attr.aria-controls]="'measurementCollapse' + i + '-' + j + '-' + k + '-' + l + '-' + m"
-																										>
+																											style="padding: 0.6rem 0.9rem;">
 																											<span>
 																												<label class="label-title-applied-methods">Measurement DQ Method:</label>
-																												<span class="dimension-name">{{ measurement.name }}</span>
+																												<span class="label-title-name px-2">{{ measurement.name }}</span>
 																											</span>
 																										</button>
 																									</h2>
@@ -301,15 +312,22 @@
 																										[attr.data-bs-parent]="'#measurementAccordion' + i + '-' + j + '-' + k + '-' + l"
 																									>
 																										<div class="accordion-body">
+
 																											<div class="label-selected">
 																												<label class="label-title-selected">Applied to:</label>
 																												<span class="label-value-selected">
-																													<div *ngFor="let table of getAppliedToDisplay(measurement.appliedTo)" 
-																															 class="table-display">
-																														Table: {{ table.tableName }}<br>
-																														Columns: {{ table.columns.join(', ') }}
+																													<div *ngFor="let table of getAppliedToDisplay(measurement.appliedTo)" class="table-display">
+																														Table: <code>{{ table.tableName }}</code><br>
+                                                						Columns: <code>{{ table.columns.join(', ') }}</code><br><br>
 																													</div>
 																												</span>
+																											</div>
+
+																											<div class="label-selected">
+																												<label class="label-title-selected w-auto">Implementation:</label>
+																												<div class="algorithm-container">
+																													<pre class="algorithm-code"><code>{{ measurement.algorithm }}</code></pre>
+																												</div>
 																											</div>
 																											
 																										</div>
@@ -320,7 +338,7 @@
 
 																						<!-- Applied Methods: Aggregations -->
 																						<div *ngIf="method.applied_methods[0]?.aggregations?.length > 0">
-																							<div class="accordion mt-3 mb-2 mx-3" [id]="'aggregationAccordion' + i + '-' + j + '-' + k + '-' + l">
+																							<div class="accordion mt-3 mb-2 mx-1" [id]="'aggregationAccordion' + i + '-' + j + '-' + k + '-' + l">
 																								<div class="accordion-item" *ngFor="let aggregation of method.applied_methods[0].aggregations; let n = index">
 																									<h2 class="accordion-header" [id]="'aggregationHeading' + i + '-' + j + '-' + k + '-' + l + '-' + n">
 																										<button
@@ -330,10 +348,10 @@
 																											[attr.data-bs-target]="'#aggregationCollapse' + i + '-' + j + '-' + k + '-' + l + '-' + n"
 																											aria-expanded="false"
 																											[attr.aria-controls]="'aggregationCollapse' + i + '-' + j + '-' + k + '-' + l + '-' + n"
-																										>
+																											style="padding: 0.6rem 0.9rem;">
 																											<span>
 																												<label class="label-title-applied-methods">Aggregation DQ Method:</label>
-																												<span class="dimension-name">{{ aggregation.name }}</span>
+																												<span class="label-title-name px-2">{{ aggregation.name }}</span>
 																											</span>
 																										</button>
 																									</h2>
@@ -344,15 +362,22 @@
 																										[attr.data-bs-parent]="'#aggregationAccordion' + i + '-' + j + '-' + k + '-' + l"
 																									>
 																										<div class="accordion-body">
+
 																											<div class="label-selected">
-																												<label class="label-title-selected">Applied To:</label>
+																												<label class="label-title-selected">Applied to:</label>
 																												<span class="label-value-selected">
-																													<div *ngFor="let table of getAppliedToDisplay(aggregation.appliedTo)" 
-																															 class="table-display">
-																														Table: {{ table.tableName }}<br>
-																														Columns: {{ table.columns.join(', ') }}
+																													<div *ngFor="let table of getAppliedToDisplay(aggregation.appliedTo)" class="table-display">
+																														Table: <code>{{ table.tableName }}</code><br>
+                                                						Columns: <code>{{ table.columns.join(', ') }}</code><br><br>
 																													</div>
 																												</span>
+																											</div>
+
+																											<div class="label-selected">
+																												<label class="label-title-selected w-auto">Implementation:</label>
+																												<div class="algorithm-container">
+																													<pre class="algorithm-code"><code>{{ aggregation.algorithm }}</code></pre>
+																												</div>
 																											</div>
 
 
@@ -383,10 +408,27 @@
 				
 
 					<div class="d-flex gap-3 mt-2 mb-3">
-						<button class="btn btn-dark btn-sm mt-3" (click)="openConfirmDQModelModal()">Confirm DQ Model</button>
-						<button class="btn btn-info btn-sm mt-3" (click)="generatePdf()">
-							<i class="bi bi-file-earmark-pdf me-1"></i> Download DQ Model 
+						<button *ngIf="completeDQModel.model.status !== 'finished'" class="btn btn-dark btn-sm mt-3" (click)="openConfirmDQModelModal()">Confirm DQ Model
 						</button>
+						<button 
+							class="btn btn-info btn-sm mt-3" 
+							(click)="generateDQModelPDF()" 
+							[disabled]="isLoading"
+						>
+							<ng-container *ngIf="!isLoading">
+								<i class="bi bi-file-earmark-pdf me-1"></i>
+								Download DQ Model
+							</ng-container>
+							<ng-container *ngIf="isLoading">
+								<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+								Generating PDF...
+							</ng-container>
+						</button>
+
+
+						<!--<button class="btn btn-info btn-sm mt-3" (click)="generateDQModelPDF()">
+							<i class="bi bi-file-earmark-pdf me-1"></i> Download DQ Model 
+						</button>-->
 						
 					</div>
 

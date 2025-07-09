@@ -23,6 +23,21 @@ export class ProjectService {
   }
 
   /**
+   * Obtiene un proyecto filtrado por dqmodel_version.
+   * @param dqmodelVersionId ID del DQ Model Version.
+   * @returns Observable con los detalles del proyecto.
+   */
+  getProjectByDQModelVersion(dqmodelVersionId: number): Observable<any> {
+    const url = `${this.baseUrl}/projects/by-dqmodel/?dqmodel_version=${dqmodelVersionId}`;
+    return this.http.get<any>(url).pipe(
+      // tap((data) => console.log(`Fetched project for dqmodel_version=${dqmodelVersionId}:`, data)),
+      catchError(this.handleError<any>(`getProjectByDQModelVersion id=${dqmodelVersionId}`))
+    );
+  }
+
+
+
+  /**
    * Obtiene un problema de calidad específico por su ID.
    * @param projectId ID del proyecto.
    * @param problemId ID del problema de calidad.
@@ -48,23 +63,24 @@ export class ProjectService {
 
   // Método para obtener los problemas priorizados de un proyecto específico
   getPrioritizedDQProblemsByProjectId(projectId: number): Observable<any> {
-    const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
+    //const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
+    const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-quality-problems/`;
     return this.http.get<any>(url).pipe(
-      //tap((data) => console.log(`Fetched Prioritized DQ Problems for Project ID=${projectId}:`, data)),
+      tap((data) => console.log(`Fetched Prioritized DQ Problems for Project ID=${projectId}:`, data)),
       catchError(this.handleError<any[]>(`getPrioritizedDQProblemsByProjectId id=${projectId}`, []))
     );
   }
 
   // UPDATE DQ PROBLEM PRIORITY
   updatePrioritizedDQProblem(projectId: number, problems: any[]): Observable<any> {
-    const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
+    const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-quality-problems/`;
+    //const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
     
     // array de solicitudes PATCH
     const patchRequests = problems.map(problem => {
       const problemUrl = `${url}${problem.id}/`;
       const patchBody = { priority: problem.priority };
       return this.http.patch(problemUrl, patchBody).pipe(
-        tap((response) => console.log('Updated Prioritized DQ Problem:', response)),
         catchError(this.handleError<any>('updatePrioritizedDQProblem'))
       );
     });
@@ -76,7 +92,8 @@ export class ProjectService {
 
   // UPDATE DQ PROBLEM SELECTION STATUS
   updateIsSelectedFieldPrioritizedDQProblem(projectId: number, problems: any[]): Observable<any> {
-    const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
+    const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-quality-problems/`;
+    //const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
     
     // array de solicitudes PATCH
     const patchRequests = problems.map(problem => {
@@ -93,6 +110,13 @@ export class ProjectService {
   }
 
   // UPDATE PRIORITY AND SELECTION STATUS (for copy priorized problems on new versions Projects)
+  copyPrioritizedProblems(sourceProjectId: number, targetProjectId: number): Observable<any> {
+    return this.http.post(
+      `${this.API_URL_PROJECTS}${sourceProjectId}/copy-problems-to/${targetProjectId}/`,
+      {}  // Body vacío (no se necesitan datos adicionales)
+    );
+  }
+
   syncPrioritizedDQProblems(projectId: number, problems: any[]): Observable<any> {
     const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
   
@@ -122,7 +146,6 @@ export class ProjectService {
   
       const patchBody = { is_selected: false };
       return this.http.patch(problemUrl, patchBody).pipe(
-        tap((response) => console.log('Updated field is_selected in Prioritized DQ Problem:', response)),
         catchError(this.handleError<any>('updatePrioritizedDQProblem'))
       );
     });
@@ -136,7 +159,7 @@ export class ProjectService {
 
   // Método para obtener los problemas priorizados de un proyecto específico
   getSelectedPrioritizedDQProblemsByProjectId(projectId: number): Observable<any> {
-    const url = `${this.API_URL_PROJECTS}${projectId}/selected-prioritized-dq-problems/`;
+    const url = `${this.API_URL_PROJECTS}${projectId}/selected-prioritized-quality-problems/`;
     return this.http.get<any>(url).pipe(
       tap((data) => console.log(`Fetched Selected Prioritized DQ Problems for Project ID=${projectId}:`, data)),
       catchError(this.handleError<any[]>(`getSelectedPrioritizedDQProblemsByProjectId id=${projectId}`, []))
@@ -205,7 +228,7 @@ export class ProjectService {
 
   getAllProjects(): Observable<any[]> {
     return this.http.get<any[]>(this.API_URL_PROJECTS).pipe(
-      tap(data => console.log('Fetched Projects:', data)),
+      //tap(data => console.log('Fetched Projects:', data)),
       catchError(this.handleError<any[]>('getAllProjects', []))
     );
   }
@@ -215,10 +238,8 @@ export class ProjectService {
       console.warn('El ID proporcionado es invalido.');
       return of(null); // Devuelve un observable vacio o un valor alternativo
     }
-    
     const url = `${this.API_URL_PROJECTS}${id}/`;
     return this.http.get<any>(url).pipe(
-      tap(data => console.log(`Fetched Project with ID=${id}:`, data)),
       catchError(this.handleError<any>(`getProjectById id=${id}`))
     );
   }
@@ -350,15 +371,14 @@ export class ProjectService {
     );
   }
 
-  createProject(name: string, description: string, dqmodel_version: number | null, context_version: number | null, data_at_hand: number | null): Observable<any> {
+  createProject(name: string, description: string, dqmodel_version: number | null, context_version: number | null, context: number | null, data_at_hand: number | null): Observable<any> {
     const newProject = {
       name,
       description,
       dqmodel_version, 
       context_version, 
-      data_at_hand,
-      stage: 4,
-      status: 'in_progress'
+      context,
+      data_at_hand
     };
   
     return this.http.post<any>(this.API_URL_PROJECTS, newProject).pipe(

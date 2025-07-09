@@ -1,0 +1,426 @@
+<div class="container">
+  <app-step-navigator
+    [pageStepTitle]="pageStepTitle"
+    [phaseTitle]="phaseTitle"
+    [stageTitle]="stageTitle"
+    [steps]="steps"
+    [currentStep]="currentStep">
+  </app-step-navigator>
+
+  <div class="mb-5">
+    <p class="subtitle-description mt-4">
+      Assessment thresholds are set for each Applied DQ method, with qualitative values used to classify the quantitative results
+    </p>
+    
+    <div class="flex-container">
+      <div class="section-container">
+        <!-- Filtro de estado -->
+        <!-- Reemplazar el select actual por este grupo de botones -->
+        <div>
+          <div class="label-container">
+            <div class="label">
+              <label class="label-title">Thresholds definition Status:</label>
+              <span class="label-value d-flex align-items-center">
+                <div class="btn-group" role="group">
+                  <input 
+                    type="radio" 
+                    class="btn-check" 
+                    [(ngModel)]="selectedThresholdStatus" 
+                    (ngModelChange)="filterMethodsByThresholdsDefined()" 
+                    value="pending" 
+                    id="thresholdsPending"
+                  >
+                  <label class="btn btn-outline-dark" for="thresholdsPending">
+                    Pending
+                  </label>
+                
+                  <input 
+                    type="radio" 
+                    class="btn-check" 
+                    [(ngModel)]="selectedThresholdStatus" 
+                    (ngModelChange)="filterMethodsByThresholdsDefined()" 
+                    value="defined" 
+                    id="thresholdsDefined"
+                  >
+                  <label class="btn btn-outline-dark" for="thresholdsDefined">
+                    Defined
+                  </label>
+                </div>
+              </span>
+            </div>
+          </div>
+        
+
+          <div class="alert alert-light mb-3 mt-4" *ngIf="!selectedThresholdStatus">
+            <i class="bi bi-info-circle me-1"></i>
+            Filter Applied DQ Methods by Threshold definition status 
+          </div> 
+          
+        
+          <!-- Segundo select -->
+          <div class="label-container" *ngIf="selectedThresholdStatus">
+            <div class="label mt-3" *ngIf="selectedThresholdStatus">
+              <label class="label-title">Applied DQ Method:</label>
+              <span class="label-value d-flex align-items-center">
+                <select id="methodSelector" 
+                        class="form-select select-style" 
+                        [(ngModel)]="selectedMethodId"
+                        (change)="onMethodSelected()">
+                  <option [value]="null"></option>
+                  <option *ngFor="let method of filteredMethodOptions" 
+                          [value]="method.id">
+                    {{ method.name }}
+                  </option>
+                </select>
+              </span>
+            </div>
+          </div>
+          
+          
+          <!-- Segundo mensaje -->
+          <div class="alert alert-light mb-3 mt-4" *ngIf="selectedThresholdStatus && !selectedMethodId">
+            <i class="bi bi-info-circle me-1"></i>
+            Select an Applied DQ Method to view/define their thresholds
+          </div> 
+        </div>
+
+        <!-- Sección para mostrar el método seleccionado -->
+        <div *ngIf="selectedMethodDetail" class="mb-2">
+          <!-- Detalles del método -->
+          <div class="label-container-selected mt-3 py-2 px-4">
+            <div class="label-selected">
+              <span class="label-name-selected">{{ selectedMethodDetail.name }}</span>
+            </div>
+            <div class="label-selected">
+              <label class="label-title-selected">Type:</label>
+              <span class="label-value-selected">{{ selectedMethodDetail.method_type }}</span>
+            </div>
+            <div class="label-selected">
+              <label class="label-title-selected">Algorithm applied:</label>
+              <div class="algorithm-container">
+                <pre class="algorithm-code"><code>{{ selectedMethodDetail.algorithm }}</code></pre>
+              </div>
+            </div>
+          
+            <!-- DQ Measurement Results -->
+            <div>
+              <h6 class="mb-2 py-2">
+                <i class="bi bi-table me-2"></i>
+                DQ Measurement results:
+              </h6> 
+    
+              <div class="label-selected mt-2">
+                <label class="label-title-selected">Execution date:</label>
+                <span class="label-value-selected">{{ selectedMethodDetail.executionResult?.executed_at | date:'MMM dd HH:mm yyyy' }}</span>
+              </div>
+
+              <div class="label-selected">
+                <label class="label-title-selected">Granularity:</label>
+                <span class="label-value-selected">{{ selectedMethodDetail.granularity }}</span>
+              </div>
+
+              <div class="label-selected">
+                <label class="label-title-selected">Result domain:</label>
+                <span class="label-value-selected">{{ selectedMethodDetail.resultDomain }}</span>
+              </div>
+
+              <!-- Tabla resumen Execution -->
+              <div class="table-container">
+                <table class="table table-hover">
+                  <thead class="thead-dark custom-thead">
+                    <tr>
+                      <th>DQ Method</th>
+                      <th>Applied to</th>
+                      <th>DQ Value</th>
+                      <th>DQ Metric</th>
+                      <th>DQ Factor</th>
+                      <th>DQ Dimension</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="clickable-text" (click)="openMethodDetailsModal(selectedMethodDetail.methodBase)">
+                        {{ selectedMethodDetail.dqMethod }}
+                      </td>
+                      <td>
+                        <div *ngFor="let table of getAppliedToDisplay(selectedMethodDetail.appliedTo)" 
+                            class="table-display">
+                          Table: {{ table.tableName }}<br>
+                          Columns: {{ table.columns.join(', ') }}
+                        </div>
+                      </td>
+                      <td>
+                        <ng-container *ngIf="selectedMethodDetail?.executionResult">
+                          <!-- Caso simple -->
+                          <div *ngIf="selectedMethodDetail.executionResult.displayType === 'single'">
+                            <span class="badge bg-primary">
+                              {{ selectedMethodDetail.executionResult.dq_value | number:'1.2-2' }} 
+                            </span>
+                          </div>
+                          
+                          <!-- Caso múltiple -->
+                          <div *ngIf="selectedMethodDetail.executionResult.displayType === 'multiple'">
+                            <span class="badge bg-primary cursor-pointer" 
+                                  (click)="toggleMultipleResults()"
+                                  [attr.title]="'Ver detalles de ' + selectedMethodDetail.executionResult.total_rows + ' filas'">
+                              {{ selectedMethodDetail.executionResult.total_rows }} values
+                              <i class="bi" 
+                                [class.bi-chevron-down]="!showMultipleResults"
+                                [class.bi-chevron-up]="showMultipleResults"></i>
+                            </span>
+                          </div>
+                        </ng-container>
+
+                        <!-- Loading state -->
+                        <div *ngIf="isLoadingResults" class="mt-2">
+                          <span class="spinner-border spinner-border-sm" role="status"></span>
+                          <span class="ms-2">Loading results...</span>
+                        </div>
+                      </td>
+                      <td>{{ selectedMethodDetail.dqMetric }}</td>
+                      <td>{{ selectedMethodDetail.dqFactor }}</td>
+                      <td>{{ selectedMethodDetail.dqDimension }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+          
+              <!-- Panel de resultados múltiples -->
+              <div *ngIf="showMultipleResults && selectedMethodDetail?.executionResult?.displayType === 'multiple'" 
+                  class="mt-2 p-3 bg-light rounded border mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h6 class="mb-0">Detailed Sample Results ({{ selectedMethodDetail.executionResult.total_rows }} rows)</h6>
+                  <button class="btn btn-sm btn-outline-secondary" 
+                          (click)="showMultipleResults = false">
+                    <i class="bi bi-x-lg"></i> Close
+                  </button>
+                </div>
+              
+                <div class="table-responsive-sm">
+                  <table class="table table-sm table-bordered">
+                    <thead class="table-light custom-thead-detailed-results">
+                      <tr>
+                        <th>#</th>
+                        <th>Row ID</th>
+                        <th>Table</th>
+                        <th>Column(s)</th>
+                        <th>DQ Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let row of selectedMethodDetail.executionResult.tableData | slice:0:maxVisibleRows; let i = index">
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ getRowId(row) }}</td>
+                        <td>{{ getTableByRow(row) }}</td>
+                        <td>{{ getColumnByRow(row) }}</td>
+                        <td>{{ getDqValue(row) }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              
+                <div *ngIf="selectedMethodDetail.executionResult.tableData.length > maxVisibleRows" 
+                    class="mt-2 text-center text-muted small">
+                  Showing {{ maxVisibleRows }} of {{ selectedMethodDetail.executionResult.tableData.length }} rows
+                </div>
+              </div>
+            </div>
+            
+            <!-- DQ Assessment -->
+            <div class="mt-4 mb-2">
+              <h6 class="mb-2">
+                <i class="bi bi-check2-circle me-2"></i> 
+                DQ Assessment approaches:
+              </h6> 
+
+              <!-- Assessment Thresholds Guidance -->
+              <div>
+                <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                  <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                  </symbol>
+                  <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                  </symbol>
+                  <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                  </symbol>
+                </svg>
+              
+                <div class="alert-tip-message alert alert-primary" role="alert">
+                  <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+                  <div>
+                    <strong>Assessment Thresholds Guidance</strong>
+                    <p>Define data quality evaluation criteria by specifying thresholds (value ranges) and corresponding quality ratings (e.g., "Excellent", "Good", "Poor").</p>
+                    <ul class="mb-1">
+                      <li>Thresholds should reflect your DQ requirements and business rules</li>
+                      <li>Consider different user profiles that may require different thresholds</li>
+                      <li>Example: For "Email Completeness", you might set:
+                        <ul>
+                          <li>90-100% → "Excellent" (fully meets requirements)</li>
+                          <li>80-89% → "Good" (acceptable with minor issues)</li>
+                          <li>0-79% → "Poor" (needs improvement)</li>
+                        </ul>
+                      </li>
+                    </ul>
+                    <p class="mb-0">These thresholds will be used to evaluate the DQ measurement results.</p>
+                  </div>
+                </div>
+              </div>
+ 
+              <div class="label-selected">
+                <label class="label-title-selected-ctx">Context components:</label>
+              </div>
+              <div class="label-selected">
+                <span class="label-value-selected">
+                  <ul>
+                    <li *ngFor="let category of getContextComponentCategories(selectedMethodDetail.context_components)">
+                      {{ formatCtxCompCategoryName(category) }}:
+                      <ul>
+                        <li *ngFor="let componentId of selectedMethodDetail.context_components[category]">
+                          {{ getFirstAttribute(category, componentId) }}
+                          <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)" style="text-decoration: none;">
+                            <i class="bi bi-zoom-in"></i> 
+                          </a>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </span>
+              </div>
+
+              <div class="label-selected">
+                <label class="label-title-selected">Thresholds:</label>
+              </div>
+              
+              <div class="threshold-section border rounded p-3">
+                <div *ngFor="let threshold of qualityThresholds; let i = index" class="rating-item mb-3 p-3 border rounded">
+                  <div class="row g-3">
+                    <div class="col-md-5">
+                      <label class="form-label">Assessment score</label>
+                      <input 
+                        type="text" 
+                        class="form-control" 
+                        [(ngModel)]="threshold.name" 
+                        [readonly]="!areThresholdsEditable"
+                        [class.bg-light]="!areThresholdsEditable"
+                        placeholder="e.g., Excellent">
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label">Min Value</label>
+                      <input type="number" 
+                          class="form-control" 
+                          [(ngModel)]="threshold.minValue"
+                          [readonly]="!areThresholdsEditable"
+                          [class.bg-light]="!areThresholdsEditable"
+                          [min]="thresholdType === 'percentage' ? 0 : null"
+                          [step]="thresholdType === 'percentage' ? 0.01 : 1 "
+                          [disabled]="thresholdType === 'boolean'"
+                      >
+                    </div>
+                    
+                    <div class="col-md-3">
+                      <label class="form-label">Max Value</label>
+                      <input type="number" 
+                            class="form-control" 
+                            [(ngModel)]="threshold.maxValue"
+                            [readonly]="!areThresholdsEditable"
+                            [class.bg-light]="!areThresholdsEditable"
+                            [max]="thresholdType === 'percentage' ? 1 : null"
+                            [step]="thresholdType === 'percentage' ? 0.01  : 1"
+                            [disabled]="thresholdType === 'boolean'"> 
+                    </div>
+                    
+                    <div  *ngIf="thresholdType !== 'boolean'" class="col-md-1 d-flex align-items-end justify-content-end">
+                      <button
+                        class="btn btn-sm btn-outline-danger" 
+                        (click)="removeThreshold(i)"
+                        *ngIf="areThresholdsEditable">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div *ngIf="thresholdType === 'boolean'" class="row mt-2">
+                    <div class="col-md-12">
+                      <div class="alert alert-info">
+                        For boolean metrics, only "Pass test?" is relevant (true/false)
+                      </div>
+                    </div>
+                  </div>
+                </div>
+  
+                <div *ngIf="thresholdType !== 'boolean'" class="d-flex justify-content-end">
+                  <button class="btn btn-light btn-sm" (click)="addThreshold()" *ngIf="areThresholdsEditable">
+                    <i class="bi bi-plus-lg"></i> New threshold
+                  </button>
+                </div>
+              
+                <!-- Save/Cancel Buttons -->
+                <div class="d-flex justify-content-start gap-2">
+                  <button *ngIf="areThresholdsEditable && selectedThresholdStatus !== 'pending'" 
+                          class="btn btn-light btn-sm" 
+                          (click)="cancelEdit()">Cancel</button>
+                  <button *ngIf="areThresholdsEditable" 
+                          class="btn btn-dark btn-sm" 
+                          (click)="saveThresholds()">Save Thresholds</button>
+                  <button *ngIf="!areThresholdsEditable" 
+                          class="btn btn-dark btn-sm" 
+                          (click)="toggleEditThresholds()">Edit Thresholds</button>
+                </div>       
+              </div>
+            </div>
+          </div>
+
+          <!-- Spinner de carga -->
+          <div *ngIf="isLoading" class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="sr-only"></span>
+            </div>
+          </div>
+
+          <!-- Mensaje de error -->
+          <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+            {{ errorMessage }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para mostrar los detalles del método -->
+<app-modal
+  [isOpen]="isModalOpen"
+  [title]="modalTitle"
+  [message]="modalMessage"
+  (close)="closeModal()">
+  <div class="modal-body">
+    <div *ngIf="methodDetails">
+      <p><strong>Name:</strong> {{ methodDetails.name }}</p>
+      <p><strong>Input Data Type:</strong> {{ methodDetails.inputDataType }}</p>
+      <p><strong>Output Data Type:</strong> {{ methodDetails.outputDataType }}</p>
+      <p><strong>Algorithm:</strong> {{ methodDetails.algorithm }}</p>
+    </div>
+    <div *ngIf="!methodDetails && !isLoading">
+      <p>No details available for this method.</p>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" (click)="closeModal()">Close</button>
+  </div>
+</app-modal>
+
+
+<app-context-component-view-modal
+  #contextComponentModal
+  [selectedComponentKeys]="selectedComponentKeys"
+  [selectedComponentDetails]="selectedComponentDetails">
+</app-context-component-view-modal>
+
+
+<app-stepper
+  [currentStep]="currentStep"
+  [totalSteps]="steps.length"
+  [isNextStepEnabled]="isNextStepEnabled"
+  (stepChange)="onStepChange($event)">
+</app-stepper>

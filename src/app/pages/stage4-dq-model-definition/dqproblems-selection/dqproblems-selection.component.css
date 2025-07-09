@@ -1,0 +1,267 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+  color: #222;
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 86%; 
+
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 10px; 
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 0 8px; /* Mínimo padding en pantallas muy pequeñas */
+  }
+  
+  .title {
+    font-size: 1.4rem; /* Reduce tamaño de título en móviles */
+  }
+  
+  .subtitle-description {
+    font-size: 14px; /* Reduce tamaño de subtítulo en móviles */
+  }
+}
+
+
+.table {
+  /*font-size: 0.875rem; */
+  font-size: 15px;
+}
+
+.table tbody tr td {
+  color: #222; 
+}
+
+.table td {
+  vertical-align: middle; 
+}
+
+.table th {
+  font-weight: 500;  
+}
+
+.subtitle-description {
+  font-size: 16px;
+  font-style: italic;
+}
+
+
+.selection-subtitle {
+  font-size: 1.3rem;
+  font-weight: lighter;
+  color: #333;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.my-4 {
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.details-container {
+  /*border: 1px solid #ddd;*/
+  padding: 1rem;
+  margin-top: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+
+
+
+.badge {
+  min-width: 50px;
+  /*display: inline-block;
+  padding-left: 6px;
+  padding-right: 6px;*/
+
+}
+
+
+.flex-container {
+  display: flex;
+  justify-content: center;
+}
+
+.container-section {
+  width: 100%;
+  /*border: 1px solid #ddd; */
+  border: 1px solid #eeeeee;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  background-color: #fff; 
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;  
+}
+
+
+/* BUTTONS */
+.btn {
+	font-size: 0.9rem;
+  font-weight: 500;
+  /*border-radius: 8px;*/
+}
+
+.btn-dark {
+  background-color: #222; 
+  color: #fff; 
+  border: 1px solid  #111; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-dark:hover {
+  background-color: #333; 
+  border: 1px solid #333; 
+}
+
+.btn-light {
+  background-color: #fff; 
+  color: #111; 
+  border: 1px solid #bbb; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-light-add {
+  background-color: #fff; 
+  color: #000; 
+  border: 1px solid #bbb; 
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.btn-light-add:hover {
+  background-color: #222; 
+  color: #fff; 
+  border: 1px solid  #222; 
+}
+
+.btn-light:hover {
+  background-color: #222; 
+  color: #fff; 
+  border: 1px solid  #222; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-add-added {
+  min-width: 92px;
+}
+
+.next-step-btn-container{
+	display: flex;
+  justify-content: flex-end; 
+}
+
+
+
+.selected-problems-container-title{
+  padding-top: 0.9rem;
+  font-size: 15px;
+  font-weight: 500;
+  font-style: italic;
+}
+
+
+
+.dq-problems-accordion-container {
+  /*max-width: 640px;*/
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  /*background-color: #f9f9f9;*/
+  padding: 0.2rem;
+  min-height: 200px;
+  overflow-y: auto; /* Solo scroll vertical */
+  overflow-x: hidden; /* Evita el scroll horizontal */
+  height: 640px;
+  box-sizing: border-box; /* Incluye padding y borde en el ancho total */
+}
+
+/*
+.problems-main-container {
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 8px; 
+  margin: 24px 0; 
+  margin-left: 14px;
+  margin-right: 14px;
+}*/
+
+.problems-main-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 0 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dq-problems-selection-container {
+  flex: 1; /* Ambas secciones ocupan el mismo espacio */
+  min-width: 40%; /* Ancho mínimo para cada sección */
+  /*border: 1px solid #dee2e6; 
+  border-radius: 8px;  */
+  padding: 0 1rem; 
+  /*background-color: #f9f9f9;  */
+}
+
+
+
+@media (max-width: 1020px) {
+  .main-container {
+    flex-direction: column; /* Las secciones se apilan verticalmente */
+  }
+
+  .dq-problems-selection-container {
+    min-width: 100%; /* Ocupan el 100% del ancho en pantallas pequeñas */
+  }
+}
+
+
+.card-title{
+  font-size: 15px; 
+}
+
+.card-text{
+  font-size: 14px; 
+}
+
+.added-problems-message {
+  color: #666;
+  font-style: italic;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.empty-message {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 20px;
+  font-size: 14px;
+}
+
+.empty-message i {
+  margin-right: 8px;
+  color: #888;
+}
+
+.subsection-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+

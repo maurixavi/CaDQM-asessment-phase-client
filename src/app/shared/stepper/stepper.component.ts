@@ -37,6 +37,8 @@ export class StepperComponent {
       this.isWarningModalOpen = true; 
       return;
     }
+    console.log("this.currentStep", this.currentStep);
+    console.log("this.totalSteps", this.totalSteps);
 
     if (this.currentStep < this.totalSteps - 1) {
       this.currentStep++;

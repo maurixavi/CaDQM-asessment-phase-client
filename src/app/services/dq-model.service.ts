@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError, forkJoin } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 
@@ -92,6 +92,7 @@ export class DqModelService {
   }
 
 
+  
 
 
   readonly API_URL_METHODS_BASE_GENERATION = `${this.baseUrl}/generate-dqmethod-suggestion/`;
@@ -192,8 +193,6 @@ export class DqModelService {
 
 
   //DQ MODELS
-  //private currentDQModel: DQModel | null = null; // Almacenamiento en caché del DQ Model actual
-  //private currentDQModel: any = null; 
   private currentDQModel: any | null = null;
 
   // Obtiene (desde cache o servidor) el DQ Model actual dado el currentProject
@@ -213,6 +212,15 @@ export class DqModelService {
       }),
       catchError((err) => {
         console.error(`Error al obtener DQ Model ${dqModelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  getDQModel(dqmodelId: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL_DQMODELS}${dqmodelId}/`).pipe( 
+      catchError(err => {
+        console.error(`Error al obtener DQ Model ${dqmodelId}:`, err);
         throw err;
       })
     );
@@ -242,6 +250,26 @@ export class DqModelService {
     );
   }
 
+  /**
+   * Obtiene la versión siguiente (next version) de un DQModel dado su ID.
+   * @param dqModelId ID del DQModel original.
+   * @returns Observable con la siguiente versión del modelo (si existe).
+   */
+  getNextDQModelVersion(dqModelId: number): Observable<any | null> {
+    const url = `${this.baseUrl}/dqmodels/${dqModelId}/next-version/`;
+    return this.http.get<any>(url).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 404) {
+          return of(null);
+        }
+        console.error('Error inesperado al obtener la siguiente versión:', error);
+        return of(null);
+      })
+    );
+  }
+  
+  
+
 
   getAllDQModels(): Observable<any[]> {
     return this.http.get<any[]>(this.API_URL_DQMODELS).pipe(
@@ -260,24 +288,7 @@ export class DqModelService {
     );
   }
 
-  // Obtiene cualquier DQ Model por id
-  getDQModelById(dqmodelId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.API_URL_DQMODELS}${dqmodelId}/`).pipe(
-      catchError(err => {
-        console.error(`Error al obtener DQ Model ${dqmodelId}:`, err);
-        throw err;
-      })
-    );
-  } 
-
-  getDQModel(dqmodelId: number): Observable<any> {
-    return this.http.get<any>(`${this.API_URL_DQMODELS}${dqmodelId}/`).pipe( // Cambia el tipo de retorno a 'any' en lugar de 'any[]'
-      catchError(err => {
-        console.error(`Error al obtener DQ Model ${dqmodelId}:`, err);
-        throw err;
-      })
-    );
-  }
+  
 
   //DIMENSIONS DQ MODEL
   getDimensionsByDQModel(dqmodelId: number): Observable<any[]> {
@@ -415,6 +426,17 @@ export class DqModelService {
     const url = `${this.API_URL_METHODS_DQMODEL}${methodId}/`;
     return this.http.patch<any>(url, updatedData);
   }
+
+  updateMeasurementAppliedMethod(id: number, updatedData: any): Observable<any> {
+    const url = `${this.API_URL_ME_METHODS_DQMODEL}${id}/`;  
+    return this.http.patch<any>(url, updatedData);
+  }
+  
+  updateAggregationAppliedMethod(id: number, updatedData: any): Observable<any> {
+    const url = `${this.API_URL_AG_METHODS_DQMODEL}${id}/`;  
+    return this.http.patch<any>(url, updatedData);
+  }
+  
   
 
 
@@ -720,13 +742,13 @@ export class DqModelService {
   }
 
   // Obtener detalles de un measurement
-  getMeasurementDetails(measurementId: number): Observable<any> {
-    return this.http.get<any>(`${this.API_URL_AG_METHODS_DQMODEL}${measurementId}/`);
+  getMeasurementAppliedMethodDetails(measurementId: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL_ME_METHODS_DQMODEL}${measurementId}/`);
   }
 
   // Obtener detalles de una aggregation
-  getAggregationDetails(aggregationId: number): Observable<any> {
-    return this.http.get<any>(`${this.API_URL_ME_METHODS_DQMODEL}${aggregationId}/`);
+  getAggregationAppliedMethodDetails(aggregationId: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL_AG_METHODS_DQMODEL}${aggregationId}/`);
   }
 
 
@@ -1233,12 +1255,29 @@ export class DqModelService {
    * @param appliedMethodId El ID del método aplicado
    * @returns Observable con el resultado de la ejecución
    */
-  executeAppliedMethod(dqModelId: number, appliedMethodId: number): Observable<any> {
+  executeAppliedMethod(dqModelId: number, appliedMethodId: number, connConfig: any): Observable<any> {
     const url = `${this.API_URL_DQMODELS}${dqModelId}/applied-dq-methods/${appliedMethodId}/execute/`;
-    return this.http.post<any>(url, {}).pipe(
+    return this.http.post<any>(url, { connection_config: connConfig }).pipe(
       catchError(err => {
         console.error(`Error al ejecutar el método aplicado ${appliedMethodId} para el DQ Model ${dqModelId}:`, err);
         throw err;
+      })
+    );
+  }
+
+  /**
+   * Inicia una nueva ejecución
+   * @param dqModelId ID del modelo
+   * @returns Observable con el execution_id
+   */
+  startDQModelExecution(dqModelId: number): Observable<{ execution_id: string }> {
+    return this.http.post<{ execution_id: string }>(
+      `${this.API_URL_DQMODELS}${dqModelId}/start-dq-model-execution/`,
+      {}
+    ).pipe(
+      catchError(error => {
+        console.error('Error al crear ejecución:', error);
+        return throwError(() => error);
       })
     );
   }
@@ -1249,13 +1288,13 @@ export class DqModelService {
    * @param appliedMethodIds Un array con los IDs de los métodos aplicados
    * @returns Observable con los resultados de las ejecuciones
    */
-   executeMultipleAppliedMethods(dqModelId: number, appliedMethodIds: number[]): Observable<any[]> {
-    // Creamos un array de observables para cada método aplicado
+  executeMultipleAppliedMethods(dqModelId: number, appliedMethodIds: number[], connConfig: any): Observable<any[]> {
+    //array de observables para cada método aplicado
     const requests = appliedMethodIds.map(appliedMethodId =>
-      this.executeAppliedMethod(dqModelId, appliedMethodId)
+      this.executeAppliedMethod(dqModelId, appliedMethodId, connConfig)
     );
 
-    // Usamos forkJoin para ejecutar todas las solicitudes concurrentemente
+    //forkJoin para ejecutar todas las solicitudes concurrentemente
     return forkJoin(requests).pipe(
       catchError(err => {
         console.error('Error al ejecutar los métodos aplicados:', err);
@@ -1264,6 +1303,8 @@ export class DqModelService {
     );
   }
 
+
+  
   /**
    * Updates assessment thresholds for a method execution result
    * @param dqModelId The ID of the DQ Model
@@ -1338,5 +1379,8 @@ export class DqModelService {
 
 
 
+
+
+  
 
 }

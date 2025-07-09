@@ -6,21 +6,21 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { MainViewComponent } from './pages/main-view/main-view.component';
+//import { MainViewComponent } from './pages/main-view/main-view.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { FormsModule } from '@angular/forms';
 
-import { DQProblemsPriorizationComponent } from './pages/dqproblems-priorization/dqproblems-priorization.component';
-import { DQProblemsSelectionComponent } from './pages/dqproblems-selection/dqproblems-selection.component';
+import { DQProblemsPriorizationComponent } from './pages/stage4-dq-model-definition/dqproblems-priorization/dqproblems-priorization.component';
+import { DQProblemsSelectionComponent } from './pages/stage4-dq-model-definition/dqproblems-selection/dqproblems-selection.component';
 
-import {DQMetricDefinitionComponent} from './pages/dqmeasurement-metric-definition/dqmeasurement-metric-definition.component';
-import {DqDimensionsMethodsDefinitionComponent} from './pages/dq-dimensions-methods-definition/dq-dimensions-methods-definition.component';
+import {DQMetricsDefinitionComponent} from './pages/stage4-dq-model-definition/dq-metrics-definition/dq-metrics-definition.component';
+import {DqMethodsDefinitionComponent} from './pages/stage4-dq-model-definition/dq-methods-definition/dq-methods-definition.component';
 
-import { DqDimensionsFactorsSelectionComponent } from './pages/dq-dimensions-factors-selection/dq-dimensions-factors-selection.component';
+import { DqDimensionsFactorsSelectionComponent } from './pages/stage4-dq-model-definition/dq-dimensions-factors-selection/dq-dimensions-factors-selection.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
-import { DQMeasurementPreviewComponent } from './pages/dqmeasurement-preview-run/dqmeasurement-preview-run.component';
+//import { DQMeasurementPreviewComponent } from './pages/dqmeasurement-preview-run/dqmeasurement-preview-run.component';
 
 import { HeaderComponent } from './shared/header/header.component';
 import { ContextComponentsComponent } from './shared/context-components/context-components.component';
@@ -34,27 +34,27 @@ import { StepperComponent } from './shared/stepper/stepper.component';
 import { HomeComponent } from './pages/home/home.component';
 import { ModalComponent } from './components/modal/modal.component';
 import { ConfirmationModalComponent } from './components/confirmation-modal/confirmation-modal.component';
-import { DqMeasurementExecutionComponent } from './pages/dq-measurement-execution/dq-measurement-execution.component';
+import { DqMeasurementExecutionComponent } from './pages/stage5-dq-measurement/dq-measurement-execution/dq-measurement-execution.component';
 import { DataAtHandViewModalComponent } from './shared/data-at-hand-view-modal/data-at-hand-view-modal.component';
 import { ContextComponentViewModalComponent } from './shared/context-component-view-modal/context-component-view-modal.component';
 import { NotificationComponent } from './components/notification/notification.component';
-import { DqMeasurementResultsComponent } from './pages/dq-measurement-results/dq-measurement-results.component';
-import { DqAssessmentApproachesDefinitionComponent } from './pages/dq-assessment-approaches-definition/dq-assessment-approaches-definition.component';
-import { DqAssessmentExecutionComponent } from './pages/dq-assessment-execution/dq-assessment-execution.component';
+import { DqMeasurementResultsComponent } from './pages/stage5-dq-measurement/dq-measurement-results/dq-measurement-results.component';
+import { DqAssessmentApproachesDefinitionComponent } from './pages/stage6-dq-assessment/dq-assessment-approaches-definition/dq-assessment-approaches-definition.component';
+import { DqAssessmentExecutionComponent } from './pages/stage6-dq-assessment/dq-assessment-execution/dq-assessment-execution.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     DQProblemsPriorizationComponent,
-    MainViewComponent,
+    //MainViewComponent,
     DQProblemsSelectionComponent,
     DqDimensionsFactorsSelectionComponent,
     HeaderComponent,
     DashboardComponent,
-    DQMetricDefinitionComponent,
-    DqDimensionsMethodsDefinitionComponent,
-    DQMeasurementPreviewComponent,
+    DQMetricsDefinitionComponent,
+    DqMethodsDefinitionComponent,
+    //DQMeasurementPreviewComponent,
     ContextComponentsComponent,
     DQModelConfirmationComponent,
     StepNavigatorComponent,
@@ -62,10 +62,10 @@ import { DqAssessmentExecutionComponent } from './pages/dq-assessment-execution/
     HomeComponent,
     ModalComponent,
     ConfirmationModalComponent,
-    DqMeasurementExecutionComponent,
     DataAtHandViewModalComponent,
     ContextComponentViewModalComponent,
     NotificationComponent,
+    DqMeasurementExecutionComponent,
     DqMeasurementResultsComponent,
     DqAssessmentApproachesDefinitionComponent,
     DqAssessmentExecutionComponent

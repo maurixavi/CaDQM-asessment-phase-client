@@ -1,9 +1,37 @@
-/* You can add global styles to this file, and also import other style files */
-body {
-  background-color: #a83a3a;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+  color: #222;
 }
 
+@media (min-width: 1200px) {
+  .container {
+    max-width: 86%; 
 
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 10px; 
+  }
+  
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 0 8px; /* Mínimo padding en pantallas muy pequeñas */
+  }
+  
+  .title {
+    font-size: 1.4rem; /* Reduce tamaño de título en móviles */
+  }
+  
+  .subtitle-description {
+    font-size: 14px; /* Reduce tamaño de subtítulo en móviles */
+  }
+}
 
 .subtitle-description {
   font-size: 16px;

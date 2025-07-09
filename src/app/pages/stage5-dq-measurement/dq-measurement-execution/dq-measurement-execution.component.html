@@ -1,0 +1,427 @@
+<div class="container">
+  <app-step-navigator
+    [pageStepTitle]="pageStepTitle"
+    [phaseTitle]="phaseTitle"
+    [stageTitle]="stageTitle"
+    [steps]="steps"
+    [currentStep]="currentStep">
+  </app-step-navigator>
+
+  <div>
+    <p class="subtitle-description mt-4">DQ measurement is carried out by executing the DQ methods implemented for each DQ metric</p>
+    
+    <div class="flex-container">
+      <div class="section-container">
+        <!-- Mensaje de error -->
+        <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+          {{ errorMessage }}
+        </div>
+
+        <!-- Cuando no hay ejecuciones -->
+        <div *ngIf="measurementExecutions.length === 0">
+          <div class="alert alert-light">
+            <i class="bi bi-info-circle me-1"></i>
+            Start a new DQ Model execution to carry out the DQ Measurement of the DQ Methods
+          </div>
+          <button class="btn btn-sm btn-dark" 
+                  (click)="startDQModelExecution()"
+                  [disabled]="!dqModelVersionId">
+            Start Execution
+          </button>
+        </div>
+
+        <!-- Filtro de estado cuando hay ejecuciones -->
+        <div *ngIf="measurementExecutions.length > 0" class="label-container">
+          <div class="label mb-4">
+            <label class="label-title">Execution Status:</label>
+            <span class="label-value d-flex align-items-center">
+              <div class="btn-group" role="group">
+                <input 
+                  type="radio" 
+                  class="btn-check" 
+                  [(ngModel)]="selectedStatus" 
+                  (ngModelChange)="filterMethodsByExecutionStatus()" 
+                  value="pending" 
+                  id="execPending"
+                >
+                <label class="btn btn-outline-dark" for="execPending">Pending</label>
+              
+                <input 
+                  type="radio" 
+                  class="btn-check" 
+                  [(ngModel)]="selectedStatus" 
+                  (ngModelChange)="filterMethodsByExecutionStatus()" 
+                  value="completed" 
+                  id="execCompleted"
+                >
+                <label class="btn btn-outline-dark" for="execCompleted">Completed</label>
+              </div>
+            </span>
+          </div>
+        </div>
+
+        <!-- Mensajes informativos -->
+        <div>
+          <div class="alert alert-light mb-3" *ngIf="measurementExecutions.length > 0 && selectedStatus !== 'pending' && selectedStatus !== 'completed'">
+            <i class="bi bi-info-circle me-1"></i>
+            Filter Applied DQ Methods by measurement execution status 
+          </div>
+
+          <div class="alert alert-light mb-3" *ngIf="measurementExecutions.length > 0 && selectedStatus == 'pending' && filteredMethods.length > 0">
+            <i class="bi bi-info-circle me-1"></i>
+            Select the pending Applied DQ Methods to execute DQ measurement
+          </div>
+
+          <div class="alert alert-success" *ngIf="measurementExecutions.length > 0 && selectedStatus == 'pending' && filteredMethods.length === 0">
+            <i class="bi bi-info-circle me-1"></i>
+            DQ measurement completed. There are no pending Applied DQ Methods to execute
+          </div>
+
+          <div class="alert alert-warning" *ngIf="selectedStatus === 'completed' && filteredMethods.length === 0">
+            <i class="bi bi-info-circle me-1"></i>
+            There are no executed Applied DQ Methods
+          </div>
+        </div>
+
+        <!-- TABLA DE METODOS APLICADOS -->
+        <div class="table-container" *ngIf="filteredMethods.length !== 0 && (selectedStatus === 'pending' || selectedStatus === 'completed')">
+          <table class="table table-hover">
+            <thead class="thead-dark custom-thead">
+              <tr>
+                <th scope="col">
+                  <input
+                    *ngIf="selectedStatus === 'pending'"
+                    type="checkbox"
+                    [checked]="isAllSelected()"
+                    (change)="toggleSelectAll($event)"
+                  />
+                </th>
+                <th scope="col" class="sortable-header" (click)="sortTable('dqMethod')">
+                  DQ Method
+                  <i class="bi" [ngClass]="{
+                    'bi-caret-up-fill': sortColumn === 'dqMethod' && sortDirection === 'asc',
+                    'bi-caret-down-fill': sortColumn === 'dqMethod' && sortDirection === 'desc',
+                    'bi-filter': sortColumn !== 'dqMethod'
+                  }"></i>
+                </th>
+                <th scope="col" class="sortable-header" (click)="sortTable('name')">
+                  Applied DQ Method
+                  <i class="bi" [ngClass]="{
+                    'bi-caret-up-fill': sortColumn === 'name' && sortDirection === 'asc',
+                    'bi-caret-down-fill': sortColumn === 'name' && sortDirection === 'desc',
+                    'bi-filter': sortColumn !== 'name'
+                  }"></i>
+                </th>
+                <th scope="col" class="sortable-header" (click)="sortTable('appliedTo')">
+                  Applied to
+                  <i class="bi" [ngClass]="{
+                    'bi-caret-up-fill': sortColumn === 'appliedTo' && sortDirection === 'asc',
+                    'bi-caret-down-fill': sortColumn === 'appliedTo' && sortDirection === 'desc',
+                    'bi-filter': sortColumn !== 'appliedTo'
+                  }"></i>
+                </th>
+                <th scope="col" class="sortable-header" (click)="sortTable('dqMetric')">
+                  DQ Metric
+                  <i class="bi" [ngClass]="{
+                    'bi-caret-up-fill': sortColumn === 'dqMetric' && sortDirection === 'asc',
+                    'bi-caret-down-fill': sortColumn === 'dqMetric' && sortDirection === 'desc',
+                    'bi-filter': sortColumn !== 'dqMetric'
+                  }"></i>
+                </th>
+                <th scope="col" class="sortable-header" (click)="sortTable('dqFactor')">
+                  DQ Factor
+                  <i class="bi" [ngClass]="{
+                    'bi-caret-up-fill': sortColumn === 'dqFactor' && sortDirection === 'asc',
+                    'bi-caret-down-fill': sortColumn === 'dqFactor' && sortDirection === 'desc',
+                    'bi-filter': sortColumn !== 'dqFactor'
+                  }"></i>
+                </th>
+                <th scope="col" class="sortable-header" (click)="sortTable('dqDimension')">
+                  DQ Dimension
+                  <i class="bi" [ngClass]="{
+                    'bi-caret-up-fill': sortColumn === 'dqDimension' && sortDirection === 'asc',
+                    'bi-caret-down-fill': sortColumn === 'dqDimension' && sortDirection === 'desc',
+                    'bi-filter': sortColumn !== 'dqDimension'
+                  }"></i>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of filteredMethods">
+                <td>
+                  <input
+                    *ngIf="selectedStatus === 'pending'"
+                    type="checkbox"
+                    [checked]="item.selected"
+                    (change)="toggleSelectItem(item)"
+                    [disabled]="item.executionStatus === 'completed'"
+                    [class.disabled-checkbox]="item.executionStatus === 'completed'"
+                  />
+                </td>
+                <td class="clickable-text" (click)="openMethodDetailsModal(item.methodBase)">
+                  {{ item.dqMethod }} <a href="javascript:void(0)" (click)="openMethodDetailsModal(item.methodBase)" style="text-decoration: none;">
+                    <i class="bi bi-zoom-in"></i>
+                  </a>
+                </td>
+                <td class="clickable-text" (click)="openAppliedMethodDetailsModal(item)">
+                  {{ item.name }} <a href="javascript:void(0)" (click)="openAppliedMethodDetailsModal(item)" style="text-decoration: none;">
+                    <i class="bi bi-zoom-in"></i>
+                  </a>
+                  <span *ngIf="item.executionResult" 
+                        [class.text-success]="item.executionStatus === 'completed'"
+                        [class.text-warning]="item.executionStatus === 'pending'"
+                        class="badge d-flex align-items-center gap-1">
+                    <i *ngIf="item.executionStatus === 'completed'" class="bi bi-check2-circle"></i>
+                    <i *ngIf="item.executionStatus === 'pending'" class="bi bi-hourglass-split"></i>
+                    {{ item.executionStatus | titlecase }}
+                  </span>
+                </td>
+                <td>
+                  <div *ngFor="let table of getAppliedToDisplay(item.appliedTo)" class="table-display">
+                    Table: {{ table.tableName }}<br>
+                    Columns: {{ table.columns.join(', ') }}
+                  </div>
+                </td>
+                <td>{{ item.dqMetric }}</td>
+                <td>{{ item.dqFactor }}</td>
+                <td>{{ item.dqDimension }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Métodos en ejecución -->
+        <div *ngIf="executingMethods.length > 0" class="mt-4">
+          <div class="py-1"><h5>Running DQ Methods</h5></div>
+          <ul class="list-group mt-1">
+            <li *ngFor="let method of executingMethods" class="list-group-item d-flex justify-content-between align-items-center">
+              <div><strong>{{ method.name }}</strong></div>
+              <div>
+                <span class="mx-2">{{ method.status }}</span>
+                <span *ngIf="method.status === 'Done'"><i class="bi bi-check-circle"></i></span>
+                <span *ngIf="method.status === 'Executing...'" class="spinner-border spinner-border-sm ms-2" role="status"></span>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Botón de ejecución -->
+        <div class="mt-3" *ngIf="measurementExecutions.length > 0 && selectedStatus === 'pending' && filteredMethods.length > 0">
+          <button 
+            class="btn btn-sm btn-dark" 
+            (click)="executeSelectedMethods()"
+            [disabled]="isExecutionLoading || selectedMethods.length === 0">
+            <span *ngIf="!isExecutionLoading">Execute</span>
+            <span *ngIf="isExecutionLoading">
+              Executing ({{ executionTime | date:'mm:ss' }})
+              <span class="spinner-border spinner-border-sm ms-2" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para detalles del DQ METHOD -->
+<!-- Modal Structure -->
+<div class="modal fade" [class.show]="isModalOpen" tabindex="-1" [style.display]="isModalOpen ? 'block' : 'none'">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border rounded">
+      <!-- Header -->
+      <div class="modal-header d-flex align-items-center">
+        <h6 class="modal-title mb-0" style="font-size: 18px;">DQ Method Details</h6>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="text-center py-3">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="mt-2 mb-0">Loading details...</p>
+        </div>
+
+        <!-- Content -->
+        <ng-container *ngIf="!isLoading">
+          <div *ngIf="methodDetails; else noDetails" style="font-size: 15px;">
+            <div class="mb-2">
+              <div class="fw-medium">Name:</div>{{ methodDetails.name }}
+            </div>
+            <div class="mb-2">
+              <div class="fw-medium">Input data type:</div>{{ methodDetails?.inputDataType }}
+            </div>
+            <div class="mb-2">
+              <div class="fw-medium">Output data type:</div>{{ methodDetails.outputDataType }}
+            </div>
+            <div class="mb-2">
+              <div class="fw-medium">Algorithm:</div><span class="code-block">
+                <pre><code>{{ methodDetails.algorithm }}</code></pre>
+              </span>
+            </div>
+
+            
+          </div>
+          <ng-template #noDetails>
+            <div class="text-center" style="font-size: 15px;">
+              <p class="text-muted">{{ errorMessage || 'No details available.' }}</p>
+            </div>
+          </ng-template>
+        </ng-container>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light btn-sm" (click)="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop -->
+<div class="modal-backdrop fade" [class.show]="isModalOpen" [style.display]="isModalOpen ? 'block' : 'none'"></div>
+
+
+
+<!-- Modal para detalles del método aplicado -->
+<!-- Modal para detalles del método aplicado -->
+<div *ngIf="isAppliedMethodModalOpen" class="modal fade" [class.show]="isAppliedMethodModalOpen" tabindex="-1" [style.display]="isAppliedMethodModalOpen ? 'block' : 'none'">
+  <div class="modal-dialog modal-lg modal-dialog-centered" style="display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin-top: 10%;">
+    <div class="modal-content border rounded">
+
+      <!-- Header -->
+      <div class="modal-header d-flex align-items-center" style="position: relative;">
+        <h6 class="modal-title mb-0" style="font-size: 18px;">{{ appliedMethodModalTitle }}</h6>
+        <button type="button" class="close" (click)="closeAppliedMethodModal()" aria-label="Close" style="position: absolute; top: 4px; right: 10px; background: none; border: none; font-size: 32px; color: #999; cursor: pointer;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body" style="font-size: 15px; color: #444;">
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="text-center py-3">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="mt-2 mb-0">Loading details...</p>
+        </div>
+
+        <!-- Content -->
+        <div *ngIf="!isLoading && appliedMethodDetails">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <h6 class="fw-medium">Basic Information</h6>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item"><span class="fw-medium">Name:</span> {{ appliedMethodDetails.name }}</li>
+                <li class="list-group-item"><span class="fw-medium">Type:</span> {{ appliedMethodDetails.methodType }}</li>
+                <li class="list-group-item"><span class="fw-medium">DQ Method:</span> {{ appliedMethodDetails.dqMethod }}</li>
+              </ul>
+            </div>
+
+            <div class="col-md-6">
+              <h6 class="fw-medium">DQ Model Hierarchy</h6>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item"><span class="fw-medium">DQ Metric:</span> {{ appliedMethodDetails.dqMetric }}</li>
+                <li class="list-group-item"><span class="fw-medium">DQ Factor:</span> {{ appliedMethodDetails.dqFactor }}</li>
+                <li class="list-group-item"><span class="fw-medium">DQ Dimension:</span> {{ appliedMethodDetails.dqDimension }}</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="mb-2">
+            <h6 class="fw-medium">Applied to</h6>
+            <div *ngFor="let table of getAppliedToDisplay(appliedMethodDetails.appliedTo)" class="table-display mb-2 p-2 border rounded">
+              <span class="fw-medium">Table:</span> {{ table.tableName }}<br>
+              <span class="fw-medium">Columns:</span> {{ table.columns.join(', ') }}
+            </div>
+          </div>
+
+          <div class="py-2 mb-2">
+            <h6 class="fw-medium">Implementation (SQL query)</h6>
+            <!-- Mostrar código si no se está editando -->
+            <div  *ngIf="!isEditingAlgorithm">
+              <div class="table-display mb-2 p-2 border rounded">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="w-auto h-100">
+                    <pre *ngIf="appliedMethodDetails.algorithm" class="d-inline p-2 bg-light rounded " style="white-space: pre-wrap;">{{ appliedMethodDetails.algorithm }}</pre>
+                    <span *ngIf="!appliedMethodDetails.algorithm" class="text-muted">Not specified</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Botón de editar solo si no se está editando -->
+              <div *ngIf="selectedStatus === 'pending'" class="d-flex justify-content-start">
+                <button class="btn btn-light btn-sm" (click)="startEditingAlgorithm()">
+                  <i class="bi bi-pencil"></i> Edit
+                </button>
+              </div>
+            </div>
+            
+            <!-- Mostrar textarea si se está editando -->
+            <div *ngIf="isEditingAlgorithm">
+              <div class="table-display">
+                <div>
+                  <textarea class="form-control" [(ngModel)]="editedAlgorithm" rows="8" style="font-family: monospace; font-size: 14px;"></textarea>
+                
+                </div>
+              </div>
+              <!--Save/Cancel buttons-->
+              <div class="d-flex justify-content-end gap-2 mt-2">
+                <button class="btn btn-light btn-sm" (click)="cancelEditingAlgorithm()">Cancel</button>
+                <button class="btn btn-dark btn-sm" (click)="updateAppliedMethodAlgorithm()" [disabled]="isLoading">
+                  <span *ngIf="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  Save
+                </button>
+              </div>
+            </div>
+
+            
+          </div>
+
+          
+
+          <div *ngIf="appliedMethodDetails.executionResult" class="mb-3">
+            <h6 class="fw-medium">Execution Details</h6>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <span class="fw-medium">Status:</span>
+                <span [class.text-success]="appliedMethodDetails.executionResult.status === 'completed'"
+                      [class.text-warning]="appliedMethodDetails.executionResult.status === 'pending'">
+                  {{ appliedMethodDetails.executionResult.status }}
+                </span>
+              </li>
+              <li *ngIf="appliedMethodDetails.executionResult.dq_value" class="list-group-item">
+                <span class="fw-medium">DQ Value:</span> {{ appliedMethodDetails.executionResult.dq_value }}
+              </li>
+              <li *ngIf="appliedMethodDetails.executionResult.executed_at" class="list-group-item">
+                <span class="fw-medium">Executed At:</span> {{ appliedMethodDetails.executionResult.executed_at | date:'medium' }}
+              </li>
+              <li *ngIf="appliedMethodDetails.executionResult.details" class="list-group-item">
+                <span class="fw-medium">Details:</span>
+                <pre class="mt-2 p-2 bg-light rounded">{{ appliedMethodDetails.executionResult.details | json }}</pre>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-danger mt-3">
+          {{ errorMessage }}
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer" style="border-top: none; padding: 1rem;">
+        <button type="button" class="btn btn-light btn-sm" (click)="closeAppliedMethodModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop -->
+<div *ngIf="isAppliedMethodModalOpen" class="modal-backdrop fade show" style="display: block; background: rgba(0, 0, 0, 0.5);"></div>
+
+<app-stepper
+  [currentStep]="currentStep"
+  [totalSteps]="steps.length"
+  [isNextStepEnabled]="isNextStepEnabled"
+  (stepChange)="onStepChange($event)">
+</app-stepper>

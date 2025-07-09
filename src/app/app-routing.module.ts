@@ -1,48 +1,59 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { MainViewComponent } from './pages/main-view/main-view.component';
-import { DQProblemsPriorizationComponent } from './pages/dqproblems-priorization/dqproblems-priorization.component'
-import { DQProblemsSelectionComponent } from './pages/dqproblems-selection/dqproblems-selection.component';
-import { AppComponent } from './app.component'
-import { DqDimensionsFactorsSelectionComponent } from './pages/dq-dimensions-factors-selection/dq-dimensions-factors-selection.component';
-import { DashboardComponent } from './pages/dashboard/dashboard.component'
-import { DQMeasurementPreviewComponent } from './pages/dqmeasurement-preview-run/dqmeasurement-preview-run.component';
-import { DQModelConfirmationComponent } from './pages/dqmodel-confirmation/dqmodel-confirmation.component';
-import {DQMetricDefinitionComponent} from './pages/dqmeasurement-metric-definition/dqmeasurement-metric-definition.component';
-import { DqDimensionsMethodsDefinitionComponent } from './pages/dq-dimensions-methods-definition/dq-dimensions-methods-definition.component';
-import { HomeComponent } from './pages/home/home.component'
 
-import { DqMeasurementExecutionComponent } from './pages/dq-measurement-execution/dq-measurement-execution.component';
-import { DqMeasurementResultsComponent } from './pages/dq-measurement-results/dq-measurement-results.component';
+import { AppComponent } from './app.component';
+import { HomeComponent } from './pages/home/home.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+
+// Stage 4: DQ Model Definition
+import { DQProblemsPriorizationComponent } from './pages/stage4-dq-model-definition/dqproblems-priorization/dqproblems-priorization.component';
+import { DQProblemsSelectionComponent } from './pages/stage4-dq-model-definition/dqproblems-selection/dqproblems-selection.component';
+import { DqDimensionsFactorsSelectionComponent } from './pages/stage4-dq-model-definition/dq-dimensions-factors-selection/dq-dimensions-factors-selection.component';
+import { DQMetricsDefinitionComponent} from './pages/stage4-dq-model-definition/dq-metrics-definition/dq-metrics-definition.component';
+import { DqMethodsDefinitionComponent } from './pages/stage4-dq-model-definition/dq-methods-definition/dq-methods-definition.component';
+import { DQModelConfirmationComponent } from './pages/dqmodel-confirmation/dqmodel-confirmation.component';
+
+// Stage 5: DQ Measurement
+import { DqMeasurementExecutionComponent } from './pages/stage5-dq-measurement/dq-measurement-execution/dq-measurement-execution.component';
+import { DqMeasurementResultsComponent } from './pages/stage5-dq-measurement/dq-measurement-results/dq-measurement-results.component';
  
-import { DqAssessmentApproachesDefinitionComponent } from  './pages/dq-assessment-approaches-definition/dq-assessment-approaches-definition.component';
-import { DqAssessmentExecutionComponent } from  './pages/dq-assessment-execution/dq-assessment-execution.component';
+// Stage 6: DQ Assessment
+import { DqAssessmentApproachesDefinitionComponent } from  './pages/stage6-dq-assessment/dq-assessment-approaches-definition/dq-assessment-approaches-definition.component';
+import { DqAssessmentExecutionComponent } from  './pages/stage6-dq-assessment/dq-assessment-execution/dq-assessment-execution.component';
  
- 
-/*const routes: Routes = [
-  { path: '', component: DashboardComponent },
-  { path: 'st4/a09-1', component: DQProblemsPriorizationComponent },
-  { path: 'st4/a09-2', component: DQProblemsSelectionComponent },
-  { path: 'st4/a10', component: DqDimensionsFactorsSelectionComponent },
-  {path: 'st4/a11', component: DQMetricDefinitionComponent},
-  {path: 'st4/a12', component: DqDimensionsMethodsDefinitionComponent},
-  { path: 'st4/confirmation-stage-4', component: DQModelConfirmationComponent }
-];*/
 const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'phase2/dashboard', component: DashboardComponent },
-  { path: 'st5/execution', component: DqMeasurementExecutionComponent },
-  { path: 'st5/results', component: DqMeasurementResultsComponent },
-  { path: 'st6/assessment-approaches', component: DqAssessmentApproachesDefinitionComponent },
-  { path: 'st6/assessment-execution', component: DqAssessmentExecutionComponent },
-  { path: 'st4', children: [
-    { path: 'a09-1', component: DQProblemsPriorizationComponent },
-    { path: 'a09-2', component: DQProblemsSelectionComponent },
-    { path: 'a10', component: DqDimensionsFactorsSelectionComponent },
-    { path: 'a11', component: DQMetricDefinitionComponent },
-    { path: 'a12', component: DqDimensionsMethodsDefinitionComponent },
-    { path: 'confirmation-stage-4', component: DQModelConfirmationComponent }
-  ]}
+  {
+    path: 'phase2',
+    children: [
+      { path: 'dashboard', component: DashboardComponent },
+      {
+        path: 'st4',
+        children: [
+          { path: 'dq-problems-priorization', component: DQProblemsPriorizationComponent },
+          { path: 'dq-problems-selection', component: DQProblemsSelectionComponent },
+          { path: 'dq-dimensions-factors', component: DqDimensionsFactorsSelectionComponent },
+          { path: 'dq-metrics', component: DQMetricsDefinitionComponent },
+          { path: 'dq-methods', component: DqMethodsDefinitionComponent },
+          { path: 'dq-model', component: DQModelConfirmationComponent }
+        ]
+      },
+      {
+        path: 'st5',
+        children: [
+          { path: 'measurement-execution', component: DqMeasurementExecutionComponent },
+          { path: 'measurement-results', component: DqMeasurementResultsComponent }
+        ]
+      },
+      {
+        path: 'st6',
+        children: [
+          { path: 'assessment-approaches', component: DqAssessmentApproachesDefinitionComponent },
+          { path: 'assessment-execution', component: DqAssessmentExecutionComponent }
+        ]
+      }
+    ]
+  }
 ];
 
 @NgModule({

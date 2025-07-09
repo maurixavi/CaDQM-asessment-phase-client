@@ -1,6 +1,6 @@
-<nav class="navbar navbar-expand-lg navbar-light custom-navbar">
+<nav class="navbar navbar-expand-md navbar-light custom-navbar">
   <div class="container-fluid">
-    <a class="navbar-brand" routerLink="/phase2/dashboard">CaDQM</a>
+    <a class="navbar-brand" [routerLink]="getHomeRoute()">CaDQM</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -12,9 +12,9 @@
             Phase 1: DQ Planning
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" routerLink="/step1">Stage 1: Elicitation</a></li>
-            <li><a class="dropdown-item" routerLink="/step2">Stage 2: Data Analysis</a></li>
-            <li><a class="dropdown-item" routerLink="/step1">Stage 3: User Requirement Analysis</a></li>
+            <li><a class="dropdown-item" routerLink="/phase1/st1">Stage 1: Elicitation</a></li>
+            <li><a class="dropdown-item" routerLink="/phase1/st2">Stage 2: Data Analysis</a></li>
+            <li><a class="dropdown-item" routerLink="/phase1/st3">Stage 3: User Requirement Analysis</a></li>
           </ul>
         </li>
 
@@ -24,9 +24,39 @@
             Phase 2: DQ Assessment
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" routerLink="/st4/a09-1" routerLinkActive="active">Stage 4: DQ Model Definition</a></li>
-            <li><a class="dropdown-item" routerLink="/st5/execution" routerLinkActive="active">Stage 5: DQ Measurement</a></li>
-            <li><a class="dropdown-item" routerLink="/st6/assessment-approaches" routerLinkActive="active">Stage 6: DQ Assessment</a></li>
+            <li>
+              <a 
+                class="dropdown-item"
+                [class.disabled]="!isStageEnabled('ST4')"
+                [routerLink]="isStageEnabled('ST4') ? getStageRoute('ST4') : null"
+                routerLinkActive="active"
+                (click)="!isStageEnabled('ST4') && $event.preventDefault()"
+                href="#">
+                Stage 4: DQ Model Definition
+              </a>
+            </li>
+            <li>
+              <a 
+                class="dropdown-item"
+                [class.disabled]="!isStageEnabled('ST5')"
+                [routerLink]="isStageEnabled('ST5') ? getStageRoute('ST5') : null"
+                routerLinkActive="active"
+                (click)="!isStageEnabled('ST5') && $event.preventDefault()"
+                href="#">
+                Stage 5: DQ Measurement
+              </a>
+            </li>
+            <li>
+              <a 
+                class="dropdown-item"
+                [class.disabled]="!isStageEnabled('ST6')"
+                [routerLink]="isStageEnabled('ST6') ? getStageRoute('ST6') : null"
+                routerLinkActive="active"
+                (click)="!isStageEnabled('ST6') && $event.preventDefault()"
+                href="#">
+                Stage 6: DQ Assessment
+              </a>
+            </li>
           </ul>
         </li>
       </ul>
