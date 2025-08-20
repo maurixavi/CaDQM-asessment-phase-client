@@ -114,10 +114,12 @@ export class HomeComponent implements OnInit {
         this.totalPages = Math.ceil(this.projects.length / this.itemsPerPage);
         this.updatePaginatedProjects();
 
+        console.log("HERE")
         // Cargar información de contextos y modelos
         this.projects.forEach((project, index) => {
-          if (project.context_version) {
-            this.loadContextInfo(project.context_version, index);
+          if (project.context) {
+            console.log("project.context", project.context)
+            this.loadContextInfo(project.context, index);
           }
           if (project.dqmodel_version) {
             this.loadDQModelInfo(project.dqmodel_version, index);
@@ -213,6 +215,7 @@ export class HomeComponent implements OnInit {
           const info = `${contextVersion.name} v${contextVersion.version}`;
           this.contextInfo[contextVersionId] = info;
           this.projects[projectIndex].contextInfo = info; // Opcional: asignar directamente al proyecto
+          console.log("info", info);
         }
       },
       (error) => {

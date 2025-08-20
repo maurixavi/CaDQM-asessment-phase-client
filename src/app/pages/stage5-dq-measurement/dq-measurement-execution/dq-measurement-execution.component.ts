@@ -309,6 +309,7 @@ export class DqMeasurementExecutionComponent implements OnInit {
     }));
 
     const connConfig = this.dataAtHandDetails;
+    console.log("connConfig:", connConfig)
 
     this.modelService.executeMultipleAppliedMethods(
       this.dqModelVersionId, 

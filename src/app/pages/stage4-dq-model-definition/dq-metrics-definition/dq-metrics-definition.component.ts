@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { DqModelService } from '../../../services/dq-model.service';
 import { ProjectService } from '../../../services/project.service';
 import { ProjectDataService } from '../../../services/project-data.service';
+import { NotificationService } from '../../../services/notification.service';
 
 import { Router } from '@angular/router';
 
@@ -49,7 +50,8 @@ export class DQMetricsDefinitionComponent implements OnInit {
   constructor(private router: Router, 
     private modelService: DqModelService,
     private projectService: ProjectService,
-    private projectDataService: ProjectDataService
+    private projectDataService: ProjectDataService,
+    private notificationService: NotificationService
   ) { }
 
 
@@ -639,11 +641,11 @@ export class DQMetricsDefinitionComponent implements OnInit {
  
 
 
-  addMetricToModel(factor: any, metric: any): void {
-    if (!factor || !metric) {
+  addMetricToModel0(factor: any, metric: any): void {
+    /*if (!factor || !metric) {
       alert("Please select a factor and a metric.");
       return;
-    }
+    }*/
 
     const context_components = buildContextComponents(this.selectionCheckboxCtxComponents);
     console.log(context_components)
@@ -655,10 +657,13 @@ export class DQMetricsDefinitionComponent implements OnInit {
       context_components: context_components,
     };
   
+    console.log("factor.definedMetrics", factor.definedMetrics);
+
     this.modelService.addMetricToDQModel(metricToAdd).subscribe({
       next: (data) => {
         console.log("Metric added to DQ Model:", data);
-        alert("Metric successfully added to DQ Model.");
+        //alert("Metric successfully added to DQ Model.");
+        this.notificationService.showSuccess(`DQ Metric "${data.metric_name}" was successfully added to the DQ Model.`);
         this.loadDQModelDimensionsAndFactors(); 
   
         // Actualizar la lista de métricas definidas en el factor
@@ -678,20 +683,64 @@ export class DQMetricsDefinitionComponent implements OnInit {
     });
   }
 
+  addMetricToModel(factor: any, metric: any): void {
+    const context_components = buildContextComponents(this.selectionCheckboxCtxComponents);
+    console.log(context_components);
+  
+    // Verificar si la métrica ya existe en el factor
+    if (factor.definedMetrics && factor.definedMetrics.some((m: { metric_base: any; }) => m.metric_base === metric.id)) {
+        //this.notificationService.showError(`The metric "${metric.metric_name}" (ID: ${metric.id}) is already defined for this factor.`);
+        this.notificationService.showError(`DQ Metric "${metric.metric_name}" has already been added to the DQ Model.`);
+        return;
+    }
+
+    const metricToAdd = {
+        dq_model: factor.dq_model,
+        metric_base: metric.id,
+        factor: factor.id,
+        context_components: context_components,
+    };
+  
+    console.log("factor.definedMetrics", factor.definedMetrics);
+
+    this.modelService.addMetricToDQModel(metricToAdd).subscribe({
+        next: (data) => {
+            console.log("Metric added to DQ Model:", data);
+            this.notificationService.showSuccess(`DQ Metric "${data.metric_name}" was successfully added to the DQ Model.`);
+            this.loadDQModelDimensionsAndFactors(); 
+    
+            // Actualizar la lista de métricas definidas en el factor
+            if (!factor.definedMetrics) {
+                factor.definedMetrics = [];
+            }
+            factor.definedMetrics.push(data);
+    
+            // Limpiar la selección
+            this.selectedFactor = null;
+            this.selectedBaseMetric = null;
+        },
+        error: (err) => {
+            console.error("Error adding the metric to DQ Model:", err);
+            alert("An error occurred while trying to add the metric to DQ Model.");
+        }
+    });
+}
+
 
 
   removeMetricFromDQModel(factor: any, metric: any): void {
     const index = factor.definedMetrics.indexOf(metric);
     if (index > -1) {
-      const userConfirmed = confirm(
+      /*const userConfirmed = confirm(
         "¿Está seguro que desea eliminar esta metrica del DQ Model? Esto también eliminará los metodos asociados."
-      );
+      );*/
     
-      if (userConfirmed) {
+      //if (userConfirmed) {
         console.log(`Eliminando la dimensión con ID: ${metric.Id}`);
         this.modelService.deletMetricFromDQModel(metric.id).subscribe(
           response => {
-            alert(response?.message || "Metrica y metodos asociados eliminados exitosamente.");
+            //alert(response?.message || "Metrica y metodos asociados eliminados exitosamente.");
+            this.notificationService.showSuccess('DQ Metric was successfully removed from the DQ Model.');
             // Filtrar la dimensión eliminada sin recargar toda la lista
             factor.definedMetrics = factor.definedMetrics.filter(
               (item:any) => item.id !== metric.id
@@ -699,13 +748,13 @@ export class DQMetricsDefinitionComponent implements OnInit {
             //this.loadDQModelDimensionsAndFactors();
           },
           error => {
-            alert("Error al eliminar la metrica.");
+            this.notificationService.showError('Failed to delete DQ Metric.');
             console.error("Error al eliminar la metrica:", error);
           }
         );
-      } else {
+      /*} else {
         console.log("Eliminación de la dimensión cancelada por el usuario.");
-      }
+      }*/
       
     }
   }
@@ -767,11 +816,14 @@ export class DQMetricsDefinitionComponent implements OnInit {
           }
           
           // Mostrar mensaje de éxito
-          alert('The DQ Metric was successfully created. You can now select it to add it to the DQ Model.');
+          this.notificationService.showSuccess(`DQ Metric "${data.name}" was successfully created. Now can be selected to add it to the DQ Model.`);
+
+          //alert('The DQ Metric was successfully created. You can now select it to add it to the DQ Model.');
         },
         error: (err) => {
           console.error("Error creating the metric:", err);
-          alert("An error occurred while trying to create the metric.");
+          //alert("An error occurred while trying to create the metric.");
+          this.notificationService.showError('Failed to create DQ Metric');
         }
       });
   
@@ -790,13 +842,13 @@ export class DQMetricsDefinitionComponent implements OnInit {
       this.modelService.updateDQMetricBaseDisabledStatus(metricId, true).subscribe({
         next: (response) => {
           //this.notificationService.showSuccess('DQ Dimension was successfully deleted.');
-          alert('DQ Metric was successfully deleted.')
+          this.notificationService.showSuccess('DQ Metric was successfully deleted.');
           //this.getDQDimensionsBase(); // Recargar lista de dimensiones activas
           this.selectedBaseMetric = null;
 
         },
         error: (err) => {
-          //this.notificationService.showError('Failed to delete DQ Dimension.');
+          this.notificationService.showError('Failed to delete DQ Metric.');
         }
       });
     }
@@ -980,21 +1032,97 @@ export class DQMetricsDefinitionComponent implements OnInit {
 
     this.modelService.updateDQMetricCtx(metric.id, updatedMetric).subscribe({
       next: () => {
-        //this.notificationService.showSuccess(`DQ Factor was successfully updated.`);
-        alert(`DQ Factor was successfully updated.`);
-        //this.loadDQModelDimensionsAndFactors();
+        this.notificationService.showSuccess(`DQ Metric was successfully updated.`);
 
         //Actualizar componentes en vista
         metric.context_components = JSON.parse(JSON.stringify(metric.tempContextComponents));
         metric.isEditing = false;
-
-        console.log("Metrics actualizacion ctx components.", metric.context_components);
       },
       error: (err) => {
-        console.error("Error al actualizar el factor:", err);
-        alert("Error updating factor context components and problems.");
+        console.error("Failed to update DQ Metric", err);
+        this.notificationService.showError(`Failed to update DQ Metric.`);
       },
     });
   }
+
+
+
+  /* Confirmation Modals */
+  isConfirmationModalOpen: boolean = false;
+  confirmationModalTitle: string = '';
+  confirmationModalMessage: string = '';
+  confirmedAction: (() => void) | null = null;
+
+  handleConfirm(): void {
+    if (this.confirmedAction) {
+      this.confirmedAction(); // Ejecutar la acción confirmada
+    }
+    this.isConfirmationModalOpen = false;
+  }
+
+  // Método para manejar la cancelación
+  handleCancel(): void {
+    this.isConfirmationModalOpen = false;
+    this.confirmedAction = null;
+  }
+
+  openConfirmationModal(
+    title: string,
+    message: string,
+    actionType: 'addMetricToDQModel' | 'deleteDQMetricBase' | 'removeDQMetric',  // Identificador de acción
+    ...params: any[] // Parámetros para la acción
+  ): void {
+    this.confirmationModalTitle = title;
+    this.confirmationModalMessage = message;
+
+    // Guardar la acción confirmada según el tipo de acción
+    if (actionType === 'addMetricToDQModel') {
+      const [selectedFactor, selectedBaseMetric] = params;
+      this.confirmedAction = () => {
+        this.addMetricToModel(selectedFactor, selectedBaseMetric);
+      };
+    } else if (actionType === 'removeDQMetric') {
+      const [factor, metric] = params;
+      this.confirmedAction = () => {
+        this.removeMetricFromDQModel(factor, metric);
+      };
+    } else if (actionType === 'deleteDQMetricBase') {
+      const [metricBaseId] = params;
+      this.confirmedAction = () => {
+        this.deleteMetricBase(metricBaseId);
+      };
+    }
+
+    // Abrir el modal
+    this.isConfirmationModalOpen = true;
+  }
+
+  
+  // VISTA: Componentes de Contexto Asociados
+  // Guarda el estado expandido por categoría de componente de contexto para cada elemento del modelo
+  ctxCategoryStates: { [elementId: string]: { [category: string]: boolean } } = {};
+
+  toggleCategory(elementId: string, category: string): void {
+    // Inicializar estructura si no existe
+    if (!this.ctxCategoryStates[elementId]) {
+      this.ctxCategoryStates[elementId] = {};
+    }
+    
+    // Si el estado es undefined (primera vez), establecerlo como false (cerrado)
+    if (this.ctxCategoryStates[elementId][category] === undefined) {
+      this.ctxCategoryStates[elementId][category] = false;
+    } else {
+      // Si ya tiene un estado, invertirlo
+      this.ctxCategoryStates[elementId][category] = !this.ctxCategoryStates[elementId][category];
+    }
+  }
+  
+  isCategoryExpanded(elementId: string, category: string): boolean {
+    // Si el estado es undefined (primera vez), devolver true (abierto por defecto)
+    // Si ya tiene estado, devolver ese valor
+    return this.ctxCategoryStates[elementId]?.[category] ?? true;
+  }
+
+
 
 }

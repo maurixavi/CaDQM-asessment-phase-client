@@ -54,4 +54,21 @@
   justify-content: center;
 }
 
+/* Accordion Views */
+.divider {
+  border-top: 1px solid #eeeeee;
+  margin: 0.5rem 0;
+  margin-bottom: 1rem;
+}
+
+.no-bullets {
+  list-style-type: none;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.bullets {
+  padding-left: 10px;
+  margin-left: 10px;
+}
 

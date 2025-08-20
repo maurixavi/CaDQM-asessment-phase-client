@@ -409,6 +409,11 @@ hr.my-4 {
   font-weight: 400;
 }
 
+.dimensions-factors-selected-accordion-container .label-title-selected {
+  /*width: 140px;*/
+  margin-right: 20px;
+}
+
 
 .dq-model-element-container{
   width: 96%;
@@ -1124,9 +1129,6 @@ hr.my-4 {
   border-top: 1px solid #eee;
 }
 
-.custom-items-section {
-}
-
 .form-control-sm {
   font-size: 0.875rem;
   height: calc(1.5em + 0.5rem + 2px);
@@ -1226,3 +1228,4 @@ hr.my-4 {
 code {
   color: #212529;
 }
+

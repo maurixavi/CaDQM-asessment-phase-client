@@ -44,7 +44,8 @@ export class ProjectService {
    * @returns Observable con los detalles del problema.
    */
   getDQProblemById(projectId: number, problemId: number): Observable<any> {
-    const url = `${this.API_URL_PROJECTS}${projectId}/dq-problems/${problemId}/`;
+    //const url = `${this.API_URL_PROJECTS}${projectId}/dq-problems/${problemId}/`;
+    const url = `${this.API_URL_PROJECTS}${projectId}/quality-problems/${problemId}/`;
     return this.http.get<any>(url).pipe(
       /*tap((data) => console.log(`Fetched DQ Problem ID=${problemId} for Project ID=${projectId}:`, data) ),
       */
@@ -54,7 +55,7 @@ export class ProjectService {
 
   // Método para obtener los problemas de calidad de un proyecto específico
   getDQProblemsByProjectId(projectId: number): Observable<any> {
-    const url = `${this.API_URL_PROJECTS}${projectId}/dq-problems/`;
+    const url = `${this.API_URL_PROJECTS}${projectId}/quality-problems/`;
     return this.http.get<any>(url).pipe(
       //tap((data) => console.log(`Fetched DQ Problems for Project ID=${projectId}:`, data)),
       catchError(this.handleError<any[]>(`getDQProblemsByProjectId id=${projectId}`, []))
@@ -118,7 +119,8 @@ export class ProjectService {
   }
 
   syncPrioritizedDQProblems(projectId: number, problems: any[]): Observable<any> {
-    const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
+    //const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
+    const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-quality-problems/`;
   
     const patchRequests = problems.map(problem => {
       const problemUrl = `${url}${problem.id}/`;
@@ -138,7 +140,7 @@ export class ProjectService {
   
 
   removeSelectedPrioritizedDQProblem(projectId: number, problems: any[]): Observable<any> {
-    const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
+    const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-quality-problems/`;
     
     // array de solicitudes PATCH
     const patchRequests = problems.map(problem => {
@@ -371,14 +373,16 @@ export class ProjectService {
     );
   }
 
-  createProject(name: string, description: string, dqmodel_version: number | null, context_version: number | null, context: number | null, data_at_hand: number | null): Observable<any> {
+  createProject(name: string, description: string, dqmodel_version: number | null, context: number | null, user: number | null, data_at_hand: number | null): Observable<any> {
     const newProject = {
       name,
       description,
       dqmodel_version, 
-      context_version, 
+      //context_version, 
       context,
-      data_at_hand
+      user,
+      data_at_hand,
+      //estimation
     };
   
     return this.http.post<any>(this.API_URL_PROJECTS, newProject).pipe(

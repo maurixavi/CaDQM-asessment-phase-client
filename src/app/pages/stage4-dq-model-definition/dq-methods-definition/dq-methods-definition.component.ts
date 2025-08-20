@@ -1204,7 +1204,8 @@ export class DqMethodsDefinitionComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error al crear el DQ Method Base:', error);
-          this.notificationService.showError("Error al crear el método base.");
+          //this.notificationService.showError("Error al crear el método base.");
+          this.notificationService.showError('Failed to create DQ Method');
           //alert('Error al crear el DQ Method Base. Intenta nuevamente.');
         }
       });
@@ -1741,6 +1742,31 @@ isCollapsed(id: string): boolean {
         alert("Error updating factor context components and problems.");
       },
     });
+  }
+
+  // VISTA: Componentes de Contexto Asociados
+  // Guarda el estado expandido por categoría de componente de contexto para cada elemento del modelo
+  ctxCategoryStates: { [elementId: string]: { [category: string]: boolean } } = {};
+
+  toggleCategory(elementId: string, category: string): void {
+    // Inicializar estructura si no existe
+    if (!this.ctxCategoryStates[elementId]) {
+      this.ctxCategoryStates[elementId] = {};
+    }
+    
+    // Si el estado es undefined (primera vez), establecerlo como false (cerrado)
+    if (this.ctxCategoryStates[elementId][category] === undefined) {
+      this.ctxCategoryStates[elementId][category] = false;
+    } else {
+      // Si ya tiene un estado, invertirlo
+      this.ctxCategoryStates[elementId][category] = !this.ctxCategoryStates[elementId][category];
+    }
+  }
+  
+  isCategoryExpanded(elementId: string, category: string): boolean {
+    // Si el estado es undefined (primera vez), devolver true (abierto por defecto)
+    // Si ya tiene estado, devolver ese valor
+    return this.ctxCategoryStates[elementId]?.[category] ?? true;
   }
 
 }

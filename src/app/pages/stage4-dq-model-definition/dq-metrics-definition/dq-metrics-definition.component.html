@@ -69,6 +69,7 @@
                   <label class="label-title-selected">Facet of (DQ Dimension):</label>
                   <span class="label-value-selected">{{ dqDimension_facetOf }}</span>
                 </div>-->
+                <!--
                 <div class="label-selected">
                   <label class="label-title-selected">Arises from (Ctx. Components):</label>
                   <span class="label-value-selected">
@@ -86,12 +87,48 @@
                       </li>
                     </ul>
                   </span>
-                </div>
+                </div>-->
 
                 <div class="label-selected">
-                  <label class="label-title-selected">Based on (DQ Problems):</label>
+                  <label class="label-title-selected">Arises from (Ctx. Components):</label>
                   <span class="label-value-selected">
-                    <ul>
+                      <ul class="no-bullets">
+                          <li *ngFor="let category of getContextComponentCategories(selectedFactor.context_components)" class="mb-1">
+                              <span
+                                  class="fst-italic"
+                                  (click)="toggleCategory(selectedFactor.id, category)"
+                                  style="cursor: pointer;"
+                              >
+                                  <i
+                                      class="bi"
+                                      [ngClass]="{
+                                          'bi-chevron-down': isCategoryExpanded(selectedFactor.id, category),
+                                          'bi-chevron-right': !isCategoryExpanded(selectedFactor.id, category)
+                                      }"
+                                  ></i>
+                                  {{ formatCtxCompCategoryName(category) }}:
+                              </span>
+                              
+                              <!-- Componentes de Contexto para una categoria -->
+                              <ul *ngIf="isCategoryExpanded(selectedFactor.id, category)" class="no-bullets px-3 ms-3">
+                                  <li *ngFor="let componentId of selectedFactor.context_components[category]">
+                                      {{ getFirstAttribute(category, componentId) }}
+                                      <a href="javascript:void(0)" 
+                                         (click)="openContextComponentModal(category, componentId)" 
+                                         style="text-decoration: none;">
+                                          <i class="bi bi-zoom-in"></i> 
+                                      </a>
+                                  </li>
+                              </ul>
+                          </li>
+                      </ul>
+                  </span>
+              </div>
+
+                <div class="label-selected">
+                  <label class="label-title-selected">Uses (DQ Problems):</label>
+                  <span class="label-value-selected">
+                    <ul class="no-bullets px-1">
                       <li *ngFor="let problem of getDQProblemsDetails(selectedFactor.dq_problems)">
                         {{ problem.description }}
                       </li>
@@ -147,7 +184,7 @@
                   (click)="openCreateMetricModal(selectedFactor)"
                   [disabled]="!selectedFactor"
                 >
-                  <i class="bi bi-plus-lg"></i> Create DQ Metric
+                  <i class="bi bi-plus-lg"></i> New DQ Metric
                 </button>
 
                 <!-- Delete Metric base 
@@ -159,9 +196,22 @@
                 )">
                   <i class="bi bi-trash3"></i> 
                 </button> -->
+                <!--
                 <button *ngIf="selectedBaseMetric" class="btn btn-outline-danger" (click)="deleteMetricBase(selectedBaseMetric.id)">
                   <i class="bi bi-trash3"></i> 
-                </button> 
+                </button> -->
+
+                <!-- Delete DQ Metric Base -->
+                <button *ngIf="selectedBaseMetric"
+                  (click)="openConfirmationModal(
+                    'Delete DQ Metric',
+                    'Are you sure you want to delete this Metric? <br><br> ⚠️ <b> It will no longer be available for use in new DQ models, but it will not be removed from existing ones where it has already been added. </b>',
+                    'deleteDQMetricBase',
+                    selectedBaseMetric.id
+                  )"
+                  class="btn btn-outline-danger btn-sm">
+                  <i class="bi bi-trash3"></i> 
+                </button>
 
 
               </span>
@@ -191,6 +241,38 @@
                 <span class="label-value-selected">
                   <!-- Vista de solo lectura (valores ya seleccionados) -->
                   <div >
+                    <ul class="no-bullets">
+                      <li *ngFor="let category of getContextComponentCategories(selectionCheckboxCtxComponents)" class="mb-1">
+                          <span
+                              class="fst-italic"
+                              (click)="toggleCategory('selectionCheckbox', category)"
+                              style="cursor: pointer;"
+                          >
+                              <i
+                                  class="bi"
+                                  [ngClass]="{
+                                      'bi-chevron-down': isCategoryExpanded('selectionCheckbox', category),
+                                      'bi-chevron-right': !isCategoryExpanded('selectionCheckbox', category)
+                                  }"
+                              ></i>
+                              {{ formatCtxCompCategoryName(category) }}:
+                          </span>
+                          
+                          <!-- Componentes de Contexto para una categoria -->
+                          <ul *ngIf="isCategoryExpanded('selectionCheckbox', category)" class="no-bullets px-3 ms-3">
+                              <li *ngFor="let component of getComponentsByCategory(selectionCheckboxCtxComponents, category)">
+                                  {{ component.value }}
+                                  <a href="javascript:void(0)" 
+                                     (click)="openContextComponentModal(category, component.id)" 
+                                     style="text-decoration: none;">
+                                      <i class="bi bi-zoom-in"></i> 
+                                  </a>
+                              </li>
+                          </ul>
+                      </li>
+                    </ul>
+
+                    <!--
                     <ul>
                       <li *ngFor="let category of getContextComponentCategories(selectionCheckboxCtxComponents)">
                         <div class="fw-medium">{{ formatCtxCompCategoryName(category) }}:</div>
@@ -205,7 +287,8 @@
                           </li>
                         </ul>
                       </li>
-                    </ul>
+                    </ul>-->
+
                     <button class="btn btn-light btn-sm mb-4" (click)="toggleCtxSelectionAccordionVisibility()">
                       <i *ngIf="!isEditingCtxComponents"></i>
                       <i *ngIf="isEditingCtxComponents" class="bi bi-eye-slash"></i>
@@ -267,13 +350,29 @@
         
           <!-- Botón para agregar la métrica al modelo -->
           <div *ngIf="selectedBaseMetric" class="label mt-2">
+            
+            <!--
             <button 
               class="btn btn-dark" 
               (click)="addMetricToModel(selectedFactor, selectedBaseMetric)"
               [disabled]="!selectedBaseMetric"
             >
               Add to DQ Model
+            </button>-->
+
+            <button 
+              class="btn btn-dark" 
+              (click)="openConfirmationModal(
+                'Add to DQ Model',
+                'Are you sure you want to add this Metric to the DQ Model?',
+                'addMetricToDQModel',
+                selectedFactor,
+                selectedBaseMetric
+              )"
+              [disabled]="!selectedBaseMetric">
+              Add to DQ Model
             </button>
+
           </div>
 
 
@@ -376,15 +475,15 @@
             
             <div class="dqmodel-title">
               <span class="label-name-dqmodel">{{ currentDQModel?.name }} {{ currentDQModel?.version }}</span>
-              <span *ngIf="currentDQModel.status === 'finished'" class="badge rounded-pill bg-dark">Finished</span>
-              <span *ngIf="currentDQModel.status === 'draft'" class="badge rounded-pill bg-warning">Draft</span>
+              <span *ngIf="currentDQModel?.status === 'finished'" class="badge rounded-pill bg-dark">Finished</span>
+              <span *ngIf="currentDQModel?.status === 'draft'" class="badge rounded-pill bg-warning">Draft</span>
             </div>
             <!--<h5 class="mt-3">{{ currentDQModel.version }} </h5>-->
             <div class="label-selected">
               <label class="label-title-selected">Created:</label>
               <span class="label-value-selected">{{ currentDQModel?.created_at | date:'d MMM yyyy, HH:mm' }}</span>
             </div> 
-            <div class="label-selected">
+            <div *ngIf="currentDQModel?.status === 'finished'" class="label-selected">
               <label class="label-title-selected">Finished:</label>
               <span class="label-value-selected">{{ currentDQModel?.finished_at | date:'d MMM yyyy, HH:mm' }}</span>
             </div> 
@@ -394,11 +493,13 @@
             </div>  
             <div class="label-selected">
               <label class="label-title-selected">Data at hand:</label>
-              <span class="label-value-selected">{{ dataAtHandDetails?.dbname }} - {{ dataAtHandDetails?.description }} 
+              <span class="label-value-selected">DB: {{ dataAtHandDetails?.name }} - {{ dataAtHandDetails?.description }} 
               </span>
             </div>
 
-            <div class="label-selected label-dq-item mt-3">
+            <div class="divider"></div>
+
+            <div class="label-selected label-dq-item">
               <label class="label-title-selected">DQ Factors:</label>
 
             </div>
@@ -418,7 +519,7 @@
                       style="padding: 0.6rem 0.9rem;">
                       <span>
                         <label class="label-title w-auto">DQ Factor:</label>
-                        <span class="label-title-name px-2">{{ factor.factor_name }}</span>
+                        <span class="label-title-name px-2">{{ factor.factor_name }} <!--<span class="px-1 fw-light" style="font-size: 12px;">(Facet of Accuracy)</span> --></span>
                       </span>
                     </button>
                   </h2>
@@ -433,16 +534,36 @@
                         <span class="label-value-selected">{{ factor.baseAttributes.semantic }}</span>
                       </div>
 
+                      <div class="divider"></div>
+
+                      <!-- Arises from (Ctx. Components): -->
                       <div class="label-selected">
                         <label class="label-title-selected">Arises from (Ctx. Components):</label>
                         <span class="label-value-selected">
-                            <ul>
-                                <li *ngFor="let category of getContextComponentCategories(factor.context_components)">
-                                  {{ formatCtxCompCategoryName(category) }}:
-                                    <ul>
+                            <ul class="no-bullets">
+                                <li *ngFor="let category of getContextComponentCategories(factor.context_components)" class="mb-1">
+                                    <span
+                                        class="fst-italic"
+                                        (click)="toggleCategory(factor.id, category)"
+                                        style="cursor: pointer;"
+                                    >
+                                        <i
+                                            class="bi"
+                                            [ngClass]="{
+                                                'bi-chevron-down': isCategoryExpanded(factor.id, category),
+                                                'bi-chevron-right': !isCategoryExpanded(factor.id, category)
+                                            }"
+                                        ></i>
+                                        {{ formatCtxCompCategoryName(category) }}:
+                                    </span>
+                                    
+                                    <!-- Componentes de Contexto para una categoria -->
+                                    <ul *ngIf="isCategoryExpanded(factor.id, category)" class="no-bullets px-3 ms-3">
                                         <li *ngFor="let componentId of factor.context_components[category]">
-                                          {{ getFirstAttribute(category, componentId) }}
-                                            <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
+                                            {{ getFirstAttribute(category, componentId) }}
+                                            <a href="javascript:void(0)" 
+                                               (click)="openContextComponentModal(category, componentId)" 
+                                               style="text-decoration: none;">
                                                 <i class="bi bi-zoom-in"></i> 
                                             </a>
                                         </li>
@@ -451,6 +572,8 @@
                             </ul>
                         </span>
                       </div>
+
+                      <div class="divider"></div>
 
                       <div class="label-selected">
                         <label class="label-title-selected">DQ Metrics:</label>
@@ -498,20 +621,39 @@
                                     <span class="label-value-selected">{{ metric.baseAttr.resultDomain }}</span>
                                   </div>
 
+                                  <div class="divider"></div>
+
                                   <!-- Influenced by (Ctx. Components): -->
                                   <div class="label-selected">
                                     <label class="label-title-selected">Influenced by (Ctx. Components):</label>
-                                    <span class="label-value-selected"> <!-- border rounded p-3 w-100 bg-light -->
+                                    <span class="label-value-selected"> 
                                       <!-- Ctx Components - Solo lectura -->
                                       <div *ngIf="!metric.isEditing">
-                                        <ul>
-                                            <li *ngFor="let category of getContextComponentCategories(metric.context_components)">
-                                                {{ formatCtxCompCategoryName(category) }}:
-                                                <ul>
+                                        <ul class="no-bullets">
+                                            <li *ngFor="let category of getContextComponentCategories(metric.context_components)" class="mb-1">
+                                                <span
+                                                    class="fst-italic"
+                                                    (click)="toggleCategory(metric.id, category)"
+                                                    style="cursor: pointer;"
+                                                >
+                                                    <i
+                                                        class="bi"
+                                                        [ngClass]="{
+                                                            'bi-chevron-down': isCategoryExpanded(metric.id, category),
+                                                            'bi-chevron-right': !isCategoryExpanded(metric.id, category)
+                                                        }"
+                                                    ></i>
+                                                    {{ formatCtxCompCategoryName(category) }}:
+                                                </span>
+                                                
+                                                <!-- Componentes de Contexto para una categoria -->
+                                                <ul *ngIf="isCategoryExpanded(metric.id, category)" class="no-bullets px-3 ms-3">
                                                     <li *ngFor="let componentId of metric.context_components[category]">
-                                                      {{ getFirstAttribute(category, componentId) }}
-                                                        <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
-                                                          <i class="bi bi-zoom-in"></i> 
+                                                        {{ getFirstAttribute(category, componentId) }}
+                                                        <a href="javascript:void(0)" 
+                                                           (click)="openContextComponentModal(category, componentId)" 
+                                                           style="text-decoration: none;">
+                                                            <i class="bi bi-zoom-in"></i> 
                                                         </a>
                                                     </li>
                                                 </ul>
@@ -561,17 +703,27 @@
                                           </div>
                                         </div>
                                       </div>
-                                   
                                     </span>
-
                                   </div>
 
-                      
+
                                   <!-- Delete / Edit Metric Buttons -->
                                   <div *ngIf="currentDQModel.status === 'draft'">
                                     <div class="d-flex gap-2 mt-3 mb-2">
                                       <!-- Remove DQ Metric from DQ Model -->
-                                      <button (click)="removeMetricFromDQModel(factor, metric)" class="btn btn-outline-danger btn-sm"> <i class="bi bi-trash3"></i> Remove DQ Metric</button>
+                                      <!--<button (click)="removeMetricFromDQModel(factor, metric)" class="btn btn-outline-danger btn-sm"> <i class="bi bi-trash3"></i> Remove DQ Metric</button> -->
+
+                                      <button
+                                        (click)="openConfirmationModal(
+                                          'Remove DQ Metric',
+                                          'Are you sure you want to remove this Metric from the DQ Model?<br><br>⚠️ <b>This action will also remove all associated Methods.</b>',
+                                          'removeDQMetric',
+                                          factor,
+                                          metric
+                                        )"
+                                        class="btn btn-outline-danger btn-sm">
+                                        <i class="bi bi-trash3"></i> Remove DQ Metric
+                                      </button>
                                     
                                       <!-- Edit DQ Metric Ctx components -->
                                       <button class="btn btn-light btn-sm"
@@ -628,6 +780,17 @@
 
 
 </div>
+
+<!-- Modal de confirmación -->
+<app-confirmation-modal
+[isOpen]="isConfirmationModalOpen"
+[title]="confirmationModalTitle"
+[message]="confirmationModalMessage"
+(confirm)="handleConfirm()"
+(cancel)="handleCancel()">
+</app-confirmation-modal>
+
+<app-context-components></app-context-components>
 
 <app-stepper
   [currentStep]="currentStep"

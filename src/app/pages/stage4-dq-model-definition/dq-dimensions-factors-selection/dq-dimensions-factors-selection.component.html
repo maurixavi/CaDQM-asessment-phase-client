@@ -992,7 +992,7 @@
               class="btn btn-sm btn-dark"
               (click)="openConfirmationModal(
                 'Add to DQ Model',
-                'Are you sure you want to add this dimension and factor to the DQ Model?',
+                'Are you sure you want to add this Dimension and Factor to the DQ Model?',
                 'addDimAndFactorRecommendedToDQModel',
                 ctxComponentsChecked_suggestion,
                 selectedProblemsSuggestions
@@ -1062,11 +1062,14 @@
                 </div>  
                 <div class="label-selected">
                   <label class="label-title-selected">Data at hand:</label>
-                  <span class="label-value-selected">{{ dataAtHandDetails?.dbname }} - {{ dataAtHandDetails?.description }} <!--<a href="javascript:void(0)" (click)="dataAtHandModal.openModal()" style="text-decoration: none;">
+                  <span class="label-value-selected">DB: {{ dataAtHandDetails?.name }} - {{ dataAtHandDetails?.description }} <!--<a href="javascript:void(0)" (click)="dataAtHandModal.openModal()" style="text-decoration: none;">
                     <i class="bi bi-zoom-in"></i>
                   </a>-->
                   </span>
                 </div> 
+
+                <div class="divider"></div>
+
                 <div class="label-selected label-dq-item mt-3">
                   <label class="label-title-selected">DQ Dimensions:</label>
                 </div>
@@ -1089,7 +1092,8 @@
                       [attr.aria-controls]="'collapse' + i"
                       style="padding: 0.6rem 0.9rem;">
                     <span>
-                      <label class="label-title">DQ Dimension:</label> <span class="dimension-name">{{ dim.dimension.dimension_name }}</span>
+                      <label class="label-title w-auto">DQ Dimension:</label> 
+                      <span class="label-title-name  px-2">{{ dim.dimension.dimension_name }}</span>
                     </span>
                     </button>
                   </h2>
@@ -1104,24 +1108,43 @@
                         <span class="label-value-selected">{{ dim.baseAttributes.semantic }}</span>
                       </div>
 
+                      <div class="divider"></div>
+
                       <!-- Componentes de contexto -->
                       <div class="label-selected">
                         <label class="label-title-selected">Suggested by (Ctx. Components):</label>
                         <span class="label-value-selected">
                           <!-- Solo lectura -->
                           <div *ngIf="!dim.dimension.isEditing">
-                            <ul>
-                              <li *ngFor="let category of getContextComponentCategories(dim.dimension.context_components)">
-                                {{ formatCtxCompCategoryName(category) }}:
-                                <ul>
-                                  <li *ngFor="let componentId of dim.dimension.context_components[category]">
-                                    {{ getFirstAttribute(category, componentId) }}
-                                    <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)" style="text-decoration: none;">
-                                      <i class="bi bi-zoom-in"></i> 
-                                    </a>
-                                  </li>
-                                </ul>
-                              </li>
+                            <ul class="no-bullets">
+                                <li *ngFor="let category of getContextComponentCategories(dim.dimension.context_components)" class="mb-1">
+                                    <span
+                                        class="fst-italic"
+                                        (click)="toggleCategory(dim.dimension.id, category)"
+                                        style="cursor: pointer;"
+                                    >
+                                        <i
+                                            class="bi"
+                                            [ngClass]="{
+                                                'bi-chevron-down': isCategoryExpanded(dim.dimension.id, category),
+                                                'bi-chevron-right': !isCategoryExpanded(dim.dimension.id, category)
+                                            }"
+                                        ></i>
+                                        {{ formatCtxCompCategoryName(category) }}:
+                                    </span>
+                                    
+                                    <!-- Componentes de Contexto para una categoria -->
+                                    <ul *ngIf="isCategoryExpanded(dim.dimension.id, category)" class="no-bullets px-3 ms-3">
+                                        <li *ngFor="let componentId of dim.dimension.context_components[category]">
+                                            {{ getFirstAttribute(category, componentId) }}
+                                            <a href="javascript:void(0)" 
+                                               (click)="openContextComponentModal(category, componentId)" 
+                                               style="text-decoration: none;">
+                                                <i class="bi bi-zoom-in"></i> 
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
                             </ul>
                           </div>
 
@@ -1191,11 +1214,11 @@
 
                       <!-- DQ Problems -->
                       <div class="label-selected">
-                        <label class="label-title-selected">Based on (DQ Problems):</label>
+                        <label class="label-title-selected">Uses (DQ Problems):</label>
                         <span class="label-value-selected">
                           <!-- DQ Problems - Solo lectura -->
                           <div *ngIf="!dim.dimension.isEditing && dim.dimension.dq_problems_details?.length > 0">
-                            <ul>
+                            <ul class="no-bullets">
                               <li *ngFor="let problem of dim.dimension.dq_problems_details">
                                 {{ problem.description }}
                               </li>
@@ -1223,6 +1246,8 @@
                       </div>
 
 
+                      <div class="divider"></div>
+
                       <div class="label-selected label-dq-item">
                         <label class="label-title-selected">DQ Factors:</label>
                       </div>
@@ -1242,8 +1267,8 @@
                               [attr.aria-controls]="'factorCollapse' + i + '-' + j"
                               style="padding: 0.6rem 0.9rem;">
                               <span>
-                                <label class="label-title">DQ Factor:</label> 
-                                <span class="dimension-name">{{ factor.factor_name }}</span>
+                                <label class="label-title w-auto">DQ Factor:</label> 
+                                <span class="label-title-name px-2">{{ factor.factor_name }}</span>
                               </span>
                             </button>
                           </h2>
@@ -1258,24 +1283,43 @@
                                 <span class="label-value-selected">{{ factor.baseAttributes.semantic }}</span>
                               </div>
 
+                              <div class="divider"></div>
+
                               <!-- Componentes de contexto -->
                               <div class="label-selected">
-                                <label class="label-title-selected">Ctx (Arises from):</label>
+                                <label class="label-title-selected">Arises from (Ctx. Components):</label>
                                 <span class="label-value-selected">
                                   <!-- Solo lectura -->
                                   <div *ngIf="!factor.isEditing">
-                                    <ul>
-                                      <li *ngFor="let category of getContextComponentCategories(factor.context_components)">
-                                        {{ formatCtxCompCategoryName(category) }}:
-                                        <ul>
-                                          <li *ngFor="let componentId of factor.context_components[category]">
-                                            {{ getFirstAttribute(category, componentId) }}
-                                            <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
-                                              <i class="bi bi-zoom-in"></i> 
-                                            </a>
-                                          </li>
-                                        </ul>
-                                      </li>
+                                    <ul class="no-bullets">
+                                        <li *ngFor="let category of getContextComponentCategories(factor.context_components)" class="mb-1">
+                                            <span
+                                                class="fst-italic"
+                                                (click)="toggleCategory(factor.id, category)"
+                                                style="cursor: pointer;"
+                                            >
+                                                <i
+                                                    class="bi"
+                                                    [ngClass]="{
+                                                        'bi-chevron-down': isCategoryExpanded(factor.id, category),
+                                                        'bi-chevron-right': !isCategoryExpanded(factor.id, category)
+                                                    }"
+                                                ></i>
+                                                {{ formatCtxCompCategoryName(category) }}:
+                                            </span>
+                                            
+                                            <!-- Componentes de Contexto para una categoria -->
+                                            <ul *ngIf="isCategoryExpanded(factor.id, category)" class="no-bullets px-3 ms-3">
+                                                <li *ngFor="let componentId of factor.context_components[category]">
+                                                    {{ getFirstAttribute(category, componentId) }}
+                                                    <a href="javascript:void(0)" 
+                                                      (click)="openContextComponentModal(category, componentId)" 
+                                                      style="text-decoration: none;">
+                                                        <i class="bi bi-zoom-in"></i> 
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
                                     </ul>
                                   </div>
 
@@ -1323,12 +1367,12 @@
 
                               <!-- DQ Problems -->
                               <div class="label-selected">
-                                <label class="label-title-selected">DQ Problems (Used):</label>
+                                <label class="label-title-selected">Uses (DQ Problems):</label>
                                 <span class="label-value-selected">
 
                                   <!-- DQ Problems - Solo lectura -->
                                   <div *ngIf="!factor.isEditing">
-                                    <ul>
+                                    <ul class="no-bullets">
                                       <li *ngFor="let problem of factor.dq_problems_details">
                                         {{ problem.description }}
                                       </li>
@@ -1362,7 +1406,7 @@
                                   <button
                                     (click)="openConfirmationModal(
                                       'Remove DQ Factor',
-                                      'Are you sure you want to remove this factor from the DQ Model?',
+                                      'Are you sure you want to remove this Factor from the DQ Model?<br><br>⚠️ <b>This action will also remove all associated Metrics.</b>',
                                       'deleteFactor',
                                       factor.id
                                     )"
@@ -1409,7 +1453,7 @@
                           <button
                             (click)="openConfirmationModal(
                               'Remove DQ Dimension',
-                              'Are you sure you want to remove this dimension and its associated factors?',
+                              'Are you sure you want to remove this Dimension from the DQ Model?<br><br>⚠️ <b>This action will also remove all associated Factors.</b>',
                               'deleteDimension',
                               dim.dimension.id
                             )"

@@ -407,7 +407,8 @@
                           <!-- Valor único -->
                           <div *ngIf="selectedMethodDetail.executionResult.displayType === 'single'">
                             <span class="badge bg-primary">
-                              {{ selectedMethodDetail.executionResult.dq_value }}
+                              <!--{{ selectedMethodDetail.executionResult.dq_value }}-->
+                              {{ (selectedMethodDetail.executionResult.dq_value) | number:'1.2-2' }}
                             </span>
                             <!--<div *ngIf="selectedMethodDetail.executionResult.columnDetails" class="mt-2 small text-muted">
                               Table: {{ selectedMethodDetail.executionResult.columnDetails.tableName }} |

@@ -44,7 +44,7 @@
 						</div>
 						<div class="label-selected">
 							<label class="label-title-selected">Data at hand:</label>
-							<span class="label-value-selected">{{ dataAtHandDetails?.dbname }} - {{ dataAtHandDetails?.description }} <a href="javascript:void(0)" (click)="dataAtHandModal.openModal()" style="text-decoration: none;">
+							<span class="label-value-selected">DB: {{ dataAtHandDetails?.name }} - {{ dataAtHandDetails?.description }} <a href="javascript:void(0)" (click)="dataAtHandModal.openModal()" style="text-decoration: none;">
 									<i class="bi bi-zoom-in"></i>
 								</a>
 							</span>
@@ -56,12 +56,17 @@
 					</div>
 	
 					<!-- Accordion DIMENSIONS -->
-					<div class="dimensions-factors-selected-accordion-container">
+					<!--<div class="dimensions-factors-selected-accordion-container">
 						<div class="accordion mx-1" id="accordionDimensions">
 							<div class="accordion-item mb-2" *ngFor="let dimension of completeDQModel.dimensions; let i = index"
 							style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
+								<h2 class="accordion-header" [id]="'heading' + i">-->
+
+					<div class="dimensions-factors-selected-accordion-container">
+						<div class="accordion mx-1" id="accordionDimensions">
+							<div class="accordion-item mb-2" *ngFor="let dimension of completeDQModel.dimensions; let i = index" style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
 								<h2 class="accordion-header" [id]="'heading' + i">
-										<button
+									<button
 											class="accordion-button collapsed" 
 											type="button"
 											data-bs-toggle="collapse"
@@ -87,17 +92,39 @@
 											<span class="label-value-selected">{{ dimension.attributesBase?.semantic }}</span>
 										</div>
 
+										<div class="divider"></div>
+
 										<div class="label-selected">
 											<label class="label-title-selected">Suggested by (Ctx. Components):</label>
 											<span class="label-value-selected">
-												<ul>
-													<li *ngFor="let category of getContextComponentCategories(dimension.context_components)">
-														{{ formatCategoryName(category) }}:
-														<ul>
+												<ul class="no-bullets">
+													<!-- Componentes de Contexto por categoria -->
+													<li *ngFor="let category of getContextComponentCategories(dimension.context_components)" class="mb-1">
+														<span
+															class="fst-italic"
+															(click)="toggleCategory(dimension.id, category)"
+															style="cursor: pointer;"
+														>
+															<i
+																class="bi"
+																[ngClass]="{
+																	'bi-chevron-down': isCategoryExpanded(dimension.id, category),
+																	'bi-chevron-right': !isCategoryExpanded(dimension.id, category)
+																}"
+															></i>
+															{{ formatCtxCompCategoryName(category) }}:
+														</span>
+										
+														<!-- Componentes de Contexto para una categoria -->
+														<ul *ngIf="isCategoryExpanded(dimension.id, category)" class="no-bullets px-3 ms-3">
 															<li *ngFor="let componentId of dimension.context_components[category]">
 																{{ getFirstAttribute(category, componentId) }}
-																<a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)" style="text-decoration: none;">
-																	<i class="bi bi-zoom-in"></i> 
+																<a
+																	href="javascript:void(0)"
+																	(click)="openContextComponentModal(category, componentId)"
+																	style="text-decoration: none;"
+																>
+																	<i class="bi bi-zoom-in"></i>
 																</a>
 															</li>
 														</ul>
@@ -108,15 +135,17 @@
 
 
 										<div class="label-selected">
-											<label class="label-title-selected">DQ Problems (Used):</label>
+											<label class="label-title-selected">Uses (DQ Problems):</label>
 											<span class="label-value-selected">
-												<ul>
+												<ul class="no-bullets">
 													<li *ngFor="let problem of dimension.dq_problems_details">
 														{{ problem.description }}
 													</li>
 												</ul>
 											</span>
 										</div>
+
+										<div class="divider"></div>
 
 										<div class="label-selected">
 											<label class="label-title-selected">DQ Factors:</label>
@@ -133,24 +162,46 @@
 														</span>
 													</button>
 												</h2>
-												<div [id]="'factorCollapse' + i + '-' + j" class="accordion-collapse collapse" [attr.aria-labelledby]="'factorHeading' + i + '-' + j" [attr.data-bs-parent]="'#factorAccordion' + i">
+												<div [id]="'factorCollapse' + i + '-' + j" class="accordion-collapse collapse" [attr.aria-labelledby]="'factorHeading' + i + '-' + j" >
 													<div class="accordion-body">
 														<div class="label-selected">
 															<label class="label-title-selected">Semantic:</label>
 															<span class="label-value-selected">{{ factor.attributesBase?.semantic }}</span>
 														</div>
 
+														<div class="divider"></div>
+
 														<div class="label-selected">
 															<label class="label-title-selected">Arises from (Ctx. Components):</label>
 															<span class="label-value-selected">
-																<ul>
-																	<li *ngFor="let category of getContextComponentCategories(factor.context_components)">
-																		{{ formatCategoryName(category) }}:
-																		<ul>
+																<ul class="no-bullets">
+																	<!-- Componentes de Contexto por categoria -->
+																	<li *ngFor="let category of getContextComponentCategories(factor.context_components)" class="mb-1">
+																		<span
+																			class="fst-italic"
+																			(click)="toggleCategory(factor.id, category)"
+																			style="cursor: pointer;"
+																		>
+																			<i
+																				class="bi"
+																				[ngClass]="{
+																					'bi-chevron-down': isCategoryExpanded(factor.id, category),
+																					'bi-chevron-right': !isCategoryExpanded(factor.id, category)
+																				}"
+																			></i>
+																			{{ formatCtxCompCategoryName(category) }}:
+																		</span>
+														
+																		<!-- Componentes de Contexto para una categoria -->
+																		<ul *ngIf="isCategoryExpanded(factor.id, category)" class="no-bullets px-3 ms-3">
 																			<li *ngFor="let componentId of factor.context_components[category]">
 																				{{ getFirstAttribute(category, componentId) }}
-																				<a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)" style="text-decoration: none;">
-																					<i class="bi bi-zoom-in"></i> 
+																				<a
+																					href="javascript:void(0)"
+																					(click)="openContextComponentModal(category, componentId)"
+																					style="text-decoration: none;"
+																				>
+																					<i class="bi bi-zoom-in"></i>
 																				</a>
 																			</li>
 																		</ul>
@@ -159,17 +210,18 @@
 															</span>
 														</div>
 
-
 														<div class="label-selected">
-															<label class="label-title-selected">DQ Problems (Used):</label>
+															<label class="label-title-selected">Uses (DQ Problems):</label>
 															<span class="label-value-selected">
-																<ul>
+																<ul class="no-bullets">
 																	<li *ngFor="let problem of factor.dq_problems_details">
 																		{{ problem.description }}
 																	</li>
 																</ul>
 															</span>
 														</div>
+
+														<div class="divider"></div>
 
 														<div class="label-selected">
 															<label class="label-title-selected label-dq-item">DQ Metrics:</label>
@@ -201,17 +253,39 @@
 																			<span class="label-value-selected">{{ metric.attributesBase?.resultDomain }}</span>
 																		</div>
 
+																		<div class="divider"></div>
+
 																		<div class="label-selected">
 																			<label class="label-title-selected">Influenced by (Ctx. Components):</label>
 																			<span class="label-value-selected">
-																				<ul>
-																					<li *ngFor="let category of getContextComponentCategories(metric.context_components)">
-																						{{ formatCategoryName(category) }}:
-																						<ul>
+																				<ul class="no-bullets">
+																					<!-- Componentes de Contexto por categoria -->
+																					<li *ngFor="let category of getContextComponentCategories(metric.context_components)" class="mb-1">
+																						<span
+																							class="fst-italic"
+																							(click)="toggleCategory(metric.id, category)"
+																							style="cursor: pointer;"
+																						>
+																							<i
+																								class="bi"
+																								[ngClass]="{
+																									'bi-chevron-down': isCategoryExpanded(metric.id, category),
+																									'bi-chevron-right': !isCategoryExpanded(metric.id, category)
+																								}"
+																							></i>
+																							{{ formatCtxCompCategoryName(category) }}:
+																						</span>
+																		
+																						<!-- Componentes de Contexto para una categoria -->
+																						<ul *ngIf="isCategoryExpanded(metric.id, category)" class="no-bullets px-3 ms-3">
 																							<li *ngFor="let componentId of metric.context_components[category]">
 																								{{ getFirstAttribute(category, componentId) }}
-																								<a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)" style="text-decoration: none;">
-																									<i class="bi bi-zoom-in"></i> 
+																								<a
+																									href="javascript:void(0)"
+																									(click)="openContextComponentModal(category, componentId)"
+																									style="text-decoration: none;"
+																								>
+																									<i class="bi bi-zoom-in"></i>
 																								</a>
 																							</li>
 																						</ul>
@@ -219,6 +293,9 @@
 																				</ul>
 																			</span>
 																		</div>
+
+																		<div class="divider"></div>
+
 																		<div class="label-selected">
 																			<label class="label-title-selected label-dq-item">DQ Methods:</label>
 																		</div>
@@ -245,7 +322,6 @@
 																					[id]="'methodCollapse' + i + '-' + j + '-' + k + '-' + l"
 																					class="accordion-collapse collapse"
 																					[attr.aria-labelledby]="'methodHeading' + i + '-' + j + '-' + k + '-' + l"
-																					[attr.data-bs-parent]="'#methodAccordion' + i + '-' + j + '-' + k"
 																				>
 																					<div class="accordion-body">
 																						<div class="label-selected">
@@ -263,17 +339,39 @@
 																							</div>
 																						</div>
 
+																						<div class="divider"></div>
+
 																						<div class="label-selected">
 																							<label class="label-title-selected">Uses (Ctx. Components):</label>
 																							<span class="label-value-selected">
-																								<ul>
-																									<li *ngFor="let category of getContextComponentCategories(method.context_components)">
-																										{{ formatCategoryName(category) }}:
-																										<ul>
+																								<ul class="no-bullets">
+																									<!-- Componentes de Contexto por categoria -->
+																									<li *ngFor="let category of getContextComponentCategories(method.context_components)" class="mb-1">
+																										<span
+																											class="fst-italic"
+																											(click)="toggleCategory(method.id, category)"
+																											style="cursor: pointer;"
+																										>
+																											<i
+																												class="bi"
+																												[ngClass]="{
+																													'bi-chevron-down': isCategoryExpanded(method.id, category),
+																													'bi-chevron-right': !isCategoryExpanded(method.id, category)
+																												}"
+																											></i>
+																											{{ formatCtxCompCategoryName(category) }}:
+																										</span>
+																						
+																										<!-- Componentes de Contexto para una categoria -->
+																										<ul *ngIf="isCategoryExpanded(method.id, category)" class="no-bullets px-3 ms-3">
 																											<li *ngFor="let componentId of method.context_components[category]">
 																												{{ getFirstAttribute(category, componentId) }}
-																												<a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)" style="text-decoration: none;">
-																													<i class="bi bi-zoom-in"></i> 
+																												<a
+																													href="javascript:void(0)"
+																													(click)="openContextComponentModal(category, componentId)"
+																													style="text-decoration: none;"
+																												>
+																													<i class="bi bi-zoom-in"></i>
 																												</a>
 																											</li>
 																										</ul>
@@ -282,13 +380,15 @@
 																							</span>
 																						</div>
 
+																						<div class="divider"></div>
+
 																						<div class="label-selected label-dq-item">
 																							<label class="label-title-selected">Applied Methods:</label>
 																						</div>
 
 																						<!-- Applied Methods: Measurements -->
 																						<div *ngIf="method.applied_methods[0]?.measurements?.length > 0">
-																							<div class="accordion mt-2 mx-1" [id]="'measurementAccordion' + i + '-' + j + '-' + k + '-' + l">
+																							<div class="accordion mt-2 mx-1 mb-2" [id]="'measurementAccordion' + i + '-' + j + '-' + k + '-' + l">
 																								<div class="accordion-item" *ngFor="let measurement of method.applied_methods[0].measurements; let m = index">
 																									<h2 class="accordion-header" [id]="'measurementHeading' + i + '-' + j + '-' + k + '-' + l + '-' + m">
 																										<button
@@ -301,7 +401,7 @@
 																											style="padding: 0.6rem 0.9rem;">
 																											<span>
 																												<label class="label-title-applied-methods">Measurement DQ Method:</label>
-																												<span class="label-title-name px-2">{{ measurement.name }}</span>
+																												<span class="label-title-name py-3 px-2">{{ measurement.name }}</span>
 																											</span>
 																										</button>
 																									</h2>
@@ -338,7 +438,7 @@
 
 																						<!-- Applied Methods: Aggregations -->
 																						<div *ngIf="method.applied_methods[0]?.aggregations?.length > 0">
-																							<div class="accordion mt-3 mb-2 mx-1" [id]="'aggregationAccordion' + i + '-' + j + '-' + k + '-' + l">
+																							<div class="accordion mt-3 mx-1 mb-2" [id]="'aggregationAccordion' + i + '-' + j + '-' + k + '-' + l">
 																								<div class="accordion-item" *ngFor="let aggregation of method.applied_methods[0].aggregations; let n = index">
 																									<h2 class="accordion-header" [id]="'aggregationHeading' + i + '-' + j + '-' + k + '-' + l + '-' + n">
 																										<button
@@ -468,6 +568,7 @@
   </div>
 </app-modal>
 
+<!--<app-context-components></app-context-components>-->
 
 
 <app-stepper

@@ -549,7 +549,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     this.modelService.createDQDimension(newDimension).subscribe({
       next: (response) => {
         console.log('Dimensión creada con éxito:', response);
-        this.notificationService.showSuccess('DQ Dimension was successfully created. You can now select it to add it to the DQ Model.');
+        this.notificationService.showSuccess(`DQ Dimension "${newDimension.name}" was successfully created. You can now select it to add it to the DQ Model.`);
         //alert('The DQ Dimension was successfully created. You can now select it to add it to the DQ Model.');
         this.resetDimensionForm();
         this.closeDimensionModal(); 
@@ -591,7 +591,7 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
           this.cdr.detectChanges(); // Forzar actualización de vista si es necesario
         }, 100);
         
-        this.notificationService.showSuccess('DQ Factor was successfully created. You can now select it to add to the DQ Model.');
+        this.notificationService.showSuccess(`DQ Factor "${newFactor.name}" was successfully created. You can now select it to add to the DQ Model.`);
 
         this.resetFactorForm();
         this.closeFactorModal();
@@ -997,6 +997,8 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
           console.log("Dimensión ya existente, ID:", this.addedDimensionId);
           console.log("Dimensión ya existente, Ctx Components:", existingDimension.context_components);
       
+          this.notificationService.showError('DQ Dimension has already been added to the DQ Model.');
+
           const existingComponents = existingDimension.context_components;
           const newComponents = buildContextComponents(selectedComponents);
           
@@ -1596,15 +1598,15 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
   //REMOVE DIMENSIONS or FACTORS from DQ MODEL
   deleteDimension(dimensionId: number): void {
 
-    const confirmationMessage = `Are you sure you want to remove this DQ Dimension from the DQ Model? This will also delete the associated factors.`;
+    //const confirmationMessage = `Are you sure you want to remove this DQ Dimension from the DQ Model? This will also delete the associated factors.`;
 
-    const userConfirmed = confirm(confirmationMessage);
+    //const userConfirmed = confirm(confirmationMessage);
   
-    if (userConfirmed) {
+    //if (userConfirmed) {
       console.log(`Eliminando la dimensión con ID: ${dimensionId}`);
       this.modelService.deleteDimensionFromDQModel(dimensionId).subscribe(
         response => {
-          alert(response?.message || "Dimensión y factores asociados eliminados exitosamente.");
+          //alert(response?.message || "Dimensión y factores asociados eliminados exitosamente.");
           this.notificationService.showSuccess('DQ Dimension and its Factors were successfully removed from the DQ Model.');
           // Filtrar la dimensión eliminada sin recargar toda la lista
           this.dimensionsWithFactorsInDQModel = this.dimensionsWithFactorsInDQModel.filter(
@@ -1619,9 +1621,9 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
           console.error("Error al eliminar la dimensión:", error);
         }
       );
-    } else {
+    /*} else {
       console.log("Eliminación de la dimensión cancelada por el usuario.");
-    }
+    }*/
   }
   
   deleteFactor(factorId: number): void {
@@ -2271,5 +2273,29 @@ export class DqDimensionsFactorsSelectionComponent implements OnInit {
     }
   }
 
+
+  // VISTA: Componentes de Contexto Asociados
+  // Guarda el estado expandido por categoría de componente de contexto para cada elemento del modelo
+  ctxCategoryStates: { [elementId: string]: { [category: string]: boolean } } = {};
+
+  toggleCategory(elementId: string, category: string): void {
+    if (!this.ctxCategoryStates[elementId]) {
+      this.ctxCategoryStates[elementId] = {};
+    }
+    
+    // Si el estado es undefined (primera vez), establecerlo como false (cerrado)
+    if (this.ctxCategoryStates[elementId][category] === undefined) {
+      this.ctxCategoryStates[elementId][category] = false;
+    } else {
+      // Si ya tiene un estado, invertirlo
+      this.ctxCategoryStates[elementId][category] = !this.ctxCategoryStates[elementId][category];
+    }
+  }
+  
+  isCategoryExpanded(elementId: string, category: string): boolean {
+    // Si el estado es undefined (primera vez), devolver true (abierto por defecto)
+    // Si ya tiene estado, devolver ese valor
+    return this.ctxCategoryStates[elementId]?.[category] ?? true;
+  }
 
 }

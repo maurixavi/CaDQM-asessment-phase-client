@@ -36,7 +36,7 @@
           <div class="label-selected">
             <label class="label-title-selected">Data at hand:</label>
             <span class="label-value">
-              {{ dataAtHandDetails?.dbname }} - {{ dataAtHandDetails?.description }}
+              DB: {{ dataAtHandDetails?.name }} - {{ dataAtHandDetails?.description }}
               <a href="javascript:void(0)" (click)="dataAtHandModal.openModal()" style="text-decoration: none;">
                 <i class="bi bi-zoom-in"></i>
               </a>
@@ -117,7 +117,7 @@
             <ng-container *ngTemplateOutlet="closeProjectButton"></ng-container>
           </div>
 
-          <div *ngIf="project.dqmodel_version !== null && (project.current_stage?.stage === 'ST4' && project.current_stage?.status === 'IN_PROGRESS')" class="d-flex gap-2 mt-2">
+          <div *ngIf="project.dqmodel_version !== null && (project.current_stage?.stage === 'ST3' || project.current_stage?.stage === 'ST4' && project.current_stage?.status === 'IN_PROGRESS')" class="d-flex gap-2 mt-2">
             <button class="btn btn-dark btn-sm" (click)="navigateToResume()">
               Resume
             </button>

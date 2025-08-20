@@ -566,9 +566,12 @@ export class DashboardComponent implements OnInit {
       this.newProject.name,
       this.newProject.description,
       this.pendingDQModelId,
-      this.project?.context_version,
+      //this.project?.context_version,
       this.project?.context,
-      this.project?.data_at_hand
+      this.project?.user,
+      this.project?.data_at_hand,
+     // this.project?.estimation
+
     ).subscribe({
       next: (newProject) => {
         const newProjectId = newProject.id;
@@ -611,7 +614,8 @@ export class DashboardComponent implements OnInit {
       this.pendingDQModelId,
       this.project?.context_version,
       this.project?.context,
-      this.project?.data_at_hand
+      this.project?.data_at_hand,
+      //this.project?.estimation
     ).subscribe({
       next: (newProject) => {
         this.isLoading = true; 

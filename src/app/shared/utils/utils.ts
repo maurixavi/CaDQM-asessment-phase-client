@@ -63,6 +63,18 @@ export function formatCategoryName(category: string): string {
 
 // Método para formatear el nombre de la categoría
 export function formatCtxCompCategoryName(category: string): string {
+  // Mapeo especial para casos específicos
+  const specialCases: { [key: string]: string } = {
+    'systemRequirement': 'System Requirements',
+    'dqRequirement': 'DQ Requirements',
+    'businessRule': 'Business Rules'
+  };
+
+  // Verificar si es un caso especial
+  if (specialCases[category]) {
+    return specialCases[category];
+  }
+
   // Reemplazar camelCase o snake_case con espacios
   const formatted = category
     .replace(/([A-Z])/g, ' $1') // Separar camelCase

@@ -80,6 +80,10 @@ export class DQModelConfirmationComponent implements OnInit {
     This action cannot be undone.
   `;
 
+  // Utils
+  public formatCtxCompCategoryName = formatCtxCompCategoryName;
+  public getFirstNonIdAttribute = getFirstNonIdAttribute
+
   constructor(
     private router: Router, 
     private cdr: ChangeDetectorRef,
@@ -519,6 +523,548 @@ export class DQModelConfirmationComponent implements OnInit {
       alert('Los datos del DQ Model no están cargados.');
       return;
     }
+  
+    this.isLoading = true;
+    const doc = new jsPDF();
+    const margin = 10;
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const maxLine = pageWidth - 2 * margin;
+    let y = 20;
+  
+    // Colores y tamaños
+    const labelColor = [120, 120, 120];
+    const valueColor = [60, 60, 60];
+    const normalFontSize = 10;
+    const sectionFontSize = 12;
+    const codeFontSize = 9;
+    const lineHeight = 6;
+  
+    // Estilos
+    const setLabelStyle = () => {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(normalFontSize);
+      //doc.setTextColor(...labelColor);
+      doc.setTextColor(labelColor[0], labelColor[1], labelColor[2]);
+    };
+  
+    const setValueStyle = () => {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(normalFontSize);
+      //doc.setTextColor(...valueColor);
+      doc.setTextColor(valueColor[0], valueColor[1], valueColor[2]);
+    };
+  
+    const setSectionStyle = () => {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(sectionFontSize);
+      doc.setTextColor(0, 0, 0);
+    };
+  
+    const setCodeStyle = () => {
+      doc.setFont('courier', 'normal');
+      doc.setFontSize(codeFontSize);
+      doc.setTextColor(20, 20, 20);
+    };
+  
+    const checkPageBreak = (extraLines = 1) => {
+      if (y + extraLines * lineHeight > pageHeight - 10) {
+        doc.addPage();
+        y = 20;
+      }
+    };
+  
+    const writeWrapped = (text: string, indent = 0) => {
+      const lines = doc.splitTextToSize(text, maxLine - indent);
+      lines.forEach((line: string | string[]) => {
+        checkPageBreak();
+        doc.text(line, margin + indent, y);
+        y += lineHeight;
+      });
+    };
+  
+    const writeLabelValue = (label: string, value: string, indent = 0) => {
+      checkPageBreak();
+      setLabelStyle();
+      doc.text(`${label}`, margin + indent, y);
+      const labelWidth = doc.getTextWidth(label + ' ');
+      setValueStyle();
+      const valueLines = doc.splitTextToSize(value, maxLine - indent - labelWidth);
+      doc.text(valueLines, margin + indent + labelWidth + 1, y);
+      y += valueLines.length * lineHeight;
+    };
+  
+    const writeSectionTitle = (prefix: string, title: string, indent = 0) => {
+      checkPageBreak();
+      setSectionStyle();
+      doc.text(`${prefix} ${title}`, margin + indent, y);
+      y += lineHeight;
+    };
+  
+    const writeCodeBlock = (code: string, indent = 10) => {
+      setCodeStyle();
+      const lines = doc.splitTextToSize(code, maxLine - indent);
+      lines.forEach((line: string | string[]) => {
+        checkPageBreak();
+        doc.text(line, margin + indent, y);
+        y += lineHeight;
+      });
+    };
+  
+    const formatContextLine = (contextObj: any): string[] => {
+      const lines: string[] = [];
+      for (const cat in contextObj) {
+        if (contextObj[cat]?.length) {
+          const values = contextObj[cat]
+            .map((id: number) => this.getFirstAttribute(cat, id))
+            .join(' · ');
+          lines.push(`${this.formatCategoryName(cat)}: ${values}`);
+        }
+      }
+      return lines;
+    };
+  
+    // === Encabezado ===
+    setSectionStyle();
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`DQ Model ${this.completeDQModel.model.name}`, margin, y);
+    y += 10;
+  
+    writeLabelValue('Version', this.completeDQModel.model.version);
+    writeLabelValue('DONE', `${this.formatDate(this.completeDQModel.model.created_at)} - [fecha final estimada]`);
+    writeLabelValue('', `(Contexto de ${this.project?.name || 'Sin nombre'} v${this.project?.context_version})`);
+    y += 4;
+  
+    // === Dimensiones ===
+    this.completeDQModel.dimensions.forEach((dim: any) => {
+      writeSectionTitle('DQ Dimension:', dim.dimension_name);
+      writeLabelValue('Semantic', dim.attributesBase?.semantic || 'N/A', 5);
+  
+      const ctx = formatContextLine(dim.context_components).join(' · ');
+      writeLabelValue('Suggested by (Context Components):', ctx, 5);
+  
+      const problems = dim.dq_problems_details.map((p: any) => p.description).join(' · ');
+      if (problems) {
+        writeLabelValue('DQ Problems used:', problems, 5);
+      }
+  
+      dim.factors?.forEach((fac: any) => {
+        writeSectionTitle('> DQ Factor:', fac.factor_name, 5);
+        writeLabelValue('Semantic', fac.attributesBase?.semantic || 'N/A', 10);
+  
+        const ctxF = formatContextLine(fac.context_components).join(' · ');
+        writeLabelValue('Arises from (Context Components)', ctxF, 10);
+  
+        const probsF = fac.dq_problems_details.map((p: any) => p.description).join(' · ');
+        if (probsF) {
+          writeLabelValue('DQ Problems used', probsF, 10);
+        }
+  
+        fac.metrics?.forEach((met: any) => {
+          writeSectionTitle('>> DQ Metric:', met.metric_name, 10);
+          writeLabelValue('Purpose', met.attributesBase?.purpose || 'N/A', 15);
+          writeLabelValue('Granularity', met.attributesBase?.granularity || 'N/A', 15);
+          writeLabelValue('Result domain', met.attributesBase?.resultDomain || 'N/A', 15);
+  
+          const ctxM = formatContextLine(met.context_components).join(' · ');
+          writeLabelValue('Influenced by (Context Components):', ctxM, 15);
+  
+          met.methods?.forEach((meth: any) => {
+            writeSectionTitle('>>> DQ Method:', meth.method_name, 15);
+            writeLabelValue('Input data type', meth.attributesBase?.inputDataType || 'N/A', 20);
+            writeLabelValue('Output data type', meth.attributesBase?.outputDataType || 'N/A', 20);
+            writeLabelValue('Algorithm', '', 20);
+            writeCodeBlock(meth.attributesBase?.algorithm || 'N/A', 25);
+  
+            const ctxMeth = formatContextLine(meth.context_components).join(' · ');
+            writeLabelValue('Uses (Context Components):', ctxMeth, 20);
+          });
+        });
+      });
+  
+      y += 4;
+    });
+  
+    // Guardar
+    const name = this.completeDQModel.model.name.replace(/\s+/g, '_').toLowerCase();
+    const version = this.completeDQModel.model.version.replace(/\s+/g, '_');
+    doc.save(`dqmodel_${name}_v${version}.pdf`);
+    this.isLoading = false;
+  }
+  
+
+  generateDQModelPDF307_02(): void {
+    if (!this.completeDQModel) {
+      alert('Los datos del DQ Model no están cargados.');
+      return;
+    }
+  
+    this.isLoading = true;
+    const doc = new jsPDF();
+    const margin = 10;
+    const lineHeight = 7;
+    const maxLineWidth = doc.internal.pageSize.getWidth() - margin * 2;
+    const pageHeight = doc.internal.pageSize.getHeight();
+    let yOffset = 20;
+  
+    const valueColor = [80, 80, 80]; // Gris oscuro
+    const titleFontSize = 12;
+    const textFontSize = 10;
+    const contextFontSize = 9;
+  
+    const checkPageBreak = (lines = 1) => {
+      if (yOffset + lines * lineHeight > pageHeight - 10) {
+        doc.addPage();
+        yOffset = 20;
+      }
+    };
+  
+    const addSectionTitle = (title: string) => {
+      checkPageBreak();
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(titleFontSize);
+      doc.setTextColor(0, 0, 0);
+      doc.text(title, margin, yOffset);
+      yOffset += lineHeight;
+      doc.setFontSize(textFontSize);
+    };
+  
+    const addLabelValue = (label: string, value: string, indent = 0, size = textFontSize) => {
+      checkPageBreak();
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(size);
+      doc.setTextColor(0, 0, 0);
+      const labelWidth = doc.getTextWidth(`${label}: `);
+      doc.text(`${label}:`, margin + indent, yOffset);
+  
+      const wrapped = doc.splitTextToSize(value, maxLineWidth - indent - labelWidth);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(valueColor[0], valueColor[1], valueColor[2]);
+      wrapped.forEach((line: string | string[], i: number) => {
+        const lineYOffset = yOffset + i * lineHeight;
+        doc.text(line, margin + indent + labelWidth, lineYOffset);
+      });
+      yOffset += wrapped.length * lineHeight;
+      doc.setFontSize(textFontSize);
+      doc.setTextColor(0, 0, 0);
+    };
+  
+    const formatContextComponents = (contextComponents: any): string[] => {
+      const formatted: string[] = [];
+      for (const category in contextComponents) {
+        const items = contextComponents[category]
+          .map((id: number) => this.getFirstAttribute(category, id))
+          .join(' · ');
+        if (items) {
+          formatted.push(`${this.formatCategoryName(category)}: ${items}`);
+        }
+      }
+      return formatted;
+    };
+  
+    // Título
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text("DQ Model Report", margin, yOffset);
+    yOffset += 10;
+  
+    doc.setFontSize(textFontSize);
+  
+    // Datos generales
+    addLabelValue('Model ID', this.completeDQModel.model.id.toString());
+    addLabelValue('Version', this.completeDQModel.model.version);
+    addLabelValue('Created At', this.formatDate(this.completeDQModel.model.created_at));
+    addLabelValue('Status', this.completeDQModel.model.status);
+    addLabelValue('Context version', `CtxA v1.0 (id: ${this.project.context_version})`);
+    addLabelValue('Data at hand', 'Dataset A');
+  
+    // Dimensiones
+    this.completeDQModel.dimensions.forEach((dimension: any, index: number) => {
+      addSectionTitle(`DQ Dimension: ${dimension.dimension_name}`);
+      addLabelValue('Semantic', dimension.attributesBase?.semantic || 'N/A', 5);
+  
+      // Componentes de contexto
+      const formattedCtx = formatContextComponents(dimension.context_components);
+      if (formattedCtx.length > 0) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(contextFontSize);
+        doc.setTextColor(0, 0, 0);
+        doc.text('Suggested by (Ctx. Components):', margin + 5, yOffset);
+        yOffset += lineHeight;
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(valueColor[0], valueColor[1], valueColor[2]);
+        formattedCtx.forEach(line => {
+          const wrapped = doc.splitTextToSize(line, maxLineWidth - 10);
+          wrapped.forEach((w: string | string[]) => {
+            checkPageBreak();
+            doc.text(w, margin + 10, yOffset);
+            yOffset += lineHeight;
+          });
+        });
+        doc.setFontSize(textFontSize);
+      }
+  
+      // Problemas asociados
+      if (dimension.dq_problems_details?.length) {
+        addLabelValue('DQ Problems (Used)', dimension.dq_problems_details.map((p: any) => `- ${p.description}`).join(' · '), 5);
+      }
+  
+      // Factores
+      if (dimension.factors?.length) {
+        dimension.factors.forEach((factor: any) => {
+          addSectionTitle(`DQ Factor: ${factor.factor_name}`);
+          addLabelValue('Semantic', factor.attributesBase?.semantic || 'N/A', 5);
+  
+          const factorCtx = formatContextComponents(factor.context_components);
+          if (factorCtx.length > 0) {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(contextFontSize);
+            doc.setTextColor(0, 0, 0);
+            doc.text('Arises from (Ctx. Components):', margin + 5, yOffset);
+            yOffset += lineHeight;
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(valueColor[0], valueColor[1], valueColor[2]);
+            factorCtx.forEach(line => {
+              const wrapped = doc.splitTextToSize(line, maxLineWidth - 10);
+              wrapped.forEach((w: string | string[]) => {
+                checkPageBreak();
+                doc.text(w, margin + 10, yOffset);
+                yOffset += lineHeight;
+              });
+            });
+            doc.setFontSize(textFontSize);
+          }
+  
+          if (factor.dq_problems_details?.length) {
+            addLabelValue('DQ Problems (Used)', factor.dq_problems_details.map((p: any) => `- ${p.description}`).join(' · '), 5);
+          }
+  
+          // Métricas
+          if (factor.metrics?.length) {
+            factor.metrics.forEach((metric: any) => {
+              addSectionTitle(`DQ Metric: ${metric.metric_name}`);
+              addLabelValue('Purpose', metric.attributesBase?.purpose || 'N/A', 5);
+              addLabelValue('Granularity', metric.attributesBase?.granularity || 'N/A', 5);
+              addLabelValue('Result domain', metric.attributesBase?.resultDomain || 'N/A', 5);
+  
+              // Métodos
+              if (metric.methods?.length) {
+                metric.methods.forEach((method: any) => {
+                  addSectionTitle(`DQ Method: ${method.method_name}`);
+                  addLabelValue('Input data type', method.attributesBase?.inputDataType || 'N/A', 5);
+                  addLabelValue('Output data type', method.attributesBase?.outputDataType || 'N/A', 5);
+                  addLabelValue('Algorithm', method.attributesBase?.algorithm || 'N/A', 5);
+  
+                  if (method.applied_methods?.measurements?.length) {
+                    method.applied_methods.measurements.forEach((m: any) => {
+                      addSectionTitle(`Applied Measurement: ${m.name}`);
+                      addLabelValue('Applied to', m.appliedTo, 5);
+                    });
+                  }
+  
+                  if (method.applied_methods?.aggregations?.length) {
+                    method.applied_methods.aggregations.forEach((a: any) => {
+                      addSectionTitle(`Applied Aggregation: ${a.name}`);
+                      addLabelValue('Applied to', a.appliedTo, 5);
+                    });
+                  }
+                });
+              }
+            });
+          }
+        });
+      }
+  
+      // Línea divisoria
+      if (index < this.completeDQModel.dimensions.length - 1) {
+        checkPageBreak();
+        doc.setDrawColor(0);
+        doc.line(margin, yOffset, doc.internal.pageSize.getWidth() - margin, yOffset);
+        yOffset += 5;
+      }
+    });
+  
+    doc.save(`dqmodel_${this.completeDQModel.model.name}_v${this.completeDQModel.model.version}.pdf`);
+    this.isLoading = false;
+  }
+  
+
+  generateDQModelPDF307_01(): void {
+    if (!this.completeDQModel) {
+      alert('Los datos del DQ Model no están cargados.');
+      return;
+    }
+  
+    this.isLoading = true;
+    const doc = new jsPDF();
+    const margin = 10;
+    const lineHeight = 7;
+    const maxLineWidth = doc.internal.pageSize.getWidth() - margin * 2;
+    const pageHeight = doc.internal.pageSize.getHeight();
+    let yOffset = 20;
+  
+    const checkPageBreak = (lines = 1) => {
+      if (yOffset + lines * lineHeight > pageHeight - 10) {
+        doc.addPage();
+        yOffset = 20;
+      }
+    };
+  
+    const addWrappedText = (text: string, indent = 0, fontStyle: 'normal' | 'bold' = 'normal') => {
+      const wrapped = doc.splitTextToSize(text, maxLineWidth - indent);
+      doc.setFont('helvetica', fontStyle);
+      wrapped.forEach((line: string) => {
+        checkPageBreak();
+        doc.text(line, margin + indent, yOffset);
+        yOffset += lineHeight;
+      });
+    };
+  
+    const addLabelValue = (label: string, value: string, indent = 0) => {
+      doc.setFont('helvetica', 'bold');
+      const labelWidth = doc.getTextWidth(`${label}: `);
+      const valueWrapped = doc.splitTextToSize(value, maxLineWidth - indent - labelWidth);
+      doc.text(`${label}:`, margin + indent, yOffset);
+      doc.setFont('helvetica', 'normal');
+      doc.text(valueWrapped, margin + indent + labelWidth, yOffset);
+      yOffset += valueWrapped.length * lineHeight;
+      checkPageBreak();
+    };
+  
+    const formatContextComponents = (contextComponents: any): string[] => {
+      const formatted: string[] = [];
+      for (const category in contextComponents) {
+        const items = contextComponents[category]
+          .map((id: number) => this.getFirstAttribute(category, id))
+          .join(' | ');
+        if (items) {
+          formatted.push(`${this.formatCategoryName(category)}: ${items}`);
+        }
+      }
+      return formatted;
+    };
+  
+    // Título
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text("DQ Model Report", margin, yOffset);
+    yOffset += 10;
+  
+    doc.setFontSize(10);
+  
+    // Datos generales
+    addLabelValue('Model ID', this.completeDQModel.model.id.toString());
+    addLabelValue('Version', this.completeDQModel.model.version);
+    addLabelValue('Created At', this.formatDate(this.completeDQModel.model.created_at));
+    addLabelValue('Status', this.completeDQModel.model.status);
+    addLabelValue('Context version', `CtxA v1.0 (id: ${this.project.context_version})`);
+    addLabelValue('Data at hand', 'Dataset A');
+  
+    // Dimensiones
+    this.completeDQModel.dimensions.forEach((dimension: any, index: number) => {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text(`DQ Dimension: ${dimension.dimension_name}`, margin, yOffset);
+      yOffset += lineHeight;
+      doc.setFontSize(10);
+  
+      addLabelValue('Semantic', dimension.attributesBase?.semantic || 'N/A', 5);
+  
+      // Componentes de contexto
+      const formattedCtx = formatContextComponents(dimension.context_components);
+      if (formattedCtx.length > 0) {
+        addWrappedText('Suggested by (Ctx. Components):', 5, 'bold');
+        formattedCtx.forEach(line => addWrappedText(line, 10));
+      }
+  
+      // Problemas asociados
+      if (dimension.dq_problems_details?.length) {
+        addWrappedText('DQ Problems (Used):', 5, 'bold');
+        dimension.dq_problems_details.forEach((p: any) => addWrappedText(`- ${p.description}`, 10));
+      }
+  
+      // Factores
+      if (dimension.factors?.length) {
+        addWrappedText('DQ Factors:', 5, 'bold');
+        dimension.factors.forEach((factor: any) => {
+          addLabelValue('DQ Factor', factor.factor_name, 10);
+          addLabelValue('Semantic', factor.attributesBase?.semantic || 'N/A', 15);
+  
+          // Componentes de contexto del factor
+          const factorCtx = formatContextComponents(factor.context_components);
+          if (factorCtx.length > 0) {
+            addWrappedText('Arises from (Ctx. Components):', 15, 'bold');
+            factorCtx.forEach(line => addWrappedText(line, 20));
+          }
+  
+          // Problemas asociados
+          if (factor.dq_problems_details?.length) {
+            addWrappedText('DQ Problems (Used):', 15, 'bold');
+            factor.dq_problems_details.forEach((p: any) => addWrappedText(`- ${p.description}`, 20));
+          }
+  
+          // Métricas
+          if (factor.metrics?.length) {
+            addWrappedText('DQ Metrics:', 15, 'bold');
+            factor.metrics.forEach((metric: any) => {
+              addLabelValue('DQ Metric', metric.metric_name, 20);
+              addLabelValue('Purpose', metric.attributesBase?.purpose || 'N/A', 25);
+              addLabelValue('Granularity', metric.attributesBase?.granularity || 'N/A', 25);
+              addLabelValue('Result domain', metric.attributesBase?.resultDomain || 'N/A', 25);
+  
+              // Métodos
+              if (metric.methods?.length) {
+                addWrappedText('DQ Methods:', 25, 'bold');
+                metric.methods.forEach((method: any) => {
+                  addLabelValue('DQ Method', method.method_name, 30);
+                  addLabelValue('Input data type', method.attributesBase?.inputDataType || 'N/A', 35);
+                  addLabelValue('Output data type', method.attributesBase?.outputDataType || 'N/A', 35);
+                  addLabelValue('Algorithm', method.attributesBase?.algorithm || 'N/A', 35);
+  
+                  if (method.applied_methods?.measurements?.length) {
+                    addWrappedText('Applied Measurements:', 35, 'bold');
+                    method.applied_methods.measurements.forEach((m: any) => {
+                      addLabelValue('Measurement', m.name, 40);
+                      addLabelValue('Applied to', m.appliedTo, 45);
+                    });
+                  }
+  
+                  if (method.applied_methods?.aggregations?.length) {
+                    addWrappedText('Applied Aggregations:', 35, 'bold');
+                    method.applied_methods.aggregations.forEach((a: any) => {
+                      addLabelValue('Aggregation', a.name, 40);
+                      addLabelValue('Applied to', a.appliedTo, 45);
+                    });
+                  }
+                });
+              }
+            });
+          }
+        });
+      }
+  
+      // Línea divisoria entre dimensiones
+      if (index < this.completeDQModel.dimensions.length - 1) {
+        checkPageBreak();
+        doc.setDrawColor(0);
+        doc.line(margin, yOffset, doc.internal.pageSize.getWidth() - margin, yOffset);
+        yOffset += 5;
+      }
+    });
+  
+    // Guardar PDF
+    doc.save(`dqmodel_${this.completeDQModel.model.name}_v${this.completeDQModel.model.version}.pdf`);
+    this.isLoading = false;
+  }
+  
+
+
+  generateDQModelPDF_(): void {
+    if (!this.completeDQModel) {
+      alert('Los datos del DQ Model no están cargados.');
+      return;
+    }
 
     this.isLoading = true;
   
@@ -845,6 +1391,30 @@ export class DQModelConfirmationComponent implements OnInit {
   }
 
 
+  // VISTA: Componentes de Contexto Asociados
+  // Guarda el estado expandido por categoría de componente de contexto para cada elemento del modelo
+  ctxCategoryStates: { [elementId: string]: { [category: string]: boolean } } = {};
+
+  toggleCategory(elementId: string, category: string): void {
+    // Inicializar estructura si no existe
+    if (!this.ctxCategoryStates[elementId]) {
+      this.ctxCategoryStates[elementId] = {};
+    }
+    
+    // Si el estado es undefined (primera vez), establecerlo como false (cerrado)
+    if (this.ctxCategoryStates[elementId][category] === undefined) {
+      this.ctxCategoryStates[elementId][category] = false;
+    } else {
+      // Si ya tiene un estado, invertirlo
+      this.ctxCategoryStates[elementId][category] = !this.ctxCategoryStates[elementId][category];
+    }
+  }
+  
+  isCategoryExpanded(elementId: string, category: string): boolean {
+    // Si el estado es undefined (primera vez), devolver true (abierto por defecto)
+    // Si ya tiene estado, devolver ese valor
+    return this.ctxCategoryStates[elementId]?.[category] ?? true;
+  }
 
 
 }

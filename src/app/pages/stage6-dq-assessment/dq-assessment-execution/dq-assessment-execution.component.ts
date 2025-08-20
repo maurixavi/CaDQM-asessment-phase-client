@@ -1003,46 +1003,44 @@ export class DqAssessmentExecutionComponent implements OnInit {
   getBadgeClass(value: number): string {
     if (value === null || value === undefined) return 'bg-secondary';
     
-    // Solo aplicar colores para valores booleanos (1/0)
+    // Colores para valores booleanos (1/0)
     if (this.thresholdType === 'boolean') {
       return value === 1 ? 'bg-success' : 'bg-danger';
     }
+
+    // Usar los thresholds del método para asignar colores
+    const thresholds = this.selectedMethodDetail?.executionResult?.assessment?.thresholds || [];
+    return this.getColorFromThresholds(value, thresholds);
     
-    return 'bg-secondary';
+    //return 'bg-secondary';
   }
 
-
-  getAssessmentScore0(value: number): string {
-    if (value === null || value === undefined) return 'N/A';
+  getColorFromThresholds(value: number, thresholds: any[]): string {
+    if (thresholds.length === 0) return 'bg-secondary';
     
-    const thresholds = this.selectedMethodDetail?.executionResult?.assessment?.thresholds || [];
+    // Ordenar thresholds por su valor máximo (de menor a mayor)
+    const sortedThresholds = [...thresholds].sort((a, b) => a.max - b.max);
     
-    // Para métricas booleanas
-    if (this.thresholdType === 'boolean') {
-      return value === 1 ? 'Passed' : 'Failed';
-    }
-  
-    // Buscar el threshold que corresponde al valor
-    const matchingThreshold = thresholds.find((t: { min: number; max: number; }) => 
+    // Encontrar el threshold específico donde cae el valor
+    const matchingThreshold = sortedThresholds.find((t: { min: number; max: number }) => 
       value >= t.min && value <= t.max
     );
     
-    return matchingThreshold?.name || 'Not Assessed';
-  }
-
-  isGoodScore(value: number): boolean {
-    const score = this.getAssessmentScore(value);
-    return ['Excellent', 'Good', 'Passed'].includes(score);
-  }
-
-  isWarningScore(value: number): boolean {
-    const score = this.getAssessmentScore(value);
-    return score === 'Fair' || score === 'Acceptable';
-  }
-
-  isBadScore(value: number): boolean {
-    const score = this.getAssessmentScore(value);
-    return ['Poor', 'Failed', 'Not Assessed'].includes(score);
+    if (!matchingThreshold) return 'bg-secondary';
+    
+    // Encontrar la posición de este threshold en la lista ordenada
+    const thresholdIndex = sortedThresholds.findIndex(t => 
+      t.min === matchingThreshold.min && t.max === matchingThreshold.max
+    );
+    
+    // Si es el último threshold (más alto) -> verde
+    if (thresholdIndex === sortedThresholds.length - 1) return 'bg-success';
+    
+    // Si es el primer threshold (más bajo) -> rojo
+    if (thresholdIndex === 0) return 'bg-danger';
+    
+    // Cualquier threshold intermedio -> amarillo
+    return 'bg-warning';
   }
 
 }

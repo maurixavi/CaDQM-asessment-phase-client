@@ -29,19 +29,19 @@
               <td class="project-name" [attr.data-tooltip]="project.description">{{ project.name }}</td>
               <td>{{ project.created_at | date:'MMM d, y' }}</td>
               <td>
-                <span *ngIf="contextInfo[project.context_version]">
-                  {{ contextInfo[project.context_version] }}
+                <span *ngIf="contextInfo[project.context]">
+                  {{ contextInfo[project.context] }}
                 </span>
-                <span *ngIf="!contextInfo[project.context_version] && project.context_version">
-                  {{ project.context_version }} <!-- Mostrar ID como fallback -->
+                <span *ngIf="!contextInfo[project.context] && project.context">
+                  {{ project.context }} <!-- Mostrar ID como fallback -->
                 </span>
-                <span *ngIf="!project.context_version">
+                <span *ngIf="!project.context">
                   -
                 </span>
               </td>
               <td>
                 <span *ngIf="dqModelInfo[project.dqmodel_version]">
-                  {{ dqModelInfo[project.dqmodel_version] }} (id: {{ project.dqmodel_version }})
+                  {{ dqModelInfo[project.dqmodel_version] }} 
                 </span>
                 <span *ngIf="!dqModelInfo[project.dqmodel_version] && project.dqmodel_version">
                   {{ project.dqmodel_version }} <!-- Mostrar ID como fallback -->

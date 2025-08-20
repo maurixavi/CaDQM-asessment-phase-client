@@ -444,7 +444,7 @@ hr.my-4 {
   font-weight: 500;
 }
 
-.dimension-name {
+.label-title-name {
   font-weight: 700;
 }
 
@@ -524,19 +524,6 @@ hr.my-4 {
 }
 
 
-/*
-.label-title-selected {
-  width: 100px;
-  margin-right: 10px;
-}*/
-
-/*
-.label-title-selected {
-  width: 140px;
-  margin-right: 10px;
-  font-weight: 500;
-}*/
-
 .label-title-selected {
   width: auto;
   margin-right: 16px;
@@ -545,7 +532,7 @@ hr.my-4 {
 
 .dimensions-factors-selected-accordion-container .label-title-selected {
   width: 140px;
-  margin-right: 4px;
+  margin-right: 20px;
 }
 
 .dqmodel-preview-details-container .label-title-selected {
