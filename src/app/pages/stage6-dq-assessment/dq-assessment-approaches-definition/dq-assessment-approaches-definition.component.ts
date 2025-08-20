@@ -998,23 +998,6 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
     this.thresholdType = domain === 'boolean' ? 'boolean' : 'percentage';
   }
 
-  /*determineThresholdType(dqValue: any): string {
-    if (dqValue === undefined || dqValue === null) return 'percentage';
-    
-    if (Number.isInteger(dqValue) && dqValue >= 0) {
-      return 'absolute';
-    }
-    
-    if (dqValue > 0 && dqValue <= 1) {
-      return 'percentage_decimal';
-    }
-    
-    if (typeof dqValue === 'number' && !Number.isInteger(dqValue)) {
-      return dqValue > 100 ? 'absolute' : 'percentage';
-    }
-    
-    return 'percentage';
-  }*/
 
   getDQValueType(value: any): string {
     if (value === null || value === undefined) return 'N/A';
@@ -1023,4 +1006,31 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
     if (typeof value === 'boolean') return 'Boolean';
     return 'Unknown';
   }
+
+
+  // VISTA: Componentes de Contexto Asociados
+  // Guarda el estado expandido por categoría de componente de contexto para cada elemento del modelo
+  ctxCategoryStates: { [elementId: string]: { [category: string]: boolean } } = {};
+
+  toggleCategory(elementId: string, category: string): void {
+    // Inicializar estructura si no existe
+    if (!this.ctxCategoryStates[elementId]) {
+      this.ctxCategoryStates[elementId] = {};
+    }
+    
+    // Si el estado es undefined (primera vez), establecerlo como false (cerrado)
+    if (this.ctxCategoryStates[elementId][category] === undefined) {
+      this.ctxCategoryStates[elementId][category] = false;
+    } else {
+      // Si ya tiene un estado, invertirlo
+      this.ctxCategoryStates[elementId][category] = !this.ctxCategoryStates[elementId][category];
+    }
+  }
+  
+  isCategoryExpanded(elementId: string, category: string): boolean {
+    // Si el estado es undefined (primera vez), devolver true (abierto por defecto)
+    // Si ya tiene estado, devolver ese valor
+    return this.ctxCategoryStates[elementId]?.[category] ?? true;
+  }
+
 }

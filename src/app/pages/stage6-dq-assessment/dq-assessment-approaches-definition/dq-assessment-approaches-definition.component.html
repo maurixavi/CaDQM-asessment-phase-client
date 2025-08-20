@@ -56,9 +56,14 @@
             Filter Applied DQ Methods by Threshold definition status 
           </div> 
           
+          <!-- Mensaje cuando no hay métodos pendientes -->
+          <div class="alert alert-success mb-3 mt-4" *ngIf="selectedThresholdStatus === 'pending' && filteredMethodOptions.length === 0">
+            <i class="bi bi-check-circle me-1"></i>
+            All methods already have thresholds defined. There are no pending methods.
+          </div>
         
           <!-- Segundo select -->
-          <div class="label-container" *ngIf="selectedThresholdStatus">
+          <div class="label-container" *ngIf="selectedThresholdStatus && filteredMethodOptions.length">
             <div class="label mt-3" *ngIf="selectedThresholdStatus">
               <label class="label-title">Applied DQ Method:</label>
               <span class="label-value d-flex align-items-center">
@@ -76,9 +81,9 @@
             </div>
           </div>
           
-          
+        
           <!-- Segundo mensaje -->
-          <div class="alert alert-light mb-3 mt-4" *ngIf="selectedThresholdStatus && !selectedMethodId">
+          <div class="alert alert-light mb-3 mt-4" *ngIf="selectedThresholdStatus && !selectedMethodId && filteredMethodOptions.length">
             <i class="bi bi-info-circle me-1"></i>
             Select an Applied DQ Method to view/define their thresholds
           </div> 
@@ -233,57 +238,59 @@
                 DQ Assessment approaches:
               </h6> 
 
-              <!-- Assessment Thresholds Guidance -->
-              <div>
-                <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-                  <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-                  </symbol>
-                  <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
-                  </symbol>
-                  <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-                  </symbol>
-                </svg>
-              
-                <div class="alert-tip-message alert alert-primary" role="alert">
-                  <svg class="bi flex-shrink-0 me-2" width="20" height="20" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
-                  <div>
-                    <strong>Assessment Thresholds Guidance</strong>
-                    <p>Define data quality evaluation criteria by specifying thresholds (value ranges) and corresponding quality ratings (e.g., "Excellent", "Good", "Poor").</p>
-                    <ul class="mb-1">
-                      <li>Thresholds should reflect your DQ requirements and business rules</li>
-                      <li>Consider different user profiles that may require different thresholds</li>
-                      <li>Example: For "Email Completeness", you might set:
-                        <ul>
-                          <li>90-100% → "Excellent" (fully meets requirements)</li>
-                          <li>80-89% → "Good" (acceptable with minor issues)</li>
-                          <li>0-79% → "Poor" (needs improvement)</li>
-                        </ul>
-                      </li>
-                    </ul>
-                    <p class="mb-0">These thresholds will be used to evaluate the DQ measurement results.</p>
-                  </div>
+              <!-- Assessment Thresholds Guidance Info -->  
+              <div class="alert alert-info mb-3 mt-4">
+                <div>
+                  <span><i class="bi bi-info-circle me-1"></i> <span>Define data quality evaluation criteria by specifying thresholds (value ranges) and corresponding quality ratings (e.g., "Excellent", "Good", "Poor").</span></span>
+                  
+                  <ul class="mb-1">
+                    <li>Thresholds should reflect your DQ requirements and business rules</li>
+                    <li>Consider different user profiles that may require different thresholds</li>
+                    <li>Example: For "Email Completeness", you might set:
+                      <ul>
+                        <li>90-100% → "Excellent" (fully meets requirements)</li>
+                        <li>80-89% → "Good" (acceptable with minor issues)</li>
+                        <li>0-79% → "Poor" (needs improvement)</li>
+                      </ul>
+                    </li>
+                  </ul>
+                  <p class="mb-0">These thresholds will be used to evaluate the DQ measurement results.</p>
                 </div>
-              </div>
+              </div> 
  
               <div class="label-selected">
-                <label class="label-title-selected-ctx">Context components:</label>
+                <label class="label-title-selected-ctx">Uses (Ctx. Components):</label>
               </div>
               <div class="label-selected">
                 <span class="label-value-selected">
-                  <ul>
-                    <li *ngFor="let category of getContextComponentCategories(selectedMethodDetail.context_components)">
-                      {{ formatCtxCompCategoryName(category) }}:
-                      <ul>
-                        <li *ngFor="let componentId of selectedMethodDetail.context_components[category]">
-                          {{ getFirstAttribute(category, componentId) }}
-                          <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)" style="text-decoration: none;">
-                            <i class="bi bi-zoom-in"></i> 
-                          </a>
-                        </li>
-                      </ul>
+                  <ul class="no-bullets">
+                    <li *ngFor="let category of getContextComponentCategories(selectedMethodDetail.context_components)" class="mb-1">
+                        <span
+                            class="fst-italic"
+                            (click)="toggleCategory(selectedMethodDetail.id, category)"
+                            style="cursor: pointer;"
+                        >
+                            <i
+                                class="bi"
+                                [ngClass]="{
+                                    'bi-chevron-down': isCategoryExpanded(selectedMethodDetail.id, category),
+                                    'bi-chevron-right': !isCategoryExpanded(selectedMethodDetail.id, category)
+                                }"
+                            ></i>
+                            {{ formatCtxCompCategoryName(category) }}:
+                        </span>
+                        
+                        <!-- Componentes de Contexto para una categoria -->
+                        <ul *ngIf="isCategoryExpanded(selectedMethodDetail.id, category)" class="no-bullets px-3 ms-3">
+                            <li *ngFor="let componentId of selectedMethodDetail.context_components[category]">
+                                {{ getFirstAttribute(category, componentId) }}
+                                <a href="javascript:void(0)" 
+                                   (click)="openContextComponentModal(category, componentId)" 
+                                   style="text-decoration: none;">
+                                    <i class="bi bi-zoom-in"></i> 
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                   </ul>
                 </span>

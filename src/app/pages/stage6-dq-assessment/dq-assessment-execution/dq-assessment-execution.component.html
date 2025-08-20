@@ -53,10 +53,16 @@
             <i class="bi bi-info-circle me-1"></i>
             Filter Applied DQ Methods by assessment execution status 
           </div> 
+
+          <!-- Mensaje cuando no hay métodos pendientes -->
+          <div class="alert alert-success mb-3 mt-4" *ngIf="selectedAssessmentStatus === 'pending' && filteredMethodOptions.length === 0">
+            <i class="bi bi-check-circle me-1"></i>
+            DQ assessment completed. There are no pending Applied DQ Methods to execute.
+          </div>
           
           <br>
           
-          <div class="label-container" *ngIf="selectedAssessmentStatus">
+          <div class="label-container" *ngIf="selectedAssessmentStatus && filteredMethodOptions.length">
             <div class="label">
               <label class="label-title">Applied DQ Method:</label>
               <span class="label-value d-flex align-items-center">
@@ -75,10 +81,16 @@
           </div>
           <br>
           
-          <div class="alert alert-light mb-3 mt-4" *ngIf="selectedAssessmentStatus && !selectedMethodId">
+          <div class="alert alert-light mb-3 mt-4" *ngIf="selectedAssessmentStatus === 'pending' && filteredMethodOptions.length > 0 && !selectedMethodId">
             <i class="bi bi-info-circle me-1"></i>
             Select an Applied DQ Method to execute the DQ assessment approaches
           </div> 
+
+          <div class="alert alert-light mb-3 mt-1" *ngIf="selectedAssessmentStatus === 'completed' && filteredMethodOptions.length > 0 && !selectedMethodId">
+            <i class="bi bi-info-circle me-1"></i>
+            Select an Applied DQ Method to view the DQ assessment results
+          </div> 
+
         </div>
 
         <!-- Sección para mostrar el método seleccionado -->

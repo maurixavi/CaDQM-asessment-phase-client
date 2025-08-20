@@ -73,8 +73,8 @@
           </div>
 
           <div class="alert alert-success" *ngIf="measurementExecutions.length > 0 && selectedStatus == 'pending' && filteredMethods.length === 0">
-            <i class="bi bi-info-circle me-1"></i>
-            DQ measurement completed. There are no pending Applied DQ Methods to execute
+            <i class="bi bi-check-circle me-1"></i>
+            DQ measurement completed. There are no pending Applied DQ Methods to execute.
           </div>
 
           <div class="alert alert-warning" *ngIf="selectedStatus === 'completed' && filteredMethods.length === 0">
