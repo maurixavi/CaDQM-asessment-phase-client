@@ -6,32 +6,11 @@
   font-size: 0.9rem; 
 }
 
-
 .btn {
 	font-size: 0.9rem;
   font-weight: 500;
 }
 
-/*
-.btn-context {
-  font-size: 1rem;
-  position: fixed;  
-  right: 40px;
-  bottom: 40px;
-  z-index: 1000;  
-  padding: 16px 18px 16px 18px ; 
-  background-color: #888;  
-  color: #fff;  
-  border: none; 
-  border-radius: 100px;  
-  cursor: pointer;  
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.btn-context:hover {
-  background-color: #666; 
-  color: #fff;
-}*/
 .btn-context {
   font-size: 1rem;
   position: fixed;
@@ -164,7 +143,7 @@
 
 .accordion .accordion-button {
   padding: 0.5rem 1rem;
-  font-size: 0.9rem;
+  font-size: 15px;
 }
 
 .accordion .accordion-body {
@@ -173,5 +152,25 @@
 
 .list-group-item {
   padding: 0.5rem 1rem;
-  font-size: 0.85rem;
+  font-size: 14px;
+}
+
+/* Cambiar el color de fondo del botón del acordeón cuando está abierto */
+.accordion-button:not(.collapsed) {
+  background-color: #f8f9fa !important; /* Gris claro */
+  color: #000 !important; /* Texto negro */
+  border-color: #dee2e6 !important;
+}
+
+
+
+/* Quitar el box-shadow azul por defecto */
+.accordion-button:focus {
+  box-shadow: none !important;
+  border-color: #dee2e6 !important;
+}
+
+/* Opcional: Cambiar el color del ícono del acordeón */
+.accordion-button:not(.collapsed)::after {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000000'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e") !important;
 }

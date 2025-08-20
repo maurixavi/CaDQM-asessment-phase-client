@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ContextComponentsService } from './context-components.service';
 import { ChangeDetectorRef } from '@angular/core';
-import { DqModelService } from '../../services/dq-model.service';
-import { Router } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { ProjectDataService } from '../../services/project-data.service';
 import { buildContextComponents, formatCtxCompCategoryName, getFirstNonIdAttribute } from '../../shared/utils/utils';
@@ -45,8 +43,6 @@ export class ContextComponentsComponent implements OnInit {
 
   constructor(
     private contextService: ContextComponentsService,
-    private router: Router,
-    private modelService: DqModelService,
     private projectService: ProjectService,
     private projectDataService: ProjectDataService,
     private cdr: ChangeDetectorRef
