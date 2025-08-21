@@ -101,6 +101,8 @@ export class DQModelConfirmationComponent implements OnInit {
     this.projectId = this.projectDataService.getProjectId();
     this.subscribeToData();
 
+    this.subscribeToDQModelStatus();
+
     // Sincronizar el paso actual con la ruta
     this.syncCurrentStepWithRoute();
   }
@@ -156,6 +158,19 @@ export class DQModelConfirmationComponent implements OnInit {
   
   }
 
+  subscribeToDQModelStatus(): void {
+    this.modelService.dqModelStatus$.subscribe(updatedModel => {
+      if (updatedModel && this.currentDQModel && updatedModel.id === this.currentDQModel.id) {
+        console.log('DQModel actualizado:', updatedModel);
+        
+        // Actualizar el estado local con TODOS los campos
+        this.currentDQModel = { ...this.currentDQModel, ...updatedModel };
+
+        
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
   // =============================================
   // MÉTODOS DE CARGA DE DATOS

@@ -9,7 +9,6 @@
 	</app-step-navigator>
 
 	<div>
-		
 		<p 
 			*ngIf="completeDQModel?.model.status === 'draft'"
 			class="subtitle-description mt-4">
@@ -55,7 +54,11 @@
 						</div>
 						<div class="label-selected">
 							<label class="label-title-selected">Context version:</label>
-							<span class="label-value-selected">{{ contextVersion?.name }} {{ contextVersion?.version }}</span>
+							<span class="label-value-selected">{{ contextVersion?.name }} {{ contextVersion?.version }}
+								<a href="javascript:void(0)" (click)="contextModal.openModal()" style="text-decoration: none;">
+                  <i class="bi bi-zoom-in"></i>
+              	</a>
+							</span>
 						</div>
 						<div class="label-selected">
 							<label class="label-title-selected">Data at hand:</label>
@@ -578,8 +581,7 @@
   </div>
 </app-modal>
 
-<!--<app-context-components></app-context-components>-->
-
+<app-context-components #contextModal></app-context-components>
 
 <app-stepper
   [currentStep]="currentStep"

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, throwError, forkJoin } from 'rxjs';
+import { Observable, of, throwError, forkJoin, BehaviorSubject } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 
 interface DQModel {
@@ -237,8 +237,35 @@ export class DqModelService {
     );
   }
 
-  // Método para finalizar un DQ Model
+  // BehaviorSubject solo para notificar cambios de estado
+  private dqModelStatusSubject = new BehaviorSubject<{id: number, status: string} | null>(null);
+  public dqModelStatus$ = this.dqModelStatusSubject.asObservable();
+
+  // Método para finalizar un DQ Model (MODIFICADO)
   finishDQModel(dqmodelId: number): Observable<any> {
+    const url = `${this.API_URL_DQMODELS}${dqmodelId}/`;
+    const updatedData = { status: 'finished' }; 
+
+    return this.http.patch<any>(url, updatedData).pipe(
+      tap(updatedModel => {
+        // Actualizar el caché local
+        this.currentDQModel = updatedModel;
+        
+        // Notificar el cambio de estado a los suscriptores
+        this.dqModelStatusSubject.next({
+          id: updatedModel.id,
+          status: updatedModel.status
+        });
+      }),
+      catchError((err) => {
+        console.error(`Error al finalizar el DQ Model ${dqmodelId}:`, err);
+        throw err;
+      })
+    );
+  }
+
+  // Método para finalizar un DQ Model
+  finishDQModel0(dqmodelId: number): Observable<any> {
     const url = `${this.API_URL_DQMODELS}${dqmodelId}/`;
     const updatedData = { status: 'finished' }; 
 
