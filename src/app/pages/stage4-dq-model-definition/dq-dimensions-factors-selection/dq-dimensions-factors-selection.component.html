@@ -1041,7 +1041,15 @@
         <!-- DQ DIMENSIONS and DQ FACTORS ADDED to DQ MODEL -->
         <div>
           <div class="label-container-selected py-2 px-4">
-            <div  *ngIf="currentDQModel && project" >
+
+            <!-- Spinner de carga -->
+            <div *ngIf="!currentDQModel" class="text-center">
+              <div class="spinner-border" role="status">
+                <span class="sr-only"></span>
+              </div>
+            </div>
+            
+            <div *ngIf="currentDQModel && project" >
               <div class="dqmodel-title">
                 <span class="label-name-dqmodel">{{ currentDQModel?.name }} {{ currentDQModel?.version }}</span>
                 <span *ngIf="currentDQModel.status === 'finished'" class="badge rounded-pill bg-dark">Finished</span>
@@ -1076,8 +1084,16 @@
               </div>
             </div>
 
-            <!-- Accordion DIMENSIONS DQMODEL -->
-            <div  *ngIf="dimensionsWithFactorsInDQModel" class="dimensions-factors-selected-accordion-container">
+            <!-- Dimensiones DQ Model -->
+
+            <!-- Spinner de carga -->
+            <div *ngIf="!dimensionsWithFactorsInDQModel" class="text-center">
+              <div class="spinner-border" role="status">
+                <span class="sr-only"></span>
+              </div>
+            </div>
+
+            <div *ngIf="dimensionsWithFactorsInDQModel" class="dimensions-factors-selected-accordion-container">
               <div class="accordion mx-1 mt-1" id="accordionDimensions">
                 <div class="accordion-item mb-2" *ngFor="let dim of dimensionsWithFactorsInDQModel; let i = index"
                 style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
@@ -1445,8 +1461,6 @@
 
                       </ng-template>
 
-
-                      
                       <br>
                       <div *ngIf="currentDQModel?.status === 'draft'">
                         <div class="d-flex gap-2 mt-3 mb-2">
