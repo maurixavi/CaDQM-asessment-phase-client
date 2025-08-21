@@ -37,6 +37,7 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
   currentStep = 0;
   isNextStepEnabled = true;
   isLoading = false;
+  hasLoadedAppliedMethods = false;
   isLoadingResults = false;
   isModalOpen = false;
   considerContext = false;
@@ -339,7 +340,7 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
                 this.isLoading = false;
                 console.log('✅ Todos los executionResults actualizados');
                 this.cdr.detectChanges();
-  
+                this.hasLoadedAppliedMethods = true;
                 this.filterMethodsByThresholdsDefined();
               },
               error: (err) => {

@@ -227,60 +227,10 @@
     </div>
 
 
-  <!-- Tabla de Métodos Aplicados 
-  <div *ngIf="selectedTable" class="table-responsive mt-3">
-    <table class="table table-hover table-bordered">
-      <thead class="table-light">
-        <tr>
-          <th>Column</th>
-          <th>Data Type</th>
-          <th>Applied DQ Methods</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let column of getTableColumnsWithMethods()">
-          <td>{{column.column_name}}
-            <br>
-            <small class="text-muted">{{column.data_type}}</small>
-          </td>
-          <td>{{column.data_type}}</td>
-          <td>
-            <div *ngFor="let method of column.methods" class="method-item mb-2">
-              <div class="d-flex justify-content-between align-items-center">
-                <span>
-                  {{method.name}} ({{method.dqMethod}})
-                  <br>
-                  <small class="text-muted">{{method.dqDimension}} • {{method.granularity}}</small>
-                </span>
-                <span class="badge bg-primary rounded-pill" *ngIf="executionResults">
-                  {{getMethodResultValue(method.id) | number:'1.2-2'}}
-                </span>
-              </div>
-            </div>
-            <div *ngIf="column.methods.length === 0" class="text-muted">
-              No methods applied
-            </div>
-          </td>
-          <td>
-            <button *ngFor="let method of column.methods" 
-                    class="btn btn-sm btn-outline-primary me-2 mb-2"
-                    (click)="selectMethod(method)">
-              <i class="bi bi-eye"></i> View Details
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div> -->
-
-
 </div> 
 
 
               <!-- Method Selector (solo para vista By Applied Method) -->
-              <!--
-              <div class="label-container" *ngIf="selectedGranularity && filteredMethods.length > 0 && !selectedTable"> -->
               <div class="label-container" 
               *ngIf="resultsView === 'by_method' && selectedGranularity && filteredMethods.length > 0 && !selectedTable">
                 <div class="label mt-2">
@@ -407,21 +357,10 @@
                           <!-- Valor único -->
                           <div *ngIf="selectedMethodDetail.executionResult.displayType === 'single'">
                             <span class="badge bg-primary">
-                              <!--{{ selectedMethodDetail.executionResult.dq_value }}-->
                               {{ (selectedMethodDetail.executionResult.dq_value) | number:'1.2-2' }}
                             </span>
-                            <!--<div *ngIf="selectedMethodDetail.executionResult.columnDetails" class="mt-2 small text-muted">
-                              Table: {{ selectedMethodDetail.executionResult.columnDetails.tableName }} |
-                              Column: {{ selectedMethodDetail.executionResult.columnDetails.columnName }} |
-                              Assessment: {{ selectedMethodDetail.executionResult.columnDetails.assessment }}
-                            </div>-->
                           </div>
-                          <!-- <div *ngIf="selectedMethodDetail.executionResult.displayType === 'single'">
-                            <span class="badge bg-primary">
-                              {{ selectedMethodDetail.executionResult.dq_value }}
-                            </span>
-                          </div>-->
-  
+
                           <!-- Valores múltiples -->
                           <div *ngIf="selectedMethodDetail.executionResult.displayType === 'multiple'">
                             <span class="badge bg-primary cursor-pointer"

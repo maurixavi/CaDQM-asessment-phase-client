@@ -37,6 +37,7 @@ export class DqAssessmentExecutionComponent implements OnInit {
   currentStep = 1;
   isNextStepEnabled = true;
   isLoading = false;
+  hasLoadedAppliedMethods = false;
   isLoadingResults = false;
   isModalOpen = false;
   considerContext = false;
@@ -69,10 +70,8 @@ export class DqAssessmentExecutionComponent implements OnInit {
 
   thresholdType = 'percentage';
   thresholdTypes = [
-    /*{ value: 'percentage', label: 'Percentage (0-100%)', max: 100, step: 1 },*/
     { value: 'percentage', label: 'Proportion (0.0 - 1.0)', max: 1, step: 0.01 },
     { value: 'boolean', label: 'Absolute Value {0,1}', max: 1, step: 1 },
-    /*{ value: 'boolean', label: 'Boolean', max: null, step: null }*/
   ];
 
   defaultThresholds = [
@@ -94,22 +93,6 @@ export class DqAssessmentExecutionComponent implements OnInit {
         ];
   }
   
-  /*getDefaultThresholds(resultDomain: string): any[] {
-    switch(resultDomain?.toLowerCase()) {
-      case 'boolean':
-        return [
-          { name: 'Acceptable', minValue: 1, maxValue: 1, isPassing: true },
-          { name: 'Unacceptable', minValue: 0, maxValue: 0, isPassing: false }
-        ];
-      default:
-        return [
-          { name: 'Excellent', minValue: 0.80, maxValue: 1, isPassing: true },
-          { name: 'Good', minValue: 0.60, maxValue: 0.79, isPassing: true },
-          { name: 'Poor', minValue: 0, maxValue: 0.59, isPassing: false }
-        ];
-    }
-  }*/
-
   qualityThresholds = [...this.defaultThresholds];
   areThresholdsEditable = true;
   selectedUserType = [];
@@ -194,9 +177,6 @@ export class DqAssessmentExecutionComponent implements OnInit {
   }
 
   // ========== EXECUTION CHANGE HANDLERS ==========
-  /*private executedIds: number[] = [];
-  private pendingIds: number[] = [];*/
-
   fetchExecutionAppliedMethods(): void {
     if (!this.selectedExecution || !this.dqModelVersionId) return;
   
@@ -317,6 +297,9 @@ export class DqAssessmentExecutionComponent implements OnInit {
               next: () => {
                 this.isLoading = false;
                 console.log('✅ Todos los executionResults actualizados');
+
+                this.hasLoadedAppliedMethods = true;
+
                 this.cdr.detectChanges();
   
                 this.filterMethodsByAssessmentStatus();

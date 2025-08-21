@@ -14,9 +14,17 @@
     
     <div class="flex-container">
       <div class="section-container">
+
+        <!-- Spinner de carga Metodos antes de habilitar filtros -->
+        <div *ngIf="!hasLoadedAppliedMethods" class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="sr-only"></span>
+          </div>
+          <p class="ms-2">Loading data...</p>
+        </div>
+
         <!-- Filtro de estado -->
-        <!-- Reemplazar el select actual por este grupo de botones -->
-        <div>
+        <div *ngIf="hasLoadedAppliedMethods">
           <div class="label-container">
             <div class="label">
               <label class="label-title">Thresholds definition Status:</label>
@@ -62,7 +70,7 @@
             All methods already have thresholds defined. There are no pending methods.
           </div>
         
-          <!-- Segundo select -->
+          <!-- Select Applied DQ Method -->
           <div class="label-container" *ngIf="selectedThresholdStatus && filteredMethodOptions.length">
             <div class="label mt-3" *ngIf="selectedThresholdStatus">
               <label class="label-title">Applied DQ Method:</label>
@@ -158,14 +166,14 @@
                         <ng-container *ngIf="selectedMethodDetail?.executionResult">
                           <!-- Caso simple -->
                           <div *ngIf="selectedMethodDetail.executionResult.displayType === 'single'">
-                            <span class="badge bg-primary">
+                            <span class="badge bg-primary fw-medium">
                               {{ selectedMethodDetail.executionResult.dq_value | number:'1.2-2' }} 
                             </span>
                           </div>
                           
                           <!-- Caso múltiple -->
                           <div *ngIf="selectedMethodDetail.executionResult.displayType === 'multiple'">
-                            <span class="badge bg-primary cursor-pointer" 
+                            <span class="badge bg-primary fw-medium cursor-pointer" 
                                   (click)="toggleMultipleResults()"
                                   [attr.title]="'Ver detalles de ' + selectedMethodDetail.executionResult.total_rows + ' filas'">
                               {{ selectedMethodDetail.executionResult.total_rows }} values
@@ -350,7 +358,7 @@
                   <div *ngIf="thresholdType === 'boolean'" class="row mt-2">
                     <div class="col-md-12">
                       <div class="alert alert-info">
-                        For boolean metrics, only "Pass test?" is relevant (true/false)
+                        <i class="bi bi-info-circle me-1"></i> For boolean metrics, only "Pass test?" is relevant (true/false)
                       </div>
                     </div>
                   </div>

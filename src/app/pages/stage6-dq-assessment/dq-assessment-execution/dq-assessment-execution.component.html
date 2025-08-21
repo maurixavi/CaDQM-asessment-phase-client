@@ -14,8 +14,17 @@
     
     <div class="flex-container">
       <div class="section-container">
+
+        <!-- Spinner de carga Metodos antes de habilitar filtros -->
+        <div *ngIf="!hasLoadedAppliedMethods" class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="sr-only"></span>
+          </div>
+          <p class="ms-2">Loading data...</p>
+        </div>
+
         <!-- Filtro de estado -->
-        <div>
+        <div *ngIf="hasLoadedAppliedMethods">
           <div class="label-container">
             <div class="label">
               <label class="label-title">Assessment Status:</label>
@@ -160,13 +169,13 @@
                       <td>
                         <ng-container *ngIf="selectedMethodDetail?.executionResult">
                           <div *ngIf="selectedMethodDetail.executionResult.displayType === 'single'">
-                            <span class="badge bg-primary">
+                            <span class="badge bg-primary fw-medium">
                               {{ selectedMethodDetail.executionResult.dq_value | number:'1.2-2' }} 
                             </span>
                           </div>
                           
                           <div *ngIf="selectedMethodDetail.executionResult.displayType === 'multiple'">
-                            <span class="badge bg-primary cursor-pointer" 
+                            <span class="badge bg-primary cursor-pointer fw-medium" 
                                   (click)="toggleMultipleResults()"
                                   [attr.title]="'Ver detalles de ' + selectedMethodDetail.executionResult.total_rows + ' filas'">
                               {{ selectedMethodDetail.executionResult.total_rows }} values
@@ -250,33 +259,11 @@
                 <div class="label-selected">
                   <label class="label-title-selected">Assessement score:</label>
                   <span class="label-value-selected">
-                    <span class="badge" [ngClass]="getBadgeClass(selectedMethodDetail.executionResult.dq_value)">
+                    <span class="badge fw-medium" [ngClass]="getBadgeClass(selectedMethodDetail.executionResult.dq_value)">
                       {{ getAssessmentScore(selectedMethodDetail.executionResult.dq_value) }}
                     </span>
                   </span>
                 </div>
-                <!--
-                <div class="assessment-result-card p-3 border rounded bg-light">
-                  <div class="row">
-                    <div class="col-md-6">
-                      <strong>DQ Value:</strong> 
-                      <span class="badge bg-primary ms-2">
-                        {{ selectedMethodDetail.executionResult.dq_value | number:'1.2-2' }}
-                      </span>
-                    </div>
-                    <div class="col-md-6">
-                      <strong>Assessment Score:</strong>
-                      <span class="badge" 
-                            [ngClass]="{
-                              'bg-success': isGoodScore(selectedMethodDetail.executionResult.dq_value),
-                              'bg-warning': isWarningScore(selectedMethodDetail.executionResult.dq_value),
-                              'bg-danger': isBadScore(selectedMethodDetail.executionResult.dq_value)
-                            }">
-                        {{ getAssessmentScore(selectedMethodDetail.executionResult.dq_value) }}
-                      </span>
-                    </div>
-                  </div>
-                </div>-->
               </div>
 
               <!-- Multiple Results Assessment -->
@@ -301,7 +288,7 @@
                         <td>{{ getColumnByRow(row) }}</td>
                         <td>{{ getDqValue(row)}}</td>
                         <td>
-                          <span class="badge" [ngClass]="getBadgeClass(getDqValue(row))">
+                          <span class="badge fw-medium" [ngClass]="getBadgeClass(getDqValue(row))">
                             {{ getAssessmentScore(getDqValue(row)) }}
                           </span>
                         </td>
@@ -382,7 +369,7 @@
                   <div *ngIf="thresholdType === 'boolean'  && i === 1" class="row mt-2">
                     <div class="col-md-12">
                       <div class="alert alert-info">
-                        For boolean metrics, only "Pass test?" is relevant (true/false)
+                        <i class="bi bi-info-circle me-1"></i> For boolean metrics, only "Pass test?" is relevant (true/false)
                       </div>
                     </div>
                   </div>
