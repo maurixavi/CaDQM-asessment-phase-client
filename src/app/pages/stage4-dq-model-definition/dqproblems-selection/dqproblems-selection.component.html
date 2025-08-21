@@ -23,18 +23,13 @@
               (*) In the selection section indicates that the DQ problem was already added. 
             </div>
           </div>
-          <!--
-          <div *ngIf="selectedPrioritizedDQProblems.length !== 0" class="alert alert-warning mb-4 mt-4 d-flex align-items-start">
-            <i class="bi bi-info-circle me-2 mt-1"></i>
-            <div>
-              (*) Indicates that the DQ Problem was already selected for this model version. If one of these problems is also associated with a dimension or factor, it cannot be removed unless it is first unassigned from all of them.
-            </div>
-          </div> -->
         
           <div class="alert alert-info mb-4 mt-4 d-flex align-items-start">
             <i class="bi bi-info-circle me-2 mt-1"></i>
-            <div>Prioritization must be very careful, as wrong prioritization of DQ problems can result in a DQ model
+            <div *ngIf="completeDQModel?.model?.status === 'draft'">Prioritization must be very careful, as wrong prioritization of DQ problems can result in a DQ model
               not representative of the relevant DQ problems of the organization. Proper prioritization helps identify key DQ dimensions and factors.
+            </div>
+            <div *ngIf="completeDQModel?.model?.status === 'finished'">Proper prioritization of DQ Problems helps identify key DQ dimensions and factors.
             </div>
           </div>
 

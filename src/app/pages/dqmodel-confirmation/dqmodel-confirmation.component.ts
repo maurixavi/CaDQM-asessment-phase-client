@@ -48,6 +48,7 @@ export class DQModelConfirmationComponent implements OnInit {
 
   isNextStepEnabled: boolean = false;
   isLoading: boolean = true; 
+  hasProjectLoaded: boolean = false;  
   
   // Datos del proyecto
   project: any; 
@@ -119,6 +120,7 @@ export class DQModelConfirmationComponent implements OnInit {
   subscribeToData(): void {
     this.projectDataService.project$.subscribe((data) => {
       this.project = data;
+      this.hasProjectLoaded = true;  
       if (this.project) {
         this.fetchDataAtHandDetails(this.project.data_at_hand);
       }

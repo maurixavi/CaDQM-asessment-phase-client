@@ -1,6 +1,6 @@
 <div class="step-navigator">
   <nav>
-    <span>{{ stageTitle }}:</span>
+    <span class="text-dark">{{ stageTitle }}:</span>
     <ul class="step-list">
       <li *ngFor="let step of steps; let i = index" 
           [ngClass]="{'active': i === currentStep}">

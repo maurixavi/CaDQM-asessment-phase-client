@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DqModelService } from '../../services/dq-model.service';
 import { ProjectService } from '../../services/project.service';
-import { FormBuilder, FormGroup } from '@angular/forms';
 import { ProjectDataService } from '../../services/project-data.service';
 import { NotificationService } from '../../services/notification.service';
 import { combineLatest } from 'rxjs';
@@ -22,7 +21,7 @@ export class DashboardComponent implements OnInit {
   // =============================================
   // Datos iniciales para crear un DQ Model
   newDQModel = {
-    name: 'NUEVO MODELO',
+    name: 'DQ Model',
     version: '1.0.0',
     status: "draft",
     model_dimensions: [],
@@ -139,7 +138,6 @@ export class DashboardComponent implements OnInit {
 
     this.projectDataService.contextComponents$.subscribe((data) => {
       this.contextComponents = data;
-      console.log("this.contextComponents (db)", this.contextComponents)
     });
 
     // Suscribirse a los problemas de calidad de datos (DQ Problems)
@@ -153,22 +151,15 @@ export class DashboardComponent implements OnInit {
     .subscribe(([problems, dqModelVersionId]) => {
       this.dqProblems = problems;
       this.dqModelVersionId = dqModelVersionId;
-
-      console.log("this.dqProblems", this.dqProblems)
       if (this.projectId) {
         this.fetchPrioritizedDQProblems(this.projectId);
       }
-
-      /*if (this.dqModelVersionId) {
-        this.fetchDQModelDetails(this.dqModelVersionId);
-      }*/
     });
 
-
-    // Suscribirse al esquema de datos
     this.projectDataService.dataSchema$.subscribe((data) => {
       this.dataSchema = data;
     });
+
   }
 
   // =============================================
@@ -249,7 +240,6 @@ export class DashboardComponent implements OnInit {
       (dqModel) => {
         this.dqModelNextVersion = dqModel;
         if (this.dqModelNextVersion) {
-          //console.log('Next DQModel version:', this.dqModelNextVersion);
           this.fetchProjectByDQModelVersion(this.dqModelNextVersion.id, 'next')
         } 
       },
@@ -270,13 +260,8 @@ export class DashboardComponent implements OnInit {
       console.warn(`No project found for DQ Model ${type} version`);
       return;
     }
-  
-    console.log("selectedProject", selectedProject)
+
     this.projectDataService.setProjectId(selectedProject.id);
-    console.log("Navigating to confirmation with projectId:", selectedProject.id);
-    //this.router.navigate(['/st4/confirmation-stage-4']);
-    //this.router.navigate(['/phase2/dashboard']);
-    
   }
 
   selectProjectWithDQModelVersion2(type: 'previous' | 'next'): void {
@@ -336,22 +321,17 @@ export class DashboardComponent implements OnInit {
         this.notificationService.showSuccess('DQ Model was successfully created');
 
         const newDQModelId = response.id;
-        console.log('Id nuevo DQ Model creado:', newDQModelId);
-        console.log('Proyecto antes de actualizar:', this.project);
 
         if (this.projectId !== null) {
           this.assignDQModelToProject(this.projectId, newDQModelId);
-          console.log('Proyecto despues de actualizar:', this.project);
         } else {
           console.error("No se ha establecido un ID de proyecto válido.");
         }
- 
         this.closeDQModelModal();
 
       },
       error: err => {
         console.error('Error al crear el modelo DQ:', err);
-        //alert('Ocurrió un error al crear el modelo DQ.');
         this.notificationService.showError('Failed to create DQ Model');
       }
     });
@@ -385,19 +365,15 @@ export class DashboardComponent implements OnInit {
           console.error("No se ha establecido un ID de proyecto válido.");
         }
  
-        //Go to first DQ Model definition Activity
         this.router.navigate(['/st4/dq-problems-priorization']);
 
       },
       error: err => {
         console.error('Error al crear el modelo DQ:', err);
-        //alert('Ocurrió un error al crear el modelo DQ.');
         this.notificationService.showError('Failed to create DQ Model');
       }
     });
   }
-
-
 
   //Proyecto sin DQ Model - Asignar nuevo DQ Model
   assignDQModelToProject(projectId: number | null, dqmodelId: number) {
@@ -411,16 +387,9 @@ export class DashboardComponent implements OnInit {
         ...this.project,
         dqmodel_version: dqmodelId
       };
-
-      console.log('Proyecto antes de actualizar:', this.project);
-
-      
+ 
       this.projectService.updateProject(projectId, updatedProject).subscribe({
         next: updatedProject => {
-          console.log('Project actualizado:', updatedProject);
-          // alert('DQModel asignado al Project con éxito.');
-          
-
           // Actualizar el BehaviorSubject con el proyecto actualizado
           this.projectDataService.setProjectId(updatedProject.id);
         },
@@ -457,19 +426,13 @@ export class DashboardComponent implements OnInit {
 
     this.modelService.createDQModel(newDQModel).subscribe({
       next: response => {
-        console.log('DQ Model creado exitosamente:', response);
-        //alert('Modelo DQ creado con éxito.');
-
         this.notificationService.showSuccess('DQ Model version was successfully created');
-  
         const newDQModelId = response.id;
-        console.log('Id nuevo DQ Model creado:', newDQModelId);
   
         //Create new Project for this DQ Model
         this.openNewProjectModal();
 
         this.pendingDQModelId = newDQModelId;
-      
       },
       error: err => {
         console.error('Error al crear el modelo DQ:', err);
@@ -543,15 +506,10 @@ export class DashboardComponent implements OnInit {
       return '0.0.0';
     }
   }
-  
-
 
   // =============================================
   // 7. MÉTODOS DE ASIGNACIÓN Y PROYECTOS
   // =============================================
-
-
-  //-------------------------------
 
   // Crea Proyecto y asocia a la nueva version del DQ Model creado
   createProjectWithDQModel(): void {
@@ -566,11 +524,9 @@ export class DashboardComponent implements OnInit {
       this.newProject.name,
       this.newProject.description,
       this.pendingDQModelId,
-      //this.project?.context_version,
       this.project?.context,
       this.project?.user,
       this.project?.data_at_hand,
-     // this.project?.estimation
 
     ).subscribe({
       next: (newProject) => {
@@ -620,7 +576,6 @@ export class DashboardComponent implements OnInit {
       next: (newProject) => {
         this.isLoading = true; 
         const newProjectId = newProject.id;
-        //this.projectDataService.setProjectId(newProjectId);
   
         // Obtiene y copia DQ Problems del proyecto actual
         this.projectService.getPrioritizedDQProblemsByProjectId(newProject.id).subscribe({
@@ -737,7 +692,6 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-
   // =============================================
   // 9. NAVEGACIÓN
   // =============================================
@@ -758,7 +712,7 @@ export class DashboardComponent implements OnInit {
   }
 
   navigateToDQModelView() {
-    this.router.navigate(['phase/st4/dq-model']); 
+    this.router.navigate(['phase2/st4/dq-model']); 
   }
 
   // Close Project -> Navigate to Homepage

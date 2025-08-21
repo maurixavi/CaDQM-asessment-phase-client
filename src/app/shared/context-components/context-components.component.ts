@@ -13,6 +13,7 @@ declare var bootstrap: any;
   styleUrls: ['./context-components.component.css'],
 })
 export class ContextComponentsComponent implements OnInit {
+
   contextData: any = {};
   isModalOpen = false;
   activeTab: string = 'context';

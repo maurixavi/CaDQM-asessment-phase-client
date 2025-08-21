@@ -46,9 +46,13 @@
           <!-- Context Info -->
           <div class="label-selected">
             <label class="label-title-selected">Context version: </label>
-            <span class="label-value">{{ contextVersion?.name }} v{{ contextVersion?.version }} </span>
+            <span class="label-value">{{ contextVersion?.name }} v{{ contextVersion?.version }} 
+                <a href="javascript:void(0)" (click)="contextModal.openModal()" style="text-decoration: none;">
+                    <i class="bi bi-zoom-in"></i>
+                </a>
+            </span>
           </div>
-          
+
           <!-- DQ Model Info -->
           <div class="label-selected" *ngIf="project.dqmodel_version !== null">
             <label class="label-title-selected">DQ Model version: </label>
@@ -139,6 +143,22 @@
       <!-- No Project Template -->
       <ng-template #noProject>
         <p class="card-text">{{ noProjectMessage }}</p>
+
+        <!-- Spinner de carga -->
+        <div class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="sr-only"></span>
+          </div>
+        </div>
+
+        <!-- Spinner 
+        <div class="d-flex justify-content-center align-items-center">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <span class="ms-2">Loading data...</span>
+        </div> -->
+
       </ng-template>
     </div>
   </div>
@@ -257,4 +277,4 @@
   [dataSchema]="dataSchema">
 </app-data-at-hand-view-modal>
 
-<app-context-components></app-context-components>
+<app-context-components #contextModal></app-context-components>

@@ -6,8 +6,15 @@
 <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isModalOpen}" [style.display]="isModalOpen ? 'block' : 'none'">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
+      <!-- Modal Header simplificado -->
       <div class="modal-header">
-        <ul class="nav nav-tabs card-header-tabs" id="contextTabs" role="tablist">
+        <h5 class="modal-title">Context Components & DQ Problems</h5>
+        <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
+      </div>
+      
+      <!-- Tabs fuera del header, justo debajo -->
+      <div class="modal-tabs-container">
+        <ul class="nav nav-tabs card-header-tabs" id="contextModalTabs" role="tablist">
           <li class="nav-item" role="presentation">
             <button class="nav-link" [ngClass]="{'active': activeTab === 'context'}" 
                     (click)="switchTab('context')">Context Components</button>
@@ -17,16 +24,16 @@
                     (click)="switchTab('dqProblems')">DQ Problems</button>
           </li>
         </ul>
-        <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <!-- Context Components Tab -->
         <div *ngIf="activeTab === 'context' && allContextComponents">
-          <div class="accordion" id="contextComponentsAccordion">
+          <div class="accordion" id="contextModalAccordion">
             <div *ngFor="let category of categories; let i = index" class="accordion-item">
-              <h2 class="accordion-header" [id]="'heading' + i">
+              <h2 class="accordion-header" [id]="'contextModalHeading_' + i">
                 <button class="accordion-button" type="button" 
-                        (click)="toggleAccordion('collapse' + i)"
+                        (click)="toggleAccordion('contextModalCollapse_' + i)"
+                        [attr.aria-controls]="'contextModalCollapse_' + i"
                         [class.collapsed]="!hasComponents(category)">
                   {{ formatCtxCompCategoryName(category) }}
                   <span class="badge bg-secondary ms-2">
@@ -34,19 +41,23 @@
                   </span>
                 </button>
               </h2>
-              <div [id]="'collapse' + i" class="accordion-collapse collapse" 
-                  [class.show]="hasComponents(category)">
+              <div [id]="'contextModalCollapse_' + i" class="accordion-collapse collapse" 
+                  [attr.aria-labelledby]="'contextModalHeading_' + i"
+                  [class.show]="false">
                 <div class="accordion-body">
                   <div *ngIf="hasComponents(category)">
-                    <div class="accordion" id="componentDetailsAccordion">
+                    <div class="accordion" id="contextModalInnerAccordion">
                       <div *ngFor="let component of allContextComponents[category]; let j = index" class="accordion-item">
-                        <h2 class="accordion-header" [id]="'componentHeading' + i + j">
+                        <h2 class="accordion-header" [id]="'contextModalComponentHeading_' + i + '_' + j">
                           <button class="accordion-button collapsed" type="button" 
-                                  data-bs-toggle="collapse" [attr.data-bs-target]="'#componentCollapse' + i + j">
-                                  <span class="fw-medium">{{ getFirstNonIdAttribute(component) }}</span>
+                                  data-bs-toggle="collapse" 
+                                  [attr.data-bs-target]="'#contextModalComponentCollapse_' + i + '_' + j"
+                                  [attr.aria-controls]="'contextModalComponentCollapse_' + i + '_' + j">
+                            <span class="fw-medium">{{ getFirstNonIdAttribute(component) }}</span>
                           </button>
                         </h2>
-                        <div [id]="'componentCollapse' + i + j" class="accordion-collapse collapse">
+                        <div [id]="'contextModalComponentCollapse_' + i + '_' + j" class="accordion-collapse collapse"
+                             [attr.aria-labelledby]="'contextModalComponentHeading_' + i + '_' + j">
                           <div class="accordion-body">
                             <ul class="no-bullets px-2">
                               <li *ngFor="let key of getComponentKeys(component)">
@@ -58,7 +69,8 @@
                       </div>
                     </div>
                   </div>
-                  <div *ngIf="!hasComponents(category)" class="alert alert-info">
+                  <div *ngIf="!hasComponents(category)" class="alert alert-warning">
+                    <i class="bi bi-info-circle me-1"></i>
                     No components in this category
                   </div>
                 </div>
@@ -73,9 +85,7 @@
             <div class="list-group">
               <div *ngFor="let problem of dqProblems" class="list-group-item">
                 <div class="d-flex w-100 justify-content-between">
-                  <!--<h5 class="mb-1">Problem #{{ problem.id }}</h5>-->
                   <h6>{{ problem.description }}</h6>
-                  <!--<small>{{ problem.date | date:'mediumDate' }}</small>-->
                 </div>
                 <small>{{ problem.date | date:'mediumDate' }}</small>
               </div>
