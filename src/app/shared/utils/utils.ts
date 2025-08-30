@@ -67,6 +67,7 @@ export function formatCtxCompCategoryName(category: string): string {
   const specialCases: { [key: string]: string } = {
     'systemRequirement': 'System Requirements',
     'dqRequirement': 'DQ Requirements',
+    'dqMetadata': 'DQ Metadata',
     'businessRule': 'Business Rules'
   };
 
