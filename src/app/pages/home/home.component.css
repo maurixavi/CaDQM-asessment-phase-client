@@ -1,37 +1,54 @@
+/* ===== ESTILOS GENERALES Y CONTENEDORES ===== */
 .container {
   margin: auto;
   color: #222;
 }
-/*
-.flex-container {
-  display: flex;
-  justify-content: center;
-}
-*//*
-.suggested-section-container {
-  width: 100%;
-  border: 1px solid #eeeeee;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-  background-color: #fff;
-  padding: 2.5rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;
-}*/
 
-.title {
-  font-size: 1.6rem;
-  font-weight: 500;
-  padding-top: 0.4rem;
-  margin-bottom: 1rem;
+@media (min-width: 1200px) {
+  .container {
+    max-width: 86%; 
+  }
 }
 
+@media (max-width: 1000px) {
+  .container {
+    padding: 0 10px; 
+  }
 
-.subtitle-description {
-  font-size: 16px;
-  font-style: italic;
+  .table-container {
+    width: 100%; 
+    overflow-x: auto;
+  }
+
+  .table {
+    width: 100%; 
+  }
 }
 
+@media (max-width: 768px) {
+  .container {
+    padding: 0 10px; 
+  }
+
+  
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 0 8px; 
+  }
+  
+  .title {
+    font-size: 1.4rem;
+  }
+  
+  .subtitle-description {
+    font-size: 14px; 
+  }
+}
+
+
+/* ===== BOTONES ===== */
 .btn {
   font-size: 0.9rem;
   font-weight: 500;
@@ -53,6 +70,11 @@
   padding-right: 14px;
 }
 
+/* ===== TABLAS ===== */
+table {
+  font-size: 14.5px;
+}
+
 .table-hover tbody tr:hover {
   background-color: #f8f9fa;
 }
@@ -60,6 +82,21 @@
 .table-active {
   background-color: #e9ecef !important;
 }
+
+.custom-thead th {
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.custom-thead th:nth-child(1) { width: 25%; }
+.custom-thead th:nth-child(2) { width: 10%; }
+.custom-thead th:nth-child(3) { width: 15%; }
+.custom-thead th:nth-child(4) { width: 19%; }
+.custom-thead th:nth-child(5) { width: 15%; }
+.custom-thead th:nth-child(6) { width: 8%; }
+
 
 .clickable-row:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -93,40 +130,18 @@
   background-color: #f8f9fa;
 }
 
-table {
-  font-size: 14.5px;
-}
-
-.custom-thead th {
-  font-size: 14px;
-  font-weight: 500;
-  /*color: #444;*//*
-  padding: 8px 10px;*/
-  text-align: left;
-  white-space: nowrap;
-}
-
-.custom-thead th:nth-child(1) { width: 25%; }
-.custom-thead th:nth-child(2) { width: 10%; }
-.custom-thead th:nth-child(3) { width: 15%; }
-.custom-thead th:nth-child(4) { width: 19%; }
-.custom-thead th:nth-child(5) { width: 15%; }
-.custom-thead th:nth-child(6) { width: 8%; }
 
 
-/* Estilo base para el tooltip */
+/* Tooltip */
 .project-name {
   position: relative;
   cursor: pointer; 
-  /*font-size: 15px;
-  font-weight: 500;*/
 }
 
-/* Estilo para el tooltip */
 .project-name::after {
-  content: attr(data-tooltip); /* Muestra el contenido del atributo data-tooltip */
+  content: attr(data-tooltip); 
   position: absolute;
-  bottom: 100%; /* Posiciona el tooltip arriba del texto */
+  bottom: 100%; 
   left: 50%;
   transform: translateX(-50%);
   padding: 5px 10px;
@@ -135,13 +150,12 @@ table {
   border-radius: 4px;
   font-size: 12px;
   white-space: nowrap;
-  opacity: 0; /* Inicialmente oculto */
+  opacity: 0; 
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
   pointer-events: none; /* Evita que el tooltip interfiera con el hover */
 }
 
-/* Mostrar el tooltip al pasar el mouse */
 .project-name:hover::after {
   opacity: 1;
   visibility: visible;

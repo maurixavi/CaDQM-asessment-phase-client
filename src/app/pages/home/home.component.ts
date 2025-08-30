@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DqModelService } from '../../services/dq-model.service';
 import { ProjectService } from '../../services/project.service';
-import { FormBuilder, FormGroup } from '@angular/forms';
 import { ProjectDataService } from '../../services/project-data.service';
 
 @Component({
@@ -12,26 +11,39 @@ import { ProjectDataService } from '../../services/project-data.service';
 })
 export class HomeComponent implements OnInit {
 
-  //PROJECT
-  //project: any; //cargar current Project
-  //projectId: number | null = null;
-  noProjectMessage: string = "";  
+  project: any = null;
+  projectId: number | null = null;
+  noProjectMessage: string = ""; 
+  showNewProjectButtons = false;
 
- 
+  contextComponents: any = null;
+  dqProblems: any[] = [];
 
-  //NEW DQMODEL
+  dqModelVersionId: number | null = null;
+  dqModel: any = null;
   newDQModelVersionId: number | null = null;
 
+  dataSchema: any = null;
 
+  // Diccionarios
+  contextInfo: { [key: number]: string } = {}; // "Context name vX.X.X"
+  dqModelInfo: { [key: number]: string } = {}; // "DQ Model name vX.X.X"
+  dqModelNames: { [key: number]: string } = {}; 
+  contextNames: { [key: number]: string } = {};
 
-  // Modal properties
+  // Pginación de proyectos
+  projects: any[] = []; 
+  paginatedProjects: any[] = [];
+  selectedProject: any = null;
+  currentPage: number = 1; 
+  itemsPerPage: number = 8; 
+  totalPages: number = 0; 
+
+  // Propiedades para el modal
   isModalOpen = false;
   selectedAction: string = '';
   modalTitle: string = '';
   modalMessage: string = '';
-
- 
-
   error: string = '';
 
   constructor(
@@ -41,72 +53,40 @@ export class HomeComponent implements OnInit {
     private projectDataService: ProjectDataService,
   ) { }
 
-  project: any = null;
-  projectId: number | null = null;
-  contextComponents: any = null;
-  dqProblems: any[] = [];
-  dqModelVersionId: number | null = null;
-  dqModel: any = null;
-
-  dataSchema: any = null;
-
-  projects: any[] = []; // Todos los proyectos
-  paginatedProjects: any[] = []; // Proyectos mostrados en la página actual
-  selectedProject: any = null;
-  currentPage: number = 1; // Página actual
-  itemsPerPage: number = 8; // Número de elementos por página
-  totalPages: number = 0; // Total de páginas
-
-
   ngOnInit() {
-    //Setear y cargar Proyecto
-    /*this.projectService.setProjectId(72);
-    this.loadProjectData();*/
-
     this.getAllProjects();
-
-    // Suscribirse a los observables del servicio ANTES de cargar los datos
     this.subscribeToData();
   }
 
+  /**
+   * Suscribe el componente a los observables del servicio ProjectDataService para recibir actualizaciones automáticas de los datos
+   */
   subscribeToData(): void {
-    // Suscribirse al proyecto
     this.projectDataService.project$.subscribe((data) => {
       this.project = data;
-      //console.log('Project Data:', data);
     });
 
-    // Suscribirse a los componentes del contexto
     this.projectDataService.contextComponents$.subscribe((data) => {
-      //this.contextComponents = data;
-      //console.log('Context Components:', data);
+      this.contextComponents = data;
     });
 
-    // Suscribirse a los problemas de calidad de datos (DQ Problems)
     this.projectDataService.dqProblems$.subscribe((data) => {
-      //this.dqProblems = data;
-      //console.log('DQ Problems:', data);
+      this.dqProblems = data;
     });
 
-    // Suscribirse a la versión del modelo de calidad de datos (DQ Model Version)
     this.projectDataService.dqModelVersion$.subscribe((dqModelVersionId) => {
       this.dqModelVersionId = dqModelVersionId;
-
     });
 
-    // Suscribirse al esquema de datos
     this.projectDataService.dataSchema$.subscribe((data) => {
-      //this.dataSchema = data;
-      //console.log('Data Schema:', data); // Ver el esquema de datos en la consola
+      this.dataSchema = data;
     });
-  
   
   }
 
 
-  
+  // ========== GESTIÓN DE PROYECTOS ==========
 
-  // Obtener todos los proyectos
   getAllProjects(): void {
     this.projectService.getAllProjects().subscribe({
       next: (data) => {
@@ -114,11 +94,9 @@ export class HomeComponent implements OnInit {
         this.totalPages = Math.ceil(this.projects.length / this.itemsPerPage);
         this.updatePaginatedProjects();
 
-        console.log("HERE")
-        // Cargar información de contextos y modelos
+        // información de contextos y modelos
         this.projects.forEach((project, index) => {
           if (project.context) {
-            console.log("project.context", project.context)
             this.loadContextInfo(project.context, index);
           }
           if (project.dqmodel_version) {
@@ -133,14 +111,23 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  // Actualizar los proyectos mostrados en la página actual
+  selectProject(project: any): void {
+    this.selectedProject = project;
+    this.projectId = project.id;
+    this.projectDataService.setProjectId(project.id);
+    this.router.navigate(['/phase2/dashboard']);
+  }
+
+  // ========== MÉTODOS DE PAGINACIÓN ==========
+  
+  // Actualiza la lista de proyectos mostrados en la página actual
   updatePaginatedProjects(): void {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
     this.paginatedProjects = this.projects.slice(startIndex, endIndex);
   }
 
-  // Cambiar de página
+  // Cambia a una página específica
   changePage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
@@ -148,7 +135,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  // Obtener el rango de páginas para mostrar en la paginación
+  // Genera un array con los números de página para la paginación
   getPages(): number[] {
     const pages = [];
     for (let i = 1; i <= this.totalPages; i++) {
@@ -158,54 +145,8 @@ export class HomeComponent implements OnInit {
   }
 
 
-  // Seleccionar un proyecto
-  selectProject(project: any): void {
-    this.selectedProject = project;
-    this.projectId = project.id;
-    this.projectDataService.setProjectId(project.id); // Establecer el ID del proyecto en el servicio
-    this.router.navigate(['/phase2/dashboard']);
-
-  }
+  // ========== MÉTODOS DE CARGA DE DATOS ==========
  
-  // Cargar Project con sus Ctx Components, DQ Problems y DQ Model si existe
-  loadProjectData(): void {
-    this.projectService.loadCurrentProject().subscribe({
-      next: (project) => {
-        this.project = project;
-        this.projectId = project.id;
-
-        if (this.projectId) {
-          //Cargar Ctx Components
-          const contextVersionId = this.project.context_version
-          if (contextVersionId){
-            this.getAllContextComponents(contextVersionId);
-          } else {
-            console.warn('El proyecto cargado no tiene contextVersionId');
-          }
-
-          //Cargar DQ Problems
-          this.getAllDQProblems(this.projectId);
-
-          //Cargar DQ Model si existe
-          const dqModelVersionId = this.project.dqmodel_version
-          if (dqModelVersionId) {
-            this.getDQModel(dqModelVersionId);
-          } else {
-            console.warn('El proyecto cargado no tiene un dqModelId');
-          }
-        }
-        
-      },
-      error: (err) => {
-        console.error('Error al cargar el proyecto en el componente:', err);
-      }
-    });
-  }
-
-  contextInfo: { [key: number]: string } = {}; // Almacenará "Context name vX.X.X"
-  dqModelInfo: { [key: number]: string } = {}; // Almacenará "DQ Model name vX.X.X"
-
-  // Función para cargar información del contexto (nombre + versión)
   loadContextInfo(contextVersionId: number, projectIndex: number): void {
     if (!contextVersionId) return;
 
@@ -214,8 +155,8 @@ export class HomeComponent implements OnInit {
         if (contextVersion) {
           const info = `${contextVersion.name} v${contextVersion.version}`;
           this.contextInfo[contextVersionId] = info;
-          this.projects[projectIndex].contextInfo = info; // Opcional: asignar directamente al proyecto
-          console.log("info", info);
+          this.projects[projectIndex].contextInfo = info; 
+          //console.log("info", info);
         }
       },
       (error) => {
@@ -224,7 +165,6 @@ export class HomeComponent implements OnInit {
     );
   }
 
-  // Función para cargar información del DQ Model (nombre + versión)
   loadDQModelInfo(dqmodelId: number, projectIndex: number): void {
     if (!dqmodelId) return;
 
@@ -233,7 +173,7 @@ export class HomeComponent implements OnInit {
         if (dqModel) {
           const info = `${dqModel.name} v${dqModel.version}`;
           this.dqModelInfo[dqmodelId] = info;
-          this.projects[projectIndex].dqModelInfo = info; // Opcional: asignar directamente al proyecto
+          this.projects[projectIndex].dqModelInfo = info; 
         }
       },
       (error) => {
@@ -242,81 +182,6 @@ export class HomeComponent implements OnInit {
     );
   }
 
-
-
-  dqModelNames: { [key: number]: string } = {}; // Diccionario para almacenar nombres de modelos por ID
-
-  // cargar los detalles del modelo
-  loadDQModelDetails(dqmodelId: number, projectIndex: number): void {
-    if (!dqmodelId) {
-      return; // No hacer nada si no hay ID
-    }
-
-    this.modelService.getDQModel(dqmodelId).subscribe(
-      (dqModel) => {
-        if (dqModel) {
-          // Almacena el nombre en el diccionario usando el ID como clave
-          this.dqModelNames[dqmodelId] = dqModel.name;
-          
-          // También puedes actualizar directamente el proyecto si lo prefieres
-          this.projects[projectIndex].dqModelName = dqModel.name;
-        }
-      },
-      (error) => {
-        console.error('Error al obtener DQ Model:', error);
-      }
-    );
-  }
-
-  contextNames: { [key: number]: string } = {}; // Diccionario para almacenar nombres de contextos por ID
-
-  // cargar los detalles del contexto
-  loadContextDetails(contextVersionId: number, projectIndex: number): void {
-    if (!contextVersionId) {
-      return; // No hacer nada si no hay ID
-    }
-
-    this.projectDataService.getContextVersionById(contextVersionId).subscribe(
-      (contextVersion) => {
-        if (contextVersion) {
-          // Almacena el nombre en el diccionario usando el ID como clave
-          this.contextNames[contextVersionId] = contextVersion.name;
-          
-          // También puedes actualizar directamente el proyecto si lo prefieres
-          this.projects[projectIndex].contextName = contextVersion.name;
-        }
-      },
-      (error) => {
-        console.error('Error al obtener Context Version:', error);
-      }
-    );
-  }
-
-  allContextComponents: any = null;
-  allDQProblems: any[] = [];
-
-  getAllContextComponents(contextVersionId: number): void {
-    this.projectService.getContextComponents(contextVersionId).subscribe({
-      next: (data) => {
-        console.log('ALL CTX. COMPONENTS:', data);
-        this.allContextComponents = data;
-      },
-      error: (err) => console.error('Error fetching context components:', err)
-    });
-  }
-
-  getAllDQProblems(projectId: number): void {
-    this.projectService.getDQProblemsByProjectId(projectId).subscribe({
-      next: (data) => {
-        this.allDQProblems = data;
-      },
-      error: (err) => {
-        console.error('Error al obtener los problemas de calidad:', err);
-      },
-    });
-  }
-
-  // Cargar el DQ Model por su ID
   getDQModel(dqModelId: number): void {
     this.modelService.getCurrentDQModel(dqModelId).subscribe({
       next: (dqModel) => {
@@ -329,8 +194,7 @@ export class HomeComponent implements OnInit {
   }
 
 
-
-  // NAVIGATION METHODS
+  // ========== NAVIGATION METHODS ==========
   navigateCreateDQModelNext() {
     this.router.navigate(['/st4/a09-1']);
   }
@@ -342,14 +206,5 @@ export class HomeComponent implements OnInit {
   navigateToViewDQModel() {
     this.router.navigate(['/st4/confirmation-stage-4']);
   }
-
-
-
-
-  showNewProjectButtons = false;
-
-
-
-
 
 }
