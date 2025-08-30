@@ -65,6 +65,7 @@ export class DqMeasurementExecutionComponent implements OnInit {
   // ========== LOADING STATES ==========
   isLoadingInitialData: boolean = false;
   isLoading: boolean = false;
+  hasLoadedAppliedMethods: boolean = true;
   errorMessage: string | null = null;
   isExecutionLoading: boolean = false;
 
@@ -236,6 +237,7 @@ export class DqMeasurementExecutionComponent implements OnInit {
         });
   
         this.isLoading = false;
+        this.hasLoadedAppliedMethods = true;
       },
       error: (error: any) => {
         this.errorMessage = 'Error al cargar los métodos. Inténtalo de nuevo.';
@@ -632,7 +634,7 @@ export class DqMeasurementExecutionComponent implements OnInit {
       this.sortDirection = 'asc';
     }
 
-    this.appliedDQMethods.sort((a, b) => {
+    this.filteredMethods.sort((a, b) => {
       const valueA = a[column];
       const valueB = b[column];
 
