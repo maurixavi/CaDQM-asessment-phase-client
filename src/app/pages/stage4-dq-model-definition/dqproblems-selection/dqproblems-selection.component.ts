@@ -1,7 +1,5 @@
 import { Component, Input, OnInit, AfterViewInit, ViewEncapsulation  } from '@angular/core';
-// import { DataQualityProblem } from '../dqproblems-priorization/dqproblems-priorization.component'; 
 import { Router } from '@angular/router';
-
 import { ProjectService } from '../../../services/project.service';
 import { DqModelService } from '../../../services/dq-model.service';
 import { ProjectDataService } from '../../../services/project-data.service';
@@ -29,8 +27,6 @@ interface DataQualityProblem {
   selectedFactors?: number[];
 }
 
-
-
 @Component({
   selector: 'app-dqproblems-selection',
   templateUrl: './dqproblems-selection.component.html',
@@ -49,51 +45,47 @@ export class DQProblemsSelectionComponent implements OnInit {
     { displayName: 'DQ Model Confirmation', route: 'phase2/st4/dq-model', description: 'DQ Model Confirmation' }
   ];
 
-
-  //PROJECT
-  project: any; 
-  //projectId: number = 1;
-  projectId: number | null = null;
-
   currentStep: number = 1; //Step 2
   pageStepTitle: string = 'Selection of prioritized DQ problems';
   phaseTitle: string = 'Phase 2: DQ Assessment';
   stageTitle: string = 'Stage 4: DQ Model Definition';
-
   isNextStepEnabled: boolean = false;
 
+  project: any; 
+  projectId: number | null = null;
+  dqModelVersionId: number | null = null;
+  completeDQModel: any; 
+  contextComponents: any = null;
 
-  //prioritizedProblems: DataQualityProblem[] = [];
+  // ========== PROPIEDADES DE PROBLEMAS ==========
+  dqProblems_: any[] = [];
+  prioritizedDQProblems: any[] = [];  
+  dqProblemDetails: any = null; 
   selectedProblem: DataQualityProblem | null = null;
   detailsVisible: boolean = false;
   selectedProblems: DataQualityProblem[] = [];
   isSelectionConfirmed: boolean = false;
 
+  // ========== LISTAS DE PROBLEMAS POR PRIORIDAD ==========
+  highPriorityProblems: any[] = [];
+  mediumPriorityProblems: any[] = [];  
+  lowPriorityProblems: any[] = [];  
 
-  // Obtener los problemas de calidad del proyecto
-  dqProblems_: any[] = [];
-  prioritizedDQProblems: any[] = [];  
-  dqProblemDetails: any = null; 
-
- 
-
-  highPriorityProblems: any[] = []; // Problemas de alta prioridad
-  mediumPriorityProblems: any[] = []; // Problemas de media prioridad
-  lowPriorityProblems: any[] = []; // Problemas de baja prioridad
-
-
-  fetchedSelectedHighPriorityProblems: any[] = []; // Problemas de alta prioridad
-  fetchedSelectedMediumPriorityProblems: any[] = []; // Problemas de media prioridad
-  fetchedSelectedLowPriorityProblems: any[] = []; // Problemas de baja prioridad
-
+  // ========== PROBLEMAS SELECCIONADOS CARGADOS  ==========
+  fetchedSelectedHighPriorityProblems: any[] = [];  
+  fetchedSelectedMediumPriorityProblems: any[] = [];  
+  fetchedSelectedLowPriorityProblems: any[] = []; 
   fetchedSelectedProblems: any[] = []; 
- 
-  // PROBLEMAS PRIORIZADOS
   selectedPrioritizedProblems: any[] = [];
-
   prioritizedProblems: any[] = [];
-  //problems: any[] = [];
 
+  // ========== PROBLEMAS SELECCIONADOS POR PRIORIDAD ==========
+  highPriorityProblemsSelected: any[] = [];  
+  mediumPriorityProblemsSelected: any[] = [];  
+  lowPriorityProblemsSelected: any[] = [];  
+  selectedPrioritizedDQProblems: any[] = [];  
+
+  // ========== VISIBILIDAD DE PROBLEMAS ==========
   isSelectedProblemVisible: boolean = false;  
   isHighPriorityProblemsVisible: boolean = true;  
   isMediumPriorityProblemsVisible: boolean = true;
@@ -102,12 +94,12 @@ export class DQProblemsSelectionComponent implements OnInit {
   isSelectedMediumPriorityProblemsVisible: boolean = true;
   isSelectedLowPriorityProblemsVisible: boolean = true;  
 
-  //DQ PROBLEMS
-  highPriorityProblemsSelected: any[] = []; // Problemas de alta prioridad seleccionados
-  mediumPriorityProblemsSelected: any[] = []; // Problemas de media prioridad seleccionados
-  lowPriorityProblemsSelected: any[] = []; // Problemas de baja prioridad seleccionados
-
-  selectedPrioritizedDQProblems: any[] = [];  
+  // ========== PROPIEDADES DEL MODAL ==========
+  isConfirmationModalOpen: boolean = false;
+  confirmationModalTitle: string = '';
+  confirmationModalMessage: string = '';
+  currentActionType: 'save' | 'remove' | null = null;
+  problemToRemove: any;
 
   constructor(
     private router: Router, 
@@ -117,17 +109,10 @@ export class DQProblemsSelectionComponent implements OnInit {
     private notificationService: NotificationService,
   ) { }
 
-  dqModelVersionId: number | null = null;
-  contextComponents: any = null;
-
   ngOnInit() {
-    // Obtener el Project ID actual
     this.projectId = this.projectDataService.getProjectId();
-
     this.subscribeToData();
-
-    // Sincronizar el paso actual con la ruta
-    this.syncCurrentStepWithRoute();
+    this.syncCurrentStepWithRoute(); // Sincronizar el paso actual con la ruta
   }
 
   syncCurrentStepWithRoute() {
@@ -138,15 +123,12 @@ export class DQProblemsSelectionComponent implements OnInit {
     }
   }
 
-
-  // Métodos de suscripción a datos
   subscribeToData(): void {
-    // Suscribirse al proyecto
     this.projectDataService.project$.subscribe((data) => {
       this.project = data;
     });
 
-    // Suscribirse a los problemas de calidad de datos (DQ Problems)
+    // Suscripción combinada a DQ problems y versión del modelo
     combineLatest([
       this.projectDataService.dqProblems$,
       this.projectDataService.dqModelVersion$
@@ -168,8 +150,6 @@ export class DQProblemsSelectionComponent implements OnInit {
     });
   }
 
-
-
   ngAfterViewInit() {
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -178,9 +158,9 @@ export class DQProblemsSelectionComponent implements OnInit {
   }
 
 
-  // Full DQ Model
-  completeDQModel: any; 
+  // ========== MANEJO PROBLEMAS INCLUIDOS EN DQ MODEL ==========
 
+  // Carga el modelo DQ completo con toda su información (para verificar si problema seleccionado fue utilizado en DQ Model)
   async loadFullDQModel(dqModelId: number): Promise<void> {
     try {
       const data = await this.modelService.getFullDQModel(dqModelId).toPromise();
@@ -191,6 +171,7 @@ export class DQProblemsSelectionComponent implements OnInit {
     }
   }
 
+  // Obtiene el número de veces que un problema está siendo usado en el DQ Model
   getProblemUsageCount(dqProblemId: number): number {
     let count = 0;
 
@@ -210,7 +191,8 @@ export class DQProblemsSelectionComponent implements OnInit {
   }
 
 
-  // Método para cargar los problemas priorizados
+  // ========== CARGA DE DQ PROBLEMS ==========
+
   loadPrioritizedDQProblems(projectId: number): void {
     this.projectService.getPrioritizedDQProblemsByProjectId(projectId).subscribe({
       next: (data) => {
@@ -241,7 +223,6 @@ export class DQProblemsSelectionComponent implements OnInit {
           medium: this.mediumPriorityProblems,
           low: this.lowPriorityProblems,
         });
-
         console.log('Problemas seleccionados:', {
           selectedHigh: this.fetchedSelectedHighPriorityProblems,
           selectedMedium: this.fetchedSelectedMediumPriorityProblems,
@@ -255,7 +236,7 @@ export class DQProblemsSelectionComponent implements OnInit {
     });
   }
 
-  // Método para filtrar los problemas seleccionados por prioridad
+  // Filtrar los problemas seleccionados por prioridad
   loadSelectedPrioritizedDQProblems(allProblems: any[]): void {
     // Filtrar problemas seleccionados
     const selectedProblems = allProblems.filter((problem: any) => problem.is_selected === true);
@@ -274,15 +255,12 @@ export class DQProblemsSelectionComponent implements OnInit {
     this.fetchedSelectedProblems = allFetchedSelectedProblems;
 
     if (this.fetchedSelectedProblems.length > 0) {
-      //Actity completed at least once, enable next step
+      //Habilita proxima actividad
       this.isNextStepEnabled = true;
-      console.log("this.isNextStepEnabled", this.isNextStepEnabled)
     }
 
   }
 
-  
-  // Método para cargar los detalles de un problema de calidad
   getDQProblemDetails(dqProblemId: number, problem: any): void {
     const dqProblem = this.dqProblems_.find((p) => p.id === dqProblemId);
     if (dqProblem) {
@@ -296,11 +274,13 @@ export class DQProblemsSelectionComponent implements OnInit {
     }
   }
 
-
+  // ========== SELECCIÓN DE DQ PROBLEMS ==========
 
   isProblemSelected(problem: any): boolean {
     return this.selectedPrioritizedDQProblems.some(p => p.id === problem.id);
   }
+
+  // GESTION SELECCIÓN/DESELECCIÓN PROBLEMAS ÚNICOS
 
   addProblemToSelection(problem: any): void {
     // Verificar si el problema ya está seleccionado
@@ -308,7 +288,6 @@ export class DQProblemsSelectionComponent implements OnInit {
       console.log('El problema ya está seleccionado.');
       this.removeSelectedProblem(problem);
     } else {
-      // Marcar el problema como seleccionado
       problem.is_selected = true;
   
       // Agregar el problema a la lista correspondiente según su prioridad
@@ -376,13 +355,15 @@ export class DQProblemsSelectionComponent implements OnInit {
       ...this.lowPriorityProblemsSelected
     ];
   
-    console.log('Problema eliminado:', problem);
+    //console.log('Problema eliminado:', problem);
   }
+
+  // GESTION SELECCIÓN/DESELECCIÓN PROBLEMAS MÚLTIPLES
 
   addAllProblems(problems: any[], priority: string): void {
     // Marcar todos los problemas como seleccionados
     problems.forEach(problem => {
-      problem.is_selected = true; // Asegurar que is_selected sea true
+      problem.is_selected = true; 
     });
     
     // Dependiendo de la prioridad, agrega todos los problemas a la lista correspondiente
@@ -418,7 +399,7 @@ export class DQProblemsSelectionComponent implements OnInit {
   
     this.selectedPrioritizedDQProblems = allProblemsSelected;
   
-    console.log("Problemas seleccionados:", this.selectedPrioritizedDQProblems);
+    //console.log("Problemas seleccionados:", this.selectedPrioritizedDQProblems);
   }
   
   removeAllProblems(problems: any[], priority: string): void {
@@ -467,7 +448,6 @@ export class DQProblemsSelectionComponent implements OnInit {
   }
 
   deleteDQProblemFromSelection(problem: any) {
-    
     const problemsToRemove = [];
     problemsToRemove.push(problem);
 
@@ -480,10 +460,6 @@ export class DQProblemsSelectionComponent implements OnInit {
 
           // Eliminar el problema de la lista de problemas seleccionados según la prioridad
           this.removeProblemFromFetchedList(problem);
-
-       
-
-          
         },
         error: (error) => {
           console.error("Error deleting DQ Problem:", error);
@@ -491,7 +467,6 @@ export class DQProblemsSelectionComponent implements OnInit {
         }
       });
     }
-    
   }
 
   // Método para eliminar el problema de las listas correspondientes por prioridad
@@ -509,13 +484,14 @@ export class DQProblemsSelectionComponent implements OnInit {
   }
 
   
+  // ========== GUARDADO DE SELECCIÓN ==========
+
+  // Guarda la selección actual de problemas en API
   saveSelection() {
-    
     /*console.log("HIGH PRIORITY selection:", this.highPriorityProblemsSelected);
     console.log("MEDIUM PRIORITY selection:", this.mediumPriorityProblemsSelected);
     console.log("LOW PRIORITY selection:", this.lowPriorityProblemsSelected);
     console.log("All problems to update:", this.selectedPrioritizedDQProblems);*/
-
     if (this.projectId !== null) {
       this.projectService.updateIsSelectedFieldPrioritizedDQProblem(this.projectId, this.selectedPrioritizedDQProblems).subscribe({
         next: (response) => {
@@ -527,11 +503,47 @@ export class DQProblemsSelectionComponent implements OnInit {
         }
       });
     }
+  }
+
+  saveSelectedPrioritizedProblems(): void {
+    this.selectedPrioritizedProblems.forEach((problem) => {
+      if (!problem.dq_model || !problem.id) {
+        console.error(`El problema ${problem.description} no tiene dq_model o id.`);
+        return;
+      }
+      const updatedData = { is_selected: true };
+      this.modelService.updatePrioritizedProblemAttribute(problem.dq_model, problem.id, updatedData)
+        .subscribe({
+          next: () => console.log(`Problema ${problem.id} actualizado correctamente.`),
+          error: (err) => console.error(`Error al actualizar el problema ${problem.id}:`, err),
+        });
+    });
+  }
+
+  private getPrioritySelectionWarning(): string | null {
+    const hasSelectedLow = this.lowPriorityProblemsSelected.length > 0;
+    const hasSelectedMedium = this.mediumPriorityProblemsSelected.length > 0;
   
+    const hasAvailableMedium = this.mediumPriorityProblems.length > 0;
+    const hasAvailableHigh = this.highPriorityProblems.length > 0;
+  
+    if (hasSelectedLow && (hasAvailableMedium || hasAvailableHigh)) {
+      return "You selected low-priority problems while higher-priority ones are still available. You may want to review your selection or adjust the prioritization if needed.";
+    }
+  
+    if ((!hasSelectedLow && hasSelectedMedium) && hasAvailableHigh) {
+      return "You selected medium-priority problems while high-priority ones are still available. You may want to review your selection or adjust the prioritization if needed.";
+    }
+  
+    if ((hasSelectedLow && hasSelectedMedium) && hasAvailableHigh) {
+      return "You selected low and medium-priority problems while high-priority ones are still available. You may want to review your selection or adjust the prioritization if needed.";
+    }
+  
+    return null;
   }
 
 
-
+  // ========== CONTROL DE VISIBILIDAD ==========
   toggleSelectedProblemVisibility() {
     this.isSelectedProblemVisible = !this.isSelectedProblemVisible;  
   }
@@ -557,73 +569,7 @@ export class DQProblemsSelectionComponent implements OnInit {
   }
 
 
-  saveSelectedPrioritizedProblems(): void {
-    this.selectedPrioritizedProblems.forEach((problem) => {
-      if (!problem.dq_model || !problem.id) {
-        console.error(`El problema ${problem.description} no tiene dq_model o id.`);
-        return;
-      }
-  
-      const updatedData = { is_selected: true }; // Cambia el valor según sea necesario
-      this.modelService.updatePrioritizedProblemAttribute(problem.dq_model, problem.id, updatedData)
-        .subscribe({
-          next: () => console.log(`Problema ${problem.id} actualizado correctamente.`),
-          error: (err) => console.error(`Error al actualizar el problema ${problem.id}:`, err),
-        });
-    });
-  }
-
-
-  
-
-
-  // Navegación
-  nextStep(): void {
-    this.router.navigate(['/st4/a09-2']);
-  }
-
-  onStepChange(step: number) {
-    this.currentStep = step;
-    this.navigateToStep(step);
-  }
-  
-  navigateToStep(stepIndex: number) {
-    const route = this.steps[stepIndex].route;
-    this.router.navigate([route]);
-  }
-
-  
-
-  // Propiedades para el modal de confirmación
-  private getPrioritySelectionWarning(): string | null {
-    const hasSelectedLow = this.lowPriorityProblemsSelected.length > 0;
-    const hasSelectedMedium = this.mediumPriorityProblemsSelected.length > 0;
-  
-    const hasAvailableMedium = this.mediumPriorityProblems.length > 0;
-    const hasAvailableHigh = this.highPriorityProblems.length > 0;
-  
-    if (hasSelectedLow && (hasAvailableMedium || hasAvailableHigh)) {
-      return "You selected low-priority problems while higher-priority ones are still available. You may want to review your selection or adjust the prioritization if needed.";
-    }
-  
-    if ((!hasSelectedLow && hasSelectedMedium) && hasAvailableHigh) {
-      return "You selected medium-priority problems while high-priority ones are still available. You may want to review your selection or adjust the prioritization if needed.";
-    }
-  
-    if ((hasSelectedLow && hasSelectedMedium) && hasAvailableHigh) {
-      return "You selected low and medium-priority problems while high-priority ones are still available. You may want to review your selection or adjust the prioritization if needed.";
-    }
-  
-    return null;
-  }
-
-
-  isConfirmationModalOpen: boolean = false;
-  confirmationModalTitle: string = '';
-  confirmationModalMessage: string = '';
-
-  currentActionType: 'save' | 'remove' | null = null;
-  problemToRemove: any;
+  // ========== CONFIRMAR SELECCIÓN ==========
 
   openConfirmationModal(actionType: 'save' | 'remove', problemId?: any): void {
     this.isConfirmationModalOpen = true;
@@ -631,33 +577,21 @@ export class DQProblemsSelectionComponent implements OnInit {
 
     if (actionType === 'save') {
       this.confirmationModalTitle = 'Prioritized DQ Problems selection';
-
-      // Agregar advertencia primero si existe
       const warning = this.getPrioritySelectionWarning();
       if (warning) {
-        this.confirmationModalMessage = '<b> ⚠️ ' + warning + '</b><br><br>';  // Mensaje de advertencia primero
+        this.confirmationModalMessage = '<b> ⚠️ ' + warning + '</b><br><br>'; 
       }
-
-      // Luego el mensaje de confirmación
       this.confirmationModalMessage += '\n\nAre you sure you want to confirm this selection? The selected data quality problems will be available to support the DQ Model definition.';
     
-    
     } else if (actionType === 'remove') {
-
       this.problemToRemove = problemId;
-      //console.log("this.problemToRemove", this.problemToRemove)
-
-
       const problem = this.problemToRemove;
       const usageCount = this.getProblemUsageCount(problem.dq_problem_id);
       this.problemToRemove = {
         ...problem,
         count: usageCount
       };
-      //console.log("usageCount", usageCount)
 
-      //console.log("this.problemToRemove", this.problemToRemove)
-      
       if (usageCount > 0) {
         this.isConfirmationModalOpen = false;
         this.notificationService.showWarning(
@@ -691,6 +625,19 @@ export class DQProblemsSelectionComponent implements OnInit {
     this.confirmationModalMessage = '';
   }
 
+  // ========== NAVEGACIÓN ==========
+  nextStep(): void {
+    this.router.navigate(['/st4/a09-2']);
+  }
 
+  onStepChange(step: number) {
+    this.currentStep = step;
+    this.navigateToStep(step);
+  }
+  
+  navigateToStep(stepIndex: number) {
+    const route = this.steps[stepIndex].route;
+    this.router.navigate([route]);
+  }
 
 }

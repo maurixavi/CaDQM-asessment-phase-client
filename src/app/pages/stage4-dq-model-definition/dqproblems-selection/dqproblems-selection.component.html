@@ -10,10 +10,7 @@
   <div>
     <p class="subtitle-description">Select the prioritized DQ problems to define the DQ Model</p>
     <div class="flex-container" style="margin-bottom: 80px;">
-      
-      
       <div class="container-section">
-
         <!-- INFO MESSAGES -->
         <div class="px-4">
           <div *ngIf="completeDQModel?.model?.status === 'draft' && selectedPrioritizedDQProblems.length === 0" class="alert alert-light mb-4 mt-4 d-flex align-items-start">
@@ -26,13 +23,12 @@
         
           <div class="alert alert-info mb-4 mt-4 d-flex align-items-start">
             <i class="bi bi-info-circle me-2 mt-1"></i>
-            <div *ngIf="completeDQModel?.model?.status === 'draft'">Prioritization must be very careful, as wrong prioritization of DQ problems can result in a DQ model
+            <div *ngIf="completeDQModel?.model?.status === 'draft'">Prioritization must be careful, as wrong prioritization of DQ problems can result in a DQ model
               not representative of the relevant DQ problems of the organization. Proper prioritization helps identify key DQ dimensions and factors.
             </div>
             <div *ngIf="completeDQModel?.model?.status === 'finished'">Proper prioritization of DQ Problems helps identify key DQ dimensions and factors.
             </div>
           </div>
-
         </div>
 
       <!-- DQ Model Draft: Seleccion de Problemas -->
@@ -40,7 +36,6 @@
 
         <!-- SELECCION DE PROBLEMAS -->
         <div class="dq-problems-selection-container">
-          <!--<div class="subsection-title"><p>Prioritized DQ Problems</p></div>-->
           <h6 class="mb-3">Available prioritized DQ Problems</h6>
           <div class="d-flex justify-content-between">
             <div class="from-ctx-components  flex-fill ">
@@ -49,10 +44,8 @@
                 <div >
                   <div class="checkbox-container">
                     <div>
-                      
                       <div class="row">
                         <div>
-                          
                           <!-- Seleccion Problemas de Alta Prioridad -->
                           <table class="table">
                             <thead>
@@ -98,11 +91,7 @@
                                   </div>
                                 </td>
                               </tr>
-
-
-
                             </tbody>
-    
                           </table>
 
                           <!-- Seleccion Problemas de Media Prioridad -->
@@ -136,8 +125,6 @@
                                 </td>
                               </tr>
                             
- 
-                            
                               <!-- Mostrar mensaje de "No data" solo si ambos arreglos están vacíos -->
                               <tr *ngIf="mediumPriorityProblems.length === 0">
                                 <td colspan="2" class="text-center">
@@ -146,11 +133,7 @@
                                   </div>
                                 </td>
                               </tr>
-
                             </tbody>
-
-                            
-
                           </table>
 
                           <!-- Seleccion Problemas de Baja Prioridad -->
@@ -192,28 +175,19 @@
                                   </div>
                                 </td>
                               </tr>
-
-        
-                            </tbody>
-                            
+                            </tbody>                        
                           </table>
-              
-                      
-  
                         </div>
                       </div>
-
                     </div>
                   </div>
                 </div>
               </div>
-
             </div> 
           </div>
         </div>
 
         <div class="dq-problems-selection-container">
-          <!--<div class="subsection-title"><p>DQ Problems Selection</p></div>-->
           <h6 class="mb-3">DQ Problems selection</h6>
           <div class="d-flex justify-content-between">
             <div class="from-ctx-components  flex-fill ">
@@ -286,8 +260,6 @@
                                 </td>
                               </tr>
                             </tbody>
-                            
-                            
                           </table>
 
                           <!-- Problemas de Media Prioridad seleccionados -->
@@ -352,8 +324,6 @@
                                 </td>
                               </tr>
                             </tbody>
-                            
-                            
                           </table>
 
                           <!-- Problemas de Baja Prioridad seleccionados -->
@@ -401,12 +371,10 @@
                                     </p>
                                   </div>
                                 </td>
-                                <td style="text-align: right;">
-                                  
+                                <td style="text-align: right;">                                
                                   <button class="btn btn-outline-danger btn-sm"  (click)="openConfirmationModal('remove', problem)">
                                     <i class="bi bi-trash3"></i> 
                                   </button>
-
                                 </td>
                               </tr>
                             
@@ -419,47 +387,22 @@
                                 </td>
                               </tr>
                             </tbody>
-                            
-                            
                           </table>
-
-              
-                          <!--<div class="added-problems-message">
-                            (*) Data quality problems previously added.
-                          </div> -->
-  
                         </div>
                       </div>
-                      
                     </div>
-                    
                   </div>
                 </div>
               </div>
-
             </div> 
           </div>
-          <!-- Botón para guardar la selección
-          <div>
-            <button 
-            class="btn btn-dark btn-sm mt-3" 
-            (click)="saveSelection()"
-            [disabled]="selectedPrioritizedDQProblems.length === 0"
-            >
-              Save Selection
-            </button>
-          </div> -->
         </div>
-
-
       </div>
 
       <!-- DQ Model Finished: Mostrar solo Problemas seleccionados -->
       <div *ngIf="completeDQModel?.model?.status === 'finished'" class="problems-main-container py-3">
 
-      
         <div class="dq-problems-selection-container">
-          <!--<div class="subsection-title"><p>DQ Problems Selection</p></div>-->
           <h6 class="mb-3">DQ Problems selected:</h6>
           <div class="d-flex justify-content-between">
             <div class="from-ctx-components  flex-fill ">
@@ -496,7 +439,6 @@
                                   </div>
                                 </td>
                                 <td style="text-align: right;">
-                                
                                 </td>
                               </tr>
                             
@@ -509,8 +451,6 @@
                                 </td>
                               </tr>
                             </tbody>
-                            
-                            
                           </table>
 
                           <!-- Problemas de Media Prioridad seleccionados -->
@@ -619,23 +559,16 @@
 
             </div> 
           </div>
-
-
-
         </div>
-
-      
       </div>
       
       <div class="px-4 py-3 mb-3">
-
         <div *ngIf="completeDQModel?.model?.status !== 'finished' && (fetchedSelectedHighPriorityProblems || fetchedSelectedMediumPriorityProblems || fetchedSelectedLowPriorityProblems)" class="alert alert-warning mb-4 d-flex align-items-start">
           <i class="bi bi-exclamation-circle me-2 mt-1"></i>
           <div>
             (*) Indicates that the DQ Problem was already selected and is available for use in the DQ Model definition. If one of these problems is also associated with a dimension or factor, it cannot be removed unless it is first unassigned from all of them.
           </div>
         </div>
-
 
         <button 
         *ngIf="completeDQModel?.model?.status !== 'finished'"
@@ -646,27 +579,18 @@
           Save Selection
         </button>
       </div> 
-
-
       </div>
     </div>
   </div>
-
-
-
-
 </div>
 
-
- <!-- Modal de confirmación -->
- <app-confirmation-modal
+<app-confirmation-modal
  [isOpen]="isConfirmationModalOpen"
  [title]="confirmationModalTitle"
  [message]="confirmationModalMessage"
  (confirm)="handleConfirm()"
  (cancel)="handleCancel()">
 </app-confirmation-modal>
-
 
 <app-context-components></app-context-components>
 
@@ -676,5 +600,3 @@
   [isNextStepEnabled]="isNextStepEnabled"
   (stepChange)="onStepChange($event)">
 </app-stepper>
-
-

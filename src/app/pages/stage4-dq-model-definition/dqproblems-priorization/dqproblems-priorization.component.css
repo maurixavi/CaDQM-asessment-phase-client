@@ -1,3 +1,4 @@
+/* ===== ESTILOS GENERALES Y CONTENEDORES ===== */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -5,10 +6,25 @@
   color: #222;
 }
 
+.flex-container {
+  display: flex;
+  justify-content: center;
+}
+
+.container-section {
+	width: 100%;
+  border: 1px solid #eeeeee;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  background-color: #fff; 
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;  
+}
+
 @media (min-width: 1200px) {
   .container {
     max-width: 86%; 
-
   }
 }
 
@@ -20,29 +36,19 @@
 
 @media (max-width: 576px) {
   .container {
-    padding: 0 8px; /* Mínimo padding en pantallas muy pequeñas */
+    padding: 0 8px; 
   }
   
   .title {
-    font-size: 1.4rem; /* Reduce tamaño de título en móviles */
+    font-size: 1.4rem;
   }
   
   .subtitle-description {
-    font-size: 14px; /* Reduce tamaño de subtítulo en móviles */
+    font-size: 14px; 
   }
 }
 
-
-/*.container {
-  margin: auto;
-  color: #222; 
-}
-
-.subtitle-description {
-  font-size: 16px;
-  font-style: italic;
-}*/
-
+/* ===== TABLAS ===== */
 table {
 	font-size: 15px; 
 }
@@ -51,80 +57,38 @@ table {
   color: #222; 
 }
 
-
 th {
   font-weight: 500; 
 }
+
 .col-date {
 	width: 30%;
 }
+
 .col-description {
 	width: 50%;
 }
-/*.col-contexto {
-	width: 32%;
-	overflow: hidden; 
-	text-overflow: ellipsis; 
-}*/
+
 .col-tipoprioridad {
 	width: 10%;
-}
-
-.select-short {
-	width: 100%;
-	display: inline-block;
-}
-
-.select-short option {
-	width: auto;
 }
 
 tr:hover {
 	cursor: grab; 
 }
 
-select {
-	cursor: auto; 
-}
-
-.title {
-  font-size: 1.2rem;
-  font-weight: black;
-  font-style: italic;
-}
-
-.title-activity {
-  font-size: 1.5rem;
-	font-weight: lighter;
-}
-
-.subtitle-activity {
-  font-size: 0.95rem;
-  font-style: italic;
-}
-
 .text-center {
 	text-align: center;
-}
-
-.my-4 {
-	margin-top: 1.5rem !important;
-	margin-bottom: 1.5rem !important;
 }
 
 .bi-grip-vertical {
 	font-size: 1rem; 
 }
-.btn-remove {
-	background-color: transparent;  
-	border: none; 
-	font-size: 1rem;  
-	vertical-align: middle;  
-}
+
+/* ===== BOTONES ===== */
 .btn {
 	font-size: 0.9rem;
   font-weight: 500;
-  /*border-radius: 8px;*/
 }
 
 .btn-dark {
@@ -139,40 +103,20 @@ select {
   background-color: #333; 
   border: 1px solid #333; 
 }
-/*.container-section {
-	width: 98%;
-  border: 1px solid #ddd; 
-  background-color: #fff; 
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;  
-}*/
 
-.container-section {
-	width: 100%;
-  /*border: 1px solid #ddd; */
-  border: 1px solid #eeeeee;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-  background-color: #fff; 
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;  
+.btn-remove {
+	background-color: transparent;  
+	border: none; 
+	font-size: 1rem;  
+	vertical-align: middle;  
 }
-
 
 .next-step-btn-container{
 	display: flex;
   justify-content: flex-end; 
 }
 
-.flex-container {
-  display: flex;
-  justify-content: center;
-}
-
-
+/* ===== LISTA DE PRIORIDAD ===== */
 .priority-list {
   min-height: 200px;
   border: 2px dashed #ccc;
@@ -181,18 +125,6 @@ select {
   margin-bottom: 24px;
   overflow-y: auto; 
   height: 640px; 
-}
-
-.card {
-  cursor: grab;
-}
-
-.card:active {
-  cursor: grabbing;
-}
-
-.card-title{
-  font-size: 15px; 
 }
 
 .priority-group-title{
@@ -215,4 +147,31 @@ select {
 
 .form-select{
   font-size: 15px;
+}
+
+select {
+	cursor: auto; 
+}
+
+.select-short {
+	width: 100%;
+	display: inline-block;
+}
+
+.select-short option {
+	width: auto;
+}
+
+
+/* ===== COMPONENTES DE ARRASTRE ===== */
+.card {
+  cursor: grab;
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+.card-title{
+  font-size: 15px; 
 }
