@@ -109,7 +109,7 @@ export class DqModelService {
   getCurrentDQModel(dqModelId: number): Observable<any> {
     // Si el modelo está en caché y es el mismo ID, lo devuelve
     if (this.currentDQModel && this.currentDQModel.id === dqModelId) {
-      console.log('Fetched DQ Model (already in cache):', this.currentDQModel);
+      //console.log('Fetched DQ Model (in cache):', this.currentDQModel);
       return of(this.currentDQModel);
     }
 
@@ -117,7 +117,7 @@ export class DqModelService {
     return this.http.get<any>(`${this.API_URL_DQMODELS}${dqModelId}/`).pipe(
       map((data) => {
         this.currentDQModel = data; // Actualizamos el caché
-        console.log('Fetched DQ Model (from server):', this.currentDQModel);
+        //console.log('Fetched DQ Model (from server):', this.currentDQModel);
         return data;
       }),
       catchError((err) => {
@@ -213,7 +213,7 @@ export class DqModelService {
    */
   getAllDQDimensionsBase(): Observable<any[]> {
     return this.http.get<any[]>(this.API_URL_DIMENSIONS_BASE).pipe(
-      tap(data => console.log('Fetched DQ Dimensions Base:', data)),
+      /*tap(data => console.log('Fetched DQ Dimensions Base:', data)),*/
       catchError(this.handleError<any[]>('getAllDQDimensionsBase', []))
     );
   }

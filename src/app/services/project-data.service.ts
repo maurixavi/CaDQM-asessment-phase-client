@@ -161,7 +161,7 @@ export class ProjectDataService {
   private getProjectById(projectId: number): Observable<any> {
     const url = `${this.API_URL_PROJECTS}${projectId}/`;
     return this.http.get<any>(url).pipe(
-      tap((data) => console.log(`Fetched Project with ID=${projectId}:`, data)),
+      tap((data) => console.log(`Project ID=${projectId}:`, data)),
       catchError(this.handleError<any>(`getProjectById id=${projectId}`))
     );
   }
@@ -239,9 +239,7 @@ export class ProjectDataService {
     const url = `${this.baseUrl}/data-at-hand/${dataAtHandId}/data-schema/`;
     return this.http.get<any>(url).pipe(
       tap((data) => {
-        /*this.dataSchema = data;
-        this.dataSchemaSubject.next(data);*/
-        console.log(`Data schema with Data at Hand ID=${dataAtHandId}:`, data);
+        //console.log(`Data schema with Data at Hand ID=${dataAtHandId}:`, data);
       }),
       catchError(this.handleError<any>('getDataSchemaByDataAtHandId'))
     );

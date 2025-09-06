@@ -292,7 +292,6 @@ export class ProjectService {
     );
   }
 
-  
 
   // =============================================
   // DQ PROBLEMS
@@ -370,7 +369,7 @@ export class ProjectService {
     //const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-dq-problems/`;
     const url = `${this.API_URL_PROJECTS}${projectId}/prioritized-quality-problems/`;
     return this.http.get<any>(url).pipe(
-      tap((data) => console.log(`Fetched Prioritized DQ Problems for Project ID=${projectId}:`, data)),
+      /*tap((data) => console.log(`Prioritized DQ Problems for Project ID=${projectId}:`, data)),*/
       catchError(this.handleError<any[]>(`getPrioritizedDQProblemsByProjectId id=${projectId}`, []))
     );
   }
@@ -423,7 +422,7 @@ export class ProjectService {
    getSelectedPrioritizedDQProblemsByProjectId(projectId: number): Observable<any> {
     const url = `${this.API_URL_PROJECTS}${projectId}/selected-prioritized-quality-problems/`;
     return this.http.get<any>(url).pipe(
-      tap((data) => console.log(`Fetched Selected Prioritized DQ Problems for Project ID=${projectId}:`, data)),
+      /*tap((data) => console.log(`Fetched Selected Prioritized DQ Problems for Project ID=${projectId}:`, data)),*/
       catchError(this.handleError<any[]>(`getSelectedPrioritizedDQProblemsByProjectId id=${projectId}`, []))
     );
   }
