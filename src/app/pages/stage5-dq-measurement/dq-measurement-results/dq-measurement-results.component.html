@@ -1,233 +1,213 @@
 <div class="container">
-    <!-- Navegador de pasos -->
-    <app-step-navigator
-      [pageStepTitle]="pageStepTitle"
-      [phaseTitle]="phaseTitle"
-      [stageTitle]="stageTitle"
-      [steps]="steps"
-      [currentStep]="currentStep">
-    </app-step-navigator>
-  
-    <div class="mb-5">
-      <p class="subtitle-description mt-4">
-        Each DQ value obtained in the DQ measurement is stored in the DQ metadata database
-      </p>
-  
-      <div class="flex-container">
-        <div class="section-container">  
-          <!-- Selectores -->
-          <div class="selectors">
-            <!-- Paso 1: Selector de Vista de Resultados (siempre visible y mantiene estado) -->
+  <app-step-navigator
+    [pageStepTitle]="pageStepTitle"
+    [phaseTitle]="phaseTitle"
+    [stageTitle]="stageTitle"
+    [steps]="steps"
+    [currentStep]="currentStep">
+  </app-step-navigator>
+
+  <div class="mb-5">
+    <p class="subtitle-description mt-4">
+      Each DQ value obtained in the DQ measurement is stored in the DQ metadata database
+    </p>
+
+    <div class="flex-container">
+      <div class="section-container"> 
+        
+        <!-- Spinner de carga Metodos antes de habilitar filtros -->
+        <div *ngIf="!hasLoadedAppliedMethods" class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="sr-only"></span>
+          </div>
+          <p class="ms-2">Loading data...</p>
+        </div>
+        
+        <!-- Selectores -->
+        <div *ngIf="hasLoadedAppliedMethods" class="selectors">
+          <!-- Paso 1: Selector de Vista de Resultados (siempre visible y mantiene estado) -->
+          <div class="label-container mb-3">
+            <div class="label">
+              <label class="label-title">DQ Measurements results:</label>
+              <span class="label-value d-flex align-items-center">
+                <div class="btn-group" role="group">
+                  <input type="radio" class="btn-check" 
+                          [(ngModel)]="resultsView" 
+                          (ngModelChange)="onResultsViewChange()"
+                          value="by_method" id="viewByMethod"
+                          [checked]="resultsView === 'by_method'">
+                  <label class="btn btn-outline-dark" for="viewByMethod"
+                          [class.active]="resultsView === 'by_method'">
+                    By Applied Method
+                  </label>
+                  
+                  <input type="radio" class="btn-check" 
+                          [(ngModel)]="resultsView" 
+                          (ngModelChange)="onResultsViewChange()"
+                          value="by_data_element" id="viewByDataElement"
+                          [checked]="resultsView === 'by_data_element'">
+                  <label class="btn btn-outline-dark" for="viewByDataElement"
+                          [class.active]="resultsView === 'by_data_element'">
+                    By Data Element
+                  </label>
+                </div>
+              </span>
+            </div>
+          </div>
+
+          <!-- Paso 2: Filtros (solo se muestran si resultsView tiene valor) -->
+          <ng-container *ngIf="resultsView">
+            <!-- Filtro por granularidad -->
             <div class="label-container mb-3">
               <div class="label">
-                <label class="label-title">DQ Measurements results:</label>
+                <label class="label-title">Granularity:</label>
                 <span class="label-value d-flex align-items-center">
                   <div class="btn-group" role="group">
-                    <input type="radio" class="btn-check" 
-                           [(ngModel)]="resultsView" 
-                           (ngModelChange)="onResultsViewChange()"
-                           value="by_method" id="viewByMethod"
-                           [checked]="resultsView === 'by_method'">
-                    <label class="btn btn-outline-dark" for="viewByMethod"
-                           [class.active]="resultsView === 'by_method'">
-                      By Applied Method
+                    <input *ngIf="resultsView !== 'by_data_element'"
+                      type="radio" 
+                      class="btn-check" 
+                      [(ngModel)]="selectedGranularity" 
+                      (ngModelChange)="onGranularityChange()"
+                      value="all" 
+                      id="granularityAll"
+                      [checked]="selectedGranularity === 'all'">
+                    <label class="btn btn-outline-dark" for="granularityAll"
+                            [class.active]="selectedGranularity === 'all'">
+                      All
+                    </label>
+
+                    <input 
+                      type="radio" 
+                      class="btn-check" 
+                      [(ngModel)]="selectedGranularity" 
+                      (ngModelChange)="onGranularityChange()"
+                      value="table" 
+                      id="granularityTable"
+                      [checked]="selectedGranularity === 'table'">
+                    <label class="btn btn-outline-dark" for="granularityTable"
+                            [class.active]="selectedGranularity === 'table'">
+                      Table
+                    </label>
+                  
+                    <input 
+                      type="radio" 
+                      class="btn-check" 
+                      [(ngModel)]="selectedGranularity" 
+                      (ngModelChange)="onGranularityChange()" 
+                      value="column" 
+                      id="granularityColumn"
+                      [checked]="selectedGranularity === 'column'">
+                    <label class="btn btn-outline-dark" for="granularityColumn"
+                            [class.active]="selectedGranularity === 'column'">
+                      Column
                     </label>
                     
-                    <input type="radio" class="btn-check" 
-                           [(ngModel)]="resultsView" 
-                           (ngModelChange)="onResultsViewChange()"
-                           value="by_data_element" id="viewByDataElement"
-                           [checked]="resultsView === 'by_data_element'">
-                    <label class="btn btn-outline-dark" for="viewByDataElement"
-                           [class.active]="resultsView === 'by_data_element'">
-                      By Data Element
+                    <input 
+                      type="radio" 
+                      class="btn-check" 
+                      [(ngModel)]="selectedGranularity" 
+                      (ngModelChange)="onGranularityChange()"
+                      value="cell" 
+                      id="granularityCell"
+                      [checked]="selectedGranularity === 'cell'">
+                    <label class="btn btn-outline-dark" for="granularityCell"
+                            [class.active]="selectedGranularity === 'cell'">
+                      Cell
+                    </label>
+                    
+                    <input 
+                      type="radio" 
+                      class="btn-check" 
+                      [(ngModel)]="selectedGranularity" 
+                      (ngModelChange)="onGranularityChange()"
+                      value="tuple" 
+                      id="granularityTuple"
+                      [checked]="selectedGranularity === 'tuple'">
+                    <label class="btn btn-outline-dark" for="granularityTuple"
+                            [class.active]="selectedGranularity === 'tuple'">
+                      Tuple
                     </label>
                   </div>
                 </span>
               </div>
             </div>
 
-            <!-- Paso 2: Filtros (solo se muestran si resultsView tiene valor) -->
-            <ng-container *ngIf="resultsView">
-              <!-- Filtro por granularidad -->
-              <div class="label-container mb-3">
-                <div class="label">
-                  <label class="label-title">Granularity:</label>
-                  <span class="label-value d-flex align-items-center">
-                    <div class="btn-group" role="group">
-                      <input *ngIf="resultsView !== 'by_data_element'"
-                        type="radio" 
-                        class="btn-check" 
-                        [(ngModel)]="selectedGranularity" 
-                        (ngModelChange)="onGranularityChange()"
-                        value="all" 
-                        id="granularityAll"
-                        [checked]="selectedGranularity === 'all'">
-                      <label class="btn btn-outline-dark" for="granularityAll"
-                             [class.active]="selectedGranularity === 'all'">
-                        All
-                      </label>
-
-                      <input 
-                        type="radio" 
-                        class="btn-check" 
-                        [(ngModel)]="selectedGranularity" 
-                        (ngModelChange)="onGranularityChange()"
-                        value="table" 
-                        id="granularityTable"
-                        [checked]="selectedGranularity === 'table'">
-                      <label class="btn btn-outline-dark" for="granularityTable"
-                             [class.active]="selectedGranularity === 'table'">
-                        Table
-                      </label>
-                    
-                      <input 
-                        type="radio" 
-                        class="btn-check" 
-                        [(ngModel)]="selectedGranularity" 
-                        (ngModelChange)="onGranularityChange()" 
-                        value="column" 
-                        id="granularityColumn"
-                        [checked]="selectedGranularity === 'column'">
-                      <label class="btn btn-outline-dark" for="granularityColumn"
-                             [class.active]="selectedGranularity === 'column'">
-                        Column
-                      </label>
-                      
-                      <input 
-                        type="radio" 
-                        class="btn-check" 
-                        [(ngModel)]="selectedGranularity" 
-                        (ngModelChange)="onGranularityChange()"
-                        value="cell" 
-                        id="granularityCell"
-                        [checked]="selectedGranularity === 'cell'">
-                      <label class="btn btn-outline-dark" for="granularityCell"
-                             [class.active]="selectedGranularity === 'cell'">
-                        Cell
-                      </label>
-                      
-                      <input 
-                        type="radio" 
-                        class="btn-check" 
-                        [(ngModel)]="selectedGranularity" 
-                        (ngModelChange)="onGranularityChange()"
-                        value="tuple" 
-                        id="granularityTuple"
-                        [checked]="selectedGranularity === 'tuple'">
-                      <label class="btn btn-outline-dark" for="granularityTuple"
-                             [class.active]="selectedGranularity === 'tuple'">
-                        Tuple
-                      </label>
-                    </div>
-                  </span>
+            <!-- Vista por Data Element -->
+            <div *ngIf="resultsView === 'by_data_element' && selectedGranularity && filteredMethods.length > 0" class="row mb-4">
+              <!-- Selector de Tabla -->
+              <div class="row mb-4">
+                <div class="col-md-6">
+                  <label class="form-label">Select Table:</label>
+                  <select class="form-select select-style" [(ngModel)]="selectedTable" (change)="loadTableMethods()">
+                    <option [value]="null">Select a table...</option>
+                    <option *ngFor="let table of availableTables" [value]="table.table_name">{{table.table_name}}</option>
+                  </select>
                 </div>
               </div>
 
-              <!-- Filtros por elemento de datos (solo cuando resultsView === 'by_data_element') 
-              <div *ngIf="selectedGranularity && resultsView === 'by_data_element'" class="row mb-3">
-                <div class="col-md-6">
-                  <div class="label">
-                    <label class="label-title">Table:</label>
-                    <select class="form-select" [(ngModel)]="selectedTable" (change)="onTableChange()">
-                      <option [value]="null">All Tables</option>
-                      <option *ngFor="let table of availableTables" [value]="table.table_name">{{table.table_name}}</option>
-                    </select>
-                  </div>
+
+                <!-- Tabla de Métodos Aplicados -->
+                <div *ngIf="selectedTable" class="table-responsive mt-3">
+                  <table class="table table-hover table-bordered rounded-table">
+                    <thead class="table-light custom-thead-detailed-results">
+                      <tr>
+                        <th class="column-name">{{selectedGranularity === 'tuple' ? 'Columns' : 'Column'}}</th>
+                        <th class="dq-method">DQ Method</th>
+                        <th class="applied-method">Applied DQ Method</th>
+                        <th class="dq-measurement text-center">DQ Measurement</th> 
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Iterar sobre cada grupo de columnas -->
+                      <ng-container *ngFor="let columnGroup of getColumnGroups()">
+                        <!-- Agrupar por DQ Method -->
+                        <ng-container *ngFor="let dqMethod of getUniqueDQMethods(columnGroup.methods)">
+                          <ng-container *ngIf="getMethodsByDQMethod(columnGroup.methods, dqMethod).length > 0">
+                            <ng-container *ngFor="let method of getMethodsByDQMethod(columnGroup.methods, dqMethod); let i = index">
+                              <tr>
+                                <!-- Solo en la primera fila: mostrar columnas y método con rowspan -->
+                                <td *ngIf="i === 0" [attr.rowspan]="getMethodsByDQMethod(columnGroup.methods, dqMethod).length" >
+                                  <div *ngIf="selectedGranularity === 'tuple'; else singleColumn">
+                                    <div *ngFor="let col of columnGroup.columns" class="column-tuple">
+                                      <span class="fw-medium">{{ col.column_name }}</span>
+                                      <small class="text-muted d-block">{{ col.data_type }}</small>
+                                    </div>
+                                  </div>
+                                  <ng-template #singleColumn>
+                                    <span class="fw-medium">{{ columnGroup.columns[0].column_name }}</span>
+                                    <small class="text-muted d-block">{{ columnGroup.columns[0].data_type }}</small>
+                                  </ng-template>
+                                </td>
+                                
+                                <!-- DQ Method (solo primera fila) -->
+                                <td *ngIf="i === 0" [attr.rowspan]="getMethodsByDQMethod(columnGroup.methods, dqMethod).length" >
+                                  <span class="fw-medium">{{ dqMethod }}</span><br>
+                                  <small class="text-muted">{{ method.dqDimension }} • {{ method.dqFactor }} • {{ method.dqMetric }}</small>
+                                  <br><br> 
+                                  <small class="text-muted"><i>{{ method.purpose }}</i></small>
+                                </td>
+
+                                <!-- Método aplicado -->
+                                <td class="align-middle">
+                                  <span class="fw-medium">{{ method.name }}</span><br>
+                                  <small class="text-muted">{{ method.method_type }}</small>
+                                </td>
+                                
+                                <!-- DQ Measurement -->
+                                <td class="align-middle">
+                                  <button class="btn btn-sm btn-light" (click)="selectMethod(method)">
+                                    <i class="bi bi-eye"></i> View results
+                                  </button>
+                                </td>
+                              </tr>
+                            </ng-container>
+                          </ng-container>
+                        </ng-container>
+                      </ng-container>
+                    </tbody>
+                  </table>
                 </div>
-                
-                <div class="col-md-6">
-                  <div class="label">
-                    <label class="label-title">Column:</label>
-                    <select class="form-select" [(ngModel)]="selectedColumn" (change)="filterMethods()" 
-                            [disabled]="!selectedTable">
-                      <option [value]="null">All Columns</option>
-                      <option *ngFor="let col of getColumnsForSelectedTable()" [value]="col">{{col}}</option>
-                    </select>
-                  </div>
-                </div> 
-              </div>-->
-
-              <!-- Vista por Data Element -->
-              <!--<div *ngIf="resultsView === 'by_data_element' && selectedGranularity">-->
-              <div *ngIf="resultsView === 'by_data_element' && selectedGranularity && filteredMethods.length > 0" class="row mb-4">
-                <!-- Selector de Tabla -->
-                <div class="row mb-4">
-                  <div class="col-md-6">
-                    <label class="form-label">Select Table:</label>
-                    <select class="form-select select-style" [(ngModel)]="selectedTable" (change)="loadTableMethods()">
-                      <option [value]="null">Select a table...</option>
-                      <option *ngFor="let table of availableTables" [value]="table.table_name">{{table.table_name}}</option>
-                    </select>
-                  </div>
-                </div>
-
-
-    <!-- Tabla de Métodos Aplicados -->
-    <!-- Tabla de Métodos Aplicados -->
-    <div *ngIf="selectedTable" class="table-responsive mt-3">
-      <table class="table table-hover table-bordered rounded-table">
-        <thead class="table-light custom-thead-detailed-results">
-          <tr>
-            <th class="column-name">{{selectedGranularity === 'tuple' ? 'Columns' : 'Column'}}</th>
-            <th class="dq-method">DQ Method</th>
-            <th class="applied-method">Applied DQ Method</th>
-            <th class="dq-measurement text-center">DQ Measurement</th> 
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Iterar sobre cada grupo de columnas -->
-          <ng-container *ngFor="let columnGroup of getColumnGroups()">
-            <!-- Agrupar por DQ Method -->
-            <ng-container *ngFor="let dqMethod of getUniqueDQMethods(columnGroup.methods)">
-              <ng-container *ngIf="getMethodsByDQMethod(columnGroup.methods, dqMethod).length > 0">
-                <ng-container *ngFor="let method of getMethodsByDQMethod(columnGroup.methods, dqMethod); let i = index">
-                  <tr>
-                    <!-- Solo en la primera fila: mostrar columnas y método con rowspan -->
-                    <td *ngIf="i === 0" [attr.rowspan]="getMethodsByDQMethod(columnGroup.methods, dqMethod).length" >
-                      <div *ngIf="selectedGranularity === 'tuple'; else singleColumn">
-                        <div *ngFor="let col of columnGroup.columns" class="column-tuple">
-                          <span class="fw-medium">{{ col.column_name }}</span>
-                          <small class="text-muted d-block">{{ col.data_type }}</small>
-                        </div>
-                      </div>
-                      <ng-template #singleColumn>
-                        <span class="fw-medium">{{ columnGroup.columns[0].column_name }}</span>
-                        <small class="text-muted d-block">{{ columnGroup.columns[0].data_type }}</small>
-                      </ng-template>
-                    </td>
-                    
-                    <!-- DQ Method (solo primera fila) -->
-                    <td *ngIf="i === 0" [attr.rowspan]="getMethodsByDQMethod(columnGroup.methods, dqMethod).length" >
-                      <span class="fw-medium">{{ dqMethod }}</span><br>
-                      <small class="text-muted">{{ method.dqDimension }} • {{ method.dqFactor }} • {{ method.dqMetric }}</small>
-                      <br><br> 
-                      <small class="text-muted"><i>{{ method.purpose }}</i></small>
-                    </td>
-
-                    <!-- Método aplicado -->
-                    <td class="align-middle">
-                      <span class="fw-medium">{{ method.name }}</span><br>
-                      <small class="text-muted">{{ method.method_type }}</small>
-                    </td>
-                    
-                    <!-- DQ Measurement -->
-                    <td class="align-middle">
-                      <button class="btn btn-sm btn-light" (click)="selectMethod(method)">
-                        <i class="bi bi-eye"></i> View results
-                      </button>
-                    </td>
-                  </tr>
-                </ng-container>
-              </ng-container>
-            </ng-container>
-          </ng-container>
-        </tbody>
-      </table>
-    </div>
-
-
-</div> 
+              </div> 
 
 
               <!-- Method Selector (solo para vista By Applied Method) -->
@@ -265,19 +245,14 @@
   
           <!-- Detalles del método seleccionado -->
           <div *ngIf="selectedMethodDetail" class="method-detail mb-4">
-            <!-- ... contenido existente ... -->
           </div>
     
-
-
-  
             <!-- Aviso si no hay método seleccionado -->
             <div *ngIf="selectedGranularity && !selectedMethodId && filteredMethods.length !== 0" class="alert alert-light mb-3 mt-4">
               <i class="bi bi-info-circle me-1"></i>
               Select an Applied DQ Method to view its execution results
             </div>
 
-  
           <!-- Detalles del método seleccionado -->
           <div *ngIf="selectedMethodDetail" class="method-detail mb-4" id="methodDetailSection">
             <div class="label-container-selected mt-3 py-2 px-4">
@@ -313,11 +288,7 @@
                   {{ selectedMethodResult.results[0].executed_at | date:'MMM dd HH:mm yyyy' }}
                 </span>
               </div>
-              <!--<div class="label-selected mt-2" *ngIf="selectedMethodResult?.results?.length > 0">
-                <span class="label-value-selected">
-                  {{ selectedMethodResult.results[0].executed_at | date:'MMM dd HH:mm yyyy' }}
-                </span>
-              </div>-->
+
               <div class="label-selected">
                 <label class="label-title-selected">Granularity:</label>
                 <span class="label-value-selected">{{ selectedMethodDetail.granularity }}</span>
@@ -376,7 +347,7 @@
   
                         <!-- Loading -->
                         <span *ngIf="!selectedMethodDetail?.executionResult && isLoadingResults" class="text-muted">
-                          <span class="spinner-border spinner-border-sm" role="status"></span> Loading...
+                          <span class="spinner-border spinner-border-sm" role="status"></span> 
                         </span>
                       </td>
                       <td>{{ selectedMethodDetail.dqMetric }}</td>
@@ -386,93 +357,100 @@
                   </tbody>
                 </table>
               </div>
-  
+
               <!-- Panel de resultados múltiples -->
               <div *ngIf="showMultipleResults && selectedMethodDetail?.executionResult?.displayType === 'multiple'"
-                   class="mt-2 p-3 bg-light rounded border">
+              class="mt-2 p-3 bg-light rounded border">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                  <h6 class="mb-0">Detailed Results ({{ selectedMethodDetail.executionResult.totalRows || 0 }} rows)</h6>
-                  <button class="btn btn-sm btn-outline-secondary" (click)="showMultipleResults = false">
-                    <i class="bi bi-x-lg"></i> Close
-                  </button>
+                <h6 class="mb-0">Detailed Results ({{ selectedMethodDetail.executionResult.tableData?.length || 0 }} rows)</h6>
+                <button class="btn btn-sm btn-outline-secondary" (click)="showMultipleResults = false; showFullTable = false; paginationMode = false;">
+                <i class="bi bi-x-lg"></i> Close
+                </button>
                 </div>
-  
+
                 <!-- Tabla con resultados -->
                 <div class="table-responsive-sm">
-                  <table class="table table-sm table-bordered">
-                    <thead class="table-light custom-thead-detailed-results">
-                      <tr>
-                        <th>#</th>
-                        <th>Row ID</th>
-                        <th>Table</th>
-                        <th>Column</th>
-                        <th>DQ Value</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let row of visibleRows; let i = index">
-                        <td>{{ i + 1 }}</td>
-                        <td>{{ row.rowId }}</td>
-                        <td>{{ row.tableName }}</td>
-                        <td>{{ row.columnName }}</td>
-                        <td>{{ row.dqValue }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                <table class="table table-sm table-bordered">
+                <thead class="table-light custom-thead-detailed-results">
+                  <tr>
+                    <th>#</th>
+                    <th>Row ID</th>
+                    <th>Table</th>
+                    <th>Column</th>
+                    <th>DQ Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of visibleRows; let i = index">
+                    <td>{{ getRowNumber(i) }}</td>
+                    <td>{{ row.rowId }}</td>
+                    <td>{{ row.tableName }}</td>
+                    <td>{{ row.columnName }}</td>
+                    <td>{{ row.dqValue }}</td>
+                  </tr>
+                </tbody>
+                </table>
                 </div>
-  
-                <!-- Paginación / Cargar más -->
+
+                <!-- Controles de paginación y load more -->
                 <div *ngIf="selectedMethodDetail?.executionResult?.tableData?.length > maxVisibleRows">
-                  <div *ngIf="showFullTable; else showLoadMore">
-                    <div class="d-flex justify-content-between align-items-center mt-2">
-                      <div class="text-muted small">
-                        Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to 
-                        {{ math.min(currentPage * itemsPerPage, selectedMethodDetail.executionResult.totalRows) }} 
-                        of {{ selectedMethodDetail.executionResult.totalRows }} rows
-                      </div>
-                      <nav>
-                        <ul class="pagination pagination-sm mb-0">
-                          <li class="page-item" [class.disabled]="currentPage === 1">
-                            <a class="page-link" (click)="changePage(currentPage - 1)" aria-label="Previous">
-                              <span aria-hidden="true">&laquo;</span>
-                            </a>
-                          </li>
-                          <li class="page-item" *ngFor="let page of getPageRange()" [class.active]="page === currentPage">
-                            <a class="page-link" (click)="changePage(page)">{{ page }}</a>
-                          </li>
-                          <li class="page-item" [class.disabled]="currentPage === totalPages">
-                            <a class="page-link" (click)="changePage(currentPage + 1)" aria-label="Next">
-                              <span aria-hidden="true">&raquo;</span>
-                            </a>
-                          </li>
-                        </ul>
-                      </nav>
-                    </div>
+
+                <!-- PAGINACIÓN (cuando showFullTable es true) -->
+                <div *ngIf="showFullTable" class="mt-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="text-muted small">
+                    Showing {{ getStartIndex() + 1 }} to 
+                    {{ getEndIndex() }} 
+                    of {{ selectedMethodDetail.executionResult.tableData.length }} rows
                   </div>
-  
-                  <ng-template #showLoadMore>
-                    <div class="text-center mt-2">
-                      <button class="btn btn-sm btn-outline-primary" (click)="showFullTable = true">
-                        <i class="bi bi-table"></i> Load more ({{ selectedMethodDetail.executionResult.tableData.length - maxVisibleRows }} more rows)
-                      </button>
-                    </div>
-                  </ng-template>
+                  
+                  <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                      <li class="page-item" [class.disabled]="currentPage === 1">
+                        <a class="page-link" (click)="changePage(currentPage - 1)" style="cursor: pointer;">
+                          <span aria-hidden="true">&laquo;</span>
+                        </a>
+                      </li>
+                      <li class="page-item" *ngFor="let page of getPageRange()" [class.active]="page === currentPage">
+                        <a class="page-link" (click)="changePage(page)" style="cursor: pointer;">{{ page }}</a>
+                      </li>
+                      <li class="page-item" [class.disabled]="currentPage === totalPages">
+                        <a class="page-link" (click)="changePage(currentPage + 1)" style="cursor: pointer;">
+                          <span aria-hidden="true">&raquo;</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </nav>
                 </div>
-              </div> <!-- /Panel de resultados múltiples -->
+                
+                <!-- Botón para volver a vista resumida -->
+                <div class="text-center mt-2">
+                  <button class="btn btn-sm btn-outline-secondary" (click)="showSummaryView()">
+                    <i class="bi bi-arrow-up"></i> Show less
+                  </button>
+                </div>
+                </div>
+
+                <!-- BOTÓN LOAD MORE (cuando showFullTable es false) -->
+                <div *ngIf="!showFullTable" class="text-center mt-2">
+                <button class="btn btn-sm btn-outline-primary" (click)="showFullTableView()">
+                  <i class="bi bi-table"></i> Load more ({{ selectedMethodDetail.executionResult.tableData.length - maxVisibleRows }} more rows)
+                </button>
+                </div>
+              </div>
             </div>
-          </div> <!-- /Detalles del método -->
-        </div> <!-- /section-container -->
-      </div> <!-- /flex-container -->
-    </div> <!-- /mb-5 -->
-  </div> <!-- /container -->
-  
-  <!-- Stepper final -->
-  <app-stepper
-    [currentStep]="currentStep"
-    [totalSteps]="steps.length"
-    [isNextStepEnabled]="isNextStepEnabled"
-    (stepChange)="onStepChange($event)"
-    (completeStage)="onCompleteStage()">
-  </app-stepper>
-  
-  <app-context-components></app-context-components>
+          </div>
+        </div> <!-- /Detalles del método -->
+      </div> <!-- /section-container -->
+    </div> <!-- /flex-container -->
+  </div> 
+</div> <!-- /container -->
+
+
+<app-stepper
+  [currentStep]="currentStep"
+  [totalSteps]="steps.length"
+  [isNextStepEnabled]="isNextStepEnabled"
+  (stepChange)="onStepChange($event)"
+  (completeStage)="onCompleteStage()">
+</app-stepper>

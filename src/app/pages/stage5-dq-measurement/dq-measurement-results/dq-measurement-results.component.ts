@@ -95,6 +95,7 @@ export class DqMeasurementResultsComponent implements OnInit {
   // ========== LOADING STATES ==========
   isLoading: boolean = false;
   errorMessage: string | null = null;
+  hasLoadedAppliedMethods: boolean = false;
 
   // ========== DQ METHODS PROPERTIES ==========
   dqMethods: any[] = [];
@@ -206,7 +207,7 @@ export class DqMeasurementResultsComponent implements OnInit {
 
   // ========== MULTIPLE RESULTS DISPLAY PROPERTIES ==========
   showMultipleResults: boolean = false;
-  maxVisibleRows: number = 8; // Puedes ajustar este valor
+  maxVisibleRows: number = 12; // Puedes ajustar este valor
   showFullTable: boolean = false; // Controla si mostrar todos los resultados
 
   // ========== EXECUTION DETAILS METHODS ==========
@@ -253,9 +254,10 @@ export class DqMeasurementResultsComponent implements OnInit {
 
   // ========== PAGINATION PROPERTIES ==========
   currentPage: number = 1;
-  itemsPerPage: number = 20;  
+  itemsPerPage: number = 40;  
   showFullPagination: boolean = false;
   //visibleRows: any[] = [];
+  paginationMode: boolean = false; // track if we're in pagination mode
 
   // ========== PAGINATION METHODS ==========
   // Métodos para manejar la paginación
@@ -294,7 +296,7 @@ export class DqMeasurementResultsComponent implements OnInit {
   }
 
   // ========== MULTIPLE RESULTS TOGGLE ==========
-  toggleMultipleResults(): void {
+  toggleMultipleResults0(): void {
     this.showMultipleResults = !this.showMultipleResults;
     
     // Resetear a la primera página cuando se muestran los resultados
@@ -304,6 +306,49 @@ export class DqMeasurementResultsComponent implements OnInit {
     }
   }
 
+  toggleMultipleResults(): void {
+    this.showMultipleResults = !this.showMultipleResults;
+    
+    // Resetear a la primera página cuando se muestran los resultados
+    if (this.showMultipleResults) {
+      this.currentPage = 1;
+      this.showFullTable = false;
+      this.paginationMode = false;
+    }
+  }
+
+
+  // ========== PAGINATION HELPER METHODS ==========
+  getRowNumber(index: number): number {
+    if (!this.showFullTable) {
+      return index + 1;
+    }
+    return (this.currentPage - 1) * this.itemsPerPage + index + 1;
+  }
+
+  getStartIndex(): number {
+    return (this.currentPage - 1) * this.itemsPerPage;
+  }
+  
+  getEndIndex(): number {
+    if (!this.selectedMethodDetail?.executionResult?.tableData) return 0;
+    return Math.min(this.currentPage * this.itemsPerPage, this.selectedMethodDetail.executionResult.tableData.length);
+  }
+
+  showFullTableView(): void {
+    this.showFullTable = true;
+    this.paginationMode = true;
+    this.currentPage = 1;
+  }
+
+  showSummaryView(): void {
+    this.showFullTable = false;
+    this.paginationMode = false;
+    this.currentPage = 1;
+  }
+  
+
+  
   math = Math;
 
   // ========== EXECUTION LOADING METHODS ==========
@@ -460,6 +505,7 @@ export class DqMeasurementResultsComponent implements OnInit {
           }
   
           console.log('Todos los métodos aplicados cargados:', this.appliedDQMethods);
+          
           this.organizeMethodsByGranularity();
           this.extractDataElements();
           this.filterMethods();
@@ -614,7 +660,36 @@ export class DqMeasurementResultsComponent implements OnInit {
   }
 
   // ========== VIEW METHODS ==========
+  toggleFullTableView(): void {
+    this.showFullTable = !this.showFullTable;
+    this.paginationMode = this.showFullTable;
+    if (this.showFullTable) {
+      this.currentPage = 1; // Reset to first page when showing full table
+    }
+  }
+
+
   get visibleRows(): any[] {
+    if (!this.selectedMethodDetail?.executionResult?.tableData) return [];
+    
+    const data = this.selectedMethodDetail.executionResult.tableData;
+    
+    // Si no está en modo tabla completa o los datos son pequeños, mostrar filas limitadas
+    if (!this.showFullTable || data.length <= this.maxVisibleRows) {
+      return data.slice(0, this.maxVisibleRows);
+    }
+    
+    // Si está en modo paginación, dividir según la página actual
+    if (this.paginationMode) {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      const endIndex = startIndex + this.itemsPerPage;
+      return data.slice(startIndex, endIndex);
+    }
+    
+    return data;
+  }
+
+  get visibleRows0(): any[] {
     if (!this.selectedMethodDetail?.executionResult?.tableData) return [];
     
     // Si showFullTable es true o hay pocos resultados, mostrar todos
@@ -626,9 +701,15 @@ export class DqMeasurementResultsComponent implements OnInit {
     return this.selectedMethodDetail.executionResult.tableData.slice(0, this.maxVisibleRows);
   }
 
-  get totalPages(): number {
+  get totalPages0(): number {
     if (!this.selectedMethodDetail?.executionResult?.totalRows) return 0;
+    console.log("Total Pages", Math.ceil(this.selectedMethodDetail.executionResult.totalRows / this.itemsPerPage));
     return Math.ceil(this.selectedMethodDetail.executionResult.totalRows / this.itemsPerPage);
+  }
+
+  get totalPages(): number {
+    if (!this.selectedMethodDetail?.executionResult?.tableData) return 0;
+    return Math.ceil(this.selectedMethodDetail.executionResult.tableData.length / this.itemsPerPage);
   }
   
   get needsPagination(): boolean {
@@ -963,6 +1044,7 @@ organizeMethodsByGranularity(): void {
   }
 
   console.log('Organización completada con éxito', this.organizedMethods);
+  this.hasLoadedAppliedMethods = true;
 }
 
 

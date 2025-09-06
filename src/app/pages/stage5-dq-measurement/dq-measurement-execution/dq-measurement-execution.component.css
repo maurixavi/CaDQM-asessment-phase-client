@@ -1,3 +1,4 @@
+/* ===== ESTILOS GENERALES Y CONTENEDORES ===== */
 .flex-container {
   display: flex;
   justify-content: center;
@@ -9,15 +10,69 @@
 }
 
 
-/* Table */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 86%;
+  }
+}
+
+@media (max-width: 1080px) {
+  .container {
+    max-width: 96%;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 10px;
+  }
+
+  .section-container {
+    padding-inline: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 0 8px;
+  }
+
+  .section-container {
+    padding-inline: 0;
+  }
+  
+  .title {
+    font-size: 1.4rem;
+  }
+  
+  .subtitle-description {
+    font-size: 14px;
+  }
+}
+
+.select-style {
+  width: 440px;
+  font-size: 0.9rem; 
+  font-weight: 500;  
+  padding-left: 14px;  
+  padding-right: 14px;  
+  border: 1px solid #bbb;  
+  border-radius: 0.25rem;  
+  background-color: #fff; 
+  color: #111;  
+  cursor: pointer;  
+}
+
+
+/* ===== TABLAS ===== */
 .table-container {
-  width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
-  overflow-x: auto; /* Habilita el scroll horizontal */
-  white-space: nowrap; /* Evita que el contenido se divida en varias líneas */
+  width: 100%; 
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .table {
-  width: 100%; /* Asegura que la tabla ocupe todo el ancho del contenedor */
+  width: 100%; 
 }
 
 table {
@@ -25,21 +80,43 @@ table {
 }
 
 tr.selected-row {
-  background-color: #e9ecef; /* Color de fondo para filas seleccionadas */
+  background-color: #e9ecef;
 }
 
 .custom-thead th {
   font-weight: 500;
-  /*color: #444;*//*
-  padding: 8px 10px;*/
   text-align: left;
   white-space: nowrap;
 }
 
-/* Estilo para el texto clickeable */
+/* Permitir que el texto se ajuste en estas columnas */
+td:nth-child(2), td:nth-child(3) {
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* columna AppliedTo */
+th:nth-child(4), td:nth-child(4) {
+  max-width: 200px;
+}
+
+td:nth-child(5), td:nth-child(6) {
+  width: 10%;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Estilo para el contenido de AppliedTo */
+.table-display {
+  max-height: 100px;
+  overflow-y: auto;
+  white-space: normal;
+}
+
+
+/* ===== ELEMENTOS INTERACTIVOS ===== */
 .clickable-text {
   cursor: pointer; 
-  /*text-decoration: underline; */
 }
 
 .clickable-text:hover {
@@ -47,31 +124,33 @@ tr.selected-row {
   text-decoration: underline; 
 }
 
-/* Estilo para los encabezados clickeables */
 .sortable-header {
-  cursor: pointer; /* Efecto de manito */
-  user-select: none; /* Evita que el texto se seleccione al hacer clic */
+  cursor: pointer; 
+  user-select: none;
 }
 
-/* Estilo para los iconos de ordenamiento */
 .sortable-header i {
   margin-left: 5px;
   font-size: 12px;
-  color: #6c757d; /* Color gris para el icono por defecto */
+  color: #6c757d;
 }
 
-/* Cambiar el color del icono cuando la columna está ordenada */
 .sortable-header i.bi-caret-up-fill,
 .sortable-header i.bi-caret-down-fill {
-  color: #007bff; /* Color azul para indicar ordenamiento activo */
+  color: #007bff;
 }
 
-/* Estilo para el checkbox */
+/* Checkboxes */
 input[type="checkbox"] {
   cursor: pointer;
 }
 
-/* Buttons */
+.disabled-checkbox {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ===== BOTONES ===== */
 .btn {
   font-size: 0.9rem;
   font-weight: 500;
@@ -93,72 +172,6 @@ input[type="checkbox"] {
   padding-right: 14px;
 }
 
-
-/* Permitir que el texto se ajuste en estas columnas */
-td:nth-child(2), td:nth-child(3) {
-  white-space: normal;
-  word-break: break-word;
-}
-
-/* Hacer más pequeña la columna AppliedTo */
-th:nth-child(4), td:nth-child(4) {
-  width: 20%; /* Ajusta este valor según necesites */
-  max-width: 200px;
-}
-
-td:nth-child(5), td:nth-child(6) {
-  width: 10%;
-  white-space: normal;
-  word-break: break-word;
-}
-
-/* Estilo para el contenido de AppliedTo */
-.table-display {
-  max-height: 100px;
-  overflow-y: auto;
-  white-space: normal;
-}
-
-.disabled-checkbox {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.label-container {
-  display: flex;
-  flex-direction: column; /* Coloca cada par de label y value en una nueva línea */
-  gap: 4px; /* Espacio entre cada fila */
-  font-size: 16px;  
-  font-weight: 500;
-}
-
-.label {
-  display: flex; /* Permite que el título y el valor estén en línea */
-  align-items: center; /* Centra verticalmente el contenido */
-}
-
-.label-title {
-  width: auto;
-  font-weight: 500;
-  margin-right: 16px;
-}
-
-
-.select-style {
-  width: 440px;
-  font-size: 0.9rem; 
-  font-weight: 500;  
-  padding-left: 14px;  
-  padding-right: 14px;  
-  border: 1px solid #bbb;  
-  border-radius: 0.25rem;  
-  background-color: #fff; 
-  color: #111;  
-  cursor: pointer;  
-}
-
-
-
 .btn-outline-dark {
   border-color: #b6b5b5;
 }
@@ -168,3 +181,23 @@ td:nth-child(5), td:nth-child(6) {
   color: white;
 }
 
+/* ===== LABELS ===== */
+
+.label-container {
+  display: flex;
+  flex-direction: column; 
+  gap: 4px; 
+  font-size: 16px;  
+  font-weight: 500;
+}
+
+.label {
+  display: flex; 
+  align-items: center; 
+}
+
+.label-title {
+  width: auto;
+  font-weight: 500;
+  margin-right: 16px;
+}

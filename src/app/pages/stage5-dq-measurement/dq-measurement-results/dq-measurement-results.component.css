@@ -1,8 +1,68 @@
+/* ===== CONTENEDORES Y ESTRUCTURA ===== */
 .section-container{
   padding: 2.6rem;
   width: 100%;
 }
 
+@media (min-width: 1200px) {
+  .container {
+    max-width: 86%;
+  }
+}
+
+@media (max-width: 1080px) {
+  .container {
+    max-width: 96%;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 10px;
+  }
+
+  .section-container {
+    padding-inline: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 0 8px;
+  }
+
+  .section-container {
+    padding-inline: 0;
+  }
+  
+  .title {
+    font-size: 1.4rem;
+  }
+  
+  .subtitle-description {
+    font-size: 14px;
+  }
+}
+
+.select-style {
+  width: 100%;
+  max-width: 640px;
+  font-size: 0.9rem; 
+  font-weight: 500;  
+  padding-left: 14px;  
+  padding-right: 32px;  
+  border: 1px solid #bbb;  
+  border-radius: 0.25rem;  
+  background-color: #fff; 
+  color: #111;  
+  cursor: pointer;  
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ===== BOTONES ===== */
 .btn {
   font-size: 0.9rem;
   font-weight: 500;
@@ -24,76 +84,27 @@
   padding-right: 14px;
 }
 
-/*
-.select-style {
-  width: 440px;
-  font-size: 0.9rem; 
-  font-weight: 500;  
-  padding-left: 14px;  
-  padding-right: 14px;  
-  border: 1px solid #bbb;  
-  border-radius: 0.25rem;  
-  background-color: #fff; 
-  color: #111;  
-  cursor: pointer;  
-}*/
-
-/*
-.select-style {
-  max-width: 100%;
-  font-size: 0.9rem; 
-  font-weight: 500;  
-  padding-left: 14px;  
-  padding-right: 28px;  
-  border: 1px solid #bbb;  
-  border-radius: 0.25rem;  
-  background-color: #fff; 
-  color: #111;  
-  cursor: pointer;  
-}*/
-
-.select-style {
-  width: 100%;
-  max-width: 640px;
-  font-size: 0.9rem; 
-  font-weight: 500;  
-  padding-left: 14px;  
-  padding-right: 32px;  
-  border: 1px solid #bbb;  
-  border-radius: 0.25rem;  
-  background-color: #fff; 
-  color: #111;  
-  cursor: pointer;  
+.btn-outline-dark {
+  border-color: #b6b5b5;
 }
 
+.btn-check:checked + .btn-outline-dark {
+  background-color: #212529;
+  color: white;
+}
 
-/* Estilo para el select 
-.select-style {
-  width: 100%;  
-  font-size: 0.9rem;
-  font-weight: 500;
-  padding: 0.5rem 2.5rem 0.5rem 1rem; 
-  border: 1px solid #bbb;
-  border-radius: 0.25rem;
-  background-color: #fff;
-  color: #111;
-  cursor: pointer;
-  background-position: right 0.75rem center; 
-  background-size: 1rem;
-}*/
-
-
+/* ===== LABELS ===== */
 .label-container {
   display: flex;
-  flex-direction: column; /* Coloca cada par de label y value en una nueva línea */
-  gap: 4px; /* Espacio entre cada fila */
+  flex-direction: column; 
+  gap: 4px; 
   font-size: 16px;  
   font-weight: 500;
 }
 
 .label {
-  display: flex; /* Permite que el título y el valor estén en línea */
-  align-items: center; /* Centra verticalmente el contenido */
+  display: flex;
+  align-items: center;
 }
 
 .label-title {
@@ -133,6 +144,13 @@
 }
 
 
+/* ===== TABLAS ===== */
+.table-container {
+  width: 100%; 
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
 table {
   font-size: 14px;
 }
@@ -156,52 +174,6 @@ table {
   font-weight: 500;
 }
 
-
-/* Estilos para el contenedor del algoritmo */
-.algorithm-container {
-  background-color: #fafafa; /* Color de fondo claro */
-  border-radius: 4px;
-  padding: 12px;
-  /*margin-top: 8px;*/
-  margin-left: 22px; /* Aseguramos que no tenga margen izquierdo */
-  width: calc(100% - 24px); /* 100% menos el padding */
-  max-width: 90%; /* Ocupa máximo 90% del ancho disponible */
-  overflow: visible; /* Elimina la barra de desplazamiento */
-  white-space: pre-wrap; /* Permite que el texto se ajuste manteniendo la indentación */
-  word-wrap: break-word; /* Rompe palabras largas si es necesario */
-  border: 1px solid #dee2e6; /* Borde sutil */
-}
-
-/* Estilos para el código del algoritmo */
-.algorithm-code {
-  margin: 0;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 13px;
-  color: #212529;
-  line-height: 1.4;
-  white-space: pre-wrap; /* Mantiene la indentación pero permite saltos de línea */
-  word-break: break-all; /* Asegura que el contenido largo se rompa adecuadamente */
-}
-
-/* Media query para pantallas pequeñas */
-@media (max-width: 768px) {
-  .algorithm-container {
-    max-width: 100%; /* En móviles ocupa todo el ancho disponible */
-  }
-}
-
-.btn-outline-dark {
-  border-color: #b6b5b5;
-}
-
-
-
-.btn-check:checked + .btn-outline-dark {
-  background-color: #212529;
-  color: white;
-}
-
-
 /* Columns results table by Data Element */
 .dq-method {
   width: 35%;
@@ -214,7 +186,33 @@ table {
 }
 
 
-html {
-  scroll-behavior: smooth;
+
+/* ===== ESTILOS ALGORITMOS ===== */
+.algorithm-container {
+  background-color: #fafafa;  
+  border-radius: 4px;
+  padding: 12px;
+  margin-left: 22px; 
+  width: calc(100% - 24px); 
+  max-width: 90%; 
+  overflow: visible; 
+  white-space: pre-wrap; 
+  word-wrap: break-word; 
+  border: 1px solid #dee2e6; 
 }
 
+.algorithm-code {
+  margin: 0;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  color: #212529;
+  line-height: 1.4;
+  white-space: pre-wrap; 
+  word-break: break-all; 
+}
+
+@media (max-width: 768px) {
+  .algorithm-container {
+    max-width: 100%;
+  }
+}

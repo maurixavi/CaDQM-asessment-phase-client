@@ -12,6 +12,7 @@
     
     <div class="flex-container">
       <div class="section-container">
+        
         <!-- Mensaje de error -->
         <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
           {{ errorMessage }}
@@ -282,9 +283,6 @@
 <!-- Backdrop -->
 <div class="modal-backdrop fade" [class.show]="isModalOpen" [style.display]="isModalOpen ? 'block' : 'none'"></div>
 
-
-
-<!-- Modal para detalles del método aplicado -->
 <!-- Modal para detalles del método aplicado -->
 <div *ngIf="isAppliedMethodModalOpen" class="modal fade" [class.show]="isAppliedMethodModalOpen" tabindex="-1" [style.display]="isAppliedMethodModalOpen ? 'block' : 'none'">
   <div class="modal-dialog modal-lg modal-dialog-centered" style="display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin-top: 10%;">
@@ -373,11 +371,7 @@
                 </button>
               </div>
             </div>
-
-            
           </div>
-
-          
 
           <div *ngIf="appliedMethodDetails.executionResult" class="mb-3">
             <h6 class="fw-medium">Execution Details</h6>
