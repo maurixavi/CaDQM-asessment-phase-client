@@ -1,13 +1,11 @@
 <div class="container my-4">
-  <!-- Header Section -->
   <h2 class="title">Phase 2: DQ Assessment</h2>
   <p class="subtitle-description">
     In this phase, the DQ model is defined and, based on it, the quality of the data at hand is measured and assessed
   </p>
 
-  <!-- Main Content Container -->
   <div class="flex-container">
-    <div class="suggested-section-container">
+    <div class="section-container">
       
       <!-- Project Details Section -->
       <ng-container *ngIf="project; else noProject">
@@ -28,7 +26,7 @@
           </div>
           
           <div class="label-selected">
-            <label class="label-title-selected">Creation date: </label>
+            <label class="label-title-selected">Created: </label>
             <span class="label-value">{{ project.created_at | date:'d MMM yyyy, HH:mm' }}</span>
           </div>
           
@@ -47,9 +45,9 @@
           <div class="label-selected">
             <label class="label-title-selected">Context version: </label>
             <span class="label-value">{{ contextVersion?.name }} v{{ contextVersion?.version }} 
-                <a href="javascript:void(0)" (click)="contextModal.openModal()" style="text-decoration: none;">
-                    <i class="bi bi-zoom-in"></i>
-                </a>
+              <a href="javascript:void(0)" (click)="contextModal.openModal()" style="text-decoration: none;">
+                  <i class="bi bi-zoom-in"></i>
+              </a>
             </span>
           </div>
 
@@ -104,9 +102,9 @@
             </div>
           </div>
 
-          <!-- Action Buttons Section -->
+          <!-- Action Buttons -->
           <ng-template #closeProjectButton>
-            <button class="btn btn-light btn-sm" (click)="closeProject()">
+            <button class="btn btn-outline-danger btn-sm" (click)="closeProject()">
               <i class="bi bi-door-closed"></i> Close Project
             </button>
           </ng-template>
@@ -128,12 +126,12 @@
             <ng-container *ngTemplateOutlet="closeProjectButton"></ng-container>
           </div>
 
-          <div *ngIf="project.dqmodel_version !== null && (project.current_stage?.stage === 'ST5' || project.current_stage?.stage === 'ST6')" class="d-flex gap-2 mt-2">
+          <div *ngIf="project.dqmodel_version !== null && (project.current_stage?.stage === 'ST5' || project.current_stage?.stage === 'ST6')" class="d-flex gap-3 mt-2">
             <button class="btn btn-dark btn-sm" (click)="navigateToResume()">
               Resume
             </button>
-            <button class="btn btn-light btn-sm" (click)="openFirstNewDQModelVersionModal()">
-              New DQ Model
+            <button *ngIf="!dqModelNextVersion?.version" class="btn btn-light btn-sm" (click)="openFirstNewDQModelVersionModal()">
+              <i class="bi bi-plus-lg"></i> New DQ Model Version
             </button>
             <ng-container *ngTemplateOutlet="closeProjectButton"></ng-container>
           </div>
@@ -150,14 +148,6 @@
             <span class="sr-only"></span>
           </div>
         </div>
-
-        <!-- Spinner 
-        <div class="d-flex justify-content-center align-items-center">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <span class="ms-2">Loading data...</span>
-        </div> -->
 
       </ng-template>
     </div>
@@ -270,7 +260,6 @@
   </div>
 </app-modal>
 
-<!-- ========== COMPONENT REFERENCES ========== -->
 <app-data-at-hand-view-modal
   #dataAtHandModal
   [dataAtHandDetails]="dataAtHandDetails"

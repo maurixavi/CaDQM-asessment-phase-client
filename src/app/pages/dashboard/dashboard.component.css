@@ -1,8 +1,4 @@
-/*.container {
-  margin: auto;
-  color: #222;    
-}*/
-
+/* ===== CONTENEDORES Y ESTRUCTURA ===== */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -21,62 +17,31 @@
   .container {
     padding: 0 10px; 
   }
-  
-  /*.suggested-section-container {
-    padding: 1rem; 
-  }*/
 }
 
 @media (max-width: 576px) {
   .container {
-    padding: 0 8px; /* Mínimo padding en pantallas muy pequeñas */
+    padding: 0 8px; 
   }
   
   .title {
-    font-size: 1.4rem; /* Reduce tamaño de título en móviles */
+    font-size: 1.4rem; 
   }
   
   .subtitle-description {
-    font-size: 14px; /* Reduce tamaño de subtítulo en móviles */
+    font-size: 14px; 
   }
 }
 
-
-
-.flex-container {
+.project-title {
   display: flex;
-  justify-content: center;
-}
-
-.suggested-section-container {
-  width: 100%;
-  /*border: 1px solid #ddd; */
-  border: 1px solid #eeeeee;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-  background-color: #fff; 
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;  
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 
-
-.title {
-  font-size: 1.6rem;
-  font-weight: 500;
-  padding-top: 0.4rem;
-  margin-bottom: 1rem;
-}
-
-.subtitle-description {
-  font-size: 16px;
-  font-style: italic;
-}
-
-
-
-
+/* ===== COMPONENTES DE MODAL ===== */
 .modal.show {
   display: block;
 }
@@ -130,6 +95,12 @@
   color: #222;
 }
 
+.custom-modal {
+  margin-top: 100px; 
+}
+
+
+/* ===== LABELS ===== */
 .label-container-selected {
   display: flex;
   flex-direction: column;  
@@ -144,24 +115,10 @@
   font-size: 15px;
 }
 
-.project-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-
 .label-name-project {
   font-weight: 700;
   font-size: 18px; 
 }
-
-/*
-.label-title-selected {
-  width: 140px;
-  margin-right: 10px;
-  font-weight: 500;
-}*/
 
 .label-title-selected {
   width: 18%;
@@ -188,6 +145,8 @@
   }
 }
 
+
+/* ===== BOTONES ===== */
 .btn {
 	font-size: 0.9rem;
   font-weight: 500;
@@ -220,69 +179,4 @@
   border: 1px solid  #222; 
 	padding-left: 14px;
 	padding-right: 14px;
-}
-
-.custom-modal {
-  margin-top: 100px; 
-}
-
-
-/* Estilos para la tabla */
-.table-hover tbody tr:hover {
-  background-color: #f8f9fa; /* Color de fondo al hacer hover */
-  cursor: pointer; /* Cambia el cursor a una mano */
-}
-
-/* Estilo para la fila seleccionada */
-.table-active {
-  background-color: #e9ecef !important; /* Color de fondo para la fila seleccionada */
-}
-
-/* Añadir un efecto de sombra al hacer hover */
-.clickable-row:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sutil sombra */
-  transition: box-shadow 0.2s ease-in-out; /* Transición suave */
-}
-
-
-/* Estilos para los botones de acciones */
-.action-items-container {
-  display: flex; /* Usamos flexbox para alinear los íconos */
-  justify-content: space-between; /* Separa los íconos */
-  align-items: center; /* Centra los íconos verticalmente */
-  width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
-}
-
-.action-icon {
-  font-size: 16px; /* Ajusta el tamaño de los íconos */
-  color: #727272; /* Cambia el color a un azul, puedes usar el color que desees */
-  cursor: pointer; /* Cambia el cursor para indicar que son interactivos */
-}
-
-.action-icon:hover {
-  color: #3a3a3a; /* Cambia el color al pasar el mouse */
-}
-
-/* Estilos para la paginación */
-.pagination {
-  margin-top: 20px;
-}
-
-/* Cambiar el color de la página activa a gris */
-.page-item.active .page-link {
-  background-color: #6c757d; /* Gris de Bootstrap */
-  border-color: #6c757d; /* Gris de Bootstrap */
-  color: white; /* Texto en blanco para mejor contraste */
-}
-
-/* Estilo para los enlaces de paginación */
-.page-link {
-  color: #6c757d; /* Gris de Bootstrap */
-  cursor: pointer; /* Efecto de pointer */
-}
-
-/* Efecto hover para los enlaces de paginación */
-.page-link:hover {
-  color: #495057; /* Gris más oscuro al hacer hover */
-  background-color: #f8f9fa; /* Fondo claro al hacer hover */
 }
