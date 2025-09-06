@@ -824,27 +824,6 @@ export class DqAssessmentApproachesDefinitionComponent implements OnInit {
     };
   }
 
-  
-  /*fetchLatestExecutionResults(): void {
-    if (!this.dqModelVersionId) return;
-    
-    this.isLoadingResults = true;
-    this.resultsError = null;
-    
-    this.modelService.getLatestExecutionResults(this.dqModelVersionId).subscribe({
-      next: (results) => {
-        this.executionResults = results;
-        this.isLoadingResults = false;
-        this.mergeExecutionResultsWithMethods();
-      },
-      error: (err) => {
-        this.resultsError = 'Failed to load execution results';
-        this.isLoadingResults = false;
-        console.error('Error fetching execution results:', err);
-      }
-    });
-  }*/
-
   toggleMultipleResults(): void {
     this.showMultipleResults = !this.showMultipleResults;
   }

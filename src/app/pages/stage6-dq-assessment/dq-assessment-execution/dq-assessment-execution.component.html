@@ -23,9 +23,9 @@
           <p class="ms-2">Loading data...</p>
         </div>
 
-        <!-- Filtro de estado -->
+        <!-- 1. Filtro de estado -->
         <div *ngIf="hasLoadedAppliedMethods">
-          <div class="label-container">
+          <div class="label-container mb-3">
             <div class="label">
               <label class="label-title">Assessment Status:</label>
               <span class="label-value d-flex align-items-center">
@@ -57,6 +57,88 @@
               </span>
             </div>
           </div>
+
+          <!-- 2. Filtro de granularidad (solo se muestra si hay métodos) -->
+          <div *ngIf="hasLoadedAppliedMethods && filteredMethods.length > 0" class="label-container mb-3">
+            <div class="label">
+              <label class="label-title">Granularity:</label>
+              <span class="label-value d-flex align-items-center">
+                <div class="btn-group" role="group">
+                  <input 
+                    type="radio" 
+                    class="btn-check" 
+                    [(ngModel)]="selectedGranularity" 
+                    (ngModelChange)="onGranularityChange()"
+                    value="all" 
+                    id="granularityAll"
+                    [checked]="selectedGranularity === 'all'">
+                  <label class="btn btn-outline-dark" for="granularityAll"
+                        [class.active]="selectedGranularity === 'all'">
+                    All
+                  </label>
+
+                  <input 
+                    type="radio" 
+                    class="btn-check" 
+                    [(ngModel)]="selectedGranularity" 
+                    (ngModelChange)="onGranularityChange()"
+                    value="table" 
+                    id="granularityTable"
+                    [checked]="selectedGranularity === 'table'">
+                  <label class="btn btn-outline-dark" for="granularityTable"
+                        [class.active]="selectedGranularity === 'table'">
+                    Table
+                  </label>
+                
+                  <input 
+                    type="radio" 
+                    class="btn-check" 
+                    [(ngModel)]="selectedGranularity" 
+                    (ngModelChange)="onGranularityChange()" 
+                    value="column" 
+                    id="granularityColumn"
+                    [checked]="selectedGranularity === 'column'">
+                  <label class="btn btn-outline-dark" for="granularityColumn"
+                        [class.active]="selectedGranularity === 'column'">
+                    Column
+                  </label>
+                  
+                  <input 
+                    type="radio" 
+                    class="btn-check" 
+                    [(ngModel)]="selectedGranularity" 
+                    (ngModelChange)="onGranularityChange()"
+                    value="cell" 
+                    id="granularityCell"
+                    [checked]="selectedGranularity === 'cell'">
+                  <label class="btn btn-outline-dark" for="granularityCell"
+                        [class.active]="selectedGranularity === 'cell'">
+                    Cell
+                  </label>
+                  
+                  <input 
+                    type="radio" 
+                    class="btn-check" 
+                    [(ngModel)]="selectedGranularity" 
+                    (ngModelChange)="onGranularityChange()"
+                    value="tuple" 
+                    id="granularityTuple"
+                    [checked]="selectedGranularity === 'tuple'">
+                  <label class="btn btn-outline-dark" for="granularityTuple"
+                        [class.active]="selectedGranularity === 'tuple'">
+                    Tuple
+                  </label>
+                </div>
+              </span>
+            </div>
+          </div>
+
+          <!-- Mensaje cuando no hay métodos para la granularidad seleccionada -->
+          <div *ngIf="hasLoadedAppliedMethods && selectedGranularity !== 'all' && filteredMethods.length === 0" 
+              class="alert alert-info mb-3">
+            <i class="bi bi-info-circle me-1"></i>
+            No {{selectedAssessmentStatus}} methods found for {{selectedGranularity}} granularity.
+          </div>
           
           <div class="alert alert-light mb-3 mt-4" *ngIf="!selectedAssessmentStatus">
             <i class="bi bi-info-circle me-1"></i>
@@ -69,8 +151,8 @@
             DQ assessment completed. There are no pending Applied DQ Methods to execute.
           </div>
           
-          <br>
           
+          <!-- 3. Filtro por Metodo Aplicado-->
           <div class="label-container" *ngIf="selectedAssessmentStatus && filteredMethodOptions.length">
             <div class="label">
               <label class="label-title">Applied DQ Method:</label>
@@ -128,7 +210,7 @@
     
               <div class="label-selected mt-2">
                 <label class="label-title-selected">Execution date:</label>
-                <span class="label-value-selected">{{ selectedMethodDetail.executionResult?.executed_at | date:'MMM dd HH:mm yyyy' }}</span>
+                <span class="label-value-selected">{{ selectedMethodDetail.executionResult?.executed_at | date:'medium' }}</span>
               </div>
 
               <div class="label-selected">
@@ -222,7 +304,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr *ngFor="let row of selectedMethodDetail.executionResult.tableData | slice:0:maxVisibleRows; let i = index">
+                      <tr *ngFor="let row of selectedMethodDetail.executionResult.tableData | slice:0:sampleVisibleRows; let i = index">
                         <td>{{ i + 1 }}</td>
                         <td>{{ getRowId(row) }}</td>
                         <td>{{ getTableByRow(row) }}</td>
@@ -233,9 +315,9 @@
                   </table>
                 </div>
               
-                <div *ngIf="selectedMethodDetail.executionResult.tableData.length > maxVisibleRows" 
+                <div *ngIf="selectedMethodDetail.executionResult.tableData.length > sampleVisibleRows" 
                     class="mt-2 text-center text-muted small">
-                  Showing {{ maxVisibleRows }} of {{ selectedMethodDetail.executionResult.tableData.length }} rows
+                  Showing {{ sampleVisibleRows }} of {{ selectedMethodDetail.executionResult.tableData.length }} rows
                 </div>
               </div>
             </div>
@@ -281,8 +363,8 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr *ngFor="let row of selectedMethodDetail.executionResult.tableData | slice:0:maxVisibleRows; let i = index">
-                        <td>{{ i + 1 }}</td>
+                      <tr *ngFor="let row of visibleRows; let i = index">
+                        <td>{{ getRowNumber(i) }}</td>
                         <td>{{ getRowId(row) }}</td>
                         <td>{{ getTableByRow(row) }}</td>
                         <td>{{ getColumnByRow(row) }}</td>
@@ -296,9 +378,53 @@
                     </tbody>
                   </table>
                 </div>
-                <div *ngIf="selectedMethodDetail.executionResult.tableData.length > maxVisibleRows" 
-                    class="mt-2 text-center text-muted small">
-                  Showing {{ maxVisibleRows }} of {{ selectedMethodDetail.executionResult.tableData.length }} rows
+
+                <!-- Controles de paginación para assessment -->
+                <div *ngIf="selectedMethodDetail.executionResult.tableData.length > maxVisibleRows">
+                  
+                  <!-- PAGINACIÓN (cuando showFullTable es true) -->
+                  <div *ngIf="showFullTable" class="mt-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="text-muted small">
+                        Showing {{ getStartIndex() + 1 }} to 
+                        {{ getEndIndex() }} 
+                        of {{ selectedMethodDetail.executionResult.tableData.length }} rows
+                      </div>
+                      
+                      <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                          <li class="page-item" [class.disabled]="currentPage === 1">
+                            <a class="page-link" (click)="changePage(currentPage - 1)" style="cursor: pointer;">
+                              <span aria-hidden="true">&laquo;</span>
+                            </a>
+                          </li>
+                          <li class="page-item" *ngFor="let page of getPageRange()" [class.active]="page === currentPage">
+                            <a class="page-link" (click)="changePage(page)" style="cursor: pointer;">{{ page }}</a>
+                          </li>
+                          <li class="page-item" [class.disabled]="currentPage === totalPages">
+                            <a class="page-link" (click)="changePage(currentPage + 1)" style="cursor: pointer;">
+                              <span aria-hidden="true">&raquo;</span>
+                            </a>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
+                    
+                    <!-- Botón para volver a vista resumida -->
+                    <div class="text-center mt-2">
+                      <button class="btn btn-sm btn-outline-secondary" (click)="showSummaryView()">
+                        <i class="bi bi-arrow-up"></i> Show less
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- BOTÓN LOAD MORE (cuando showFullTable es false) -->
+                  <div *ngIf="!showFullTable" class="text-center mt-2">
+                    <button class="btn btn-sm btn-outline-primary" (click)="toggleFullTableView()">
+                      <i class="bi bi-table"></i> Load more ({{ selectedMethodDetail.executionResult.tableData.length - maxVisibleRows }} more rows)
+                    </button>
+                  </div>
+                  
                 </div>
               </div>
             </div>

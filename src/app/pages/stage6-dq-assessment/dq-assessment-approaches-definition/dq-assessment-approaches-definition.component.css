@@ -1,14 +1,48 @@
+/* ===== CONTENEDORES Y ESTRUCTURA ===== */
+
 .section-container{
   padding: 2.6rem;
 }
 
-.alert-tip-message {
-  display: flex;
-  align-items: center;
-  max-width: 100%;
-  font-size: 13.5px;
+@media (min-width: 1200px) {
+  .container {
+    max-width: 86%;
+  }
 }
 
+@media (max-width: 1080px) {
+  .container {
+    max-width: 96%;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 10px;
+  }
+
+  .section-container {
+    padding-inline: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 0 8px;
+  }
+
+  .section-container {
+    padding-inline: 0;
+  }
+  
+  .title {
+    font-size: 1.4rem;
+  }
+  
+  .subtitle-description {
+    font-size: 14px;
+  }
+}
 
 .select-style {
   width: 100%;
@@ -24,26 +58,11 @@
   cursor: pointer;  
 }
 
-/*
-.select-style {
-  width: 640px;
-  font-size: 0.9rem; 
-  font-weight: 500;  
-  padding-left: 14px;  
-  padding-right: 32px;  
-  border: 1px solid #bbb;  
-  border-radius: 0.25rem;  
-  background-color: #fff; 
-  color: #111;  
-  cursor: pointer;  
-}*/
 
-
-
+/* ===== BOTONES ===== */
 .btn {
 	font-size: 0.9rem;
   font-weight: 500;
-  /*border-radius: 8px;*/
 }
 .btn-dark {
   background-color: #222; 
@@ -74,111 +93,34 @@
 	padding-right: 14px;
 }
 
-
-/* Estilos para la sección de thresholds */
-/*.threshold-section {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-}*/
-
-.rating-item {
-  background-color: white;
+.btn-outline-dark {
+  border-color: #b6b5b5;
 }
 
-/* Mejora la visualización de los badges con rating */
-.badge {
-  transition: all 0.3s ease;
-  font-size: 0.9em;
-  padding: 0.5em 0.75em;
+.btn-check:checked + .btn-outline-dark {
+  background-color: #212529;
+  color: white;
 }
 
-
-/* Mejora la visualización de los inputs de color */
-.form-control-color {
-  height: 38px;
-  padding: 2px;
-}
-
-/* Espaciado y márgenes */
-/*.quality-ratings-container {
-  margin-top: 1.5rem;
-}*/
-
-/*
-.context-fields {
-  border-left: 3px solid #6c757d;
-}*/
-
-
-.bg-light {
-  background-color: #ffffff !important;
-}
-
-.rating-item {
-  transition: all 0.3s ease;
-}
-
-.rating-item:not(.editable) {
-  background-color: #ffffff;
-}
-
-.readonly-field {
-  cursor: not-allowed;
-}
+/* ===== LABELS ===== */
 
 .label-container {
   display: flex;
-  flex-direction: column; /* Coloca cada par de label y value en una nueva línea */
-  gap: 4px; /* Espacio entre cada fila */
+  flex-direction: column; 
+  gap: 4px; 
   font-size: 16px;  
   font-weight: 500;
 }
 
 .label {
-  display: flex; /* Permite que el título y el valor estén en línea */
-  align-items: center; /* Centra verticalmente el contenido */
+  display: flex; 
+  align-items: center; 
 }
 
 .label-title {
   width: 230px;
   font-weight: 500;
 }
-
-
-.table-container {
-  width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
-  overflow-x: auto; /* Habilita el scroll horizontal */
-}
-
-.table {
-  width: 100%; 
-  white-space: normal;
-  word-break: break-word;
-}
-
-table {
-  font-size: 14px;
-}
-
-.custom-thead th {
-  font-size: 15px;
-  font-weight: 500;
-  text-align: left;
-  /*white-space: nowrap;*/
-}
-
-.custom-thead th:nth-child(1) { width: 25%; }
-.custom-thead th:nth-child(2) { width: 18%; }
-.custom-thead th:nth-child(3) { width: 12%; }
-.custom-thead th:nth-child(4) { width: 15%; }
-.custom-thead th:nth-child(5) { width: 15%; }
-.custom-thead th:nth-child(6) { width: 15%; }
-
-.custom-thead-detailed-results th {
-  font-size: 14px;
-  font-weight: 500;
-}
-
 
 
 .label-container-selected {
@@ -217,22 +159,99 @@ table {
   font-weight: 500;
 }
 
-/* Estilos para el contenedor del algoritmo */
-.algorithm-container {
-  background-color: #fafafa; /* Color de fondo claro */
-  border-radius: 4px;
-  padding: 12px;
-  /*margin-top: 8px;*/
-  margin-left: 22px; /* Aseguramos que no tenga margen izquierdo */
-  width: calc(100% - 24px); /* 100% menos el padding */
-  max-width: 90%; /* Ocupa máximo 90% del ancho disponible */
-  overflow: visible; /* Elimina la barra de desplazamiento */
-  white-space: pre-wrap; /* Permite que el texto se ajuste manteniendo la indentación */
-  word-wrap: break-word; /* Rompe palabras largas si es necesario */
-  border: 1px solid #dee2e6; /* Borde sutil */
+
+/* ===== ASPECTOS PARTICULARES DE INTERFAZ ===== */
+.alert-tip-message {
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+  font-size: 13.5px;
 }
 
-/* Estilos para el código del algoritmo */
+.rating-item {
+  background-color: white;
+}
+
+/* Mejora la visualización de los badges con rating */
+.badge {
+  transition: all 0.3s ease;
+  font-size: 0.9em;
+  padding: 0.5em 0.75em;
+}
+
+/* Mejora la visualización de los inputs de color */
+.form-control-color {
+  height: 38px;
+  padding: 2px;
+}
+
+.rating-item {
+  transition: all 0.3s ease;
+}
+
+.rating-item:not(.editable) {
+  background-color: #ffffff;
+}
+
+.readonly-field {
+  cursor: not-allowed;
+}
+
+.bg-light {
+  background-color: #ffffff !important;
+}
+
+
+/* ===== TABLAS ===== */
+.table-container {
+  width: 100%; 
+  overflow-x: auto; /* Habilita el scroll horizontal */
+}
+
+.table {
+  width: 100%; 
+  white-space: normal;
+  word-break: break-word;
+}
+
+table {
+  font-size: 14px;
+}
+
+.custom-thead th {
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  /*white-space: nowrap;*/
+}
+
+.custom-thead th:nth-child(1) { width: 25%; }
+.custom-thead th:nth-child(2) { width: 18%; }
+.custom-thead th:nth-child(3) { width: 12%; }
+.custom-thead th:nth-child(4) { width: 15%; }
+.custom-thead th:nth-child(5) { width: 15%; }
+.custom-thead th:nth-child(6) { width: 15%; }
+
+.custom-thead-detailed-results th {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+
+/* ===== ESTILOS ALGORITMOS ===== */
+.algorithm-container {
+  background-color: #fafafa;
+  border-radius: 4px;
+  padding: 12px;
+  margin-left: 22px; 
+  width: calc(100% - 24px); /* 100% menos el padding */
+  max-width: 90%; 
+  overflow: visible; /* Elimina la barra de desplazamiento */
+  white-space: pre-wrap; /* Permite que el texto se ajuste manteniendo la indentación */
+  word-wrap: break-word; /* Romper palabras largas si es necesario */
+  border: 1px solid #dee2e6; 
+}
+
 .algorithm-code {
   margin: 0;
   font-family: 'Courier New', Courier, monospace;
@@ -243,20 +262,8 @@ table {
   word-break: break-all; /* Asegura que el contenido largo se rompa adecuadamente */
 }
 
-/* Media query para pantallas pequeñas */
 @media (max-width: 768px) {
   .algorithm-container {
-    max-width: 100%; /* En móviles ocupa todo el ancho disponible */
+    max-width: 100%;
   }
 }
-
-.btn-outline-dark {
-  border-color: #b6b5b5;
-}
-
-.btn-check:checked + .btn-outline-dark {
-  background-color: #212529;
-  color: white;
-}
-
-

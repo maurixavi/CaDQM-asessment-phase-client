@@ -42,7 +42,7 @@ export class DqAssessmentExecutionComponent implements OnInit {
   isModalOpen = false;
   considerContext = false;
   showMultipleResults = false;
-  maxVisibleRows = 5;
+  sampleVisibleRows = 5;
   
   errorMessage: string | null = null;
   resultsError: string | null = null;
@@ -175,6 +175,96 @@ export class DqAssessmentExecutionComponent implements OnInit {
       }
     });
   }
+
+
+  // ========== PAGINATION PROPERTIES ==========
+  currentPage: number = 1;
+  itemsPerPage: number = 20;
+  showFullTable: boolean = false;
+  paginationMode: boolean = false;
+  maxVisibleRows: number = 8; // 
+
+  // ========== PAGINATION METHODS ==========
+toggleFullTableView(): void {
+  this.showFullTable = !this.showFullTable;
+  this.paginationMode = this.showFullTable;
+  if (this.showFullTable) {
+    this.currentPage = 1;
+  }
+}
+
+showSummaryView(): void {
+  this.showFullTable = false;
+  this.paginationMode = false;
+  this.currentPage = 1;
+}
+
+changePage(page: number): void {
+  if (page >= 1 && page <= this.totalPages) {
+    this.currentPage = page;
+  }
+}
+
+getPageRange(): number[] {
+  const totalPages = this.totalPages;
+  if (totalPages <= 0) return [];
+  
+  const range = [];
+  const maxVisiblePages = 5;
+  let start = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
+  let end = Math.min(totalPages, start + maxVisiblePages - 1);
+  
+  if (end - start + 1 < maxVisiblePages) {
+    start = Math.max(1, end - maxVisiblePages + 1);
+  }
+  
+  for (let i = start; i <= end; i++) {
+    range.push(i);
+  }
+  
+  return range;
+}
+
+get totalPages(): number {
+  if (!this.selectedMethodDetail?.executionResult?.tableData) return 0;
+  return Math.ceil(this.selectedMethodDetail.executionResult.tableData.length / this.itemsPerPage);
+}
+
+get visibleRows(): any[] {
+  if (!this.selectedMethodDetail?.executionResult?.tableData) return [];
+  
+  const data = this.selectedMethodDetail.executionResult.tableData;
+  
+  // Si no está en modo tabla completa, mostrar filas limitadas
+  if (!this.showFullTable) {
+    return data.slice(0, this.maxVisibleRows);
+  }
+  
+  // Si está en modo paginación, dividir según la página actual
+  if (this.paginationMode) {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return data.slice(startIndex, endIndex);
+  }
+  
+  return data;
+}
+
+getRowNumber(index: number): number {
+  if (!this.showFullTable) {
+    return index + 1;
+  }
+  return (this.currentPage - 1) * this.itemsPerPage + index + 1;
+}
+
+getStartIndex(): number {
+  return (this.currentPage - 1) * this.itemsPerPage;
+}
+
+getEndIndex(): number {
+  if (!this.selectedMethodDetail?.executionResult?.tableData) return 0;
+  return Math.min(this.currentPage * this.itemsPerPage, this.selectedMethodDetail.executionResult.tableData.length);
+}
 
   // ========== EXECUTION CHANGE HANDLERS ==========
   fetchExecutionAppliedMethods(): void {
@@ -560,8 +650,89 @@ export class DqAssessmentExecutionComponent implements OnInit {
     });
   }
 
+  // ========== GRANULARITY FILTER PROPERTIES ==========
+  selectedGranularity: string = 'all';
+  availableGranularities: string[] = ['table', 'column', 'cell', 'tuple'];
+
+  // ========== GRANULARITY FILTER METHODS ==========
+  onGranularityChange(): void {
+    this.filterMethodsByAssessmentStatusAndGranularity();
+  }
+
+  filterMethodsByAssessmentStatusAndGranularity(): void {
+    if (!this.selectedAssessmentStatus || !this.executedMethods) {
+      this.filteredMethods = [];
+      this.filteredMethodOptions = [];
+      this.selectedMethodId = null;
+      this.selectedMethodDetail = null;
+      return;
+    }
+
+    console.log("Current executedMethods:", this.executedMethods);
+    console.log("Selected granularity:", this.selectedGranularity);
+
+    // Primero filtrar por estado de assessment
+    let filteredByStatus: any[] = [];
+    
+    switch (this.selectedAssessmentStatus) {
+      case 'all':
+        filteredByStatus = [...this.executedMethods];
+        break;
+      case 'completed':
+        filteredByStatus = this.executedMethods.filter(method => {
+          const isAssessed = method?.executionResult?.assessment?.assessed_at !== null;
+          console.log(`Method ${method.id} assessment status:`, isAssessed);
+          return isAssessed;
+        });
+        break;
+      case 'pending':
+        filteredByStatus = this.executedMethods.filter(method =>
+          method?.executionResult?.assessment?.assessed_at === null &&
+          Array.isArray(method?.executionResult?.assessment?.thresholds) &&
+          method.executionResult.assessment.thresholds.length > 0
+        );
+        break;
+    }
+
+    // Luego filtrar por granularidad si no es 'all'
+    if (this.selectedGranularity !== 'all') {
+      this.filteredMethods = filteredByStatus.filter(method => 
+        method.granularity?.toLowerCase() === this.selectedGranularity?.toLowerCase()
+      );
+    } else {
+      this.filteredMethods = filteredByStatus;
+    }
+
+    console.log("Filtered methods after granularity:", this.filteredMethods);
+    
+    this.filteredMethodOptions = this.filteredMethods.map(method => ({
+      id: method.id,
+      name: `${method.name} (${method.dqMethod}) - ${method.granularity}`
+    }));
+    
+    // Resetear selección si el método actual no está en los filtrados
+    if (this.selectedMethodId && !this.filteredMethods.some(m => m.id === this.selectedMethodId)) {
+      this.selectedMethodId = null;
+      this.selectedMethodDetail = null;
+    }
+  }
+
+  // Método para obtener granularidades únicas disponibles
+  getUniqueGranularities(): string[] {
+    const granularities = new Set<string>();
+    this.executedMethods.forEach(method => {
+      if (method.granularity) {
+        granularities.add(method.granularity.toLowerCase());
+      }
+    });
+    return Array.from(granularities).sort();
+  }
 
   filterMethodsByAssessmentStatus(): void {
+    this.filterMethodsByAssessmentStatusAndGranularity();
+  }
+
+  filterMethodsByAssessmentStatus0(): void {
     if (!this.selectedAssessmentStatus || !this.executedMethods) {
       this.filteredMethods = [];
       this.filteredMethodOptions = [];
