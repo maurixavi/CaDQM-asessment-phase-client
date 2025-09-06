@@ -7,14 +7,14 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <ul>
+        <ul class="no-bullets">
           <li *ngFor="let key of selectedComponentKeys">
-            <strong>{{ formatCategoryName(key) }}:</strong> {{ selectedComponentDetails[key] }}
+            <span class="fw-medium">{{ formatCategoryName(key) }}:</span> {{ selectedComponentDetails[key] }}
           </li>
         </ul>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      <div class="modal-footer" style="border-top: none;">
+        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>

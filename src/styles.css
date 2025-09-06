@@ -33,6 +33,13 @@
   }
 }
 
+.title {
+  font-size: 1.6rem;
+  font-weight: 500;
+  padding-top: 0.4rem;
+  margin-bottom: 1rem;
+}
+
 .subtitle-description {
   font-size: 16px;
   font-style: italic;
@@ -49,12 +56,67 @@
   font-size: 0.875rem;
 }
 
+
 .flex-container {
   display: flex;
   justify-content: center;
 }
 
-/* Accordion Views */
+
+
+/* ---------- */
+
+.label {
+  display: flex; 
+  align-items: center;
+}
+
+.label-selected {
+  display: flex;
+  align-items: flex-start;
+  padding-bottom: 16px;
+  font-size: 15px;
+}
+
+.label-container {
+  display: flex;
+  flex-direction: column; 
+  gap: 4px;  
+  font-size: 16px;  
+  font-weight: 500;
+}
+
+.label-container-selected {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+
+.dqmodel-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.label-name-dqmodel {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* Item colapsable Tipo-Titulo */
+.label-title {
+  width: 120px;
+  font-weight: 500;
+}
+
+.label-title-name {
+  font-weight: 700;
+}
+
+
 .divider {
   border-top: 1px solid #eeeeee;
   margin: 0.5rem 0;
@@ -72,3 +134,37 @@
   margin-left: 10px;
 }
 
+/* ===== BOTONES ===== */
+.btn {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.btn-dark {
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #111;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.btn-dark:hover {
+  background-color: #333;
+  border: 1px solid #333;
+}
+
+.btn-light {
+  background-color: #fff; 
+  color: #111; 
+  border: 1px solid #bbb; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-light:hover {
+  background-color: #222; 
+  color: #fff; 
+  border: 1px solid  #222; 
+	padding-left: 14px;
+	padding-right: 14px;
+}

@@ -1,0 +1,40 @@
+.modal-title {
+  font-size: 1.1rem;  
+}
+
+.modal-body {
+  font-size: 0.9rem; 
+}
+
+.btn {
+	font-size: 0.9rem;
+  font-weight: 500;
+}
+.btn-dark {
+  background-color: #222; 
+  color: #fff; 
+  border: 1px solid  #111; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-dark:hover {
+  background-color: #333; 
+  border: 1px solid #333; 
+}
+
+.btn-light {
+  background-color: #fff; 
+  color: #111; 
+  border: 1px solid #bbb; 
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-light:hover {
+  background-color: #222; 
+  color: #fff; 
+  border: 1px solid  #222; 
+	padding-left: 14px;
+	padding-right: 14px;
+}

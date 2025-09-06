@@ -53,7 +53,7 @@
                                   data-bs-toggle="collapse" 
                                   [attr.data-bs-target]="'#contextModalComponentCollapse_' + i + '_' + j"
                                   [attr.aria-controls]="'contextModalComponentCollapse_' + i + '_' + j">
-                            <span class="fw-medium">{{ getFirstNonIdAttribute(component) }}</span>
+                            <span class="fw-medium"><span class="fw-normal" style="font-size: 12px;">{{ getCategoryAbbreviation(category)}}{{ component.id }}</span> {{ getFirstNonIdAttribute(component) }}</span>
                           </button>
                         </h2>
                         <div [id]="'contextModalComponentCollapse_' + i + '_' + j" class="accordion-collapse collapse"

@@ -1,6 +1,16 @@
-// src/app/shared/utils/utils.ts
-
-// src/app/utils/utils.ts
+// Categorías para organizar componentes de contexto
+export const contextComponentCategories: string[] = [
+  'applicationDomain',
+  'businessRule',
+  'dataFiltering',
+  'dqMetadata',
+  'dqRequirement',
+  'otherData',
+  'otherMetadata',
+  'systemRequirement',
+  'taskAtHand',
+  'userType',
+];
 
 export function buildContextComponents(selectedComponents: { id: number; category: string; value: string }[]): any {
   const contextComponents = {
@@ -96,8 +106,6 @@ export function getFirstNonIdAttribute(item: any): string {
   return firstNonIdKey ? item[firstNonIdKey] : '';
 }
 
-
-
 export function formatAppliedTo(appliedTo: any): string {
   if (!appliedTo) return 'Not specified';
   
@@ -155,3 +163,23 @@ export function getAppliedToDisplay(appliedTo: any): {tableName: string, columns
     columns: [appliedTo.column_name]
   }];
 }
+
+// Mapeo de categorías a abreviaciones
+const categoryAbbreviations: { [key: string]: string } = {
+  applicationDomain: 'AD',
+  businessRule: 'BR',
+  dataFiltering: 'DF',
+  dqMetadata: 'DQMet',
+  dqRequirement: 'DQR',
+  otherData: 'OthD',
+  otherMetadata: 'OthMet',
+  systemRequirement: 'SR',
+  taskAtHand: 'T',
+  userType: 'UC',
+};
+
+// Función para obtener la abreviación de una categoría
+export function getCategoryAbbreviation(category: string): string {
+  return categoryAbbreviations[category] || category;
+}
+

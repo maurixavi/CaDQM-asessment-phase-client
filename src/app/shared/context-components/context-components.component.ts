@@ -3,7 +3,7 @@ import { ContextComponentsService } from './context-components.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { ProjectService } from '../../services/project.service';
 import { ProjectDataService } from '../../services/project-data.service';
-import { buildContextComponents, formatCtxCompCategoryName, getFirstNonIdAttribute } from '../../shared/utils/utils';
+import { formatCtxCompCategoryName, getFirstNonIdAttribute, getCategoryAbbreviation, contextComponentCategories  } from '../../shared/utils/utils';
 
 declare var bootstrap: any; 
 
@@ -23,24 +23,14 @@ export class ContextComponentsComponent implements OnInit {
   allContextComponents: any = null;
   allDQProblems: any = null;
   dataSchema: any = null;
-
-  // Categorías para organizar los componentes de contexto
-  categories: string[] = [
-    'applicationDomain',
-    'businessRule',
-    'dataFiltering',
-    'dqMetadata',
-    'dqRequirement',
-    'otherData',
-    'otherMetadata',
-    'systemRequirement',
-    'taskAtHand',
-    'userType',
-  ];
+  selectedComponent: any = null;
 
   // Utilidades para el template
   public formatCtxCompCategoryName = formatCtxCompCategoryName;
   public getFirstNonIdAttribute = getFirstNonIdAttribute;
+  public getCategoryAbbreviation = getCategoryAbbreviation;
+
+  categories = contextComponentCategories;
 
   constructor(
     private contextService: ContextComponentsService,
@@ -62,12 +52,11 @@ export class ContextComponentsComponent implements OnInit {
 
     this.projectDataService.contextComponents$.subscribe((data) => {
       this.allContextComponents = data;
-      //console.log('Context Components:', data);
+      console.log('Context Components:', data);
     });
 
     this.projectDataService.dqProblems$.subscribe((data) => {
       this.allDQProblems = data;
-      //console.log('DQ Problems:', data);
       if (this.projectId) {
         this.loadDQProblems(this.projectId);
       }
@@ -105,40 +94,27 @@ export class ContextComponentsComponent implements OnInit {
     });
   }
 
-  // Método para obtener el primer atributo no 'id' de un componente
+  // Obtener el primer atributo no 'id' de un componente
   getFirstAttribute(component: any): string {
     const keys = Object.keys(component).filter(key => key !== 'id');
     return keys.length > 0 ? component[keys[0]] : 'No details';
   }
 
-  // Método para verificar si una categoría tiene componentes
+  // Verificar si una categoría tiene componentes
   hasComponents(category: string): boolean {
     return this.allContextComponents && 
            this.allContextComponents[category] && 
            this.allContextComponents[category].length > 0;
   }
 
-
-  selectedComponent: any = null;
-
-  /*
-openComponentDetailsModal(component: any): void {
-  this.selectedComponent = component;
-  const modalElement = document.getElementById('componentDetailsModal');
-  if (modalElement) {
-    const modal = new bootstrap.Modal(modalElement);
-    modal.show();
+  getComponentKeys(component: any): string[] {
+    return Object.keys(component).filter(key => key !== 'id');
   }
-} */
 
-getComponentKeys(component: any): string[] {
-  return Object.keys(component).filter(key => key !== 'id');
-}
-
-formatKey(key: string): string {
-  return key.split('_').map(word => 
-    word.charAt(0).toUpperCase() + word.slice(1)
-  ).join(' ');
-}
+  formatKey(key: string): string {
+    return key.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  }
 
 }
