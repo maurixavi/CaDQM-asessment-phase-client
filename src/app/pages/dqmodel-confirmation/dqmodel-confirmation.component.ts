@@ -302,12 +302,17 @@ export class DQModelConfirmationComponent implements OnInit {
           }
   
           for (const method of metric.methods) {
-            const applied = method.applied_methods;
-            const hasMeasurements = applied?.measurements?.length > 0;
-            const hasAggregations = applied?.aggregations?.length > 0;
-  
-            if (!hasMeasurements && !hasAggregations) {
-              return { canFinalize: false, reason: `Method "${method.method_name}" has no applied measurements or aggregations.` };
+            const appliedArray = method.applied_methods || [];
+
+            const isAnyAppliedValid = appliedArray.some((applied: { measurements: string | any[]; aggregations: string | any[]; }) =>
+              (applied.measurements?.length || 0) > 0 || (applied.aggregations?.length || 0) > 0
+            );
+
+            if (!isAnyAppliedValid) {
+              return {
+                canFinalize: false,
+                reason: `Method "${method.method_name}" has no applied measurements or aggregations.`
+              };
             }
           }
         }
@@ -531,8 +536,8 @@ export class DQModelConfirmationComponent implements OnInit {
     const validation = this.getDQModelValidationStatus(); 
 
     if (!validation.canFinalize) {
-      //this.notificationService.showError(validation.reason || 'The DQ Model cannot be finalized due to missing information.');
-      this.notificationService.showError('The DQ Model cannot be finalized due to missing DQ concepts.');
+      this.notificationService.showError(validation.reason || 'The DQ Model cannot be finalized due to missing information.');
+      //this.notificationService.showError('The DQ Model cannot be finalized due to missing DQ concepts.');
       this.onConfirmDQModelModalClose(); 
       return; 
     }
