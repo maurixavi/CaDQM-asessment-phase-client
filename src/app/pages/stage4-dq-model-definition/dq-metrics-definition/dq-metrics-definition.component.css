@@ -1,3 +1,4 @@
+/* ===== ESTILOS GENERALES Y CONTENEDORES ===== */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -20,219 +21,42 @@
 
 @media (max-width: 576px) {
   .container {
-    padding: 0 8px; /* Mínimo padding en pantallas muy pequeñas */
+    padding: 0 8px; 
   }
   
   .title {
-    font-size: 1.4rem; /* Reduce tamaño de título en móviles */
+    font-size: 1.4rem;  
   }
   
   .subtitle-description {
-    font-size: 14px; /* Reduce tamaño de subtítulo en móviles */
+    font-size: 14px;  
   }
 }
-  
-  .table {
-	font-size: 0.875rem; 
-  }
-  
-  .table tbody tr td {
-	color: #222; 
-  }
-  
-  .table th {
-	font-size: 0.78rem;  
-	color: #444; 
-	font-weight: bold;  
-  }
-  
-  .title {
-	font-size: 1.2rem;
-	font-weight: black;
-	font-style: italic;
-  }
-  
-  .title-activity {
-	font-size: 1.5rem;
-	  font-weight: lighter;
-  }
-  
-  .title-description {
-	font-size: 0.95rem;
-	font-style: italic;
-  }
-  
-  .subtitle-description {
-	font-size: 16px;
-	/*font-size: 0.95rem;*/
-	font-style: italic;
-	/*margin-top: 20px;*/
-  }
-  
-  .my-4 {
-	margin-top: 1.5rem !important;
-	margin-bottom: 1.5rem !important;
-  }
-  
-  .details-container {
-	border: 1px solid #ddd;
-	padding: 1rem;
-	margin-top: 1rem;
-	background-color: #f9f9f9;
-  }
-  
-  .details-container h3 {
-	font-size: 1.2rem;
-  }
-  
-  .details-container p, .details-container ul {
-	font-size: 0.9rem;
-  }
-  
-  .details-container ul {
-	list-style-type: none;
-	padding-left: 0;
-  }
-  
-  .details-container li {
-	margin-bottom: 0.5rem;
-  }
-  
-  .go-back {
-	margin-bottom: 10px;
-  }
-  
-  .go-back-btn {
-	background: none;
-	border: none;
-	color: inherit;
-	font: inherit;
-	cursor: pointer;
-	padding: 0;
-	display: inline-flex;
-	align-items: center;
-	color: #888;
-  }
-  
-  .go-back-link {
-	font-size: 16px;
-	color: #888;
-	text-decoration: none;
-  }
-  
-  .priority-high .bi-circle-fill {
-	color: #942e2e; 
-  }
-  
-  .priority-medium .bi-circle-fill {
-	color: #d8c246; 
-  }
-  
-  .priority-low .bi-circle-fill {
-	color: #3d773d;  
-  }
-  
-  .problem-name {
-	font-size: 1.4rem;
-  }
-  
-  .selected-problem-item {
-	/*border: 1px solid #ddd; */
-	background-color: #f9f9f9; 
-	padding: 1rem;
-	border-radius: 8px;
-	margin-bottom: 1.5rem;
-	font-size: 0.875rem;  
-  }
-  
-  .subtitle {
-	font-size: 1.3rem;
-	font-weight: lighter;
-	color: #333;
-	margin-top: 20px;
-  }
-  
-  .subtitle-selected {
-	font-size: 1.2rem;
-	color: #333;
-	margin-top: 20px;
-  }
-  
-  .subtitle-problem {
-	font-size: 1.2rem;
-	color: #333;
-  }
-  
-  .dimensions-container {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 1rem;
-	margin-top: 1rem;
-	
-  }
-  
-  .dimension-box {
-	flex: 1;
-	min-width: 180px; 
-	padding: 1rem;
-	border-radius: 8px;
-	background-color: #fff;
-	/*background-color: #f5f5f5;*/
-	font-size: 0.875rem; 
-	border: 1px solid #ddd;
-  }
-  
-  .dimension-box h4 {
-	font-size: 1rem;
-	font-weight: bold;
-	margin-bottom: 0.5rem;
-  }
-  
-  hr.my-4 {
-	border: none;
-	border-top: 1px solid #fff; 
-	margin: 2rem 0;
-  }
-  
-  
-  .from-ctx-components-title {
-	font-weight: 500;
-  }
-  
-  
-  .ctx-selection-accordion-container{
-	max-width: 640px;
-  }
-  
-  .dimensions-factors-selected-accordion-container{
-	max-width: 100%;
-  }
-  
-  .accordion-button{
-	height: 34px;
-  }
-  
-  .accordion-button:not(.collapsed) {
-	background-color: #f9f9f9; 
-	color: inherit; 
-  }
-  
-  .context-list, .factors-list {
-	list-style-type: none; 
-	padding-left: 0;
-  }
-  
-  .context-list li, .factors-list li {
-	margin-bottom: 0.5rem;
-  }
-  
-  .form-modal-select-style{
-		font-size: 0.9rem; 
-		color: #222;  
 
-	}
+
+.ctx-selection-accordion-container{
+	max-width: 640px;
+}
+
+.dimensions-factors-selected-accordion-container{
+max-width: 100%;
+}
+
+.accordion-button{
+height: 34px;
+}
+
+.accordion-button:not(.collapsed) {
+background-color: #f9f9f9; 
+color: inherit; 
+}
   
-  .select-style {
+.form-modal-select-style{
+	font-size: 0.9rem; 
+	color: #222;  
+}
+  
+.select-style {
 	width: 340px;
 	font-size: 0.9rem; 
 	font-weight: 500;  
@@ -243,9 +67,9 @@
 	background-color: #fff; 
 	color: #111;  
 	cursor: pointer;  
-  }
+}
   
-  .select-style-ctx {
+.select-style-ctx {
 	width: 300px;
 	font-size: 0.9rem; 
 	font-weight: 500;  
@@ -256,298 +80,184 @@
 	background-color: #fff; 
 	color: #111;  
 	cursor: pointer;  
-  }
+}
   
+.select-style:focus {
+	border-color: #aaa;
+	box-shadow: none;
+}
   
+.select-style:hover {
+	border-color: #aaa;
+}
   
-  /* Estilo para el select en foco */
-  .select-style:focus {
-	border-color: #aaa; /* Color del borde cuando está en foco */
-	box-shadow: none; /* Eliminar la sombra predeterminada */
-  }
-  
-  /* Estilo para el select en hover */
-  .select-style:hover {
-	border-color: #aaa; /* Color del borde en hover */
-  }
-  
-  
-  .btn {
-	  font-size: 0.9rem;
+
+/* ===== BOTONES ===== */
+.btn {
+	font-size: 0.9rem;
 	font-weight: 500;
-	/*border-radius: 8px;*/
-  }
-  .btn-dark {
+}
+
+.btn-dark {
 	background-color: #222; 
 	color: #fff; 
 	border: 1px solid  #111; 
-	  padding-left: 14px;
-	  padding-right: 14px;
-  }
-  
-  .btn-dark:hover {
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-dark:hover {
 	background-color: #333; 
 	border: 1px solid #333; 
-  }
-  
-  .btn-light {
+}
+
+.btn-light {
 	background-color: #fff; 
 	color: #111; 
 	border: 1px solid #bbb; 
-	  padding-left: 14px;
-	  padding-right: 14px;
-  }
-  
-  .btn-light:hover {
+	padding-left: 14px;
+	padding-right: 14px;
+}
+
+.btn-light:hover {
 	background-color: #222; 
 	color: #fff; 
 	border: 1px solid  #222; 
-	  padding-left: 14px;
-	  padding-right: 14px;
-  }
+	padding-left: 14px;
+	padding-right: 14px;
+}
   
-  .btn-add-added {
-	min-width: 92px;
-  }
-  
-  .next-step-btn-container{
-	  display: flex;
-	justify-content: flex-end; 
-  }
-  
-	.flex-container {
-		display: flex;
-		justify-content: center;
-		/*margin-bottom: 80px;*/
-	}
-	
-  /*
-  .container-section {
-	width: 98%;
-	border: 1px solid #ddd; 
-	background-color: #fff; 
-	padding: 1rem;
-	border-radius: 8px;
-	margin-bottom: 1.5rem;
-	font-size: 0.875rem;  
-  }*/
-  
-  .from-scratch-section-container{
-	width: 100%;
-	border: 1px solid #eeeeee;
-	box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-	background-color: #fff; 
-	padding: 2rem 1.8rem 2rem 2rem;
-	border-radius: 8px;
-	margin-bottom: 1.5rem;
-	font-size: 0.875rem;  
-  
-	display: flex;
-	flex-direction: row;
-	gap: 1rem; /* Espacio entre los dos divs */
-	flex-wrap: wrap; /* Permite que los elementos se muevan a la siguiente línea cuando el espacio es insuficiente */
-  }
-  
-  .dim-factor-selection-div {
-	flex: 1; /* Ocupa el espacio restante */
-	min-width: 60%; /* Tamaño mínimo del div izquierdo */
-  }
-  
-  .dim-factor-selection-container {
+
+
+
+.dim-factor-selection-container {
 	padding: 0.85rem 1rem 1rem 1.2rem;
-  }
+}
   
-  @media (max-width: 400px) {
-	.from-scratch-section-container {
-	  flex-direction: column; /* Los elementos se apilan verticalmente */
-	}
-	.problems-view, .dim-factor-selection-div {
-	  min-width: 100%; /* Ambos divs ocupan el 100% del ancho en pantallas pequeñas */
-	}
-  }
-  
-  .problems-view {
-	flex: 0 1 32%; /* Ocupa el 30% del ancho disponible en pantallas grandes */
-	min-width: 200px; /* Define un ancho mínimo para que no se achique demasiado */
-  }
-  
-  .dq-problems-container {
-	border: 1px solid #dee2e6;
-	border-radius: 8px;
-	padding: 1rem; 
-	background-color: #f9f9f9;
-  }
-  
-  .dq-problems-container h4 {
-	margin-bottom: 0.75rem; /* Espacio debajo del título */
-  }
-  
-  
-  .dq-problems-list {
-	list-style-type: none;  
-  }
-  
-  .dq-problems-list li {
-	margin-bottom: 1rem; /* Espacio entre cada problema */
-  }
-  
-  .badge { 
+.badge { 
 	min-width: 54px;
 	text-align: center; 
 	margin-right: 0.5rem; 
-  }
+}
   
-  .add-ctx-alert-tip {
+.add-ctx-alert-tip {
 	max-width: 400px;
-  }
+}
   
-  .section-container {
-	width: 100%;
-	/*border: 1px solid #ddd; */
-	border: 1px solid #eeeeee;
-	box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-	background-color: #fff; 
-	padding: 1.5rem;
-	border-radius: 8px;
-	margin-bottom: 1.5rem;
-	font-size: 0.875rem;  
-  }
-  
-  .label-container {
+
+/* ===== LABELS ===== */
+.label-container {
 	display: flex;
-	flex-direction: column; /* Coloca cada par de label y value en una nueva línea */
-	gap: 4px; /* Espacio entre cada fila */
+	flex-direction: column; 
+	gap: 4px;
 	font-size: 16px;  
 	font-weight: 500;
-  }
+}
   
-  .label {
-	display: flex; /* Permite que el título y el valor estén en línea */
-	align-items: center; /* Centra verticalmente el contenido */
-  }
+.label {
+	display: flex; 
+	align-items: center; 
+}
   
-  .label-title {
+.label-title {
 	width: 120px;
 	font-weight: 500;
-  }
+}
 
-
-  
-  .label-title-name {
+.label-title-name {
 	font-weight: 700;
-
-  }
+}
   
-  .label-title-problems {
+.label-title-problems {
 	width: auto;
 	margin-right: 8px;
 	font-weight: 500;
 	font-style: italic;
-  }
+}
   
-  
-  .label-value {
+.label-value {
 	max-width: 80%;
 	font-weight: 700;
 	white-space: nowrap; 
-  }
+}
   
-  .label-problem-title {
+.label-problem-title {
 	font-weight: 500;
 	font-size: 17px;
 	margin-right: 8px;
-  }
+}
   
-  .label-title-selection-ctx {
+.label-title-selection-ctx {
 	font-size: 1rem;
-  }
+}
   
-  /*Selected */
-  .label-container-selected {
+.label-container-selected {
 	display: flex;
 	flex-direction: column;  
 	gap: 4px; 
 	font-size: 14px;  
-  }
+}
   
-  .label-selected {
+.label-selected {
 	display: flex;
 	align-items: flex-start; 
 	padding-bottom: 16px;
 	font-size: 15px;
-  }
+}
 
-	.label-selected.label-dq-item {
-		padding-bottom: 8px; 
-	}
+.label-selected.label-dq-item {
+	padding-bottom: 8px; 
+}
   
-  .label-selected-dqelement {
+.label-selected-dqelement {
 	display: flex;
 	align-items: flex-start; 
 	font-size: 16px;
-  }
+}
   
-  .dqmodel-title {
+.dqmodel-title {
 	display: flex;
 	align-items: center;
 	gap: 12px;
 	margin-bottom: 8px;
-  }
+}
   
-  .label-name-selected {
+.label-name-selected {
 	font-weight: 700;
 	font-size: 17px; 
-  }
+}
   
-  .label-name-dqmodel {
+.label-name-dqmodel {
 	font-weight: 700;
 	font-size: 18px; 
-  }
+}
   
-  
-  /*
-  .label-title-selected {
-	width: 100px;
+.label-title-selected {
+	width: 140px;
 	margin-right: 10px;
-  }*/
+	font-weight: 500;
+}
   
-
-	.label-title-selected {
-		width: 140px;
-		margin-right: 10px;
-		font-weight: 500;
-	
-		}
-  
-  .label-title-selected-ctx {
+.label-title-selected-ctx {
 	width: auto;
 	margin-top: 10px;
 	font-weight: 500;
 	font-style: italic;
-  }
+}
   
   
-  .label-value-selected {
+.label-value-selected {
 	max-width: 70%;
 	font-weight: 400;
-  }
+}
   
-  .label-problem-description {
+.label-problem-description {
 	font-weight: 400;
 	font-size: 15px;
-  }
+}
+   
   
-  
-  
-  
-  
-  .dqmodel-element-name {
-	font-size: 16px;  
-	font-weight: 400;
-  }
-  
-  
-  .dropdown {
+.dropdown {
 	position: absolute;
 	z-index: 1000;
 	background-color: white;
@@ -555,36 +265,28 @@
 	border-radius: 4px;
 	margin-right: 18px;
 	width: 40%; 
-  }
+}
   
-  .list-group {
-	font-size: 300;
-  }
-  
-  /*.list-group-item:hover {
-	background-color: #f1f1f1;
-  }*/
-  
-  
-  
-  .modal.show {
+ 
+  /* ===== MODALES ===== */
+.modal.show {
 	display: block;
-  }
+}
   
-  .modal-backdrop {
+.modal-backdrop {
 	position: fixed;
 	top: 0;
 	left: 0;
 	width: 100vw;
 	height: 100vh;
 	background: rgba(0, 0, 0, 0.5);
-  }
+}
   
-  .modal-header {
+.modal-header {
 	position: relative;
-  }
+}
   
-  .modal-header .close {
+.modal-header .close {
 	position: absolute;
 	top: 10px;
 	right: 10px;
@@ -594,203 +296,101 @@
 	color: #999;
 	cursor: pointer;
 	outline: none;
-  }
+}
   
-  .modal-header .close span {
+.modal-header .close span {
 	display: inline-block;
-  }
+}
   
-  .modal-header .close:hover {
+.modal-header .close:hover {
 	color: #222;
-  }
+}
   
-  .modal-body .form-group {
+.modal-body .form-group {
 	margin-bottom: 16px;
-  }
+}
   
-  .modal-body label {
+.modal-body label {
 	font-weight: 500;
 	font-size: 14px;  
 	margin-bottom: px;
-  }
+}
   
-  .modal-body input {
+.modal-body input {
 	font-size: 0.875rem; 
 	color: #222;
-  }
-  
-  
+}
 
-  
-  .container-dim-factors{
-	border-bottom: 1px solid #eee;
-	padding-bottom: 1rem;
-	width: 90%;
-  }
-  
-  /* Para alinear los factores en línea y permitir que ocupen el ancho necesario */
-  .factors-container {
-	display: flex;
-	flex-wrap: wrap; /* Permite que los elementos se ajusten a la línea siguiente si es necesario */
-	gap: 1rem; /* Añade espacio entre cada factor */
-   
-  }
-  
-  .form-check {
+/* ===== COMPONENTES DE FORMULARIO ===== */
+.select-style {
+	width: 440px;
+	font-size: 0.9rem; 
+	font-weight: 500;  
+	padding-left: 14px;  
+	padding-right: 14px;  
+	border: 1px solid #bbb;  
+	border-radius: 0.25rem;  
+	background-color: #fff; 
+	color: #111;  
+	cursor: pointer;  
+}
+
+.form-check {
 	display: flex;
 	align-items: center;
-  }
+}
   
-  .form-check-label {
+.form-check-label {
 	font-size: 16px;
-	margin-left: 0.5rem; /* Espacio entre el checkbox y el label */
-  }
+	margin-left: 0.5rem; 
+}
   
-
-  
-  .form-check-input:checked + .form-check-label {
+.form-check-input:checked + .form-check-label {
 	font-weight: 700;
-  }
+}
   
-  .add-custom-section {
+.add-custom-section {
 	border-top: 1px solid #eee;
-  }
+}
   
 
-  .form-control-sm {
+.form-control-sm {
 	font-size: 0.875rem;
 	height: calc(1.5em + 0.5rem + 2px);
-  }
-  
-  .dq-problem-container {
-	padding: 1rem;
-  }
-  
-  
-  .suggested-section-div {
-	padding: 1rem;
-  }
-  
-  
-  
-  /* Card flotante */
-  .dq-card {
-	font-size: 13px;
-	position: fixed;
-	top: 20px;
-	right: 20px;
-	width: 320px;
-	max-height: 400px;
-	background-color: #f8f9fa;
-	border: 1px solid #dee2e6;
-	border-radius: 10px;
-	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-	z-index: 1000; /* encima de otros elementos */
-	display: block;
-	padding: 0.5rem;
-	transition: transform 0.3s ease; 
-	cursor: pointer; 
-  }
-  
-  .dq-card-header {
+}
+
+
+/* ===== LABELS ===== */
+.label {
+	display: flex; 
+	align-items: center; 
+}
+
+.label-container {
 	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	background-color: #e9ecef;
-	padding-left: 10px;
-	border-radius: 5px 5px 0 0;
-	margin-bottom: 6px;
-  }
-  
-  .dq-card-body {
-	max-height: 320px;
-	overflow-y: auto;
-  }
-  
-  .dq-problems-list {
-	list-style-type: decimal;
-	padding-left: 20px;
-  }
-  
-  .dq-problems-list li {
-	margin-bottom: 0.5rem;
-  }
-  
-  /* Botón de minimizar */
-  #minimizeBtn {
-	background: none;
-	border: none;
-	font-size: 16px;
-	cursor: pointer;
-  }
-  
-  .dq-card.minimized {
-	height: 54px; 
-	width: 260px;
-	overflow: hidden;
-	position: fixed;
-	right: 40px;
-	bottom: 40px;
-	border-radius: 10px; 
-	transform: scale(0.9);
-	opacity: 0.9;
-	z-index: 999;
-	background-color: #f8f9fa; 
-	cursor: pointer;
-  }
-  
-  
-  .selection-subtitle {
-	font-size: 20px;
-	font-weight: lighter;
-	/*color: #333;*/
-	margin-top: 20px;
-	margin-bottom: 10px;
-  }
+	flex-direction: column; 
+	gap: 4px;  
+	font-size: 16px;  
+	font-weight: 500;
+}
 
-	.label {
-		display: flex; /* Permite que el título y el valor estén en línea */
-		align-items: center; /* Centra verticalmente el contenido */
-	}
+.label-value {
+	max-width: 80%;
+	font-weight: 700;
+	white-space: nowrap; 
+}
 
-	
-	.label-container {
-		display: flex;
-		flex-direction: column; /* Coloca cada par de label y value en una nueva línea */
-		gap: 4px; /* Espacio entre cada fila */
-		font-size: 16px;  
-		font-weight: 500;
-	}
-
-	.label-value {
-		max-width: 80%;
-		font-weight: 700;
-		white-space: nowrap; 
-	}
-
-	.label-title {
-		width: 120px;
-		font-weight: 500;
-	}
+.label-title {
+	width: 120px;
+	font-weight: 500;
+}
 	
 
-	.select-style {
-		width: 440px;
-		font-size: 0.9rem; 
-		font-weight: 500;  
-		padding-left: 14px;  
-		padding-right: 14px;  
-		border: 1px solid #bbb;  
-		border-radius: 0.25rem;  
-		background-color: #fff; 
-		color: #111;  
-		cursor: pointer;  
-	}
 
-	.ctx-selection-accordion-container{
-		width: 500px;
-	}
-
+/* ===== ACCORDIONS ===== */
+.ctx-selection-accordion-container{
+	width: 500px;
+}
 
 .accordion-body {
   font-size: 15px; 
@@ -803,11 +403,3 @@
 .accordion-button {
   font-size: 15px; 
 }
-
-
-
-/* Eliminar el padding izquierdo solo de la lista principal 
-.label-value-selected > ul {
-  padding-left: 0; 
-  list-style-position: inside;  
-}*/

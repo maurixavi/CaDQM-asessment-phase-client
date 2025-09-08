@@ -654,95 +654,7 @@
           </button>
         </div>
         <div class="modal-body">
-          <form>
-            <!--
-            <div class="form-group">
-              <label class="mb-3">Select data sources to consider:</label>
-              
-              <div class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" id="useContextComponents" 
-                      [(ngModel)]="suggestionConfig.useContextComponents" name="useContextComponents" checked>
-                <label class="form-check-label" for="useContextComponents">
-                  Use Context Components
-                </label>
-              </div>
-              
-              <div class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" id="useDQProblems" 
-                      [(ngModel)]="suggestionConfig.useDQProblems" name="useDQProblems" checked>
-                <label class="form-check-label" for="useDQProblems">
-                  Use DQ Problems
-                </label>
-              </div>
-              
-              <div class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" id="useExistingModel" 
-                      [(ngModel)]="suggestionConfig.useExistingModel" name="useExistingModel">
-                <label class="form-check-label" for="useExistingModel">
-                  Consider existing DQ Model
-                </label>
-              </div>
-            </div> -->
-
-            <!--
-            <div class="form-group">
-              <label class="mb-3">Prevent these Dimensions or Factors from being recommended:</label>
-              <div class="form-check mb-2">
-                <div class="d-flex justify-content-between px-4">
-                  <div>
-            
-                    <div  class="label-container container-dim-factors">
-                      <div *ngFor="let dimFactor of dimensionsWithFactors" class="label-container">
-                  
-                        <div class="label" [ngClass]="{ 'dimension-selected': isDimensionSelectedFromDQProblems(dimFactor.dimension.id) }">
-                          <label class="label-title">DQ Dimension:</label>
-                          <span>
-                            {{ dimFactor.dimension.name }} 
-                            <i 
-                              class="bi bi-info-circle" 
-                              data-bs-toggle="tooltip" 
-                              data-bs-placement="top" 
-                              [attr.title]="dimFactor.dimension.semantic">
-                            </i>
-                            <input 
-                              type="checkbox" 
-                              [checked]="isDimensionSelectedFromDQProblems(dimFactor.dimension.id)" 
-                              disabled
-                              class="hidden-checkbox">
-                          </span>
-                        </div>
-                    
-                        <div class="label">
-                          <label class="label-title">DQ Factors:</label>
-                        </div>
-                        <div class="factors-container ms-4">
-                          <div *ngFor="let factor of dimFactor.factors" class="form-check">
-                            <input 
-                              class="form-check-input" 
-                              type="checkbox" 
-                              [id]="'factor-' + factor.id" 
-                              [checked]="isFactorSelectedFromDQProblems(factor.id)" 
-                              (change)="onFactorChangeFromDQProblems(factor.id, dimFactor.dimension.id, $event)">
-                            <label class="form-check-label" [for]="'factor-' + factor.id">
-                              {{ factor.name }} 
-                              <i 
-                                class="bi bi-info-circle" 
-                                data-bs-toggle="tooltip" 
-                                data-bs-placement="top" 
-                                [attr.title]="factor.semantic">
-                              </i>
-                            </label>
-                          </div>
-                        </div>
-                        <br>
-                      </div>
-                    </div>
-                  </div> 
-                </div>
-              </div>
-        
-            </div>-->
-            
+          <form>            
             <div class="form-group">
               <label class="mb-2">Avoid suggesting any factor that belongs to the following dimensions:</label>
               <div class="form-check">
@@ -812,7 +724,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-sm btn-light" (click)="closeSuggestionConfigModal()">Cancel</button>
           <button type="button" class="btn btn-sm btn-dark" (click)="generateSuggestionWithConfig()">
-            <i class="bi bi-lightning"></i> Generate
+            <i class="bi bi-stars"></i> Generate
           </button>
         </div>
       </div>
@@ -905,7 +817,7 @@
                   <!-- Título colapsable -->
                   <div class="label-selected">
                     <label class="label-title-selected-ctx" (click)="toggleCtxSuggestionVisibility()" style="cursor: pointer;">
-                      Context Components: <i class="bi" [ngClass]="isCtxSuggestionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                      Context Components:<!-- <i class="bi" [ngClass]="isCtxSuggestionVisible ? 'bi-chevron-up' : 'bi-chevron-down'"></i>-->
                     </label>
                   </div>
     
@@ -940,7 +852,7 @@
                                 [checked]="isComponentSelectedInSuggestions(category, getFirstNonIdAttribute(item))"
                                 (change)="onCtxComponentsCheckboxChange_suggestion(item.id, category, getFirstNonIdAttribute(item), $event)"/>
                               <label class="form-check-label" [for]="'checkbox-' + category + '-' + item.id">
-                                {{ getFirstNonIdAttribute(item) }} <i class="bi bi-info-circle"></i>
+                                {{ getFirstNonIdAttribute(item) }}
                               </label>
                             </div>
                           </div>
@@ -1002,11 +914,11 @@
 
             <button 
               type="button" 
-              class="btn btn-sm btn-info" 
+              class="btn btn-sm btn-ai" 
               (click)="openSuggestionConfigModal()" 
               style="width: auto;" 
               [disabled]="isLoading">
-              <i *ngIf="!isLoading" class="bi bi-lightning"></i>
+              <i *ngIf="!isLoading" class="bi bi-stars me-1"></i>
               <span *ngIf="!isLoading">Generate</span>
               <span *ngIf="isLoading">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -1018,7 +930,6 @@
               *ngIf="getSuggestedFactor()"
               type="button" 
               class="btn btn-sm btn-outline-danger" 
-              (click)="ignoreSuggestedFactor()" 
               style="width: auto;"
               (click)="openConfirmationModal(
                 'Ignore AI Suggestion',
@@ -1049,7 +960,7 @@
               </div>
             </div>
             
-            <div *ngIf="currentDQModel && project" >
+            <div *ngIf="currentDQModel && project">
               <div class="dqmodel-title">
                 <span class="label-name-dqmodel">{{ currentDQModel?.name }} {{ currentDQModel?.version }}</span>
                 <span *ngIf="currentDQModel.status === 'finished'" class="badge rounded-pill bg-dark">Finished</span>
@@ -1066,13 +977,17 @@
                 </div> 
                 <div class="label-selected">
                   <label class="label-title-selected">Context version:</label>
-                  <span class="label-value-selected">{{ contextVersion?.name }} {{ contextVersion?.version }}</span>
+                  <span class="label-value-selected">{{ contextVersion?.name }} {{ contextVersion?.version }}
+                    <a href="javascript:void(0)" (click)="contextModal.openModal()" style="text-decoration: none;">
+                      <i class="bi bi-zoom-in"></i>
+                    </a>
+                  </span>
                 </div>  
                 <div class="label-selected">
                   <label class="label-title-selected">Data at hand:</label>
-                  <span class="label-value-selected">DB: {{ dataAtHandDetails?.name }} - {{ dataAtHandDetails?.description }} <!--<a href="javascript:void(0)" (click)="dataAtHandModal.openModal()" style="text-decoration: none;">
+                  <span class="label-value-selected">DB: {{ dataAtHandDetails?.name }} - {{ dataAtHandDetails?.description }} <a href="javascript:void(0)" (click)="dataAtHandModal.openModal()" style="text-decoration: none;">
                     <i class="bi bi-zoom-in"></i>
-                  </a>-->
+                  </a>
                   </span>
                 </div> 
 
@@ -1110,6 +1025,11 @@
                     <span>
                       <label class="label-title w-auto">DQ Dimension:</label> 
                       <span class="label-title-name  px-2">{{ dim.dimension.dimension_name }}</span>
+                      <i *ngIf="!dim.factors.length"
+                        class="bi bi-exclamation-circle-fill text-warning rounded-circle p-1"
+                        style="font-size: 14px; cursor: help;"
+                        title="No factors yet"
+                      ></i>
                     </span>
                     </button>
                   </h2>
@@ -1432,6 +1352,7 @@
                                   <button
                                     class="btn btn-light btn-sm"
                                     (click)="toggleEditDQFactorVisibility(factor)">
+                                    <i *ngIf="!factor.isEditing" class="bi bi-pencil"></i>
                                     {{ factor.isEditing ? 'Cancel' : 'Edit' }}
                                   </button>
                                   <button
@@ -1510,20 +1431,26 @@
     </div>
   </div>
 </div>
-  <!-- Modal de confirmación -->
-  <app-confirmation-modal
-    [isOpen]="isConfirmationModalOpen"
-    [title]="confirmationModalTitle"
-    [message]="confirmationModalMessage"
-    (confirm)="handleConfirm()"
-    (cancel)="handleCancel()">
-  </app-confirmation-modal>
 
-  <app-stepper
-    [currentStep]="currentStep"
-    [totalSteps]="steps.length"
-    [isNextStepEnabled]="isNextStepEnabled"
-    (stepChange)="onStepChange($event)">
-  </app-stepper>
+<app-confirmation-modal
+  [isOpen]="isConfirmationModalOpen"
+  [title]="confirmationModalTitle"
+  [message]="confirmationModalMessage"
+  (confirm)="handleConfirm()"
+  (cancel)="handleCancel()">
+</app-confirmation-modal>
 
-  <app-context-components></app-context-components>
+<app-data-at-hand-view-modal
+  #dataAtHandModal
+  [dataAtHandDetails]="dataAtHandDetails"
+  [dataSchema]="dataSchema">
+</app-data-at-hand-view-modal>
+
+<app-context-components #contextModal></app-context-components>
+
+<app-stepper
+  [currentStep]="currentStep"
+  [totalSteps]="steps.length"
+  [isNextStepEnabled]="isNextStepEnabled"
+  (stepChange)="onStepChange($event)">
+</app-stepper>

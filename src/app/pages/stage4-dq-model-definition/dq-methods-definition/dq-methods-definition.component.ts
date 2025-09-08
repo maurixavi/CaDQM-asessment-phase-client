@@ -712,7 +712,7 @@ export class DqMethodsDefinitionComponent implements OnInit {
               category: category,
               value: getFirstNonIdAttribute(component),
             });
-            console.log("selectionCheckboxCtxComponents:", this.selectionCheckboxCtxComponents)
+            //console.log("selectionCheckboxCtxComponents:", this.selectionCheckboxCtxComponents)
           }
         });
       });
@@ -721,7 +721,7 @@ export class DqMethodsDefinitionComponent implements OnInit {
 
   fetchDQFactorDetails(factorId: number): void {
     if (this.dqModelId && factorId) {
-      this.modelService.getDQDimensionDetails(this.dqModelId, factorId).subscribe({
+      this.modelService.getFactorInDQModel(this.dqModelId, factorId).subscribe({
         next: (data) => {
           this.dqFactor_measures = data.factor_name;
         },

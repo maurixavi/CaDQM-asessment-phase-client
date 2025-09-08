@@ -91,20 +91,6 @@
                 <div class="label-selected">
                   <label class="label-title-selected">Influenced by (Ctx. Components):</label>
                   <span class="label-value-selected">
-                    <!--<ul>
-                      <li *ngFor="let category of getContextComponentCategories(selectedMetric.context_components)">
-                        {{ formatCtxCompCategoryName(category) }}:
-                        <ul>
-                          <li *ngFor="let componentId of selectedMetric.context_components[category]">
-                            {{ getFirstAttribute(category, componentId) }}
-                            <a href="javascript:void(0)" (click)="openContextComponentModal(category, componentId)">
-                              
-                              <i class="bi bi-zoom-in"></i> 
-                            </a>
-                          </li>
-                        </ul>
-                      </li>
-                    </ul>-->
                     <ul class="no-bullets">
                       <li *ngFor="let category of getContextComponentCategories(selectedMetric.context_components)" class="mb-1">
                           <span
@@ -222,21 +208,7 @@
                           </ul>
                       </li>
                     </ul>
-                    <!--
-                    <ul>
-                      <li *ngFor="let category of getContextComponentCategories(selectionCheckboxCtxComponents)">
-                        {{ formatCtxCompCategoryName(category) }}:
-                        <ul>
-                          <li *ngFor="let component of getComponentsByCategory(selectionCheckboxCtxComponents, category)">
-                            {{ component.value }}
-                            <a href="javascript:void(0)" (click)="openContextComponentModal(category, component.id)">
-                              
-                              <i class="bi bi-zoom-in"></i> 
-                            </a>
-                          </li>
-                        </ul>
-                      </li>
-                    </ul>-->
+
                     <button class="btn btn-light btn-sm mb-4" (click)="toggleCtxSelectionAccordionVisibility()">
                       <i *ngIf="!isEditingCtxComponents"></i>
                       <i *ngIf="isEditingCtxComponents" class="bi bi-eye-slash"></i>
@@ -291,13 +263,6 @@
               </div>
 
               <div class="label mt-2">
-                <!--<button 
-                  class="btn btn-dark" 
-                  (click)="addMethodToDQModel(selectedMetric, selectedBaseDQMethod)"
-                  [disabled]="!selectedBaseDQMethod"
-                >
-                  Add to DQ Model
-                </button>-->
                 <button 
                   class="btn btn-dark" 
                   (click)="openConfirmationModal(
@@ -358,16 +323,15 @@
               </form>
             </div>
             <div class="modal-footer border-top-0">
-              <button type="button" class="btn btn-sm btn-info" (click)="generateNewSuggestion()" style="width: auto;" [disabled]="isLoading">
-                <i class="bi bi-lightning"></i>
-                <span *ngIf="!isLoading">AI Suggestion</span>
+              <button type="button" class="btn btn-sm btn-ai" (click)="generateNewSuggestion()" style="width: auto;" [disabled]="isLoading">
+                <i class="bi bi-stars"></i>
+                <span *ngIf="!isLoading">Generate</span>
                 <span *ngIf="isLoading">
                   <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                   Generating...
                 </span>
               </button>
               <button type="button" class="btn btn-sm btn-light" (click)="closeModalBase()">Cancel</button>
-              <!--<button type="button" class="btn btn-sm btn-dark" (click)="addBaseMethod(selectedMetric)">Confirm</button>-->
               <button 
                 type="button" 
                 class="btn btn-sm btn-dark" 
@@ -469,7 +433,6 @@
     </div>
   </div>
 
- 
   <!-- Modal for Creating Applied DQ Method -->
   <div class="modal" tabindex="-1" role="dialog" [ngClass]="{'show': isCreateAppliedMethodModalOpen}" [style.display]="isCreateAppliedMethodModalOpen ? 'block' : 'none'">
     <div class="modal-dialog" role="document">
@@ -577,7 +540,7 @@
             <span class="sr-only"></span>
           </div>
         </div>
-        
+
         <div>
           <div class="label-container-selected py-2 px-4">
 
@@ -604,13 +567,17 @@
               </div>
               <div class="label-selected">
                 <label class="label-title-selected">Context version:</label>
-                <span class="label-value-selected">{{ contextVersion?.name }} {{ contextVersion?.version }}</span>
+                <span class="label-value-selected">{{ contextVersion?.name }} {{ contextVersion?.version }}
+                  <a href="javascript:void(0)" (click)="contextModal.openModal()" style="text-decoration: none;">
+                    <i class="bi bi-zoom-in"></i>
+                  </a>
+                </span>
               </div>  
               <div class="label-selected">
                 <label class="label-title-selected">Data at hand:</label>
                 <span class="label-value-selected">DB: {{ dataAtHandDetails?.name }} - {{ dataAtHandDetails?.description }} <a href="javascript:void(0)" (click)="dataAtHandModal.openModal()" style="text-decoration: none;">
                   <i class="bi bi-zoom-in"></i>
-                </a>
+                  </a>
                 </span>
               </div>
 
@@ -637,11 +604,11 @@
                       <span>
                         <label class="label-title w-auto">DQ Metric:</label>
                         <span class="label-title-name px-2">{{ metric.metric_name }} 
-                        <span *ngIf="!metric.definedMethods || metric.definedMethods.length === 0" 
-                              class="badge bg-secondary ms-1 text-uppercase fw-normal" 
-                              style="font-size: 9px;">
-                          No methods yet
-                        </span>
+                        <i *ngIf="!metric.definedMethods || metric.definedMethods.length === 0" 
+                          class="bi bi-exclamation-circle-fill text-warning rounded-circle p-1"
+                          style="font-size: 14px; cursor: help;"
+                          title="No methods yet"
+                        ></i>
                           <!--<span class="px-1 fw-light" style="font-size: 12px;">(measures Coverage | facet of Accuracy)</span>-->
                         </span>
                       </span>
@@ -712,7 +679,18 @@
                         <label class="label-title-selected">DQ Methods:</label>
                       </div>
 
-                      <!-- Nested accordion for DQ Methods -->
+                      <!-- Mensaje cuando no hay Metodos definidos -->
+                      <div *ngIf="!metric.definedMethods || metric.definedMethods.length === 0" >
+                        <div class="px-2 py-2">
+                          <div  class="alert alert-warning ">
+                            <i class="bi bi-exclamation-circle me-2"></i>
+                            No methods have been defined for this metric. <br> 
+                            Defining at least one for each method will be necessary to complete the DQ Model and perform the DQ measurement.
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- DQ Methods -->
                       <div class="accordion mx-1 mb-2" id="accordionMethods">
                         <div class="accordion-item" *ngFor="let item of metric.definedMethods; let j = index">
                           <h2 class="accordion-header" [id]="'methodHeading' + j">
@@ -728,6 +706,11 @@
                               <span>
                                 <label class="label-title w-auto">DQ Method:</label>
                                 <span class="label-title-name px-2">{{ item.method_name }}</span>
+                                <i *ngIf="!item.applied_methods.aggregations.length && !item.applied_methods.measurements.length"
+                                  class="bi bi-exclamation-circle-fill text-warning rounded-circle p-1"
+                                  style="font-size: 14px; cursor: help;"
+                                  title="No applied methods yet"
+                                ></i>
                               </span>
                             </button>
                           </h2>
@@ -851,15 +834,13 @@
 
                               <!-- Mensaje cuando no hay Metodos Aplicados definidos -->
                               <div *ngIf="!item.applied_methods.aggregations.length && !item.applied_methods.measurements.length">
-                                <!-- MENSAJE INFORMATIVO -->
                                 <div class="px-2 py-2">
                                   <div  class="alert alert-warning ">
                                     <i class="bi bi-exclamation-circle me-2"></i>
-                                    No Applied Methods have been defined for this method. <br> 
-                                    Defining at least one for each method will be necessary to complete the DQ Model and perform the DQ measurement.
+                                    No applied methods have been defined for this method. <br> 
+                                    Defining at least one for each method will be necessary to complete the DQ Model.
                                   </div>
                                 </div>
-
                               </div>
                               
                               <div *ngIf="item && (item.applied_methods?.aggregations?.length > 0 || item.applied_methods?.measurements?.length > 0)">  
@@ -1032,8 +1013,6 @@
   (cancel)="handleCancel()">
 </app-confirmation-modal>
 
-
-
 <app-context-component-view-modal
   #contextComponentModal
   [selectedComponentKeys]="selectedComponentKeys"
@@ -1046,7 +1025,7 @@
   [dataSchema]="dataSchema">
 </app-data-at-hand-view-modal>
 
-<app-context-components></app-context-components>
+<app-context-components #contextModal></app-context-components>
 
 <app-stepper
   [currentStep]="currentStep"

@@ -1,8 +1,4 @@
-/*
-.container {
-  margin: auto;
-  color: #222;    
-}*/
+/* ===== ESTILOS GENERALES Y CONTENEDORES ===== */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -10,10 +6,14 @@
   color: #222;
 }
 
+.flex-container {
+  display: flex;
+  justify-content: center;
+}
+
 @media (min-width: 1200px) {
   .container {
     max-width: 86%; 
-
   }
 }
 
@@ -25,171 +25,17 @@
 
 @media (max-width: 576px) {
   .container {
-    padding: 0 8px; /* Mínimo padding en pantallas muy pequeñas */
+    padding: 0 8px;
   }
   
   .title {
-    font-size: 1.4rem; /* Reduce tamaño de título en móviles */
+    font-size: 1.4rem;
   }
   
   .subtitle-description {
-    font-size: 14px; /* Reduce tamaño de subtítulo en móviles */
+    font-size: 14px; 
   }
 }
-
-
-.table {
-  font-size: 0.875rem; 
-}
-
-.table tbody tr td {
-  color: #222; 
-}
-
-.table th {
-  font-size: 0.78rem;  
-  color: #444; 
-  font-weight: bold;  
-}
-
-.title {
-  font-size: 1.2rem;
-  font-weight: black;
-  font-style: italic;
-}
-
-.title-activity {
-  font-size: 1.5rem;
-	font-weight: lighter;
-}
-
-.title-description {
-  font-size: 0.95rem;
-  font-style: italic;
-}
-
-.subtitle-description {
-  font-size: 16px;
-  /*font-size: 0.95rem;*/
-  font-style: italic;
-  /*margin-top: 20px;*/
-}
-
-.my-4 {
-  margin-top: 1.5rem !important;
-  margin-bottom: 1.5rem !important;
-}
-
-.details-container {
-  border: 1px solid #ddd;
-  padding: 1rem;
-  margin-top: 1rem;
-  background-color: #f9f9f9;
-}
-
-.details-container h3 {
-  font-size: 1.2rem;
-}
-
-.details-container p, .details-container ul {
-  font-size: 0.9rem;
-}
-
-.details-container ul {
-  list-style-type: none;
-  padding-left: 0;
-}
-
-.details-container li {
-  margin-bottom: 0.5rem;
-}
-
-.go-back {
-  margin-bottom: 10px;
-}
-
-.go-back-btn {
-  background: none;
-  border: none;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  color: #888;
-}
-
-.go-back-link {
-  font-size: 16px;
-  color: #888;
-  text-decoration: none;
-}
-
-.priority-high .bi-circle-fill {
-  color: #942e2e; 
-}
-
-.priority-medium .bi-circle-fill {
-  color: #d8c246; 
-}
-
-.priority-low .bi-circle-fill {
-  color: #3d773d;  
-}
-
-.problem-name {
-  font-size: 1.4rem;
-}
-
-.selected-problem-item {
-  /*border: 1px solid #ddd; */
-  background-color: #f9f9f9; 
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;  
-}
-
-.subtitle {
-  font-size: 1.3rem;
-  font-weight: lighter;
-  color: #333;
-  margin-top: 20px;
-}
-
-.subtitle-selected {
-  font-size: 1.2rem;
-  color: #333;
-  margin-top: 20px;
-}
-
-.subtitle-problem {
-  font-size: 1.2rem;
-  color: #333;
-}
-
-.dimensions-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 1rem;
-  
-}
-
-
-
-hr.my-4 {
-  border: none;
-  border-top: 1px solid #fff; 
-  margin: 2rem 0;
-}
-
-
-.from-ctx-components-title {
-  font-weight: 500;
-}
-
 
 .ctx-selection-accordion-container{
   max-width: 640px;
@@ -267,24 +113,19 @@ hr.my-4 {
   cursor: pointer;  
 }
 
-
-
-/* Estilo para el select en foco */
 .select-style:focus {
-  border-color: #aaa; /* Color del borde cuando está en foco */
-  box-shadow: none; /* Eliminar la sombra predeterminada */
+  border-color: #aaa;
+  box-shadow: none;
 }
 
-/* Estilo para el select en hover */
 .select-style:hover {
-  border-color: #aaa; /* Color del borde en hover */
+  border-color: #aaa; 
 }
 
-
+/* ===== BOTONES ===== */
 .btn {
 	font-size: 0.9rem;
   font-weight: 500;
-  /*border-radius: 8px;*/
 }
 .btn-dark {
   background-color: #222; 
@@ -315,49 +156,24 @@ hr.my-4 {
 	padding-right: 14px;
 }
 
-.btn-add-added {
-  min-width: 92px;
+.btn-ai {
+  background-color: #6D28D9;  
+  color: #fff; 
+  border: 1px solid #8B5CF6; 
+	padding-left: 14px;
+	padding-right: 14px;
 }
 
-.next-step-btn-container{
-	display: flex;
-  justify-content: flex-end; 
+.btn-ai:hover {
+  background-color: #7C3AED; 
+  border-color: #7C3AED;
 }
 
-.flex-container {
-  display: flex;
-  justify-content: center;
-}
-/*
-.container-section {
-  width: 98%;
-  border: 1px solid #ddd; 
-  background-color: #fff; 
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;  
-}*/
 
-.from-scratch-section-container{
-  width: 100%;
-  border: 1px solid #eeeeee;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-  background-color: #fff; 
-  padding: 2rem 1.8rem 2rem 2rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;  
-
-  display: flex;
-  flex-direction: row;
-  gap: 1rem; /* Espacio entre los dos divs */
-  flex-wrap: wrap; /* Permite que los elementos se muevan a la siguiente línea cuando el espacio es insuficiente */
-}
 
 .dim-factor-selection-div {
-  flex: 1; /* Ocupa el espacio restante */
-  min-width: 60%; /* Tamaño mínimo del div izquierdo */
+  flex: 1; 
+  min-width: 60%; 
 }
 
 .dim-factor-selection-container {
@@ -366,16 +182,16 @@ hr.my-4 {
 
 @media (max-width: 400px) {
   .from-scratch-section-container {
-    flex-direction: column; /* Los elementos se apilan verticalmente */
+    flex-direction: column; 
   }
   .problems-view, .dim-factor-selection-div {
-    min-width: 100%; /* Ambos divs ocupan el 100% del ancho en pantallas pequeñas */
+    min-width: 100%; 
   }
 }
 
 .problems-view {
-  flex: 0 1 32%; /* Ocupa el 30% del ancho disponible en pantallas grandes */
-  min-width: 200px; /* Define un ancho mínimo para que no se achique demasiado */
+  flex: 0 1 32%;
+  min-width: 200px; 
 }
 
 .dq-problems-container {
@@ -386,16 +202,15 @@ hr.my-4 {
 }
 
 .dq-problems-container h4 {
-  margin-bottom: 0.75rem; /* Espacio debajo del título */
+  margin-bottom: 0.75rem; 
 }
-
 
 .dq-problems-list {
   list-style-type: none;  
 }
 
 .dq-problems-list li {
-  margin-bottom: 1rem; /* Espacio entre cada problema */
+  margin-bottom: 1rem; 
 }
 
 .badge { 
@@ -411,50 +226,13 @@ hr.my-4 {
   font-size: 13.5px;
 }
 
-.suggested-section-container {
-  width: 100%;
-  /*border: 1px solid #ddd; */
-  border: 1px solid #eeeeee;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-  background-color: #fff; 
-  padding-right: 1.5rem;
-  padding-left: 1.5rem;
-  padding-top: 0.8rem;
-  padding-bottom: 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;  
-}
-
-.label-container {
-  display: flex;
-  flex-direction: column; /* Coloca cada par de label y value en una nueva línea */
-  gap: 4px; /* Espacio entre cada fila */
-  font-size: 16px;  
-  font-weight: 500;
-}
-
-.label {
-  display: flex; /* Permite que el título y el valor estén en línea */
-  align-items: center; /* Centra verticalmente el contenido */
-}
-
-.label-title {
-  width: 120px;
-  font-weight: 500;
-}
-
-.label-title-name {
-  font-weight: 700;
-}
-
+/* ===== LABELS ===== */
 .label-title-problems {
   width: auto;
   margin-right: 8px;
   font-weight: 500;
   font-style: italic;
 }
-
 
 .label-value {
   max-width: 80%;
@@ -464,7 +242,7 @@ hr.my-4 {
 
 .label-selected-problem-title {
   font-weight: 700;
-  font-size: 17px;
+  font-size: 16px;
   margin-right: 8px;
 }
 
@@ -472,7 +250,6 @@ hr.my-4 {
   font-size: 1rem;
 }
 
-/*Selected */
 .label-container-selected {
   display: flex;
   flex-direction: column;  
@@ -516,13 +293,10 @@ hr.my-4 {
   margin-right: 8px;
 }
 
-
-
 .label-name-dqmodel {
   font-weight: 700;
   font-size: 18px; 
 }
-
 
 .label-title-selected {
   width: auto;
@@ -563,12 +337,10 @@ hr.my-4 {
   font-weight: 700;
 }
 
-
 .dqmodel-element-name {
   font-size: 16px;  
   font-weight: 400;
 }
-
 
 .dropdown {
   position: absolute;
@@ -583,12 +355,6 @@ hr.my-4 {
 .list-group {
   font-size: 300;
 }
-
-/*.list-group-item:hover {
-  background-color: #f1f1f1;
-}*/
-
-
 
 .modal.show {
   display: block;
@@ -642,19 +408,16 @@ hr.my-4 {
   color: #222;
 }
 
-
 .container-dim-factors{
   border-bottom: 1px solid #eee;
   padding-bottom: 1rem;
   width: 90%;
 }
 
-/* Para alinear los factores en línea y permitir que ocupen el ancho necesario */
 .factors-container {
   display: flex;
-  flex-wrap: wrap; /* Permite que los elementos se ajusten a la línea siguiente si es necesario */
-  gap: 1rem; /* Añade espacio entre cada factor */
- 
+  flex-wrap: wrap; 
+  gap: 1rem;  
 }
 
 .form-check {
@@ -664,15 +427,12 @@ hr.my-4 {
 
 .form-check-label {
   font-size: 15px;
-  margin-left: 0.5rem; /* Espacio entre el checkbox y el label */
+  margin-left: 0.5rem; 
 }
-
-
 
 .dimension-selected .label-value {
-  font-weight: 100; /* Aumenta el grosor de la fuente */
+  font-weight: 100; 
 }
-
 
 .form-check-input:checked + .form-check-label {
   font-weight: 700;
@@ -682,217 +442,55 @@ hr.my-4 {
   border-top: 1px solid #eee;
 }
 
-
-
 .form-control-sm {
   font-size: 0.875rem;
   height: calc(1.5em + 0.5rem + 2px);
 }
 
-.dq-problem-container {
-  padding: 1rem;
-}
-
-
-.suggested-section-div {
-  padding: 1rem;
-}
-
-
-
-/* Card flotante */
-.dq-card {
-  font-size: 13px;
-  position: fixed;
-  bottom: 0; /* Fijamos la tarjeta en la parte inferior */
-  right: 140px; /* Pegada al borde derecho */
-  width: 320px;
-  max-height: 400px;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 1000; /* encima de otros elementos */
-  display: block;
-  padding: 0.5rem;
-  transition: transform 0.3s ease;
-  cursor: pointer;
-}
-
-.dq-card.minimized {
-  height: 54px;
-  width: 230px;
-  overflow: hidden;
-  position: fixed;
-  right: 30px;
-  bottom: 120px;  
-  border-radius: 10px;
-  transform: scale(0.95);
-  opacity: 1;
-  z-index: 999;
-  background-color: #f8f9fa;
-  cursor: pointer;
-}
-/*.dq-card.minimized {
-  height: 54px;
-  width: 230px;
-  overflow: hidden;
-  position: fixed;
-  right: 240px;
-  bottom: 0;  
-  border-radius: 10px;
-  transform: scale(0.9);
-  opacity: 1;
-  z-index: 999;
-  background-color: #f8f9fa;
-  cursor: pointer;
-}*/
-
-.dq-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #e9ecef;
-  padding-left: 10px;
-  border-radius: 5px 5px 0 0;
-  margin-bottom: 6px;
-}
-
-.dq-card-body {
-  max-height: 320px;
-  overflow-y: auto;
-}
-
-.dq-problems-list {
-  list-style-type: decimal;
-  padding-left: 20px;
-}
-
-.dq-problems-list li {
-  margin-bottom: 0.5rem;
-}
-
-/* Botón de minimizar */
-#minimizeBtn {
-  background: none;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-
-
-.selection-subtitle {
-  font-size: 20px;
-  font-weight: lighter;
-  /*color: #333;*/
-  margin-top: 20px;
-  margin-bottom: 10px;
-}
-
-
-/* Card flotante */
-.ctx-card {
-  font-size: 13px;
-  position: fixed;
-  bottom: 0; 
-  right: 140px; 
-  width: 320px;
-  max-height: 400px;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 1000; /* encima de otros elementos */
-  display: block;
-  padding: 0.5rem;
-  transition: transform 0.3s ease;
-  cursor: pointer;
-}
-
-
-.ctx-card.minimized {
-  height: 54px;
-  width: 230px;
-  overflow: hidden;
-  position: fixed;
-  right: 20px;
-  bottom: 0; 
-  border-radius: 10px;
-  transform: scale(0.9);
-  opacity: 1;
-  z-index: 999;
-  background-color: #f8f9fa;
-  cursor: pointer;
-}
-
-.ctx-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #e9ecef;
-  padding-left: 10px;
-  border-radius: 5px 5px 0 0;
-  margin-bottom: 6px;
-}
 
 .dq-problems-accordion-container {
-  /*max-width: 640px;*/
   border: 1px solid #dee2e6;
   border-radius: 8px;
   background-color: #f9f9f9;
   padding: 1rem;
-  /*margin-top: 1rem;*/
 }
 
 .dq-problems-accordion-container-edit { 
-  /*width: 100%;*/
   width: 640px;
   border: 1px solid #dee2e6;
   border-radius: 8px;
   background-color: #f9f9f9;
   padding: 1rem;
-  /*margin-top: 1rem;*/
 }
-
 
 .ctx-and-problems-main-container {
   display: flex;
-  flex-wrap: wrap; /* Permite que las secciones se ajusten en pantallas pequeñas */
-  gap: 16px; /* Espacio entre las secciones */
-  /*margin: 1rem 0;*/ /* Margen superior e inferior */
-
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .ctx-components-selection-container,
 .dq-problems-selection-container {
-  
-  flex: 1; /* Ambas secciones ocupan el mismo espacio */
-  min-width: 45%; /* Ancho mínimo para cada sección */
-  /*border: 1px solid #dee2e6; 
-  border-radius: 8px;  */
-  padding: 0.9rem; /* Espaciado interno */
-  /*background-color: #f9f9f9;  */
+  flex: 1;
+  min-width: 45%; 
+  padding: 0.9rem;
 }
 
-/* Ajustes para pantallas pequeñas */
 @media (max-width: 1200px) {
   .main-container {
-    flex-direction: column; /* Las secciones se apilan verticalmente */
+    flex-direction: column;
   }
 
   .ctx-components-selection-container,
   .dq-problems-selection-container {
-    min-width: 100%; /* Ocupan el 100% del ancho en pantallas pequeñas */
+    min-width: 100%; 
   }
 }
-
 
 .active-section {
   font-weight: 500;
 }
 
-/* Estilos para el tooltip */
 [data-tooltip] {
   position: relative;
 }
@@ -925,7 +523,6 @@ hr.my-4 {
   margin-bottom: 10px;
 }
 
-/* Estilo específico para el tooltip del subtítulo */
 .subtitle-description[data-tooltip]::after {
   width: 400px;  
   white-space: normal;

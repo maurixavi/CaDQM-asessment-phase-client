@@ -19,16 +19,17 @@
 			class="subtitle-description mt-4"
 			>Defined DQ Model complete details
 		</p>
+
 		<div class="flex-container">
 			<div class="section-container" >
-				
-				<!-- Spinner de carga -->
+				<!-- Spinner de carga mientras no hay datos -->
 				<div *ngIf="!completeDQModel?.model.status" class="text-center">
 					<div class="spinner-border" role="status">
 						<span class="sr-only"></span>
 					</div>
 				</div>
 
+				<!-- Contenedor DQ Model -->
 				<div *ngIf="completeDQModel && !isLoading" class="label-container-selected py-2 px-4">
 					<div class="dqmodel-title">
 						<span *ngIf="completeDQModel?.model.name" class="label-name-dqmodel">{{ completeDQModel?.model.name }} v{{ completeDQModel?.model.version }}</span>
@@ -43,7 +44,8 @@
 						</div>
 					</div>
 
-					<div *ngIf="currentDQModel" class="dqmodel-preview-details-container">
+					<!-- Informacion DQ Model -->
+					<div *ngIf="currentDQModel">
 						<div class="label-selected">
 							<label class="label-title-selected">Created:</label>
 							<span class="label-value-selected">{{ completeDQModel?.model.created_at | date:'d MMM yyyy, HH:mm' }}</span>
@@ -75,8 +77,10 @@
 						</div>
 					</div>
 	
+					<!-- Sección de DQ Dimensions -->
 					<div class="dimensions-factors-selected-accordion-container">
 						<div class="accordion mx-1" id="accordionDimensions">
+							<!-- Item Dimension - Contiene jerarquia (Factores, Metricas, Metodos, Metodos Aplicados) -->
 							<div class="accordion-item mb-2" *ngFor="let dimension of completeDQModel.dimensions; let i = index" style="border: 1px solid #dee2e6; border-radius: 5px; overflow: hidden;">
 								<h2 class="accordion-header" [id]="'heading' + i">
 									<button
@@ -91,22 +95,30 @@
 										<span>
 											<label class="label-title w-auto">DQ Dimension:</label>
 											<span class="label-title-name px-2">{{ dimension.dimension_name }}</span>
+											<i *ngIf="!dimension.factors || dimension.factors.length === 0"
+												class="bi bi-exclamation-circle-fill text-warning rounded-circle p-1"
+												style="font-size: 14px; cursor: help;"
+												title="No factors yet"
+											></i>
 										</span>
 									</button>
 								</h2>
+
+								<!-- Contenido colapsable de la dimension -->
 								<div 
 									[id]="'collapse' + i" 
 									class="accordion-collapse collapse" 
 									[attr.aria-labelledby]="'heading' + i"
 								>
 									<div class="accordion-body">
+										<!-- Detalles de la dimension -->
 										<div class="label-selected">
 											<label class="label-title-selected">Semantic:</label>
 											<span class="label-value-selected">{{ dimension.attributesBase?.semantic }}</span>
 										</div>
-
 										<div class="divider"></div>
 
+										<!-- Componentes de contexto para la dimension -->
 										<div class="label-selected">
 											<label class="label-title-selected">Suggested by (Ctx. Components):</label>
 											<span class="label-value-selected">
@@ -128,7 +140,7 @@
 															{{ formatCtxCompCategoryName(category) }}:
 														</span>
 										
-														<!-- Componentes de Contexto para una categoria -->
+														<!-- Lista de componentes para cada categoria -->
 														<ul *ngIf="isCategoryExpanded(dimension.id, category)" class="no-bullets px-3 ms-3">
 															<li *ngFor="let componentId of dimension.context_components[category]">
 																{{ getFirstAttribute(category, componentId) }}
@@ -146,7 +158,7 @@
 											</span>
 										</div>
 
-
+										<!-- DQ Problems para la dimension -->
 										<div class="label-selected">
 											<label class="label-title-selected">Uses (DQ Problems):</label>
 											<span class="label-value-selected">
@@ -160,23 +172,32 @@
 
 										<div class="divider"></div>
 
+										<!-- DQ Factors para dimension -->
 										<div class="label-selected">
 											<label class="label-title-selected">DQ Factors:</label>
 										</div>
-		
-										<!-- Accordion FACTORS -->
+
 										<div class="accordion mx-1 mb-2" [id]="'factorAccordion' + i">
+											<!-- Item Factor - Contiene jerarquia (Metricas, Metodos, Metodos Aplicados) -->
 											<div class="accordion-item" *ngFor="let factor of dimension.factors; let j = index">
 												<h2 class="accordion-header" [id]="'factorHeading' + i + '-' + j">
 													<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#factorCollapse' + i + '-' + j" aria-expanded="false" [attr.aria-controls]="'factorCollapse' + i + '-' + j" style="padding: 0.6rem 0.9rem;">
 														<span>
 															<label class="label-title w-auto">DQ Factor:</label>
 															<span class="label-title-name px-2">{{ factor.factor_name }}</span>
+															<i *ngIf="!factor.metrics || factor.metrics.length === 0"
+																class="bi bi-exclamation-circle-fill text-warning rounded-circle p-1"
+																style="font-size: 14px; cursor: help;"
+																title="No metrics yet"
+															></i>
 														</span>
 													</button>
 												</h2>
+
+												<!-- Contenido colapsable del factor -->
 												<div [id]="'factorCollapse' + i + '-' + j" class="accordion-collapse collapse" [attr.aria-labelledby]="'factorHeading' + i + '-' + j" >
 													<div class="accordion-body">
+														<!-- Detalles del factor -->
 														<div class="label-selected">
 															<label class="label-title-selected">Semantic:</label>
 															<span class="label-value-selected">{{ factor.attributesBase?.semantic }}</span>
@@ -184,6 +205,7 @@
 
 														<div class="divider"></div>
 
+														<!-- Componentes de contexto para el factor -->
 														<div class="label-selected">
 															<label class="label-title-selected">Arises from (Ctx. Components):</label>
 															<span class="label-value-selected">
@@ -223,6 +245,7 @@
 															</span>
 														</div>
 
+														<!-- DQ Problems factor -->
 														<div class="label-selected">
 															<label class="label-title-selected">Uses (DQ Problems):</label>
 															<span class="label-value-selected">
@@ -236,21 +259,29 @@
 
 														<div class="divider"></div>
 
+														<!-- DQ Metrics para factor -->
 														<div class="label-selected">
 															<label class="label-title-selected label-dq-item">DQ Metrics:</label>
 														</div>
 		
-														<!-- Accordion METRICS -->
 														<div class="accordion mx-1 mb-2" [id]="'metricAccordion' + i + '-' + j">
+															<!-- Item Metrica - Contiene jerarquia (Metodos, Metodos Aplicados) -->
 															<div class="accordion-item" *ngFor="let metric of factor.metrics; let k = index">
 																<h2 class="accordion-header" [id]="'metricHeading' + i + '-' + j + '-' + k">
 																	<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#metricCollapse' + i + '-' + j + '-' + k" aria-expanded="false" [attr.aria-controls]="'metricCollapse' + i + '-' + j + '-' + k" style="padding: 0.6rem 0.9rem;">
 																		<span>
 																			<label class="label-title w-auto">DQ Metric:</label>
 																			<span class="label-title-name px-2">{{ metric.metric_name }}</span>
+																			<i *ngIf="!metric.methods || metric.methods.length === 0"
+																				class="bi bi-exclamation-circle-fill text-warning rounded-circle p-1"
+																				style="font-size: 14px; cursor: help;"
+																				title="No methods yet"
+																			></i>
 																		</span>
 																	</button>
 																</h2>
+
+																<!-- Contenido colapsable metrica -->
 																<div [id]="'metricCollapse' + i + '-' + j + '-' + k" class="accordion-collapse collapse" [attr.aria-labelledby]="'metricHeading' + i + '-' + j + '-' + k" [attr.data-bs-parent]="'#metricAccordion' + i + '-' + j">
 																	<div class="accordion-body">
 																		<div class="label-selected">
@@ -268,6 +299,7 @@
 
 																		<div class="divider"></div>
 
+																		<!-- Componentes de contexto para la metrica -->
 																		<div class="label-selected">
 																			<label class="label-title-selected">Influenced by (Ctx. Components):</label>
 																			<span class="label-value-selected">
@@ -309,12 +341,13 @@
 
 																		<div class="divider"></div>
 
+																		<!-- DQ Methods para metrica -->
 																		<div class="label-selected">
 																			<label class="label-title-selected label-dq-item">DQ Methods:</label>
 																		</div>
 
-																		<!-- Accordion METHODS -->
 																		<div class="accordion mx-1 mb-2" [id]="'methodAccordion' + i + '-' + j + '-' + k">
+																			<!-- Item Metodo - Contiene jerarquia (Metodos Aplicados) -->
 																			<div class="accordion-item" *ngFor="let method of metric.methods; let l = index">
 																				<h2 class="accordion-header" [id]="'methodHeading' + i + '-' + j + '-' + k + '-' + l">
 																					<button
@@ -328,9 +361,16 @@
 																						<span>
 																							<label class="label-title w-auto">DQ Method:</label>
 																							<span class="label-title-name px-2">{{ method.method_name }}</span>
+																							<i *ngIf="method.applied_methods[0]?.measurements?.length === 0 && method.applied_methods[0]?.aggregations?.length === 0"
+																								class="bi bi-exclamation-circle-fill text-warning rounded-circle p-1"
+																								style="font-size: 14px; cursor: help;"
+																								title="No applied methods yet"
+																							></i>
 																						</span>
 																					</button>
 																				</h2>
+
+																				<!-- Contenido colapsable del metodo -->
 																				<div
 																					[id]="'methodCollapse' + i + '-' + j + '-' + k + '-' + l"
 																					class="accordion-collapse collapse"
@@ -354,6 +394,7 @@
 
 																						<div class="divider"></div>
 
+																						<!-- Componentes de contexto para el metodo -->
 																						<div class="label-selected">
 																							<label class="label-title-selected">Uses (Ctx. Components):</label>
 																							<span class="label-value-selected">
@@ -395,11 +436,12 @@
 
 																						<div class="divider"></div>
 
+																						<!-- Applied DQ Methods para metodo -->
 																						<div class="label-selected label-dq-item">
 																							<label class="label-title-selected">Applied Methods:</label>
 																						</div>
 
-																						<!-- Applied Methods: Measurements -->
+																						<!-- Type: Measurement -->
 																						<div *ngIf="method.applied_methods[0]?.measurements?.length > 0">
 																							<div class="accordion mt-2 mx-1 mb-2" [id]="'measurementAccordion' + i + '-' + j + '-' + k + '-' + l">
 																								<div class="accordion-item" *ngFor="let measurement of method.applied_methods[0].measurements; let m = index">
@@ -449,7 +491,7 @@
 																							</div>
 																						</div>
 
-																						<!-- Applied Methods: Aggregations -->
+																						<!-- Type: Aggregation -->
 																						<div *ngIf="method.applied_methods[0]?.aggregations?.length > 0">
 																							<div class="accordion mt-3 mx-1 mb-2" [id]="'aggregationAccordion' + i + '-' + j + '-' + k + '-' + l">
 																								<div class="accordion-item" *ngFor="let aggregation of method.applied_methods[0].aggregations; let n = index">
@@ -493,7 +535,6 @@
 																												</div>
 																											</div>
 
-
 																										</div>
 																									</div>
 																								</div>
@@ -503,7 +544,6 @@
 																				</div>
 																			</div>
 																		</div>
-
 																	</div>
 																</div>
 															</div>
@@ -516,13 +556,15 @@
 								</div>
 							</div>
 						</div>
-
 					</div>
 				
-
+					<!-- Botones de acción: Confirmar DQ Model / Descargar PDF -->
 					<div class="d-flex gap-3 mt-2 mb-3">
+						<!-- Confirmar DQ Model -->
 						<button *ngIf="completeDQModel.model.status !== 'finished'" class="btn btn-dark btn-sm mt-3" (click)="openConfirmDQModelModal()">Confirm DQ Model
 						</button>
+
+						<!-- Descargar PDF -->
 						<button 
 							class="btn btn-info btn-sm mt-3" 
 							(click)="generateDQModelPDF()" 
@@ -537,22 +579,11 @@
 								Generating PDF...
 							</ng-container>
 						</button>
-
-
-						<!--<button class="btn btn-info btn-sm mt-3" (click)="generateDQModelPDF()">
-							<i class="bi bi-file-earmark-pdf me-1"></i> Download DQ Model 
-						</button>-->
-						
 					</div>
-
 				</div>
-			
-			
-
 			</div>
 		</div>
 	</div>
-
 
 <app-data-at-hand-view-modal
   #dataAtHandModal
@@ -566,7 +597,7 @@
   [selectedComponentDetails]="selectedComponentDetails">
 </app-context-component-view-modal>
 	
-
+<app-context-components #contextModal></app-context-components>
 
 <app-modal
   [isOpen]="isConfirmDQModelModalOpen"
@@ -574,14 +605,12 @@
   [message]="confirmDQModelMessage"
   (close)="onConfirmDQModelModalClose()">
   
-  <!-- Botones personalizados para el modal de confirmación -->
+	<!-- Botones personalizados para el modal de confirmación -->
   <div class="d-flex gap-2 mt-2">
       <button type="button" class="btn btn-sm btn-light" (click)="onConfirmDQModelModalClose()">Cancel</button>
       <button type="button" class="btn btn-sm btn-dark" (click)="confirmationFinishedDQModel()">Confirm</button>
   </div>
 </app-modal>
-
-<app-context-components #contextModal></app-context-components>
 
 <app-stepper
   [currentStep]="currentStep"

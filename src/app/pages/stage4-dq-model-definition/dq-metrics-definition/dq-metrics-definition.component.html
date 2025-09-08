@@ -7,7 +7,6 @@
     [currentStep]="currentStep">
   </app-step-navigator>
 
-
   <div *ngIf="this.currentDQModel?.status !== 'finished'" >
     <p class="subtitle-description mt-4">Define DQ Metrics that measures each DQ Factor added to the DQ Model</p>
 
@@ -111,7 +110,6 @@
                     </ul>
                   </span>
                 </div>
-
               </div>
             </div>
 
@@ -136,7 +134,6 @@
                 </div>
               </div>
             </div>
-
     
             <!-- DQ Metric (del Factor elegido) -->
             <div class="label mt-2">
@@ -176,7 +173,6 @@
                 </button>
               </span>
             </div>
-    
             
             <!-- Show Selected Metric -->
             <div *ngIf="selectedBaseMetric" class="label-container-selected py-2 px-4">
@@ -302,17 +298,12 @@
             </button>
           </div>
 
-
-          <!-- INFO MESSAGES -->
           <div>
             <div *ngIf="!selectedBaseMetric" class="alert alert-light mb-3 mt-4 px-4">
               <i class="bi bi-info-circle me-1"></i>
               Select an existing DQ Metric (that measures of a given DQ Factor, facet of a given DQ Dimension) or create a new one to add it to the DQ Model.
             </div> 
           </div>
-          
-
-
         </div>
       </div>
     
@@ -379,7 +370,6 @@
       </div>
     </div>
   </div>
-
   
   <!-- SECTION: Show DQ Metrics added to DQ Model -->
   <div>
@@ -422,11 +412,17 @@
               </div> 
               <div class="label-selected">
                 <label class="label-title-selected">Context version:</label>
-                <span class="label-value-selected">{{ contextVersion?.name }} {{ contextVersion?.version }}</span>
+                <span class="label-value-selected">{{ contextVersion?.name }} {{ contextVersion?.version }}
+                  <a href="javascript:void(0)" (click)="contextModal.openModal()" style="text-decoration: none;">
+                    <i class="bi bi-zoom-in"></i>
+                  </a>
+                </span>
               </div>  
               <div class="label-selected">
                 <label class="label-title-selected">Data at hand:</label>
-                <span class="label-value-selected">DB: {{ dataAtHandDetails?.name }} - {{ dataAtHandDetails?.description }} 
+                <span class="label-value-selected">DB: {{ dataAtHandDetails?.name }} - {{ dataAtHandDetails?.description }} <a href="javascript:void(0)" (click)="dataAtHandModal.openModal()" style="text-decoration: none;">
+                  <i class="bi bi-zoom-in"></i>
+                  </a>
                 </span>
               </div>
 
@@ -453,8 +449,13 @@
                       style="padding: 0.6rem 0.9rem;">
                       <span>
                         <label class="label-title w-auto">DQ Factor:</label>
-                        <span class="label-title-name px-2">{{ factor.factor_name }} <!--<span class="px-1 fw-light" style="font-size: 12px;">(Facet of Accuracy)</span> --></span>
                       </span>
+                      <span class="label-title-name px-2">{{ factor.factor_name }} <!--<span class="px-1 fw-light" style="font-size: 12px;">(Facet of {{ getDimensionNameById(factor.dimension)}})</span> --></span>
+                      <i *ngIf="!factor.definedMetrics || factor.definedMetrics.length === 0" 
+                        class="bi bi-exclamation-circle-fill text-warning rounded-circle p-1"
+                        style="font-size: 14px; cursor: help;"
+                        title="No metrics yet"
+                      ></i>
                     </button>
                   </h2>
                   <div
@@ -640,7 +641,6 @@
                                     </span>
                                   </div>
 
-
                                   <!-- Delete / Edit Metric Buttons -->
                                   <div *ngIf="currentDQModel.status === 'draft'">
                                     <div class="d-flex gap-2 mt-3 mb-2">
@@ -684,7 +684,6 @@
                       
                       <!-- Mensaje cuando no hay métricas definidas -->
                       <ng-template #noMetrics>
-                        <!-- MENSAJE INFORMATIVO -->
                         <div class="px-2 py-2">
                           <div  class="alert alert-warning mt-2">
                             <i class="bi bi-exclamation-circle me-2"></i>
@@ -692,11 +691,7 @@
                             Defining at least one metric for each factor will be necessary to complete the DQ Model.
                           </div>
                         </div>
-
                       </ng-template>
-
-                      
-                    
                     </div>
                   </div>
                 </div>
@@ -708,8 +703,6 @@
       </div>
     </div>
   </div>
-
-
 </div>
 
 <!-- Modal de confirmación -->
@@ -721,7 +714,13 @@
 (cancel)="handleCancel()">
 </app-confirmation-modal>
 
-<app-context-components></app-context-components>
+<app-data-at-hand-view-modal
+  #dataAtHandModal
+  [dataAtHandDetails]="dataAtHandDetails"
+  [dataSchema]="dataSchema">
+</app-data-at-hand-view-modal>
+
+<app-context-components #contextModal></app-context-components>
 
 <app-stepper
   [currentStep]="currentStep"
