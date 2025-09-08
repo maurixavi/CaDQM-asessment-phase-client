@@ -1,3 +1,4 @@
+/* ===== ESTRUCTURA PRINCIPAL ===== */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -16,16 +17,15 @@
   .container {
     padding: 0 10px; 
   }
-  
 }
 
 @media (max-width: 576px) {
   .container {
-    padding: 0 8px; /* Mínimo padding en pantallas muy pequeñas */
+    padding: 0 8px; 
   }
   
   .title {
-    font-size: 1.4rem; /* Reduce tamaño de título en móviles */
+    font-size: 1.4rem; 
   }
   
   .subtitle-description {
@@ -33,6 +33,7 @@
   }
 }
 
+/* ===== TIPOGRAFÍA Y TEXTOS ===== */
 .title {
   font-size: 1.6rem;
   font-weight: 500;
@@ -56,16 +57,12 @@
   font-size: 0.875rem;
 }
 
-
 .flex-container {
   display: flex;
   justify-content: center;
 }
 
-
-
-/* ---------- */
-
+/* ===== ETIQUETAS Y CONTENEDORES DE INFORMACIÓN ===== */
 .label {
   display: flex; 
   align-items: center;
@@ -93,7 +90,6 @@
   font-size: 14px;
 }
 
-
 .dqmodel-title {
   display: flex;
   align-items: center;
@@ -106,7 +102,6 @@
   font-size: 18px;
 }
 
-/* Item colapsable Tipo-Titulo */
 .label-title {
   width: 120px;
   font-weight: 500;
@@ -114,24 +109,6 @@
 
 .label-title-name {
   font-weight: 700;
-}
-
-
-.divider {
-  border-top: 1px solid #eeeeee;
-  margin: 0.5rem 0;
-  margin-bottom: 1rem;
-}
-
-.no-bullets {
-  list-style-type: none;
-  padding-left: 0;
-  margin-left: 0;
-}
-
-.bullets {
-  padding-left: 10px;
-  margin-left: 10px;
 }
 
 /* ===== BOTONES ===== */
@@ -167,4 +144,23 @@
   border: 1px solid  #222; 
 	padding-left: 14px;
 	padding-right: 14px;
+}
+
+
+/* ===== OTROS ===== */
+.divider {
+  border-top: 1px solid #eeeeee;
+  margin: 0.5rem 0;
+  margin-bottom: 1rem;
+}
+
+.no-bullets {
+  list-style-type: none;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.bullets {
+  padding-left: 10px;
+  margin-left: 10px;
 }
