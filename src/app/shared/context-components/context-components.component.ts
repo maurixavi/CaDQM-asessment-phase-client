@@ -4,6 +4,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { ProjectService } from '../../services/project.service';
 import { ProjectDataService } from '../../services/project-data.service';
 import { formatCtxCompCategoryName, getFirstNonIdAttribute, getCategoryAbbreviation, contextComponentCategories  } from '../../shared/utils/utils';
+import { forkJoin } from 'rxjs';
 
 declare var bootstrap: any; 
 
@@ -84,15 +85,43 @@ export class ContextComponentsComponent implements OnInit {
   }
 
   private loadDQProblems(projectId: number): void {
-    this.projectService.getDQProblemsByProjectId(projectId).subscribe({
-      next: (data) => {
-        this.dqProblems = data;
+    forkJoin({
+      problems: this.projectService.getDQProblemsByProjectId(projectId),
+      prioritized: this.projectService.getPrioritizedDQProblemsByProjectId(projectId)
+    }).subscribe({
+      next: ({ problems, prioritized }) => {
+        //console.log("Problems:", problems);
+        //console.log("Prioritized:", prioritized);
+  
+        // Map con dq_problem_id como clave
+        const prioritizedMap = new Map<number, { priority: string; is_selected: boolean }>();
+  
+        prioritized.forEach((item: any) => {
+          prioritizedMap.set(item.dq_problem_id, {
+            priority: item.priority,
+            is_selected: item.is_selected
+          });
+        });
+  
+        // Mapear problemas e intentar emparejar por id o dq_problem_id
+        this.dqProblems = problems.map((problem: { dq_problem_id: any; id: any; }) => {
+          const id = problem.dq_problem_id ?? problem.id; // usar el que esté definido
+          const extra = prioritizedMap.get(id);
+          return {
+            ...problem,
+            priority: extra?.priority ?? '-',
+            is_selected: extra?.is_selected ?? false
+          };
+        });
+  
+        console.log("DQ Problems enriquecidos:", this.dqProblems);
       },
       error: (err) => {
-        console.error('Error loading DQ problems:', err);
+        console.error('Error loading DQ problems or prioritized data:', err);
       }
     });
   }
+  
 
   // Obtener el primer atributo no 'id' de un componente
   getFirstAttribute(component: any): string {

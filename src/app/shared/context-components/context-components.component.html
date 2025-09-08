@@ -84,10 +84,25 @@
           <div *ngIf="dqProblems.length > 0; else noProblems">
             <div class="list-group">
               <div *ngFor="let problem of dqProblems" class="list-group-item">
-                <div class="d-flex w-100 justify-content-between">
-                  <h6>{{ problem.description }}</h6>
+                <div class="d-flex w-100 justify-content-between align-items-center">
+                  <div>
+                    <h6 class="mb-1">
+                      {{ problem.description }}
+                      <span *ngIf="!problem.is_selected" class="text-muted small fst-italic">(Not selected)</span>
+                    </h6>
+                    <p class="card-text">
+                      {{ problem.date | date:'dd MMM yyyy' }}
+                      <span class="badge rounded-pill mx-1"
+                            [ngClass]="{
+                              'bg-danger': problem.priority === 'High',
+                              'bg-warning': problem.priority === 'Medium',
+                              'bg-success': problem.priority === 'Low'
+                            }">
+                        {{ problem.priority }}
+                      </span>
+                    </p>
+                  </div>
                 </div>
-                <small>{{ problem.date | date:'mediumDate' }}</small>
               </div>
             </div>
           </div>
