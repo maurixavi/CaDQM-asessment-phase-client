@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewEncapsulation, HostListener, ChangeDetectorRef } from '@angular/core';
-import contextComponentsJson from '../../../../assets/context-components.json';
 import { Router } from '@angular/router';
 import { DqModelService } from '../../../services/dq-model.service';
 import { ProjectService } from '../../../services/project.service';

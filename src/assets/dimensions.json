@@ -1,7 +1,0 @@
-[
-  { "id": 1, "name": "Exactitud (accuracy)" },
-  { "id": 2, "name": "Completitud (completeness)" },
-  { "id": 3, "name": "Frescura (freshness)" },
-  { "id": 4, "name": "Consistencia (consistency)" },
-  { "id": 5, "name": "Unicidad (uniqueness)" }
-]
