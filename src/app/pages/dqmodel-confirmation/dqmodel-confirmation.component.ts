@@ -20,17 +20,10 @@ declare var bootstrap: any;
 export class DQModelConfirmationComponent implements OnInit {
 
   // =============================================
-  // 1. CONSTANTES Y CONFIGURACIÓN
+  // COMPONENT PROPERTIES
   // =============================================
-  //public formatCtxCompCategoryName = formatCtxCompCategoryName;
-  //public getFirstNonIdAttribute = getFirstNonIdAttribute;
-  public formatAppliedTo = formatAppliedTo;
-  public getAppliedToDisplay = getAppliedToDisplay;
-  public formatCategoryName = formatCategoryName;
 
-  // =============================================
-  // 2. VARIABLES DE ESTADO Y DATOS
-  // =============================================
+  // Navigation and UI properties
   currentStep: number = 5;
   pageStepTitle: string = 'DQ Model confirmation';
   phaseTitle: string = 'Phase 2: DQ Assessment';
@@ -45,6 +38,12 @@ export class DQModelConfirmationComponent implements OnInit {
     { displayName: 'DQ Model Confirmation', route: 'phase2/st4/dq-model', description: 'DQ Model Confirmation' }
   ];
 
+  // Utils
+  public formatCtxCompCategoryName = formatCtxCompCategoryName;
+  public getFirstNonIdAttribute = getFirstNonIdAttribute
+  public formatAppliedTo = formatAppliedTo;
+  public getAppliedToDisplay = getAppliedToDisplay;
+  public formatCategoryName = formatCategoryName;
 
   isNextStepEnabled: boolean = false;
   isLoading: boolean = true; 
@@ -81,10 +80,6 @@ export class DQModelConfirmationComponent implements OnInit {
     This action cannot be undone.
   `;
 
-  // Utils
-  public formatCtxCompCategoryName = formatCtxCompCategoryName;
-  public getFirstNonIdAttribute = getFirstNonIdAttribute
-
   constructor(
     private router: Router, 
     private cdr: ChangeDetectorRef,
@@ -94,7 +89,7 @@ export class DQModelConfirmationComponent implements OnInit {
   ) {}
 
   // =============================================
-  // 3. CICLO DE VIDA DEL COMPONENTE
+  // CICLO DE VIDA DEL COMPONENTE
   // =============================================
   ngOnInit(): void {
     // Obtener el Project ID actual
@@ -108,7 +103,7 @@ export class DQModelConfirmationComponent implements OnInit {
   }
 
   // =============================================
-  // 4. MANEJO DE DATOS Y SUSCRIPCIONES
+  // MANEJO DE DATOS Y SUSCRIPCIONES
   // =============================================
   syncCurrentStepWithRoute() {
     const currentRoute = this.router.url; // Obtiene la ruta actual (por ejemplo, '/st4/confirmation-stage-4')
@@ -518,7 +513,7 @@ export class DQModelConfirmationComponent implements OnInit {
 
 
   // =============================================
-  // 8. MANEJO DE MODALES Y CONFIRMACIONES
+  // MANEJO DE MODALES Y CONFIRMACIONES
   // =============================================
 
   // DQ MODEL CONFIRMATION
@@ -580,8 +575,10 @@ export class DQModelConfirmationComponent implements OnInit {
     }
   }
 
-  // PDF REPORT
-
+  
+  // =============================================
+  // GENERACIÓN PDF
+  // =============================================
   formatDate(dateString: string): string {
     const date = new Date(dateString);
   
@@ -620,7 +617,6 @@ export class DQModelConfirmationComponent implements OnInit {
 
   generateDQModelPDF(): void {
     if (!this.completeDQModel) {
-      alert('Los datos del DQ Model no están cargados.');
       return;
     }
   
@@ -1006,7 +1002,10 @@ export class DQModelConfirmationComponent implements OnInit {
     this.isLoading = false;
   }
 
-  // Navegación
+  
+  // =============================================
+  // NAVEGACIÓN
+  // =============================================
   onStepChange(step: number) {
     this.currentStep = step;
     this.navigateToStep(step);
@@ -1024,6 +1023,10 @@ export class DQModelConfirmationComponent implements OnInit {
   }
 
 
+  // =============================================
+  // ESTADOS INTERFAZ
+  // =============================================
+  
   // VISTA: Componentes de Contexto Asociados
   // Guarda el estado expandido por categoría de componente de contexto para cada elemento del modelo
   ctxCategoryStates: { [elementId: string]: { [category: string]: boolean } } = {};
